@@ -18,7 +18,7 @@ class CommentsClient(Resource):
 
     def list(
         self,
-        key: str,
+        issue_key: str,
         *,
         limit: int | None = None,
         expand: str | None = None,
@@ -30,7 +30,7 @@ class CommentsClient(Resource):
         (``None`` = every comment); a small cap narrows the page to ``limit`` rows.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             limit: The most comments to return; ``None`` returns every comment.
             expand: The extra blocks to include: ``attachments``, ``html`` or ``all``.
 
@@ -42,17 +42,17 @@ class CommentsClient(Resource):
             ['first', 'second', 'third']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_(key, page_size=page_size, expand=expand)
+        paged = endpoints.list_(issue_key, page_size=page_size, expand=expand)
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
-    def get(self, key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
+    def get(self, issue_key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
         """``GET /issues/{key}/comments/{comment_id}`` — one comment. Returns it.
 
         ``comment_id`` is the numeric ``id`` or the string ``longId``. ``expand`` adds
         ``attachments``, ``html`` or ``all`` extra fields.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             comment_id: The comment's numeric ``id`` or string ``longId``.
             expand: The extra fields to include (``attachments``, ``html`` or ``all``).
 
@@ -63,13 +63,13 @@ class CommentsClient(Resource):
             >>> tracker.comments.get("DE-5", 9001, expand="attachments,html").text_html
             '<p>My <strong>first</strong> comment</p>'
         """
-        return self._session.send(endpoints.get(key, comment_id, expand=expand))
+        return self._session.send(endpoints.get(issue_key, comment_id, expand=expand))
 
-    def create(self, key: str, body: CommentCreate) -> Comment:
+    def create(self, issue_key: str, body: CommentCreate) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             body: The new comment: its text and optional summonees and attachment ids.
 
         Returns:
@@ -82,13 +82,13 @@ class CommentsClient(Resource):
             ... ).id
             141
         """
-        return self._session.send(endpoints.create(key, body))
+        return self._session.send(endpoints.create(issue_key, body))
 
-    def update(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
+    def update(self, issue_key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             comment_id: The comment's numeric ``id`` or string ``longId``.
             body: The comment fields to change.
 
@@ -102,27 +102,27 @@ class CommentsClient(Resource):
             ... ).text
             'fixed typo'
         """
-        return self._session.send(endpoints.update(key, comment_id, body))
+        return self._session.send(endpoints.update(issue_key, comment_id, body))
 
-    def delete(self, key: str, comment_id: str) -> None:
+    def delete(self, issue_key: str, comment_id: str) -> None:
         """Delete a comment (``DELETE …/comments/{id}`` → 204). Raises on non-2xx.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             comment_id: The comment's id.
 
         Examples:
             >>> tracker.comments.delete("DE-17", "171")
         """
-        self._session.send(endpoints.delete(key, comment_id))
+        self._session.send(endpoints.delete(issue_key, comment_id))
 
-    def reactions_create(self, key: str, comment_id: int | str, name: str) -> Comment:
+    def reactions_create(self, issue_key: str, comment_id: int | str, name: str) -> Comment:
         """``POST …/comments/{comment_id}/reactions/{name}`` — add a reaction. Returns the comment.
 
         ``name`` is an uppercase reaction key (LIKE, DISLIKE, HEART, ROCKET, FIRE, …).
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             comment_id: The comment's numeric ``id`` or string ``longId``.
             name: The reaction key.
 
@@ -133,7 +133,7 @@ class CommentsClient(Resource):
             >>> tracker.comments.reactions_create("DE-18", "181", "HEART").id
             181
         """
-        return self._session.send(endpoints.reactions_create(key, comment_id, name))
+        return self._session.send(endpoints.reactions_create(issue_key, comment_id, name))
 
     def import_(self, issue_key: str, body: ImportComment) -> Comment:
         """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.

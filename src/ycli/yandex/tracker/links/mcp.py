@@ -24,14 +24,14 @@ mcp = FastMCP("tracker-links")
 
 
 @mcp.tool(name="links_list", annotations={**RO, "title": "List Tracker issue links"})
-def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> ItemList[Link]:
+def list_(issue_key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> ItemList[Link]:
     """All links on a Tracker issue (linked issues, type, direction)."""
-    return client.links.list(key)
+    return client.links.list(issue_key)
 
 
 @mcp.tool(name="links_list_filtered", annotations={**RO, "title": "Search Tracker issue links"})
 def list_filtered(
-    key: IssueKey,
+    issue_key: IssueKey,
     link_types: Annotated[
         list[str] | None,
         Field(
@@ -56,15 +56,15 @@ def list_filtered(
     or fields matter; it carries each link's author, dates, assignee and status.
     """
     cap = config.http.cap(limit)
-    return client.links.list_filtered(key, link_types=link_types, fields=fields, limit=cap)
+    return client.links.list_filtered(issue_key, link_types=link_types, fields=fields, limit=cap)
 
 
 @mcp.tool(name="links_create", annotations={**WRITE, "title": "Link Tracker issues"})
 def create(
-    key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Link:
     """Link a Tracker issue to another issue; returns the created link."""
-    return client.links.create(key, body)
+    return client.links.create(issue_key, body)
 
 
 @mcp.tool(
@@ -72,7 +72,7 @@ def create(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue link"},
 )
 def delete(
-    key: IssueKey,
+    issue_key: IssueKey,
     link_id: Annotated[str, Field(description="Link id, from ``links_list``.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
@@ -80,8 +80,8 @@ def delete(
 
     Get ``link_id`` from ``links_list``. Returns an acknowledgement on success.
     """
-    client.links.delete(key, link_id)
-    return Ack.deleted("link", link_id, on=key)
+    client.links.delete(issue_key, link_id)
+    return Ack.deleted("link", link_id, on=issue_key)
 
 
 @mcp.tool(name="links_import", annotations={**WRITE, "title": "Import Tracker issue link"})

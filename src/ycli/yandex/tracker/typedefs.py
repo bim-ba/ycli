@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
 IssueKeyArg = Annotated[
     str, typer.Argument(metavar="ISSUE_KEY", help="Issue key, e.g. DATAENGINEERING-1.")
 ]

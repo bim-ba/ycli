@@ -26,11 +26,11 @@ if TYPE_CHECKING:
 class ChecklistsClient(Resource):
     """Get, add, update and delete an issue's checklist items, or clear the whole checklist."""
 
-    def list(self, key: str) -> ItemList[ChecklistItem]:
+    def list(self, issue_key: str) -> ItemList[ChecklistItem]:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
 
         Returns:
             The issue's checklist items.
@@ -39,13 +39,13 @@ class ChecklistsClient(Resource):
             >>> tracker.checklists.list("DE-31").root[0].text
             'Review the PR'
         """
-        return self._session.send(endpoints.list_(key))
+        return self._session.send(endpoints.list_(issue_key))
 
-    def create(self, key: str, body: ChecklistItemCreate) -> Checklist:
+    def create(self, issue_key: str, body: ChecklistItemCreate) -> Checklist:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             body: The new item: its text and optional checked flag, assignee and deadline.
 
         Returns:
@@ -58,13 +58,13 @@ class ChecklistsClient(Resource):
             ... ).key
             'DE-32'
         """
-        return self._session.send(endpoints.create(key, body))
+        return self._session.send(endpoints.create(issue_key, body))
 
-    def update(self, key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
+    def update(self, issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             item_id: The checklist item's id.
             body: The item fields to change.
 
@@ -78,13 +78,13 @@ class ChecklistsClient(Resource):
             ... ).key
             'DE-34'
         """
-        return self._session.send(endpoints.update(key, item_id, body))
+        return self._session.send(endpoints.update(issue_key, item_id, body))
 
-    def delete(self, key: str, item_id: str) -> Checklist:
+    def delete(self, issue_key: str, item_id: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems/{item_id}`` — remove one item (200 + wrapper).
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             item_id: The checklist item's id.
 
         Returns:
@@ -94,13 +94,13 @@ class ChecklistsClient(Resource):
             >>> tracker.checklists.delete("DE-36", "5f6").checklist_items[0].text
             'left'
         """
-        return self._session.send(endpoints.delete(key, item_id))
+        return self._session.send(endpoints.delete(issue_key, item_id))
 
-    def clear(self, key: str) -> Checklist:
+    def clear(self, issue_key: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems`` — remove the whole checklist (200 + wrapper).
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
 
         Returns:
             The issue wrapper with an empty checklist.
@@ -109,4 +109,4 @@ class ChecklistsClient(Resource):
             >>> tracker.checklists.clear("DE-37").checklist_items
             []
         """
-        return self._session.send(endpoints.clear(key))
+        return self._session.send(endpoints.clear(issue_key))

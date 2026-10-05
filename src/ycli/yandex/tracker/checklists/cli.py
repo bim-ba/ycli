@@ -16,8 +16,8 @@ from ycli.yandex.tracker.checklists.models import (
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import DeadlineInput
 from ycli.yandex.tracker.typedefs import (
+    IssueKeyArg,
     ItemIDArg,
-    KeyArg,
 )
 
 app = typer.Typer(name="checklists", help="Tracker issue checklists.", no_args_is_help=True)
@@ -31,14 +31,14 @@ DeadlineOpt = Annotated[
 
 
 @app.command("list")
-def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[ChecklistItem]:
-    """List the checklist items on issue KEY."""
-    return tracker.checklists.list(key)
+def list_(issue_key: IssueKeyArg, *, tracker: TrackerClient) -> ItemList[ChecklistItem]:
+    """List the checklist items on issue ISSUE_KEY."""
+    return tracker.checklists.list(issue_key)
 
 
 @app.command()
 def create(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     text: Annotated[str, typer.Option(help="Item text.")],
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = None,
@@ -46,19 +46,19 @@ def create(
     *,
     tracker: TrackerClient,
 ) -> Checklist:
-    """Add a checklist item to issue KEY (creates the checklist if absent)."""
+    """Add a checklist item to issue ISSUE_KEY (creates the checklist if absent)."""
     body = ChecklistItemCreate(
         text=text,
         checked=checked,
         assignee=assignee,
         deadline=DeadlineInput(date=deadline) if deadline is not None else None,
     )
-    return tracker.checklists.create(key, body=body)
+    return tracker.checklists.create(issue_key, body=body)
 
 
 @app.command()
 def update(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     item_id: ItemIDArg,
     text: TextOpt = None,
     checked: CheckedOpt = None,
@@ -67,23 +67,23 @@ def update(
     *,
     tracker: TrackerClient,
 ) -> Checklist:
-    """Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent."""
+    """Edit checklist item ITEM_ID on issue ISSUE_KEY — only supplied fields are sent."""
     body = ChecklistItemUpdate(
         text=text,
         checked=checked,
         assignee=assignee,
         deadline=DeadlineInput(date=deadline) if deadline is not None else None,
     )
-    return tracker.checklists.update(key, item_id, body=body)
+    return tracker.checklists.update(issue_key, item_id, body=body)
 
 
 @app.command()
-def delete(key: KeyArg, item_id: ItemIDArg, *, tracker: TrackerClient) -> Checklist:
-    """Delete checklist item ITEM_ID from issue KEY."""
-    return tracker.checklists.delete(key, item_id)
+def delete(issue_key: IssueKeyArg, item_id: ItemIDArg, *, tracker: TrackerClient) -> Checklist:
+    """Delete checklist item ITEM_ID from issue ISSUE_KEY."""
+    return tracker.checklists.delete(issue_key, item_id)
 
 
 @app.command()
-def clear(key: KeyArg, *, tracker: TrackerClient) -> Checklist:
-    """Delete the entire checklist from issue KEY."""
-    return tracker.checklists.clear(key)
+def clear(issue_key: IssueKeyArg, *, tracker: TrackerClient) -> Checklist:
+    """Delete the entire checklist from issue ISSUE_KEY."""
+    return tracker.checklists.clear(issue_key)

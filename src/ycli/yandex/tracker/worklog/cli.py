@@ -14,7 +14,6 @@ from ycli.yandex.tracker.typedefs import (
     ImportCreatedAtOpt,
     ImportCreatedByOpt,
     IssueKeyArg,
-    KeyArg,
 )
 from ycli.yandex.tracker.worklog.models import (
     ImportWorklog,
@@ -33,16 +32,16 @@ RecordIDArg = Annotated[
 
 @app.command("list")
 def list_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
-    """List all worklog entries for issue KEY (auto-paginated; --all for everything)."""
+    """List all worklog entries for issue ISSUE_KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.worklog.list(key, limit=cap)
+    return tracker.worklog.list(issue_key, limit=cap)
 
 
 @app.command()
@@ -93,7 +92,7 @@ def list_global(
 
 @app.command()
 def create(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     duration: Annotated[
         str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).")
     ],
@@ -107,31 +106,31 @@ def create(
     *,
     tracker: TrackerClient,
 ) -> Worklog:
-    """Log time spent on issue KEY (POST /issues/{key}/worklog)."""
+    """Log time spent on issue ISSUE_KEY (POST /issues/{key}/worklog)."""
     named = {"start": start} if start is not None else {}
     body = WorklogCreate(duration=duration, comment=comment, **named)
-    return tracker.worklog.create(key, body=body)
+    return tracker.worklog.create(issue_key, body=body)
 
 
 @app.command()
 def update(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     record_id: RecordIDArg,
     duration: Annotated[str | None, typer.Option(help="New time spent, ISO-8601 duration.")] = None,
     comment: Annotated[str | None, typer.Option(help="New note for the time report.")] = None,
     *,
     tracker: TrackerClient,
 ) -> Worklog:
-    """Edit worklog RECORD_ID on issue KEY — only supplied fields are sent."""
+    """Edit worklog RECORD_ID on issue ISSUE_KEY — only supplied fields are sent."""
     body = WorklogUpdate(duration=duration, comment=comment)
-    return tracker.worklog.update(key, record_id, body=body)
+    return tracker.worklog.update(issue_key, record_id, body=body)
 
 
 @app.command()
-def delete(key: KeyArg, record_id: RecordIDArg, *, tracker: TrackerClient) -> Ack:
-    """Delete worklog RECORD_ID from issue KEY."""
-    tracker.worklog.delete(key, record_id)
-    return Ack.deleted("worklog", record_id, on=key)
+def delete(issue_key: IssueKeyArg, record_id: RecordIDArg, *, tracker: TrackerClient) -> Ack:
+    """Delete worklog RECORD_ID from issue ISSUE_KEY."""
+    tracker.worklog.delete(issue_key, record_id)
+    return Ack.deleted("worklog", record_id, on=issue_key)
 
 
 @app.command("import")

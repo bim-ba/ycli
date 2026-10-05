@@ -49,7 +49,7 @@ ycli mcp methods --toolsets core --read-only
 
 | Ресурс | Содержимое |
 |---|---|
-| `ycli://tracker/issue/{key}` | задача, как её возвращает `tracker_issues_get` |
+| `ycli://tracker/issue/{issue_key}` | задача, как её возвращает `tracker_issues_get` |
 | `ycli://wiki/page/{slug}` | Markdown страницы |
 | `ycli://forms/survey/{survey_id}` | настройки формы, как их возвращает `forms_surveys_get` |
 | `ycli://tracker/guide`, `ycli://wiki/guide`, `ycli://forms/guide`, `ycli://guide` | как работать с сервисом через эти инструменты: текст skills из плагина, для клиента без плагина |

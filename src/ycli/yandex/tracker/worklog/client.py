@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class WorklogClient(Resource):
     """An issue's worklog (relative-paginated) and its writes; org-wide search and listing."""
 
-    def list(self, key: str, *, limit: int | None = None) -> ItemList[Worklog]:
+    def list(self, issue_key: str, *, limit: int | None = None) -> ItemList[Worklog]:
         """All worklog entries on an issue, draining the ``id=<last record id>`` cursor.
 
         ``GET /issues/{key}/worklog`` sorts by ascending record id and pages relatively:
@@ -31,7 +31,7 @@ class WorklogClient(Resource):
         to ``limit`` rows.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             limit: The most entries to return; ``None`` returns every entry.
 
         Returns:
@@ -42,7 +42,7 @@ class WorklogClient(Resource):
             ['PT1H', 'PT2H', 'PT3H']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_(key, page_size=page_size)
+        paged = endpoints.list_(issue_key, page_size=page_size)
         return ItemList[Worklog](list(self._session.iterate(paged, limit=limit)))
 
     def search(self, body: WorklogSearch) -> ItemList[Worklog]:
@@ -97,11 +97,11 @@ class WorklogClient(Resource):
         """
         return self._session.send(endpoints.list_global(created_by, created_at))
 
-    def create(self, key: str, body: WorklogCreate) -> Worklog:
+    def create(self, issue_key: str, body: WorklogCreate) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             body: The entry's ``duration``, and optionally ``start`` and ``comment``.
 
         Returns:
@@ -115,13 +115,13 @@ class WorklogClient(Resource):
             ... ).duration
             'PT2H'
         """
-        return self._session.send(endpoints.create(key, body))
+        return self._session.send(endpoints.create(issue_key, body))
 
-    def update(self, key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
+    def update(self, issue_key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
         """``PATCH /issues/{key}/worklog/{record_id}`` — edit an entry. Returns it.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             record_id: The entry's id.
             body: The fields to change.
 
@@ -135,19 +135,19 @@ class WorklogClient(Resource):
             ... ).duration
             'PT45M'
         """
-        return self._session.send(endpoints.update(key, record_id, body))
+        return self._session.send(endpoints.update(issue_key, record_id, body))
 
-    def delete(self, key: str, record_id: str) -> None:
+    def delete(self, issue_key: str, record_id: str) -> None:
         """Delete a worklog entry (``DELETE …/worklog/{id}`` → 204). Raises on non-2xx.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             record_id: The entry's id.
 
         Examples:
             >>> tracker.worklog.delete("DE-68", "681")
         """
-        self._session.send(endpoints.delete(key, record_id))
+        self._session.send(endpoints.delete(issue_key, record_id))
 
     def import_(self, issue_key: str, body: ImportWorklog) -> ItemList[Worklog]:
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).

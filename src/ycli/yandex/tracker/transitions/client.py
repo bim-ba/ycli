@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 class TransitionsClient(Resource):
     """List an issue's workflow transitions and execute one."""
 
-    def list(self, key: str) -> ItemList[Transition]:
+    def list(self, issue_key: str) -> ItemList[Transition]:
         """``GET /issues/{key}/transitions`` → available transitions.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
 
         Returns:
             The transitions available for the issue.
@@ -28,10 +28,10 @@ class TransitionsClient(Resource):
             >>> tracker.transitions.list("DE-51").root[0].id
             'close'
         """
-        return self._session.send(endpoints.list_(key))
+        return self._session.send(endpoints.list_(issue_key))
 
     def execute(
-        self, key: str, transition_id: str, body: TransitionExecute
+        self, issue_key: str, transition_id: str, body: TransitionExecute
     ) -> ItemList[Transition]:
         """``POST /issues/{key}/transitions/{id}/_execute`` → available transitions after move.
 
@@ -39,7 +39,7 @@ class TransitionsClient(Resource):
         parsed as a ``ItemList[Transition]``.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             transition_id: The id of the transition to execute.
             body: The transition's fields, such as ``comment`` or ``resolution``.
 
@@ -56,4 +56,4 @@ class TransitionsClient(Resource):
             >>> result.root[0].id
             'reopen'
         """
-        return self._session.send(endpoints.execute(key, transition_id, body))
+        return self._session.send(endpoints.execute(issue_key, transition_id, body))

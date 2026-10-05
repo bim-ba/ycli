@@ -10,7 +10,7 @@ CASES = [
         "tracker.transitions.list",
         args=("DE-51",),
         cli=["tracker", "transitions", "list", "DE-51"],
-        mcp=("tracker_transitions_list", {"key": "DE-51"}),
+        mcp=("tracker_transitions_list", {"issue_key": "DE-51"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-51/transitions"),
@@ -44,7 +44,7 @@ CASES = [
         mcp=(
             "tracker_transitions_execute",
             {
-                "key": "DE-52",
+                "issue_key": "DE-52",
                 "transition_id": "close",
                 "body": {"comment": "done", "resolution": "fixed", "storyPoints": 3},
             },
@@ -66,7 +66,7 @@ CASES = [
         cli=["tracker", "transitions", "execute", "DE-53", "start_progress"],
         mcp=(
             "tracker_transitions_execute",
-            {"key": "DE-53", "transition_id": "start_progress", "body": {}},
+            {"issue_key": "DE-53", "transition_id": "start_progress", "body": {}},
         ),
         exchanges=[
             (

@@ -13,16 +13,16 @@ mcp = FastMCP("tracker-resources")
 
 
 @mcp.resource(
-    "ycli://issue/{key}",
+    "ycli://issue/{issue_key}",
     name="issue",
     title="Tracker issue",
     mime_type="application/json",
     tags=TAGS,
     meta={REPEATS_TOOL: "tracker_issues_get"},
 )
-def issue(key: str, client: TrackerClient = Depends(tracker_client)) -> list[ResourceContent]:
+def issue(issue_key: str, client: TrackerClient = Depends(tracker_client)) -> list[ResourceContent]:
     """One Tracker issue by key (QUEUE-123), as ``tracker_issues_get`` returns it."""
-    return [ResourceContent(issues_get(key, client=client))]
+    return [ResourceContent(issues_get(issue_key, client=client))]
 
 
 @mcp.resource(

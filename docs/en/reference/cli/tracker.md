@@ -145,13 +145,13 @@ $ ycli tracker issues [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `get`: Print a single issue (full model) for KEY.
+* `get`: Print a single issue (full model) for...
 * `list`: List issues matching the supplied filters...
 * `search`: Search issues by a TQL query string...
 * `count`: Count issues matching a TQL query or...
 * `create`: Create an issue (POST /issues/).
-* `update`: Update issue KEY (PATCH /issues/{key}) —...
-* `move`: Move issue KEY to another QUEUE (POST...
+* `update`: Update issue ISSUE_KEY (PATCH...
+* `move`: Move issue ISSUE_KEY to another QUEUE...
 * `suggest`: Suggest issues whose summary contains...
 * `scroll-clear`: Release search-scroll resources (POST...
 * `update-bulk`: Mass-edit issues (POST /bulkchange/_update).
@@ -161,17 +161,17 @@ $ ycli tracker issues [OPTIONS] COMMAND [ARGS]...
 
 ### `ycli tracker issues get`
 
-Print a single issue (full model) for KEY.
+Print a single issue (full model) for ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker issues get [OPTIONS] KEY
+$ ycli tracker issues get [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -289,17 +289,17 @@ $ ycli tracker issues create [OPTIONS]
 
 ### `ycli tracker issues update`
 
-Update issue KEY (PATCH /issues/{key}) — only supplied fields are sent.
+Update issue ISSUE_KEY (PATCH /issues/{key}) — only supplied fields are sent.
 
 **Usage**:
 
 ```console
-$ ycli tracker issues update [OPTIONS] KEY
+$ ycli tracker issues update [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -318,17 +318,17 @@ $ ycli tracker issues update [OPTIONS] KEY
 
 ### `ycli tracker issues move`
 
-Move issue KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE).
+Move issue ISSUE_KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE).
 
 **Usage**:
 
 ```console
-$ ycli tracker issues move [OPTIONS] KEY QUEUE
+$ ycli tracker issues move [OPTIONS] ISSUE_KEY QUEUE
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `QUEUE`: Target queue key, e.g. NEW.  [required]
 
 **Options**:
@@ -512,27 +512,27 @@ $ ycli tracker comments [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List all comments on issue KEY...
-* `get`: Print comment COMMENT_ID of issue KEY.
-* `create`: Add a comment to issue KEY.
-* `update`: Edit comment COMMENT_ID on issue KEY.
-* `delete`: Delete comment COMMENT_ID from issue KEY.
+* `list`: List all comments on issue ISSUE_KEY...
+* `get`: Print comment COMMENT_ID of issue ISSUE_KEY.
+* `create`: Add a comment to issue ISSUE_KEY.
+* `update`: Edit comment COMMENT_ID on issue ISSUE_KEY.
+* `delete`: Delete comment COMMENT_ID from issue...
 * `reactions-create`: Add reaction NAME to comment COMMENT_ID on...
 * `import`: Import a comment onto issue ISSUE_KEY...
 
 ### `ycli tracker comments list`
 
-List all comments on issue KEY (auto-paginated; --all for everything).
+List all comments on issue ISSUE_KEY (auto-paginated; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli tracker comments list [OPTIONS] KEY
+$ ycli tracker comments list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -547,17 +547,17 @@ $ ycli tracker comments list [OPTIONS] KEY
 
 ### `ycli tracker comments get`
 
-Print comment COMMENT_ID of issue KEY.
+Print comment COMMENT_ID of issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments get [OPTIONS] KEY COMMENT_ID
+$ ycli tracker comments get [OPTIONS] ISSUE_KEY COMMENT_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Comment id (numeric id or longId).  [required]
 
 **Options**:
@@ -571,17 +571,17 @@ $ ycli tracker comments get [OPTIONS] KEY COMMENT_ID
 
 ### `ycli tracker comments create`
 
-Add a comment to issue KEY.
+Add a comment to issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments create [OPTIONS] KEY
+$ ycli tracker comments create [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -594,17 +594,17 @@ $ ycli tracker comments create [OPTIONS] KEY
 
 ### `ycli tracker comments update`
 
-Edit comment COMMENT_ID on issue KEY.
+Edit comment COMMENT_ID on issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments update [OPTIONS] KEY COMMENT_ID
+$ ycli tracker comments update [OPTIONS] ISSUE_KEY COMMENT_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Comment id (numeric id or longId).  [required]
 
 **Options**:
@@ -618,17 +618,17 @@ $ ycli tracker comments update [OPTIONS] KEY COMMENT_ID
 
 ### `ycli tracker comments delete`
 
-Delete comment COMMENT_ID from issue KEY.
+Delete comment COMMENT_ID from issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments delete [OPTIONS] KEY COMMENT_ID
+$ ycli tracker comments delete [OPTIONS] ISSUE_KEY COMMENT_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Comment id (numeric id or longId).  [required]
 
 **Options**:
@@ -641,17 +641,17 @@ $ ycli tracker comments delete [OPTIONS] KEY COMMENT_ID
 
 ### `ycli tracker comments reactions-create`
 
-Add reaction NAME to comment COMMENT_ID on issue KEY.
+Add reaction NAME to comment COMMENT_ID on issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments reactions-create [OPTIONS] KEY COMMENT_ID NAME
+$ ycli tracker comments reactions-create [OPTIONS] ISSUE_KEY COMMENT_ID NAME
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Comment id (numeric id or longId).  [required]
 * `NAME`: Reaction name. Known values: LIKE, DISLIKE, LAUGH, HOORAY, CONFUSED, HEART, ROCKET, EYES, FIRE, OK, FACEPALM, CHECK.  [required]
 
@@ -704,25 +704,25 @@ $ ycli tracker links [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List links for issue KEY.
-* `list-filtered`: List links of issue KEY, filtered and...
-* `create`: Link issue KEY to TARGET with RELATIONSHIP.
-* `delete`: Delete link LINK_ID from issue KEY.
+* `list`: List links for issue ISSUE_KEY.
+* `list-filtered`: List links of ISSUE_KEY, filtered and...
+* `create`: Link issue ISSUE_KEY to TARGET with...
+* `delete`: Delete link LINK_ID from issue ISSUE_KEY.
 * `import`: Import a link on issue ISSUE_KEY (POST...
 
 ### `ycli tracker links list`
 
-List links for issue KEY.
+List links for issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker links list [OPTIONS] KEY
+$ ycli tracker links list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -734,17 +734,17 @@ $ ycli tracker links list [OPTIONS] KEY
 
 ### `ycli tracker links list-filtered`
 
-List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything).
+List links of ISSUE_KEY, filtered and paged (POST …/links/_list; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli tracker links list-filtered [OPTIONS] KEY
+$ ycli tracker links list-filtered [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -760,17 +760,17 @@ $ ycli tracker links list-filtered [OPTIONS] KEY
 
 ### `ycli tracker links create`
 
-Link issue KEY to TARGET with RELATIONSHIP.
+Link issue ISSUE_KEY to TARGET with RELATIONSHIP.
 
 **Usage**:
 
 ```console
-$ ycli tracker links create [OPTIONS] KEY RELATIONSHIP TARGET
+$ ycli tracker links create [OPTIONS] ISSUE_KEY RELATIONSHIP TARGET
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `RELATIONSHIP`: Relationship verb. Known values: depends on, is dependent by, relates, duplicates, is duplicated by, subtask, parent.  [required]
 * `TARGET`: Target issue key, e.g. DATAENGINEERING-2.  [required]
 
@@ -784,17 +784,17 @@ $ ycli tracker links create [OPTIONS] KEY RELATIONSHIP TARGET
 
 ### `ycli tracker links delete`
 
-Delete link LINK_ID from issue KEY.
+Delete link LINK_ID from issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker links delete [OPTIONS] KEY LINK_ID
+$ ycli tracker links delete [OPTIONS] ISSUE_KEY LINK_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `LINK_ID`: Link id to remove.  [required]
 
 **Options**:
@@ -847,22 +847,22 @@ $ ycli tracker transitions [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List available transitions for issue KEY.
-* `execute`: Execute transition ID on issue KEY...
+* `list`: List available transitions for issue...
+* `execute`: Execute transition ID on issue ISSUE_KEY...
 
 ### `ycli tracker transitions list`
 
-List available transitions for issue KEY.
+List available transitions for issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker transitions list [OPTIONS] KEY
+$ ycli tracker transitions list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -874,17 +874,17 @@ $ ycli tracker transitions list [OPTIONS] KEY
 
 ### `ycli tracker transitions execute`
 
-Execute transition ID on issue KEY (optional body via --field).
+Execute transition ID on issue ISSUE_KEY (optional body via --field).
 
 **Usage**:
 
 ```console
-$ ycli tracker transitions execute [OPTIONS] KEY ID
+$ ycli tracker transitions execute [OPTIONS] ISSUE_KEY ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `ID`: Transition id (from `transitions list`).  [required]
 
 **Options**:
@@ -912,27 +912,27 @@ $ ycli tracker worklog [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List all worklog entries for issue KEY...
+* `list`: List all worklog entries for issue...
 * `search`: Search org-wide worklog by author and/or...
 * `list-global`: List org-wide worklog via GET /worklog...
-* `create`: Log time spent on issue KEY (POST...
-* `update`: Edit worklog RECORD_ID on issue KEY — only...
-* `delete`: Delete worklog RECORD_ID from issue KEY.
+* `create`: Log time spent on issue ISSUE_KEY (POST...
+* `update`: Edit worklog RECORD_ID on issue ISSUE_KEY...
+* `delete`: Delete worklog RECORD_ID from issue...
 * `import`: Import a worklog onto issue ISSUE_KEY...
 
 ### `ycli tracker worklog list`
 
-List all worklog entries for issue KEY (auto-paginated; --all for everything).
+List all worklog entries for issue ISSUE_KEY (auto-paginated; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog list [OPTIONS] KEY
+$ ycli tracker worklog list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -988,17 +988,17 @@ $ ycli tracker worklog list-global [OPTIONS]
 
 ### `ycli tracker worklog create`
 
-Log time spent on issue KEY (POST /issues/{key}/worklog).
+Log time spent on issue ISSUE_KEY (POST /issues/{key}/worklog).
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog create [OPTIONS] KEY
+$ ycli tracker worklog create [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -1013,17 +1013,17 @@ $ ycli tracker worklog create [OPTIONS] KEY
 
 ### `ycli tracker worklog update`
 
-Edit worklog RECORD_ID on issue KEY — only supplied fields are sent.
+Edit worklog RECORD_ID on issue ISSUE_KEY — only supplied fields are sent.
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog update [OPTIONS] KEY RECORD_ID
+$ ycli tracker worklog update [OPTIONS] ISSUE_KEY RECORD_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `RECORD_ID`: Worklog record id to edit/delete.  [required]
 
 **Options**:
@@ -1038,17 +1038,17 @@ $ ycli tracker worklog update [OPTIONS] KEY RECORD_ID
 
 ### `ycli tracker worklog delete`
 
-Delete worklog RECORD_ID from issue KEY.
+Delete worklog RECORD_ID from issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog delete [OPTIONS] KEY RECORD_ID
+$ ycli tracker worklog delete [OPTIONS] ISSUE_KEY RECORD_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `RECORD_ID`: Worklog record id to edit/delete.  [required]
 
 **Options**:
@@ -1102,21 +1102,21 @@ $ ycli tracker changelog [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List all changelog entries for issue KEY...
+* `list`: List all changelog entries for issue...
 
 ### `ycli tracker changelog list`
 
-List all changelog entries for issue KEY (auto-paginated; --all for everything).
+List all changelog entries for issue ISSUE_KEY (auto-paginated; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli tracker changelog list [OPTIONS] KEY
+$ ycli tracker changelog list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -1147,25 +1147,25 @@ $ ycli tracker checklists [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List the checklist items on issue KEY.
-* `create`: Add a checklist item to issue KEY (creates...
-* `update`: Edit checklist item ITEM_ID on issue KEY —...
-* `delete`: Delete checklist item ITEM_ID from issue KEY.
-* `clear`: Delete the entire checklist from issue KEY.
+* `list`: List the checklist items on issue ISSUE_KEY.
+* `create`: Add a checklist item to issue ISSUE_KEY...
+* `update`: Edit checklist item ITEM_ID on issue...
+* `delete`: Delete checklist item ITEM_ID from issue...
+* `clear`: Delete the entire checklist from issue...
 
 ### `ycli tracker checklists list`
 
-List the checklist items on issue KEY.
+List the checklist items on issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists list [OPTIONS] KEY
+$ ycli tracker checklists list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -1177,17 +1177,17 @@ $ ycli tracker checklists list [OPTIONS] KEY
 
 ### `ycli tracker checklists create`
 
-Add a checklist item to issue KEY (creates the checklist if absent).
+Add a checklist item to issue ISSUE_KEY (creates the checklist if absent).
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists create [OPTIONS] KEY
+$ ycli tracker checklists create [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -1203,17 +1203,17 @@ $ ycli tracker checklists create [OPTIONS] KEY
 
 ### `ycli tracker checklists update`
 
-Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent.
+Edit checklist item ITEM_ID on issue ISSUE_KEY — only supplied fields are sent.
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists update [OPTIONS] KEY ITEM_ID
+$ ycli tracker checklists update [OPTIONS] ISSUE_KEY ITEM_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
 **Options**:
@@ -1230,17 +1230,17 @@ $ ycli tracker checklists update [OPTIONS] KEY ITEM_ID
 
 ### `ycli tracker checklists delete`
 
-Delete checklist item ITEM_ID from issue KEY.
+Delete checklist item ITEM_ID from issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists delete [OPTIONS] KEY ITEM_ID
+$ ycli tracker checklists delete [OPTIONS] ISSUE_KEY ITEM_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
 **Options**:
@@ -1253,17 +1253,17 @@ $ ycli tracker checklists delete [OPTIONS] KEY ITEM_ID
 
 ### `ycli tracker checklists clear`
 
-Delete the entire checklist from issue KEY.
+Delete the entire checklist from issue ISSUE_KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists clear [OPTIONS] KEY
+$ ycli tracker checklists clear [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 

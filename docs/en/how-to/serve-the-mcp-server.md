@@ -48,7 +48,7 @@ Besides tools, the server offers a few prompts and resources. A client shows a p
 
 | Resource | Content |
 |---|---|
-| `ycli://tracker/issue/{key}` | the issue, as `tracker_issues_get` returns it |
+| `ycli://tracker/issue/{issue_key}` | the issue, as `tracker_issues_get` returns it |
 | `ycli://wiki/page/{slug}` | the page's Markdown |
 | `ycli://forms/survey/{survey_id}` | the form's settings, as `forms_surveys_get` returns them |
 | `ycli://tracker/guide`, `ycli://wiki/guide`, `ycli://forms/guide`, `ycli://guide` | how to work with the service through these tools: the text of the plugin's skills, for a client without the plugin |

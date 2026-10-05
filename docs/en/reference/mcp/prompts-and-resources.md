@@ -25,7 +25,7 @@ Arguments: `survey_id`. Tools: `forms_answers_list`, `forms_questions_list`, `fo
 
 Brief me on one Tracker issue: where it stands, what was decided, what blocks it.
 
-Arguments: `key`. Tools: `tracker_changelog_list`, `tracker_comments_list`, `tracker_issues_get`, `tracker_links_list`.
+Arguments: `issue_key`. Tools: `tracker_changelog_list`, `tracker_comments_list`, `tracker_issues_get`, `tracker_links_list`.
 
 ### `tracker_queue_digest`
 
@@ -49,14 +49,14 @@ Arguments: `board`, `sprint`. Tools: `tracker_issues_search`, `tracker_sprints_g
 
 Draft a Wiki page from a Tracker issue and its discussion, then create it once approved.
 
-Arguments: `key`, `parent_slug`. Tools: `tracker_comments_list`, `tracker_issues_get`, `wiki_pages_create`.
+Arguments: `issue_key`, `parent_slug`. Tools: `tracker_comments_list`, `tracker_issues_get`, `wiki_pages_create`.
 
 ## Resources
 
 | Address | Content | Repeats |
 |---|---|---|
 | `ycli://forms/survey/{survey_id}` | One form's settings by id, as ``forms_surveys_get`` returns them. | `forms_surveys_get` |
-| `ycli://tracker/issue/{key}` | One Tracker issue by key (QUEUE-123), as ``tracker_issues_get`` returns it. | `tracker_issues_get` |
+| `ycli://tracker/issue/{issue_key}` | One Tracker issue by key (QUEUE-123), as ``tracker_issues_get`` returns it. | `tracker_issues_get` |
 | `ycli://wiki/page/{slug*}` | One Wiki page's Markdown body by slug (team/onboarding), as ``wiki_pages_get`` returns it. | `wiki_pages_get` |
 
 ## Guides

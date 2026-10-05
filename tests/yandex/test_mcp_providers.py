@@ -57,7 +57,7 @@ async def test_a_tool_call_closes_the_client_it_built(api, monkeypatch):
     monkeypatch.setattr(TrackerClient, "_wire", record)
     api.add("GET", f"{TRACKER_BASE}/issues/DE-1", json={"key": "DE-1"})
     async with Client(issues_mcp.mcp) as client:
-        result = await client.call_tool("issues_get", {"key": "DE-1"})
+        result = await client.call_tool("issues_get", {"issue_key": "DE-1"})
     assert result.data.key == "DE-1"
     [tracker] = built
     assert tracker.issues._session._client.is_closed
@@ -82,7 +82,7 @@ async def test_a_tool_call_without_credentials_names_the_missing_variables(
         monkeypatch.delenv(name, raising=False)
     async with Client(issues_mcp.mcp) as client:
         with pytest.raises(ToolError) as raised:
-            await client.call_tool("issues_get", {"key": "DE-1"})
+            await client.call_tool("issues_get", {"issue_key": "DE-1"})
     assert named in str(raised.value)
     assert "ycli auth login" in str(raised.value)
     assert "resolve dependency" not in str(raised.value)

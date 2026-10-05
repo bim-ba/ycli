@@ -12,7 +12,7 @@ from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,
+    IssueKeyArg,
 )
 
 app = typer.Typer(name="changelog", help="Tracker issue changelog.", no_args_is_help=True)
@@ -20,7 +20,7 @@ app = typer.Typer(name="changelog", help="Tracker issue changelog.", no_args_is_
 
 @app.command("list")
 def list_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     field: Annotated[
@@ -35,6 +35,8 @@ def list_(
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[ChangelogEntry]:
-    """List all changelog entries for issue KEY (auto-paginated; --all for everything)."""
+    """List all changelog entries for issue ISSUE_KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.changelog.list(key, limit=cap, field=field, change_type=change_type, sort=sort)
+    return tracker.changelog.list(
+        issue_key, limit=cap, field=field, change_type=change_type, sort=sort
+    )

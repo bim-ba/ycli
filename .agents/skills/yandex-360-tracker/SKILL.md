@@ -66,18 +66,18 @@ MCP tool (annotated `readOnlyHint=True`).
 
 | CLI command | MCP tool | Purpose |
 |-------------|----------|---------|
-| `uv run ycli tracker issues get KEY` | `tracker_issues_get` | Compact view: key, summary, type, status, priority, **epic**, parent, assignee. Append `-o json` for the full raw payload (every field) |
+| `uv run ycli tracker issues get ISSUE_KEY` | `tracker_issues_get` | Compact view: key, summary, type, status, priority, **epic**, parent, assignee. Append `-o json` for the full raw payload (every field) |
 | `uv run ycli tracker issues list [--queue ...] [--status ...] [--assignee ...] [--epic ...] [--issue-type ...]` | `tracker_issues_list` | Filtered list — all filters optional; pass none for everything you can read, any subset to narrow |
 | `uv run ycli tracker issues search '...'` | `tracker_issues_search` | Full-text search via Tracker Query Language |
 | `uv run ycli tracker issues count [--query '...'] [--queue X] [--status Y]` | `tracker_issues_count` | Count without listing — sanity-check a filter first. `--query` is mutually exclusive with `--queue`/`--status` |
-| `uv run ycli tracker comments list KEY` | `tracker_comments_list` | List comments |
-| `uv run ycli tracker comments get KEY ID [--expand all]` | `tracker_comments_get` | One comment (by `id` or `longId`), optionally with HTML and attachments |
-| `uv run ycli tracker links list KEY` | `tracker_links_list` | List links between issues |
-| `uv run ycli tracker links list-filtered KEY [--link-types 'is subtask for'] [--fields …]` | `tracker_links_list_filtered` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links create`, not link type ids |
-| `uv run ycli tracker attachments list KEY` / `get KEY FILE_ID` | `tracker_attachments_list` / `tracker_attachments_get` | Attachment metadata |
-| `uv run ycli tracker changelog list KEY` | `tracker_changelog_list` | Changelog: who changed what, when |
-| `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
-| `uv run ycli tracker transitions list KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
+| `uv run ycli tracker comments list ISSUE_KEY` | `tracker_comments_list` | List comments |
+| `uv run ycli tracker comments get ISSUE_KEY ID [--expand all]` | `tracker_comments_get` | One comment (by `id` or `longId`), optionally with HTML and attachments |
+| `uv run ycli tracker links list ISSUE_KEY` | `tracker_links_list` | List links between issues |
+| `uv run ycli tracker links list-filtered ISSUE_KEY [--link-types 'is subtask for'] [--fields …]` | `tracker_links_list_filtered` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links create`, not link type ids |
+| `uv run ycli tracker attachments list ISSUE_KEY` / `get ISSUE_KEY FILE_ID` | `tracker_attachments_list` / `tracker_attachments_get` | Attachment metadata |
+| `uv run ycli tracker changelog list ISSUE_KEY` | `tracker_changelog_list` | Changelog: who changed what, when |
+| `uv run ycli tracker worklog list ISSUE_KEY` | `tracker_worklog_list` | Time-tracking entries |
+| `uv run ycli tracker transitions list ISSUE_KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
 
 Every Tracker MCP tool follows the `tracker_<resource>_<action>`
 naming (the rows above cover the reads you reach for most; every write below is a tool
@@ -111,7 +111,7 @@ guessing:
 
 ### Caveats — reads that look like more than they are
 
-- **`transitions list KEY`** returns only the transitions available from the issue's
+- **`transitions list ISSUE_KEY`** returns only the transitions available from the issue's
   **current** status — a slice of the workflow, not the whole workflow.
 - **`--status` is LITERAL.** `--status open` matches only the status key `open` (Quick
   Start workflow) — it is NOT a synonym for "all active". In the Primary workflow the
@@ -164,7 +164,7 @@ Target any queue where you have permission. On MCP, treat `destructiveHint=true`
    uv run ycli tracker issues update <created-key> -F 'epic={"key":"EPIC-1"}'
    ```
 
-5. **Verify** with `uv run ycli tracker issues get KEY` — confirm type, priority,
+5. **Verify** with `uv run ycli tracker issues get ISSUE_KEY` — confirm type, priority,
    queue, `parent`, and `epic`.
 
 ### Update fields
@@ -250,7 +250,7 @@ below is irreversible or changes shared configuration, so confirm with the user.
   `--parent EPIC_KEY`, the result has `parent: EPIC_KEY` but `epic: null` — it will
   NOT appear in Epic board views or match `issues list --epic EPIC_KEY`. You must set
   the `epic` field explicitly:
-  `uv run ycli tracker issues update KEY -F 'epic={"key":"EPIC-1"}'`. This is a
+  `uv run ycli tracker issues update ISSUE_KEY -F 'epic={"key":"EPIC-1"}'`. This is a
   mandatory second step for any Story/issue created under an Epic.
 - **The "epic" link type is NOT creatable via `POST /links`.** `linktypes list` shows
   `"epic"`, but creating a link with `relationship: "epic"` returns 400. The only
@@ -259,7 +259,7 @@ below is irreversible or changes shared configuration, so confirm with the user.
 - **When `parent` and `epic` point to the same key, Tracker auto-clears `parent`**
   (the epic field takes precedence). For an issue under a Story, `parent` (→ Story) and
   `epic` (→ Epic) coexist correctly.
-- **Always discover transition IDs** with `transitions list KEY` before
+- **Always discover transition IDs** with `transitions list ISSUE_KEY` before
   `transitions execute` — IDs are suffixed per source status (`cancelled`,
   `cancelled1`, …) and depend on the current status.
 - **`--status` is a literal key filter, not "all active"** (see Reading caveats).

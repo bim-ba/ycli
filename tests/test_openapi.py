@@ -49,9 +49,9 @@ def test_every_sdk_operation_is_in_its_document(service):
 
 
 def test_path_parameters_are_named_after_the_sdk_arguments():
-    get = _operations("tracker")[("GET", "/issues/{key}")]
+    get = _operations("tracker")[("GET", "/issues/{issue_key}")]
     assert get["operationId"] == "issues_get" and get["x-ycli-effect"] == "read"
-    key = {"name": "key", "in": "path", "required": True, "schema": {"type": "string"}}
+    key = {"name": "issue_key", "in": "path", "required": True, "schema": {"type": "string"}}
     assert get["parameters"][0] == key
     # No published page documents this request, so only the SDK's arguments name it.
     assert ("GET", "/attachments/{file_id}/{filename}") in _operations("tracker")
@@ -148,7 +148,7 @@ def test_parameters_take_the_type_of_the_sdk_argument_or_of_the_value_sent():
     # The pager adds them to the request itself, so no value of theirs is seen: left untyped.
     assert (listing["limit"], listing["offset"]) == ({}, {})
     assert listing["published"] == {"type": "boolean"}  # ``published: bool | None``
-    comments = _operations("tracker")[("GET", "/issues/{key}/comments")]["parameters"]
+    comments = _operations("tracker")[("GET", "/issues/{issue_key}/comments")]["parameters"]
     assert {"name": "perPage", "in": "query", "schema": {"type": "integer"}} in comments
 
 

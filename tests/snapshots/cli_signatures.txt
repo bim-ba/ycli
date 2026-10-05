@@ -111,24 +111,24 @@ tracker boards list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE
 tracker boards update: --backlog:BOOLEAN --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT --profile:TEXT --sprints:BOOLEAN --yes:BOOLEAN=False BOARD_ID:INTEGER!
 tracker bulk get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BULK_ID:TEXT!
 tracker bulk issues-list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BULK_ID:TEXT!
-tracker changelog list: --all:BOOLEAN=False --change-type:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --sort:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker checklists clear: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker checklists create: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False KEY:TEXT!
-tracker checklists delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ITEM_ID:TEXT! KEY:TEXT!
-tracker checklists list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker checklists update: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT --yes:BOOLEAN=False ITEM_ID:TEXT! KEY:TEXT!
+tracker changelog list: --all:BOOLEAN=False --change-type:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --sort:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker checklists clear: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker checklists create: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker checklists delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! ITEM_ID:TEXT!
+tracker checklists list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker checklists update: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! ITEM_ID:TEXT!
 tracker columns create: --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT! --profile:TEXT --status:TEXT! --yes:BOOLEAN=False BOARD_ID:INTEGER!
 tracker columns delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
 tracker columns get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
 tracker columns list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BOARD_ID:INTEGER!
 tracker columns update: --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT --profile:TEXT --status:TEXT --yes:BOOLEAN=False BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
-tracker comments create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False KEY:TEXT!
-tracker comments delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
-tracker comments get: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker comments delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ISSUE_KEY:TEXT!
+tracker comments get: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ISSUE_KEY:TEXT!
 tracker comments import: --created-at:TEXT! --created-by:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
-tracker comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker comments reactions-create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT! NAME:TEXT!
-tracker comments update: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker comments reactions-create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ISSUE_KEY:TEXT! NAME:TEXT!
+tracker comments update: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! ISSUE_KEY:TEXT!
 tracker components create: --assign-auto:BOOLEAN --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --lead:TEXT --name:TEXT! --profile:TEXT --queue:TEXT! --yes:BOOLEAN=False
 tracker components delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMPONENT_ID:INTEGER!
 tracker components get: --dry-run:BOOLEAN=False --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMPONENT_ID:INTEGER!
@@ -186,25 +186,25 @@ tracker gaps delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --ye
 tracker gaps search: --all:BOOLEAN=False --date-from:TEXT --date-to:TEXT --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False USERS:TEXT!
 tracker issues count: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --query:TEXT --queue:TEXT --status:TEXT --yes:BOOLEAN=False
 tracker issues create: --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --notify:BOOLEAN --parent:TEXT --priority:TEXT --profile:TEXT --queue:TEXT! --summary:TEXT! --tag:TEXT --type:TEXT --yes:BOOLEAN=False
-tracker issues get: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
+tracker issues get: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker issues import: --assignee:TEXT --created-at:TEXT! --created-by:TEXT! --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT --profile:TEXT --queue:TEXT! --summary:TEXT! --yes:BOOLEAN=False
 tracker issues list: --all:BOOLEAN=False --assignee:TEXT --dry-run:BOOLEAN=False --epic:TEXT --format:CHOICE --issue-type:TEXT --limit:INTEGER RANGE --profile:TEXT --queue:TEXT --status:TEXT --yes:BOOLEAN=False
-tracker issues move: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --initial-status:BOOLEAN --move-all-fields:BOOLEAN --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! QUEUE:TEXT!
+tracker issues move: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --initial-status:BOOLEAN --move-all-fields:BOOLEAN --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! QUEUE:TEXT!
 tracker issues move-bulk: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --initial-status:BOOLEAN=False --issue:TEXT --move-all-fields:BOOLEAN=False --notify:BOOLEAN=False --profile:TEXT --query:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False QUEUE:TEXT!
 tracker issues scroll-clear: --dry-run:BOOLEAN=False --format:CHOICE --pair:TEXT --profile:TEXT --yes:BOOLEAN=False
 tracker issues search: --all:BOOLEAN=False --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --limit:INTEGER RANGE --per-scroll:INTEGER --profile:TEXT --scroll-ttl-millis:INTEGER --scroll-type:TEXT --yes:BOOLEAN=False QUERY:TEXT!
 tracker issues suggest: --dry-run:BOOLEAN=False --embed:TEXT --expand:TEXT --fields:TEXT --format:CHOICE --full:BOOLEAN --profile:TEXT --queue:TEXT --yes:BOOLEAN=False TEXT:TEXT!
 tracker issues transition-bulk: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --issue:TEXT --notify:BOOLEAN=False --profile:TEXT --query:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False TRANSITION:TEXT!
-tracker issues update: --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent:TEXT --priority:TEXT --profile:TEXT --summary:TEXT --tag:TEXT --type:TEXT --yes:BOOLEAN=False KEY:TEXT!
+tracker issues update: --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent:TEXT --priority:TEXT --profile:TEXT --summary:TEXT --tag:TEXT --type:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker issues update-bulk: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --issue:TEXT --notify:BOOLEAN=False --profile:TEXT --query:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False
 tracker issuetypes create: --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --profile:TEXT --yes:BOOLEAN=False
 tracker issuetypes list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker issuetypes update: --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --profile:TEXT --version:INTEGER --yes:BOOLEAN=False ISSUE_TYPE_ID:TEXT!
-tracker links create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RELATIONSHIP:TEXT! TARGET:TEXT!
-tracker links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! LINK_ID:TEXT!
+tracker links create: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! RELATIONSHIP:TEXT! TARGET:TEXT!
+tracker links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! LINK_ID:TEXT!
 tracker links import: --created-at:TEXT! --created-by:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --issue:TEXT! --profile:TEXT --relationship:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
-tracker links list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker links list-filtered: --all:BOOLEAN=False --dry-run:BOOLEAN=False --fields:TEXT --format:CHOICE --limit:INTEGER RANGE --link-types:TEXT --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
+tracker links list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker links list-filtered: --all:BOOLEAN=False --dry-run:BOOLEAN=False --fields:TEXT --format:CHOICE --limit:INTEGER RANGE --link-types:TEXT --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker linktypes list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker localfields create: --category:TEXT! --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --id:TEXT! --name-en:TEXT --name-ru:TEXT --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --profile:TEXT --readonly:BOOLEAN --type:TEXT! --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker localfields get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FIELD_KEY:TEXT! QUEUE_ID:TEXT!
@@ -257,8 +257,8 @@ tracker sprints update: --dry-run:BOOLEAN=False --end-date:TEXT --format:CHOICE 
 tracker statuses create: --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --profile:TEXT --type:TEXT='new' --yes:BOOLEAN=False
 tracker statuses list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker statuses update: --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --order:INTEGER --profile:TEXT --type:TEXT --version:INTEGER --yes:BOOLEAN=False STATUS_ID:TEXT!
-tracker transitions execute: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! TRANSITION_ID:TEXT!
-tracker transitions list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
+tracker transitions execute: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! TRANSITION_ID:TEXT!
+tracker transitions list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker triggers create: --action:TEXT --active:BOOLEAN --condition:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT! --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker triggers get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
 tracker triggers list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
@@ -273,13 +273,13 @@ tracker workflows get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --
 tracker workflows list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker workflows list-for-queue: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker workflows update: --dry-run:BOOLEAN=False --format:CHOICE --initial-action:TEXT --issue-type-resolution:TEXT --name:TEXT --profile:TEXT --step:TEXT --version:INTEGER! --visual:BOOLEAN=False --yes:BOOLEAN=False WORKFLOW_ID:TEXT!
-tracker worklog create: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT! --format:CHOICE --profile:TEXT --start:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker worklog delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RECORD_ID:TEXT!
+tracker worklog create: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT! --format:CHOICE --profile:TEXT --start:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
+tracker worklog delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! RECORD_ID:TEXT!
 tracker worklog import: --comment:TEXT --created-at:TEXT! --created-by:TEXT! --dry-run:BOOLEAN=False --duration:TEXT! --format:CHOICE --profile:TEXT --start:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
-tracker worklog list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
+tracker worklog list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker worklog list-global: --created-by:TEXT --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --profile:TEXT --to:TEXT --yes:BOOLEAN=False
 tracker worklog search: --created-by:TEXT --created-from:TEXT --created-to:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
-tracker worklog update: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RECORD_ID:TEXT!
+tracker worklog update: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! RECORD_ID:TEXT!
 wiki access clear: --dry-run:BOOLEAN=False --format:CHOICE --prevent-selflock:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki access create: --dry-run:BOOLEAN=False --format:CHOICE --group-id:TEXT --group-src:TEXT --inheritance:TEXT --profile:TEXT --role:TEXT! --user-cloud-uid:TEXT --user-uid:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki access delete: --dry-run:BOOLEAN=False --format:CHOICE --prevent-selflock:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!

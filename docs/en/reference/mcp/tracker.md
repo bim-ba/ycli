@@ -23,7 +23,7 @@ A single Tracker issue by key.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 
@@ -117,7 +117,7 @@ Status is NOT changed here — use ``transitions_execute``. Returns the updated 
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}`` (update an issue; only sent fields change). ``extra="allow"`` lets any custom field key=value pair pass through, matching the CLI's ``-F key=value`` escape hatch. Status is NOT changed here — use ``transitions_execute``. |
 
 ## `tracker_issues_move`
@@ -131,7 +131,7 @@ dropped. Returns the moved issue with its new key.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `queue` | string | yes | Target queue key, e.g. NEW. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `initial_status` | boolean or null |  | Reset the status to the new queue's initial one. |
@@ -215,7 +215,7 @@ are truncated at the cap rather than fetched forever.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 
@@ -227,7 +227,7 @@ One comment of a Tracker issue: text, author, edit history and, on request, atta
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `expand` | string or null |  | Extra fields: ``attachments``, ``html`` or ``all`` (comma-separated). |
 
@@ -239,7 +239,7 @@ Add a comment to a Tracker issue; returns the created comment.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for adding a comment to an issue or an entity. |
 
 ## `tracker_comments_update`
@@ -252,7 +252,7 @@ Get ``comment_id`` from ``comments_list``. Returns the updated comment.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment). |
 
@@ -266,7 +266,7 @@ Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 
 ## `tracker_comments_reactions_create`
@@ -280,7 +280,7 @@ with its updated reactions.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `name` | string | yes | Reaction name, e.g. ``like``, ``dislike`` or ``fire``. |
 
@@ -305,7 +305,7 @@ All links on a Tracker issue (linked issues, type, direction).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 
 ## `tracker_links_list_filtered`
 
@@ -318,7 +318,7 @@ or fields matter; it carries each link's author, dates, assignee and status.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_create``, not linktypes ids). |
 | `fields` | array of string or null |  | Fields to include in each link; all when omitted. |
 | `limit` | integer or null |  | Max links to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
@@ -331,7 +331,7 @@ Link a Tracker issue to another issue; returns the created link.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/links`` (link to another issue). |
 
 ## `tracker_links_delete`
@@ -344,7 +344,7 @@ Get ``link_id`` from ``links_list``. Returns an acknowledgement on success.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_id` | string | yes | Link id, from ``links_list``. |
 
 ## `tracker_links_import`
@@ -368,7 +368,7 @@ Available workflow transitions for a Tracker issue.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 
 ## `tracker_transitions_execute`
 
@@ -382,7 +382,7 @@ available from the new status.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `transition_id` | string | yes | Transition id, from ``transitions_list``. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/transitions/{id}/_execute``. Open-ended: any issue field can be set on transition (e.g. a resolution when closing), so ``extra="allow"`` lets arbitrary field key=value pairs (from the CLI's ``-F``) pass through unvalidated while the common fields below still document themselves in the MCP schema. |
 
@@ -395,12 +395,12 @@ All time-tracking entries logged against a single Tracker issue.
 Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
 is given.
 
-Scoped to one issue by ``key``. To search worklog across the whole org (by author and/or a
+Scoped to one issue by ``issue_key``. To search worklog across the whole org (by author and/or a
 creation-time range) use ``worklog_search`` instead.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max records to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_worklog_search`
@@ -441,7 +441,7 @@ Log spent time on a Tracker issue; returns the created worklog record.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/worklog`` (log time spent). |
 
 ## `tracker_worklog_update`
@@ -454,7 +454,7 @@ Get ``record_id`` from ``worklog_list``. Returns the updated record.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `record_id` | string | yes | Worklog record id, from ``worklog_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/worklog/{record_id}`` (edit an entry). |
 
@@ -468,7 +468,7 @@ Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `record_id` | string | yes | Worklog record id, from ``worklog_list``. |
 
 ## `tracker_worklog_import`
@@ -495,7 +495,7 @@ is given.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max changes to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
 | `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
@@ -512,7 +512,7 @@ feed ``checklists_update`` / ``checklists_delete``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 
 ## `tracker_checklists_create`
 
@@ -524,7 +524,7 @@ Returns the issue with its full checklist.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/checklistItems`` (add an item). |
 
 ## `tracker_checklists_update`
@@ -537,7 +537,7 @@ Get ``item_id`` from ``checklists_list``. Returns the issue with its updated che
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item). |
 
@@ -551,7 +551,7 @@ Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining c
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
 
 ## `tracker_checklists_clear`
@@ -564,7 +564,7 @@ Returns the issue without its checklist.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 
 ## `tracker_columns_list`
 

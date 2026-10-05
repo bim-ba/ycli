@@ -20,14 +20,14 @@ from ycli.yandex.registry import SERVICES
 
 PROMPTS = {
     "forms_answers_table": {"survey_id": "686d0a1b"},
-    "tracker_issue_brief": {"key": "DE-7"},
+    "tracker_issue_brief": {"issue_key": "DE-7"},
     "tracker_queue_digest": {"queue": "DE"},
     "tracker_sprint_review": {"board": "5", "sprint": "44"},
-    "wiki_page_from_issue": {"key": "DE-7", "parent_slug": "team/decisions"},
+    "wiki_page_from_issue": {"issue_key": "DE-7", "parent_slug": "team/decisions"},
 }
 TEMPLATES = {
     "ycli://forms/survey/{survey_id}",
-    "ycli://tracker/issue/{key}",
+    "ycli://tracker/issue/{issue_key}",
     "ycli://wiki/page/{slug*}",
 }
 _TOOL_NAME = re.compile(r"\b(?:tracker|wiki|forms)_[a-z_]+\b")
@@ -55,7 +55,7 @@ async def test_the_full_server_offers_every_prompt_and_template():
         (
             Selection(toolsets=("tracker",)),
             {"tracker_issue_brief", "tracker_queue_digest", "tracker_sprint_review"},
-            {"ycli://tracker/issue/{key}"},
+            {"ycli://tracker/issue/{issue_key}"},
         ),
         # Its text reads Tracker, which this server does not serve.
         (Selection(toolsets=("wiki",)), set(), {"ycli://wiki/page/{slug*}"}),
@@ -67,12 +67,12 @@ async def test_the_full_server_offers_every_prompt_and_template():
         (
             Selection(exclude_tools=("tracker_issues_get",)),
             {"forms_answers_table", "tracker_queue_digest", "tracker_sprint_review"},
-            TEMPLATES - {"ycli://tracker/issue/{key}"},
+            TEMPLATES - {"ycli://tracker/issue/{issue_key}"},
         ),
         (
             Selection(toolsets=("forms",), tools=("tracker_issues_get",)),
             {"forms_answers_table"},
-            {"ycli://forms/survey/{survey_id}", "ycli://tracker/issue/{key}"},
+            {"ycli://forms/survey/{survey_id}", "ycli://tracker/issue/{issue_key}"},
         ),
         # The search interface replaces the tool listing, not what is served.
         (Selection(tool_search=True), set(PROMPTS), TEMPLATES),
@@ -125,7 +125,7 @@ async def test_a_resource_repeats_a_read_tool():
         (
             "ycli://tracker/issue/DE-7",
             "tracker_issues_get",
-            {"key": "DE-7"},
+            {"issue_key": "DE-7"},
             f"{TRACKER_BASE}/issues/DE-7",
             {"key": "DE-7", "summary": "Fix the login page"},
         ),

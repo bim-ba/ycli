@@ -16,11 +16,11 @@ if TYPE_CHECKING:
 class LinksClient(Resource):
     """List, search (paged), add and delete the links between issues."""
 
-    def list(self, key: str) -> ItemList[Link]:
+    def list(self, issue_key: str) -> ItemList[Link]:
         """``GET /issues/{key}/links`` → link listing.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
 
         Returns:
             The issue's links.
@@ -29,11 +29,11 @@ class LinksClient(Resource):
             >>> tracker.links.list("DE-41").root[0].object_key
             'DE-40'
         """
-        return self._session.send(endpoints.list_(key))
+        return self._session.send(endpoints.list_(issue_key))
 
     def list_filtered(
         self,
-        key: str,
+        issue_key: str,
         *,
         link_types: Sequence[str] | None = None,
         fields: Sequence[str] | None = None,
@@ -47,7 +47,7 @@ class LinksClient(Resource):
         answers 400 to a type id such as ``subtask``. Capped at ``limit`` (``None`` = every link).
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             link_types: Keep only links of these relationships.
             fields: The fields to return for each link.
             limit: The most links to return; ``None`` returns every link.
@@ -62,14 +62,14 @@ class LinksClient(Resource):
             >>> [link.id for link in found.root]
             [441, 442]
         """
-        paged = endpoints.list_filtered(key, link_types=link_types, fields=fields)
+        paged = endpoints.list_filtered(issue_key, link_types=link_types, fields=fields)
         return ItemList[Link](list(self._session.iterate(paged, limit=limit)))
 
-    def create(self, key: str, body: LinkCreate) -> Link:
+    def create(self, issue_key: str, body: LinkCreate) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             body: The link's ``relationship`` and the other ``issue``.
 
         Returns:
@@ -85,19 +85,19 @@ class LinksClient(Resource):
             ... ).object_key
             'OPS-9'
         """
-        return self._session.send(endpoints.create(key, body))
+        return self._session.send(endpoints.create(issue_key, body))
 
-    def delete(self, key: str, link_id: str) -> None:
+    def delete(self, issue_key: str, link_id: str) -> None:
         """Delete a link (``DELETE …/links/{link_id}`` → 204). Raises on non-2xx.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             link_id: The link's id.
 
         Examples:
             >>> tracker.links.delete("DE-43", "431")
         """
-        self._session.send(endpoints.delete(key, link_id))
+        self._session.send(endpoints.delete(issue_key, link_id))
 
     def import_(self, issue_key: str, body: ImportLink) -> Link:
         """``POST /issues/{issue_key}/links/_import`` — import an issue link. Returns the ``Link``.

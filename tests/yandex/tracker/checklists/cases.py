@@ -8,7 +8,7 @@ CASES = [
         "tracker.checklists.list",
         args=("DE-31",),
         cli=["tracker", "checklists", "list", "DE-31"],
-        mcp=("tracker_checklists_list", {"key": "DE-31"}),
+        mcp=("tracker_checklists_list", {"issue_key": "DE-31"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-31/checklistItems"),
@@ -45,7 +45,7 @@ CASES = [
         mcp=(
             "tracker_checklists_create",
             {
-                "key": "DE-32",
+                "issue_key": "DE-32",
                 "body": {
                     "text": "step 1",
                     "checked": True,
@@ -86,7 +86,7 @@ CASES = [
         mcp=(
             "tracker_checklists_create",
             {
-                "key": "DE-33",
+                "issue_key": "DE-33",
                 "body": {
                     "text": "Q4 goal",
                     "deadline": {"date": "2026-10-01", "deadline_type": "quarter"},
@@ -138,7 +138,7 @@ CASES = [
         mcp=(
             "tracker_checklists_update",
             {
-                "key": "DE-34",
+                "issue_key": "DE-34",
                 "item_id": "5f4",
                 "body": {
                     "text": "step 2",
@@ -174,7 +174,7 @@ CASES = [
         cli=["tracker", "checklists", "update", "DE-35", "5f5", "--checked"],
         mcp=(
             "tracker_checklists_update",
-            {"key": "DE-35", "item_id": "5f5", "body": {"checked": True}},
+            {"issue_key": "DE-35", "item_id": "5f5", "body": {"checked": True}},
         ),
         exchanges=[
             (
@@ -188,7 +188,7 @@ CASES = [
         "tracker.checklists.delete",
         args=("DE-36", "5f6"),
         cli=["tracker", "checklists", "delete", "DE-36", "5f6"],
-        mcp=("tracker_checklists_delete", {"key": "DE-36", "item_id": "5f6"}),
+        mcp=("tracker_checklists_delete", {"issue_key": "DE-36", "item_id": "5f6"}),
         exchanges=[
             (
                 Sent("DELETE", "issues/DE-36/checklistItems/5f6"),
@@ -200,7 +200,7 @@ CASES = [
         "tracker.checklists.clear",
         args=("DE-37",),
         cli=["tracker", "checklists", "clear", "DE-37"],
-        mcp=("tracker_checklists_clear", {"key": "DE-37"}),
+        mcp=("tracker_checklists_clear", {"issue_key": "DE-37"}),
         exchanges=[
             (
                 Sent("DELETE", "issues/DE-37/checklistItems"),

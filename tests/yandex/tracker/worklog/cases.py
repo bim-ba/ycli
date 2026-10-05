@@ -11,7 +11,7 @@ CASES = [
         args=("DE-61",),
         kwargs={"limit": 500},
         cli=["tracker", "worklog", "list", "DE-61"],
-        mcp=("tracker_worklog_list", {"key": "DE-61"}),
+        mcp=("tracker_worklog_list", {"issue_key": "DE-61"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-61/worklog", {"perPage": "100"}),
@@ -32,7 +32,7 @@ CASES = [
         args=("DE-62",),
         kwargs={"limit": 3},
         cli=["tracker", "worklog", "list", "DE-62", "--limit", "3"],
-        mcp=("tracker_worklog_list", {"key": "DE-62", "limit": 3}),
+        mcp=("tracker_worklog_list", {"issue_key": "DE-62", "limit": 3}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-62/worklog", {"perPage": "3"}),
@@ -180,7 +180,7 @@ CASES = [
         mcp=(
             "tracker_worklog_create",
             {
-                "key": "DE-66",
+                "issue_key": "DE-66",
                 "body": {
                     "duration": "PT2H",
                     "start": "2021-03-04T10:00:00.000+0300",
@@ -224,7 +224,7 @@ CASES = [
         mcp=(
             "tracker_worklog_update",
             {
-                "key": "DE-67",
+                "issue_key": "DE-67",
                 "record_id": "671",
                 "body": {"duration": "PT45M", "comment": "trimmed"},
             },
@@ -244,7 +244,7 @@ CASES = [
         "tracker.worklog.delete",
         args=("DE-68", "681"),
         cli=["tracker", "worklog", "delete", "DE-68", "681"],
-        mcp=("tracker_worklog_delete", {"key": "DE-68", "record_id": "681"}),
+        mcp=("tracker_worklog_delete", {"issue_key": "DE-68", "record_id": "681"}),
         exchanges=[(Sent("DELETE", "issues/DE-68/worklog/681"), Reply(status=204))],
     ),
 ]

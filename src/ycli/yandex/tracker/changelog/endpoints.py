@@ -21,7 +21,7 @@ def _entry_id(entry: ChangelogEntry) -> str | None:
 
 
 def list_(
-    key: str,
+    issue_key: str,
     *,
     field: str | None,
     change_type: str | None,
@@ -32,7 +32,7 @@ def list_(
     return Paged(
         Endpoint(
             "GET",
-            f"issues/{segment(key)}/changelog",
+            f"issues/{segment(issue_key)}/changelog",
             ItemList[ChangelogEntry],
             params={"perPage": page_size, "field": field, "type": change_type, "sort": sort},
         ),

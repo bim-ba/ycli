@@ -32,12 +32,12 @@ def _record_id(record: Worklog) -> str | None:
     return str(record.id) if record.id is not None else None
 
 
-def list_(key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Worklog], Worklog]:
+def list_(issue_key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Worklog], Worklog]:
     """``GET /issues/{key}/worklog``: ascending ids, each next page from ``id=<last record>``."""
     return Paged(
         Endpoint(
             "GET",
-            f"issues/{segment(key)}/worklog",
+            f"issues/{segment(issue_key)}/worklog",
             ItemList[Worklog],
             params={"perPage": page_size},
         ),
@@ -59,17 +59,17 @@ def list_global(
     return Endpoint("GET", "worklog", ItemList[Worklog], params=params)
 
 
-def create(key: str, body: WorklogCreate) -> Endpoint[Worklog]:
-    return Endpoint("POST", f"issues/{segment(key)}/worklog", Worklog, json=body)
+def create(issue_key: str, body: WorklogCreate) -> Endpoint[Worklog]:
+    return Endpoint("POST", f"issues/{segment(issue_key)}/worklog", Worklog, json=body)
 
 
-def update(key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
-    path = f"issues/{segment(key)}/worklog/{segment(record_id)}"
+def update(issue_key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
+    path = f"issues/{segment(issue_key)}/worklog/{segment(record_id)}"
     return Endpoint("PATCH", path, Worklog, json=body)
 
 
-def delete(key: str, record_id: int | str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(key)}/worklog/{segment(record_id)}")
+def delete(issue_key: str, record_id: int | str) -> Endpoint[None]:
+    return Endpoint("DELETE", f"issues/{segment(issue_key)}/worklog/{segment(record_id)}")
 
 
 def import_(issue_key: str, body: ImportWorklog) -> Endpoint[ItemList[Worklog]]:

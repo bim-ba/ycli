@@ -29,7 +29,7 @@ mcp = FastMCP("tracker-comments")
 
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Tracker issue comments"})
 def list_(
-    key: IssueKey,
+    issue_key: IssueKey,
     limit: Annotated[
         int | None,
         Field(ge=1, description=f"Max comments to return; {LIMIT_CAP}"),
@@ -44,12 +44,12 @@ def list_(
     are truncated at the cap rather than fetched forever.
     """
     cap = config.http.cap(limit)
-    return client.comments.list(key, limit=cap, expand=expand)
+    return client.comments.list(issue_key, limit=cap, expand=expand)
 
 
 @mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"})
 def get(
-    key: IssueKey,
+    issue_key: IssueKey,
     comment_id: Annotated[
         str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
     ],
@@ -60,7 +60,7 @@ def get(
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """One comment of a Tracker issue: text, author, edit history and, on request, attachments."""
-    return client.comments.get(key, comment_id, expand=expand)
+    return client.comments.get(issue_key, comment_id, expand=expand)
 
 
 @mcp.tool(
@@ -68,10 +68,10 @@ def get(
     annotations={**WRITE, "title": "Add Tracker issue comment"},
 )
 def create(
-    key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Comment:
     """Add a comment to a Tracker issue; returns the created comment."""
-    return client.comments.create(key, body)
+    return client.comments.create(issue_key, body)
 
 
 @mcp.tool(
@@ -79,7 +79,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue comment"},
 )
 def update(
-    key: IssueKey,
+    issue_key: IssueKey,
     comment_id: CommentID,
     body: CommentUpdate,
     client: TrackerClient = Depends(tracker_client),
@@ -88,7 +88,7 @@ def update(
 
     Get ``comment_id`` from ``comments_list``. Returns the updated comment.
     """
-    return client.comments.update(key, comment_id, body)
+    return client.comments.update(issue_key, comment_id, body)
 
 
 @mcp.tool(
@@ -96,14 +96,14 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
 )
 def delete(
-    key: IssueKey, comment_id: CommentID, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, comment_id: CommentID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently delete one comment from a Tracker issue (irreversible).
 
     Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success.
     """
-    client.comments.delete(key, comment_id)
-    return Ack.deleted("comment", comment_id, on=key)
+    client.comments.delete(issue_key, comment_id)
+    return Ack.deleted("comment", comment_id, on=issue_key)
 
 
 @mcp.tool(
@@ -111,7 +111,7 @@ def delete(
     annotations={**WRITE, "title": "React to Tracker issue comment"},
 )
 def reactions_create(
-    key: IssueKey,
+    issue_key: IssueKey,
     comment_id: CommentID,
     name: Annotated[
         str, Field(description="Reaction name, e.g. ``like``, ``dislike`` or ``fire``.")
@@ -123,7 +123,7 @@ def reactions_create(
     ``name`` is the reaction name (e.g. ``like``, ``dislike``, ``fire``). Returns the comment
     with its updated reactions.
     """
-    return client.comments.reactions_create(key, comment_id, name)
+    return client.comments.reactions_create(issue_key, comment_id, name)
 
 
 @mcp.tool(

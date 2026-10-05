@@ -29,7 +29,7 @@ mcp = FastMCP("tracker-checklists")
 
 @mcp.tool(name="checklists_list", annotations={**RO, "title": "Get Tracker issue checklist"})
 def list_(
-    key: Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")],
+    issue_key: Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[ChecklistItem]:
     """The checklist items on a Tracker issue (text, done flag, assignee, per-item deadline).
@@ -37,7 +37,7 @@ def list_(
     Returns a flat array; an issue with no checklist yields an empty list. Item ids from here
     feed ``checklists_update`` / ``checklists_delete``.
     """
-    return client.checklists.list(key)
+    return client.checklists.list(issue_key)
 
 
 @mcp.tool(
@@ -45,13 +45,13 @@ def list_(
     annotations={**WRITE, "title": "Add Tracker checklist item"},
 )
 def create(
-    key: IssueKey, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Checklist:
     """Add an item to a Tracker issue's checklist (creates the checklist if absent).
 
     Returns the issue with its full checklist.
     """
-    return client.checklists.create(key, body)
+    return client.checklists.create(issue_key, body)
 
 
 @mcp.tool(
@@ -59,7 +59,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker checklist item"},
 )
 def update(
-    key: IssueKey,
+    issue_key: IssueKey,
     item_id: ChecklistItemID,
     body: ChecklistItemUpdate,
     client: TrackerClient = Depends(tracker_client),
@@ -68,7 +68,7 @@ def update(
 
     Get ``item_id`` from ``checklists_list``. Returns the issue with its updated checklist.
     """
-    return client.checklists.update(key, item_id, body)
+    return client.checklists.update(issue_key, item_id, body)
 
 
 @mcp.tool(
@@ -76,22 +76,22 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker checklist item"},
 )
 def delete(
-    key: IssueKey, item_id: ChecklistItemID, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, item_id: ChecklistItemID, client: TrackerClient = Depends(tracker_client)
 ) -> Checklist:
     """Permanently remove one item from a Tracker issue's checklist (irreversible).
 
     Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining checklist.
     """
-    return client.checklists.delete(key, item_id)
+    return client.checklists.delete(issue_key, item_id)
 
 
 @mcp.tool(
     name="checklists_clear",
     annotations={**DESTRUCTIVE, "title": "Clear Tracker issue checklist"},
 )
-def clear(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+def clear(issue_key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Checklist:
     """Permanently delete the ENTIRE checklist of a Tracker issue (all items, irreversible).
 
     Returns the issue without its checklist.
     """
-    return client.checklists.clear(key)
+    return client.checklists.clear(issue_key)

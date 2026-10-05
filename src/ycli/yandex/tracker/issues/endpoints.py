@@ -27,13 +27,13 @@ SEARCH_PAGE_SIZE = 100
 
 
 def get(
-    key: str,
+    issue_key: str,
     *,
     expand: str | None,
     fields: str | None,
 ) -> Endpoint[Issue]:
     return Endpoint(
-        "GET", f"issues/{segment(key)}", Issue, params={"expand": expand, "fields": fields}
+        "GET", f"issues/{segment(issue_key)}", Issue, params={"expand": expand, "fields": fields}
     )
 
 
@@ -92,12 +92,12 @@ def create(
     return Endpoint("POST", "issues/", Issue, json=body, params={"notify": notify})
 
 
-def update(key: str, body: IssueUpdate) -> Endpoint[Issue]:
-    return Endpoint("PATCH", f"issues/{segment(key)}", Issue, json=body)
+def update(issue_key: str, body: IssueUpdate) -> Endpoint[Issue]:
+    return Endpoint("PATCH", f"issues/{segment(issue_key)}", Issue, json=body)
 
 
 def move(
-    key: str,
+    issue_key: str,
     queue: str,
     *,
     expand: str | None,
@@ -114,7 +114,7 @@ def move(
         "notify": notify,
         "notifyAuthor": notify_author,
     }
-    return Endpoint("POST", f"issues/{segment(key)}/_move", Issue, params=params)
+    return Endpoint("POST", f"issues/{segment(issue_key)}/_move", Issue, params=params)
 
 
 def suggest(

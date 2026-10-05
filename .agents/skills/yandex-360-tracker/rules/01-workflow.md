@@ -106,7 +106,7 @@ Yandex Tracker assigns suffixed transition IDs when the same target status is
 reachable from multiple source statuses (e.g. `cancelled`, `cancelled1`,
 `cancelled2`). The available transitions depend on the issue's **current** status.
 
-Always run `uv run ycli tracker transitions list <KEY>` immediately before
+Always run `uv run ycli tracker transitions list <ISSUE_KEY>` immediately before
 `transitions execute` and use the IDs it returns. Executing a transition that is not
 in the available list returns 400.
 
@@ -126,7 +126,7 @@ Primary-workflow expectations:
 | Any → `needInfo` | Comment listing the specific open questions |
 
 If a transition rejects with a "field required" error, run
-`uv run ycli tracker transitions list <KEY>` — the response describes the fields each
+`uv run ycli tracker transitions list <ISSUE_KEY>` — the response describes the fields each
 transition expects — then re-run `execute` with those fields via `-F`.
 
 ## Resolution Values
@@ -147,7 +147,7 @@ type in a typical Primary configuration:
 | `cantReproduce` | Can't reproduce | Не воспроизводится | Bug could not be reproduced |
 
 Pass it through the `-F` hatch:
-`uv run ycli tracker transitions execute KEY closed -F 'resolution={"key":"fixed"}'`.
+`uv run ycli tracker transitions execute ISSUE_KEY closed -F 'resolution={"key":"fixed"}'`.
 
 ## Closing Rules
 

@@ -10,7 +10,7 @@
     {
       "name": "tracker_comments_create",
       "arguments": {
-        "key": "DE-14",
+        "issue_key": "DE-14",
         "body": {
           "text": "Готово ✅"
         }

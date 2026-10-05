@@ -22,23 +22,23 @@ from ycli.yandex.tracker.checklists.models import (
 )
 
 
-def list_(key: str) -> Endpoint[ItemList[ChecklistItem]]:
-    return Endpoint("GET", f"issues/{segment(key)}/checklistItems", ItemList[ChecklistItem])
+def list_(issue_key: str) -> Endpoint[ItemList[ChecklistItem]]:
+    return Endpoint("GET", f"issues/{segment(issue_key)}/checklistItems", ItemList[ChecklistItem])
 
 
-def create(key: str, body: ChecklistItemCreate) -> Endpoint[Checklist]:
-    return Endpoint("POST", f"issues/{segment(key)}/checklistItems", Checklist, json=body)
+def create(issue_key: str, body: ChecklistItemCreate) -> Endpoint[Checklist]:
+    return Endpoint("POST", f"issues/{segment(issue_key)}/checklistItems", Checklist, json=body)
 
 
-def update(key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
-    path = f"issues/{segment(key)}/checklistItems/{segment(item_id)}"
+def update(issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
+    path = f"issues/{segment(issue_key)}/checklistItems/{segment(item_id)}"
     return Endpoint("PATCH", path, Checklist, json=body)
 
 
-def delete(key: str, item_id: str) -> Endpoint[Checklist]:
-    path = f"issues/{segment(key)}/checklistItems/{segment(item_id)}"
+def delete(issue_key: str, item_id: str) -> Endpoint[Checklist]:
+    path = f"issues/{segment(issue_key)}/checklistItems/{segment(item_id)}"
     return Endpoint("DELETE", path, Checklist)
 
 
-def clear(key: str) -> Endpoint[Checklist]:
-    return Endpoint("DELETE", f"issues/{segment(key)}/checklistItems", Checklist)
+def clear(issue_key: str) -> Endpoint[Checklist]:
+    return Endpoint("DELETE", f"issues/{segment(issue_key)}/checklistItems", Checklist)

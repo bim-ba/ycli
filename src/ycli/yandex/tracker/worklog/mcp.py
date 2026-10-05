@@ -33,7 +33,7 @@ mcp = FastMCP("tracker-worklog")
 
 @mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"})
 def list_(
-    key: IssueKey,
+    issue_key: IssueKey,
     limit: Annotated[
         int | None,
         Field(ge=1, description=f"Max records to return; {LIMIT_CAP}"),
@@ -46,11 +46,11 @@ def list_(
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
     is given.
 
-    Scoped to one issue by ``key``. To search worklog across the whole org (by author and/or a
+    Scoped to one issue by ``issue_key``. To search worklog across the whole org (by author and/or a
     creation-time range) use ``worklog_search`` instead.
     """
     cap = config.http.cap(limit)
-    return client.worklog.list(key, limit=cap)
+    return client.worklog.list(issue_key, limit=cap)
 
 
 @mcp.tool(name="worklog_search", annotations={**RO, "title": "Search Tracker worklog"})
@@ -106,10 +106,10 @@ def list_global(
     annotations={**WRITE, "title": "Add Tracker worklog record"},
 )
 def create(
-    key: IssueKey, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Worklog:
     """Log spent time on a Tracker issue; returns the created worklog record."""
-    return client.worklog.create(key, body)
+    return client.worklog.create(issue_key, body)
 
 
 @mcp.tool(
@@ -117,7 +117,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker worklog record"},
 )
 def update(
-    key: IssueKey,
+    issue_key: IssueKey,
     record_id: WorklogRecordID,
     body: WorklogUpdate,
     client: TrackerClient = Depends(tracker_client),
@@ -126,7 +126,7 @@ def update(
 
     Get ``record_id`` from ``worklog_list``. Returns the updated record.
     """
-    return client.worklog.update(key, record_id, body)
+    return client.worklog.update(issue_key, record_id, body)
 
 
 @mcp.tool(
@@ -134,14 +134,14 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker worklog record"},
 )
 def delete(
-    key: IssueKey, record_id: WorklogRecordID, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, record_id: WorklogRecordID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently delete a worklog record from a Tracker issue (irreversible).
 
     Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.
     """
-    client.worklog.delete(key, record_id)
-    return Ack.deleted("worklog", record_id, on=key)
+    client.worklog.delete(issue_key, record_id)
+    return Ack.deleted("worklog", record_id, on=issue_key)
 
 
 @mcp.tool(

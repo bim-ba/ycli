@@ -10,7 +10,7 @@
     {
       "name": "tracker_issues_update",
       "arguments": {
-        "key": "DE-7",
+        "issue_key": "DE-7",
         "body": {
           "summary": "Renamed",
           "priority": {
