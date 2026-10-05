@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.77.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.76.0
+  ([`b56121f`](https://github.com/bim-ba/ycli/commit/b56121f6b4738aa2096045c9681eca810b73b6e9))
+
+### Features
+
+- A service account's key and a Yandex Cloud organization sign in
+  ([#251](https://github.com/bim-ba/ycli/pull/251),
+  [`77536c7`](https://github.com/bim-ba/ycli/commit/77536c78bb3bc13515fca84a6c7d6bad734a6bf0))
+
+
 ## v0.76.0 (2026-10-05)
 
 ### Bug Fixes
