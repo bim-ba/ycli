@@ -62,8 +62,6 @@ class GetLicensesArgs(RequestBody):
         default=None,
         alias="userIds",
         description="IDs of users whose licenses should be returned.",
-        max_length=1000,
-        min_length=0,
     )
     status: Literal["active", "expired", "expiring"] | str | None = Field(
         default=None, description="License status to filter by."
@@ -74,12 +72,7 @@ class GetLicensesArgs(RequestBody):
     order: Literal["asc", "desc"] | str | None = Field(
         default=None, description="License sort order."
     )
-    limit: float | None = Field(
-        default=None,
-        description="Maximum number of licenses to return.",
-        ge=1.0,
-        le=200.0,
-    )
+    limit: float | None = Field(default=None, description="Maximum number of licenses to return.")
     page_token: str | None = Field(
         default=None,
         alias="pageToken",
@@ -88,12 +81,7 @@ class GetLicensesArgs(RequestBody):
 
 
 class SetLicenseLimitArgs(RequestBody):
-    value: float = Field(
-        ...,
-        description="Maximum number of licenses allowed for the tenant.",
-        ge=1.0,
-        le=10000.0,
-    )
+    value: float = Field(..., description="Maximum number of licenses allowed for the tenant.")
 
 
 class License(APIModel):
@@ -132,11 +120,7 @@ class License(APIModel):
 
 class AssignLicensesArgs(RequestBody):
     user_ids: list[str] = Field(
-        ...,
-        alias="userIds",
-        description="IDs of users to assign licenses to.",
-        max_length=1000,
-        min_length=1,
+        ..., alias="userIds", description="IDs of users to assign licenses to."
     )
 
 

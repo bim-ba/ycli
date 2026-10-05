@@ -91,7 +91,15 @@ SPEC = {
             "UpdateChartArgs": {
                 "type": "object",
                 "description": "Only the fields given are changed.",
-                "properties": {"chartId": {"type": "string"}, "meta": {"$ref": REF + "ChartMeta"}},
+                "properties": {
+                    "chartId": {"type": "string", "minLength": 1, "maxLength": 36, "pattern": "^c"},
+                    "meta": {"$ref": REF + "ChartMeta"},
+                    "tags": {
+                        "type": "array",
+                        "maxItems": 5,
+                        "items": {"type": "integer", "minimum": 0},
+                    },
+                },
                 "additionalProperties": False,
             },
             "DeleteArgs": {
@@ -157,6 +165,12 @@ def test_the_specification_is_prepared_for_ycli_rules():
     # A property may be called `default`; the keyword of that name is gone, and so is every
     # directive to the generator.
     assert schemas["charts.ChartMeta2TagsItem"]["properties"] == {"default": {"type": "string"}}
+    # A limit on a value is the API's to enforce: none is copied.
+    assert schemas["charts.UpdateChartArgs"]["properties"]["chartId"] == {"type": "string"}
+    assert schemas["charts.UpdateChartArgs"]["properties"]["tags"] == {
+        "type": "array",
+        "items": {"type": "integer"},
+    }
     text = json.dumps(prepared)
     assert '"default": "save"' not in text and "subprocess" not in text
     assert chart["owner"] == {"$ref": REF + "shared.User"}
@@ -233,6 +247,19 @@ def test_the_small_specification_becomes_modules_that_follow_the_rules():
 def test_a_generated_module_is_nothing_but_models(module, found):
     """The modules come from a downloaded document and every test run imports them."""
     assert gen.foreign(module) == found
+
+
+def test_a_generated_model_refuses_nothing_the_api_could_take():
+    """ARCH-9 on the generated layer: no length, range or pattern limit, and no validator."""
+    from tests.architecture.test_arch9 import _refusals
+
+    found = [
+        text
+        for home in GENERATED
+        for path in sorted((SRC / home).glob("*.py"))
+        for _, text in _refusals(str(path.relative_to(SRC)), path.read_text(encoding="utf-8"))
+    ]
+    assert found == []
 
 
 def test_no_generated_file_differs_from_what_the_script_wrote():

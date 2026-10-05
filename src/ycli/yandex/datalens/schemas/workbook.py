@@ -111,11 +111,7 @@ class GetWorkbooksListArgs(RequestBody):
 
 class GetWorkbooksByIdsArgs(RequestBody):
     workbook_ids: list[str] = Field(
-        ...,
-        alias="workbookIds",
-        description="IDs of the workbooks to retrieve.",
-        max_length=1000,
-        min_length=1,
+        ..., alias="workbookIds", description="IDs of the workbooks to retrieve."
     )
 
 

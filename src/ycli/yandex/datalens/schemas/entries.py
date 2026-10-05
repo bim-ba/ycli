@@ -69,11 +69,7 @@ class GetRevisionsArgs(RequestBody):
         ..., alias="entryId", description="Unique identifier of the DataLens entry."
     )
     page_size: int | None = Field(
-        default=None,
-        alias="pageSize",
-        description="Number of revisions per page.",
-        ge=1,
-        le=1000,
+        default=None, alias="pageSize", description="Number of revisions per page."
     )
     page_token: str | None = Field(
         default=None,
@@ -81,11 +77,7 @@ class GetRevisionsArgs(RequestBody):
         description="Token for retrieving the next page of revisions.",
     )
     rev_ids: list[str] | None = Field(
-        default=None,
-        alias="revIds",
-        description="IDs of revisions to return.",
-        max_length=1000,
-        min_length=1,
+        default=None, alias="revIds", description="IDs of revisions to return."
     )
 
 

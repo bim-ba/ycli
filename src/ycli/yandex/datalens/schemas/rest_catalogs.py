@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -23,7 +23,6 @@ class ListCatalogsArgs(RequestBody):
         default=None,
         alias="pageSize",
         description="Maximum number of REST catalogs to return. The default is 100.",
-        ge=0,
     )
     page_token: str | None = Field(
         default=None,
@@ -43,10 +42,6 @@ class ListCatalogsArgs(RequestBody):
         alias="includePermissions",
         description="Include permission information in the response.",
     )
-
-
-class Labels(RootModel[str]):
-    root: str = Field(..., max_length=63, pattern="^[-_0-9a-z]*$")
 
 
 class ListCatalogsResultRestCatalogsItemCreatedAt(APIModel):
@@ -99,18 +94,10 @@ class CreateRestCatalogArgsBucketSettings(APIModel):
         ...,
         alias="maxSize",
         description="Maximum size of the REST catalog bucket in bytes.",
-        pattern="^\\d+$",
     )
-    alias: str = Field(
-        ...,
-        description="Human-readable alias of the REST catalog bucket.",
-        max_length=50,
-        min_length=1,
-    )
+    alias: str = Field(..., description="Human-readable alias of the REST catalog bucket.")
     description: str | None = Field(
-        default=None,
-        description="Description of the REST catalog bucket.",
-        max_length=1024,
+        default=None, description="Description of the REST catalog bucket."
     )
 
 
@@ -119,19 +106,10 @@ class CreateRestCatalogArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment in which to create the REST catalog.",
-        max_length=50,
-        min_length=1,
     )
-    name: str = Field(
-        ...,
-        description="Name of the REST catalog.",
-        max_length=63,
-        pattern="^[a-z](?:[a-z0-9_-]*[a-z0-9])?$",
-    )
-    description: str | None = Field(
-        default=None, description="Description of the REST catalog.", max_length=200
-    )
-    labels: dict[str, Labels] | None = Field(default=None, description="REST catalog labels.")
+    name: str = Field(..., description="Name of the REST catalog.")
+    description: str | None = Field(default=None, description="Description of the REST catalog.")
+    labels: dict[str, str] | None = Field(default=None, description="REST catalog labels.")
     bucket_settings: CreateRestCatalogArgsBucketSettings = Field(..., alias="bucketSettings")
 
 

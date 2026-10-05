@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -14,7 +14,6 @@ class ListSparkClustersArgs(RequestBody):
         default=None,
         alias="pageSize",
         description="Maximum number of Spark clusters to return. The default is 100.",
-        ge=0,
     )
     page_token: str | None = Field(
         default=None,
@@ -29,55 +28,27 @@ class ListSparkClustersArgs(RequestBody):
         default=None,
         alias="collectionId",
         description="ID of the DataLens collection that contains the Spark clusters.",
-        max_length=50,
-        min_length=1,
     )
 
 
 class GetSparkClusterArgs(RequestBody):
-    id: str = Field(
-        ...,
-        description="ID of the Spark cluster to return.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class Labels(RootModel[str]):
-    root: str = Field(..., max_length=63, pattern="^[-_0-9a-z]*$")
+    id: str = Field(..., description="ID of the Spark cluster to return.")
 
 
 class DeleteSparkClusterArgs(RequestBody):
-    id: str = Field(
-        ...,
-        description="ID of the Spark cluster to delete.",
-        max_length=50,
-        min_length=1,
-    )
+    id: str = Field(..., description="ID of the Spark cluster to delete.")
 
 
 class StartSparkClusterArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster to start.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster to start.")
 
 
 class StopSparkClusterArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster to stop.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster to stop.")
 
 
 class SparkResourcePreset(APIModel):
-    id: str = Field(..., description="ID of the resource preset.", min_length=1)
+    id: str = Field(..., description="ID of the resource preset.")
     cores: str = Field(
         ..., description="Number of CPU cores for an instance created with the preset."
     )
@@ -104,21 +75,16 @@ class ListSparkResourcePresetsArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment to list resource presets for.",
-        max_length=50,
-        min_length=1,
     )
     page_size: int | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of resource presets to return.",
-        ge=0,
-        le=1000,
     )
     page_token: str | None = Field(
         default=None,
         alias="pageToken",
         description="Token for the next page of resource presets.",
-        max_length=100,
     )
 
 
@@ -127,24 +93,16 @@ class GetSparkResourcePresetArgs(RequestBody):
         ...,
         alias="resourcePresetId",
         description="ID of the resource preset to return.",
-        max_length=50,
-        min_length=1,
     )
     cloud_environment_id: str = Field(
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment the resource preset is requested for.",
-        max_length=50,
-        min_length=1,
     )
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(
-        ...,
-        description="Number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
-    )
+    size: str = Field(..., description="Number of instances in the resource pool.")
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant2AutoScale(APIModel):
@@ -152,28 +110,21 @@ class SparkClusterConfigResourcePoolsDriverScalePolicyVariant2AutoScale(APIModel
         ...,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
     max_size: str = Field(
         ...,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
     )
     initial_size: str = Field(
         ...,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(
-        ...,
-        description="Number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
-    )
+    size: str = Field(..., description="Number of instances in the resource pool.")
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale(APIModel):
@@ -181,19 +132,16 @@ class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale(APIMod
         ...,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
     max_size: str = Field(
         ...,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
     )
     initial_size: str = Field(
         ...,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
 
 
@@ -219,11 +167,7 @@ class SparkClusterConfigLogging(APIModel):
 
 
 class CreateSparkClusterArgsConfigResourcePoolsDriverScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(
-        ...,
-        description="Number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
-    )
+    size: str = Field(..., description="Number of instances in the resource pool.")
 
 
 class CreateSparkClusterArgsConfigResourcePoolsDriverScalePolicyVariant2AutoScale(APIModel):
@@ -231,28 +175,21 @@ class CreateSparkClusterArgsConfigResourcePoolsDriverScalePolicyVariant2AutoScal
         ...,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
     max_size: str = Field(
         ...,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
     )
     initial_size: str = Field(
         ...,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
 
 
 class CreateSparkClusterArgsConfigResourcePoolsExecutorScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(
-        ...,
-        description="Number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
-    )
+    size: str = Field(..., description="Number of instances in the resource pool.")
 
 
 class CreateSparkClusterArgsConfigResourcePoolsExecutorScalePolicyVariant2AutoScale(APIModel):
@@ -260,19 +197,16 @@ class CreateSparkClusterArgsConfigResourcePoolsExecutorScalePolicyVariant2AutoSc
         ...,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
     max_size: str = Field(
         ...,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
-        pattern="^(?:[1-9]|[1-9]\\d|100)$",
     )
     initial_size: str = Field(
         ...,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
-        pattern="^(?:0|[1-9]\\d?|100)$",
     )
 
 
@@ -353,11 +287,7 @@ class SparkClusterConfigResourcePoolsDriver(APIModel):
     """Driver resource pool."""
 
     resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Spark resource preset.",
-        max_length=50,
-        min_length=1,
+        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
     )
     scale_policy: (
         SparkClusterConfigResourcePoolsDriverScalePolicyVariant1
@@ -369,11 +299,7 @@ class SparkClusterConfigResourcePoolsExecutor(APIModel):
     """Executor resource pool."""
 
     resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Spark resource preset.",
-        max_length=50,
-        min_length=1,
+        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
     )
     scale_policy: (
         SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1
@@ -385,11 +311,7 @@ class CreateSparkClusterArgsConfigResourcePoolsDriver(APIModel):
     """Driver resource pool."""
 
     resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Spark resource preset.",
-        max_length=50,
-        min_length=1,
+        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
     )
     scale_policy: (
         CreateSparkClusterArgsConfigResourcePoolsDriverScalePolicyVariant1
@@ -401,11 +323,7 @@ class CreateSparkClusterArgsConfigResourcePoolsExecutor(APIModel):
     """Executor resource pool."""
 
     resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Spark resource preset.",
-        max_length=50,
-        min_length=1,
+        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
     )
     scale_policy: (
         CreateSparkClusterArgsConfigResourcePoolsExecutorScalePolicyVariant1
@@ -444,21 +362,19 @@ class CreateSparkClusterArgsConfig(APIModel):
 
 
 class SparkCluster(APIModel):
-    id: str = Field(..., description="ID of the Spark cluster.", min_length=1)
+    id: str = Field(..., description="ID of the Spark cluster.")
     cluster_id: str = Field(..., alias="clusterId", description="ID of the managed Spark cluster.")
     collection_id: str = Field(
         ...,
         alias="collectionId",
         description="ID of the DataLens collection that contains the cluster.",
-        min_length=1,
     )
     cloud_environment_id: str = Field(
         ...,
         alias="cloudEnvironmentId",
         description="ID of the associated cloud environment.",
-        min_length=1,
     )
-    name: str = Field(..., description="Name of the Spark cluster.", min_length=1)
+    name: str = Field(..., description="Name of the Spark cluster.")
     description: str = Field(..., description="Description of the Spark cluster.")
     labels: dict[str, str] = Field(..., description="Spark cluster labels.")
     config: SparkClusterConfig
@@ -501,24 +417,13 @@ class CreateSparkClusterArgs(RequestBody):
         ...,
         alias="collectionId",
         description="ID of the DataLens collection in which to create the cluster.",
-        max_length=50,
-        min_length=1,
     )
     cloud_environment_id: str = Field(
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment in which to create the cluster.",
-        max_length=50,
-        min_length=1,
     )
-    name: str = Field(
-        ...,
-        description="Name of the Spark cluster.",
-        max_length=63,
-        pattern="^[a-zA-Z0-9ЁёА-я]\\S{1,61}[a-zA-Z0-9ЁёА-я]$",
-    )
-    description: str | None = Field(
-        default=None, description="Description of the Spark cluster.", max_length=200
-    )
-    labels: dict[str, Labels] | None = Field(default=None, description="Spark cluster labels.")
+    name: str = Field(..., description="Name of the Spark cluster.")
+    description: str | None = Field(default=None, description="Description of the Spark cluster.")
+    labels: dict[str, str] | None = Field(default=None, description="Spark cluster labels.")
     config: CreateSparkClusterArgsConfig

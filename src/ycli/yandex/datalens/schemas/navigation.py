@@ -4,20 +4,11 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-
-
-class Type(RootModel[list[str]]):
-    root: list[str] = Field(
-        ...,
-        description="Entry type or types to filter by.",
-        max_length=10,
-        min_length=1,
-    )
 
 
 class GetEntriesV2ResultEntriesItemVariant1(APIModel):
@@ -90,9 +81,7 @@ class ListDirectoryArgsFilters(APIModel):
 
 
 class GetEntriesV2Args(RequestBody):
-    ids: list[str] | None = Field(
-        default=None, description="IDs of entries to return.", max_length=1000
-    )
+    ids: list[str] | None = Field(default=None, description="IDs of entries to return.")
     scope: (
         Literal[
             "dash",
@@ -109,14 +98,15 @@ class GetEntriesV2Args(RequestBody):
         | None
     ) = Field(default=None, description="Scope used to filter entries.")
     scopes: list[shared.EntryScope] | None = Field(
-        default=None, description="Scopes used to filter entries.", min_length=1
+        default=None, description="Scopes used to filter entries."
     )
-    type: str | Type | None = Field(default=None, description="Entry type or types to filter by.")
+    type: str | list[str] | None = Field(
+        default=None, description="Entry type or types to filter by."
+    )
     created_by: list[str] | None = Field(
         default=None,
         alias="createdBy",
         description="IDs of entry creators to filter by.",
-        max_length=1000,
     )
     order_by: GetEntriesV2ArgsOrderBy | None = Field(default=None, alias="orderBy")
     exclude_locked: bool | None = Field(
@@ -134,8 +124,6 @@ class GetEntriesV2Args(RequestBody):
         default=None,
         alias="pageSize",
         description="Maximum number of entries to return.",
-        ge=1,
-        le=200,
     )
     include_permissions_info: bool | None = Field(
         default=None,

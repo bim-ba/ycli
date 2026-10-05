@@ -9,73 +9,35 @@ from pydantic import Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 
-class FilterItem(RootModel[str]):
-    root: str = Field(
-        ...,
-        max_length=200,
-        pattern='^(?:name|created_by|application_type|catalog_id)="[^"]*"$',
-    )
-
-
 class ListSparkApplicationsArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     page_size: int | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of Spark applications to return. The default is 100.",
-        ge=0,
-        le=1000,
     )
     page_token: str | None = Field(
         default=None,
         alias="pageToken",
         description="Token for the next page of Spark applications.",
-        max_length=200,
     )
-    filter: list[FilterItem] | None = Field(
+    filter: list[str] | None = Field(
         default=None,
         description='Filter conditions applied to the Spark application list, combined with AND. Each condition has the form `field="value"`, where field is one of `name`, `created_by`, `application_type` or `catalog_id`.',
-        max_length=100,
     )
 
 
 class GetSparkApplicationArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     application_id: str = Field(
-        ...,
-        alias="applicationId",
-        description="ID of the Spark application to return.",
-        max_length=50,
-        min_length=1,
+        ..., alias="applicationId", description="ID of the Spark application to return."
     )
 
 
 class CancelSparkApplicationArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     application_id: str = Field(
-        ...,
-        alias="applicationId",
-        description="ID of the Spark application to cancel.",
-        max_length=50,
-        min_length=1,
+        ..., alias="applicationId", description="ID of the Spark application to cancel."
     )
 
 
@@ -85,37 +47,23 @@ class ListSparkApplicationLogResult(APIModel):
         ...,
         alias="nextPageToken",
         description="Token for the next fragment of the Spark application log.",
-        max_length=200,
     )
 
 
 class ListSparkApplicationLogArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     application_id: str = Field(
-        ...,
-        alias="applicationId",
-        description="ID of the Spark application.",
-        max_length=50,
-        min_length=1,
+        ..., alias="applicationId", description="ID of the Spark application."
     )
     page_size: int | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum length of the returned log fragment.",
-        ge=0,
-        le=1048576,
     )
     page_token: str | None = Field(
         default=None,
         alias="pageToken",
         description="Token for the next fragment of the Spark application log.",
-        max_length=200,
     )
 
 
@@ -141,94 +89,37 @@ class SparkApplicationVariant1FinishedAt(APIModel):
 
 
 class SparkApplicationVariant1CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class Arg(RootModel[str]):
-    root: str = Field(..., max_length=2047)
-
-
-class JarFileUri(RootModel[str]):
-    root: str = Field(..., max_length=2047)
-
-
-class FileUri(RootModel[str]):
-    root: str = Field(..., max_length=2047)
-
-
-class ArchiveUri(RootModel[str]):
-    root: str = Field(..., max_length=2047)
-
-
-class Properties(RootModel[str]):
-    root: str = Field(..., max_length=256)
-
-
-class Package(RootModel[str]):
-    root: str = Field(..., max_length=255)
-
-
-class Repository(RootModel[str]):
-    root: str = Field(..., max_length=2047)
-
-
-class ExcludePackage(RootModel[str]):
-    root: str = Field(..., max_length=255)
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class SparkApplicationVariant1SparkApplication(APIModel):
-    args: list[Arg] = Field(
-        ..., description="Arguments passed to the Spark driver.", max_length=100
+    args: list[str] = Field(..., description="Arguments passed to the Spark driver.")
+    jar_file_uris: list[str] = Field(
+        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
     )
-    jar_file_uris: list[JarFileUri] = Field(
-        ...,
-        alias="jarFileUris",
-        description="JAR files added to the Spark classpaths.",
-        max_length=100,
-    )
-    file_uris: list[FileUri] = Field(
+    file_uris: list[str] = Field(
         ...,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] = Field(
+    archive_uris: list[str] = Field(
         ...,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] = Field(..., description="Spark configuration properties.")
+    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
     main_jar_file_uri: str = Field(
         ...,
         alias="mainJarFileUri",
         description="URI of the JAR file that contains the main class.",
-        max_length=2047,
-        min_length=1,
     )
-    main_class: str = Field(
-        ...,
-        alias="mainClass",
-        description="Name of the driver main class.",
-        max_length=255,
-    )
-    packages: list[Package] = Field(
-        ..., description="Maven packages added to the Spark classpaths.", max_length=100
-    )
-    repositories: list[Repository] = Field(
-        ..., description="Additional Maven repositories.", max_length=10
-    )
-    exclude_packages: list[ExcludePackage] = Field(
+    main_class: str = Field(..., alias="mainClass", description="Name of the driver main class.")
+    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
+    repositories: list[str] = Field(..., description="Additional Maven repositories.")
+    exclude_packages: list[str] = Field(
         ...,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
@@ -254,66 +145,39 @@ class SparkApplicationVariant2FinishedAt(APIModel):
 
 
 class SparkApplicationVariant2CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class PythonFileUri(RootModel[str]):
-    root: str = Field(..., max_length=2047)
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class SparkApplicationVariant2PysparkApplication(APIModel):
-    args: list[Arg] = Field(
-        ..., description="Arguments passed to the PySpark driver.", max_length=100
+    args: list[str] = Field(..., description="Arguments passed to the PySpark driver.")
+    jar_file_uris: list[str] = Field(
+        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
     )
-    jar_file_uris: list[JarFileUri] = Field(
-        ...,
-        alias="jarFileUris",
-        description="JAR files added to the Spark classpaths.",
-        max_length=100,
-    )
-    file_uris: list[FileUri] = Field(
+    file_uris: list[str] = Field(
         ...,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] = Field(
+    archive_uris: list[str] = Field(
         ...,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] = Field(..., description="Spark configuration properties.")
+    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
     main_python_file_uri: str = Field(
-        ...,
-        alias="mainPythonFileUri",
-        description="URI of the main Python file.",
-        max_length=2047,
-        min_length=1,
+        ..., alias="mainPythonFileUri", description="URI of the main Python file."
     )
-    python_file_uris: list[PythonFileUri] = Field(
+    python_file_uris: list[str] = Field(
         ...,
         alias="pythonFileUris",
         description="Additional Python files passed to PySpark.",
-        max_length=100,
     )
-    packages: list[Package] = Field(
-        ..., description="Maven packages added to the Spark classpaths.", max_length=100
-    )
-    repositories: list[Repository] = Field(
-        ..., description="Additional Maven repositories.", max_length=10
-    )
-    exclude_packages: list[ExcludePackage] = Field(
+    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
+    repositories: list[str] = Field(..., description="Additional Maven repositories.")
+    exclude_packages: list[str] = Field(
         ...,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
@@ -339,46 +203,30 @@ class SparkApplicationVariant3FinishedAt(APIModel):
 
 
 class SparkApplicationVariant3CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class SparkApplicationVariant3SparkConnectApplication(APIModel):
-    jar_file_uris: list[JarFileUri] = Field(
-        ...,
-        alias="jarFileUris",
-        description="JAR files added to the Spark classpaths.",
-        max_length=100,
+    jar_file_uris: list[str] = Field(
+        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
     )
-    file_uris: list[FileUri] = Field(
+    file_uris: list[str] = Field(
         ...,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] = Field(
+    archive_uris: list[str] = Field(
         ...,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] = Field(..., description="Spark configuration properties.")
-    packages: list[Package] = Field(
-        ..., description="Maven packages added to the Spark classpaths.", max_length=100
-    )
-    repositories: list[Repository] = Field(
-        ..., description="Additional Maven repositories.", max_length=10
-    )
-    exclude_packages: list[ExcludePackage] = Field(
+    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
+    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
+    repositories: list[str] = Field(..., description="Additional Maven repositories.")
+    exclude_packages: list[str] = Field(
         ...,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
@@ -404,204 +252,142 @@ class SparkApplicationVariant4FinishedAt(APIModel):
 
 
 class SparkApplicationVariant4CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class CreateSparkApplicationArgsVariant1CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class CreateSparkApplicationArgsVariant1SparkApplication(APIModel):
-    args: list[Arg] | None = Field(
-        default=None,
-        description="Arguments passed to the Spark driver.",
-        max_length=100,
+    args: list[str] | None = Field(
+        default=None, description="Arguments passed to the Spark driver."
     )
-    jar_file_uris: list[JarFileUri] | None = Field(
+    jar_file_uris: list[str] | None = Field(
         default=None,
         alias="jarFileUris",
         description="JAR files added to the Spark classpaths.",
-        max_length=100,
     )
-    file_uris: list[FileUri] | None = Field(
+    file_uris: list[str] | None = Field(
         default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] | None = Field(
+    archive_uris: list[str] | None = Field(
         default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] | None = Field(
+    properties: dict[str, str] | None = Field(
         default=None, description="Spark configuration properties."
     )
     main_jar_file_uri: str = Field(
         ...,
         alias="mainJarFileUri",
         description="URI of the JAR file that contains the main class.",
-        max_length=2047,
-        min_length=1,
     )
     main_class: str | None = Field(
-        default=None,
-        alias="mainClass",
-        description="Name of the driver main class.",
-        max_length=255,
+        default=None, alias="mainClass", description="Name of the driver main class."
     )
-    packages: list[Package] | None = Field(
-        default=None,
-        description="Maven packages added to the Spark classpaths.",
-        max_length=100,
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
     )
-    repositories: list[Repository] | None = Field(
-        default=None, description="Additional Maven repositories.", max_length=10
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
     )
-    exclude_packages: list[ExcludePackage] | None = Field(
+    exclude_packages: list[str] | None = Field(
         default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
 class CreateSparkApplicationArgsVariant2CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class CreateSparkApplicationArgsVariant2PysparkApplication(APIModel):
-    args: list[Arg] | None = Field(
-        default=None,
-        description="Arguments passed to the PySpark driver.",
-        max_length=100,
+    args: list[str] | None = Field(
+        default=None, description="Arguments passed to the PySpark driver."
     )
-    jar_file_uris: list[JarFileUri] | None = Field(
+    jar_file_uris: list[str] | None = Field(
         default=None,
         alias="jarFileUris",
         description="JAR files added to the Spark classpaths.",
-        max_length=100,
     )
-    file_uris: list[FileUri] | None = Field(
+    file_uris: list[str] | None = Field(
         default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] | None = Field(
+    archive_uris: list[str] | None = Field(
         default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] | None = Field(
+    properties: dict[str, str] | None = Field(
         default=None, description="Spark configuration properties."
     )
     main_python_file_uri: str = Field(
-        ...,
-        alias="mainPythonFileUri",
-        description="URI of the main Python file.",
-        max_length=2047,
-        min_length=1,
+        ..., alias="mainPythonFileUri", description="URI of the main Python file."
     )
-    python_file_uris: list[PythonFileUri] | None = Field(
+    python_file_uris: list[str] | None = Field(
         default=None,
         alias="pythonFileUris",
         description="Additional Python files passed to PySpark.",
-        max_length=100,
     )
-    packages: list[Package] | None = Field(
-        default=None,
-        description="Maven packages added to the Spark classpaths.",
-        max_length=100,
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
     )
-    repositories: list[Repository] | None = Field(
-        default=None, description="Additional Maven repositories.", max_length=10
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
     )
-    exclude_packages: list[ExcludePackage] | None = Field(
+    exclude_packages: list[str] | None = Field(
         default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
 class CreateSparkApplicationArgsVariant3CatalogsItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
+    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
 
 
 class CreateSparkApplicationArgsVariant3SparkConnectApplication(APIModel):
-    jar_file_uris: list[JarFileUri] | None = Field(
+    jar_file_uris: list[str] | None = Field(
         default=None,
         alias="jarFileUris",
         description="JAR files added to the Spark classpaths.",
-        max_length=100,
     )
-    file_uris: list[FileUri] | None = Field(
+    file_uris: list[str] | None = Field(
         default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
-        max_length=100,
     )
-    archive_uris: list[ArchiveUri] | None = Field(
+    archive_uris: list[str] | None = Field(
         default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
-        max_length=100,
     )
-    properties: dict[str, Properties] | None = Field(
+    properties: dict[str, str] | None = Field(
         default=None, description="Spark configuration properties."
     )
-    packages: list[Package] | None = Field(
-        default=None,
-        description="Maven packages added to the Spark classpaths.",
-        max_length=100,
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
     )
-    repositories: list[Repository] | None = Field(
-        default=None, description="Additional Maven repositories.", max_length=10
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
     )
-    exclude_packages: list[ExcludePackage] | None = Field(
+    exclude_packages: list[str] | None = Field(
         default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
-        max_length=100,
     )
 
 
 class SparkApplicationVariant1(APIModel):
-    id: str = Field(..., description="ID of the Spark application.", max_length=50, min_length=1)
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    id: str = Field(..., description="ID of the Spark application.")
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     created_at: SparkApplicationVariant1CreatedAt = Field(..., alias="createdAt")
     started_at: SparkApplicationVariant1StartedAt | None = Field(..., alias="startedAt")
     finished_at: SparkApplicationVariant1FinishedAt | None = Field(..., alias="finishedAt")
@@ -610,7 +396,6 @@ class SparkApplicationVariant1(APIModel):
         ...,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
-        min_length=1,
     )
     status: (
         Literal[
@@ -636,14 +421,8 @@ class SparkApplicationVariant1(APIModel):
 
 
 class SparkApplicationVariant2(APIModel):
-    id: str = Field(..., description="ID of the Spark application.", max_length=50, min_length=1)
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    id: str = Field(..., description="ID of the Spark application.")
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     created_at: SparkApplicationVariant2CreatedAt = Field(..., alias="createdAt")
     started_at: SparkApplicationVariant2StartedAt | None = Field(..., alias="startedAt")
     finished_at: SparkApplicationVariant2FinishedAt | None = Field(..., alias="finishedAt")
@@ -652,7 +431,6 @@ class SparkApplicationVariant2(APIModel):
         ...,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
-        min_length=1,
     )
     status: (
         Literal[
@@ -678,14 +456,8 @@ class SparkApplicationVariant2(APIModel):
 
 
 class SparkApplicationVariant3(APIModel):
-    id: str = Field(..., description="ID of the Spark application.", max_length=50, min_length=1)
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    id: str = Field(..., description="ID of the Spark application.")
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     created_at: SparkApplicationVariant3CreatedAt = Field(..., alias="createdAt")
     started_at: SparkApplicationVariant3StartedAt | None = Field(..., alias="startedAt")
     finished_at: SparkApplicationVariant3FinishedAt | None = Field(..., alias="finishedAt")
@@ -694,7 +466,6 @@ class SparkApplicationVariant3(APIModel):
         ...,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
-        min_length=1,
     )
     status: (
         Literal[
@@ -720,14 +491,8 @@ class SparkApplicationVariant3(APIModel):
 
 
 class SparkApplicationVariant4(APIModel):
-    id: str = Field(..., description="ID of the Spark application.", max_length=50, min_length=1)
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
+    id: str = Field(..., description="ID of the Spark application.")
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     created_at: SparkApplicationVariant4CreatedAt = Field(..., alias="createdAt")
     started_at: SparkApplicationVariant4StartedAt | None = Field(..., alias="startedAt")
     finished_at: SparkApplicationVariant4FinishedAt | None = Field(..., alias="finishedAt")
@@ -736,7 +501,6 @@ class SparkApplicationVariant4(APIModel):
         ...,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
-        min_length=1,
     )
     status: (
         Literal[
@@ -758,19 +522,8 @@ class SparkApplicationVariant4(APIModel):
 
 
 class CreateSparkApplicationArgsVariant1(APIModel):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    name: str | None = Field(
-        default=None,
-        description="Name of the Spark application.",
-        max_length=255,
-        pattern="^(?:|[a-z][-a-z0-9]{1,61}[a-z0-9])$",
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant1CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
@@ -780,19 +533,8 @@ class CreateSparkApplicationArgsVariant1(APIModel):
 
 
 class CreateSparkApplicationArgsVariant2(APIModel):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    name: str | None = Field(
-        default=None,
-        description="Name of the Spark application.",
-        max_length=255,
-        pattern="^(?:|[a-z][-a-z0-9]{1,61}[a-z0-9])$",
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant2CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
@@ -802,19 +544,8 @@ class CreateSparkApplicationArgsVariant2(APIModel):
 
 
 class CreateSparkApplicationArgsVariant3(APIModel):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Spark cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    name: str | None = Field(
-        default=None,
-        description="Name of the Spark application.",
-        max_length=255,
-        pattern="^(?:|[a-z][-a-z0-9]{1,61}[a-z0-9])$",
-    )
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant3CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
@@ -847,7 +578,6 @@ class ListSparkApplicationsResult(APIModel):
         ...,
         alias="nextPageToken",
         description="Token for the next page of Spark applications.",
-        max_length=200,
     )
 
 
