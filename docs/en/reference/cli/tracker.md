@@ -4454,12 +4454,12 @@ Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities bulk-get [OPTIONS] OPERATION_ID
+$ ycli tracker entities bulk-get [OPTIONS] BULK_ID
 ```
 
 **Arguments**:
 
-* `OPERATION_ID`: Bulk-change id.  [required]
+* `BULK_ID`: Bulk-change id.  [required]
 
 **Options**:
 

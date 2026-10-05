@@ -15,14 +15,14 @@ if TYPE_CHECKING:
 class FillingClient(Resource):
     """Fill a form the way a respondent does."""
 
-    def get(self, survey: str, key: str | None = None) -> FillableForm:
-        """``GET /surveys/{survey}/form`` → the :class:`FillableForm` settings for filling.
+    def get(self, survey_id: str, key: str | None = None) -> FillableForm:
+        """``GET /surveys/{survey_id}/form`` → the :class:`FillableForm` settings for filling.
 
-        ``survey`` is the form id, its slug, or an id+verification-key combination; ``key`` is
+        ``survey_id`` is the form id, its slug, or an id+verification-key combination; ``key`` is
         the personal-link fill key. The call also checks that the form is published and fillable.
 
         Args:
-            survey: The form's id, slug, or id+verification-key combination.
+            survey_id: The form's id, slug, or id+verification-key combination.
             key: The personal-link fill key.
 
         Returns:
@@ -32,18 +32,23 @@ class FillingClient(Resource):
             >>> forms.filling.get("686d0a1b2c3d4e5f00000060", key="k-1").name
             'Feedback'
         """
-        return self._session.send(endpoints.get(survey, key=key))
+        return self._session.send(endpoints.get(survey_id, key=key))
 
     def submit(
-        self, survey: str, body: SubmitBody, *, validate_only: bool = False, key: str | None = None
+        self,
+        survey_id: str,
+        body: SubmitBody,
+        *,
+        validate_only: bool = False,
+        key: str | None = None,
     ) -> SubmitResult:
-        """``POST /surveys/{survey}/form`` — submit a response → :class:`SubmitResult`.
+        """``POST /surveys/{survey_id}/form`` — submit a response → :class:`SubmitResult`.
 
         ``body`` maps each question ``slug`` to its answer. ``validate_only=True`` validates
         everything but saves nothing and fires no integrations.
 
         Args:
-            survey: The form's id, slug, or id+verification-key combination.
+            survey_id: The form's id, slug, or id+verification-key combination.
             body: The answers, keyed by question ``slug``.
             validate_only: Whether to validate only, saving nothing.
             key: The personal-link fill key.
@@ -57,26 +62,26 @@ class FillingClient(Resource):
             >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
-        endpoint = endpoints.submit(survey, body, validate_only=validate_only, key=key or None)
+        endpoint = endpoints.submit(survey_id, body, validate_only=validate_only, key=key or None)
         return self._session.send(endpoint)
 
     def suggest(
         self,
-        survey: str,
+        survey_id: str,
         *,
         question: str | None = None,
         text: str | None = None,
         suggest_id: str | None = None,
         parent_id: str | None = None,
     ) -> ItemList[Suggestion]:
-        """``GET /surveys/{survey}/suggest`` → prompts for a fill field (read-only).
+        """``GET /surveys/{survey_id}/suggest`` → prompts for a fill field (read-only).
 
         ``question`` is the question slug, ``text`` the search text, ``suggest_id`` (the API's
         ``id``) a comma-separated list of suggestion ids to resolve, and ``parent_id`` scopes a
         Master/Detail lookup.
 
         Args:
-            survey: The form's id, slug, or id+verification-key combination.
+            survey_id: The form's id, slug, or id+verification-key combination.
             question: The question's slug.
             text: The search text.
             suggest_id: A comma-separated list of suggestion ids to resolve.
@@ -97,4 +102,4 @@ class FillingClient(Resource):
             "id": suggest_id or None,
             "parent_id": parent_id or None,
         }
-        return self._session.send(endpoints.suggest(survey, params))
+        return self._session.send(endpoints.suggest(survey_id, params))

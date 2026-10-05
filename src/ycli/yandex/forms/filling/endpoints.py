@@ -12,20 +12,20 @@ from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitRes
 from ycli.yandex.models import ItemList
 
 
-def get(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
-    return Endpoint("GET", f"surveys/{segment(survey)}/form", FillableForm, params={"key": key})
+def get(survey_id: str, *, key: str | None) -> Endpoint[FillableForm]:
+    return Endpoint("GET", f"surveys/{segment(survey_id)}/form", FillableForm, params={"key": key})
 
 
 def submit(
-    survey: str, body: SubmitBody, *, validate_only: bool, key: str | None
+    survey_id: str, body: SubmitBody, *, validate_only: bool, key: str | None
 ) -> Endpoint[SubmitResult]:
     params = {"dry_run": flag(validate_only), "key": key}
     return Endpoint(
-        "POST", f"surveys/{segment(survey)}/form", SubmitResult, json=body, params=params
+        "POST", f"surveys/{segment(survey_id)}/form", SubmitResult, json=body, params=params
     )
 
 
-def suggest(survey: str, params: dict[str, str | None]) -> Endpoint[ItemList[Suggestion]]:
+def suggest(survey_id: str, params: dict[str, str | None]) -> Endpoint[ItemList[Suggestion]]:
     return Endpoint(
-        "GET", f"surveys/{segment(survey)}/suggest", ItemList[Suggestion], params=params
+        "GET", f"surveys/{segment(survey_id)}/suggest", ItemList[Suggestion], params=params
     )

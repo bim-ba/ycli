@@ -15,7 +15,7 @@ CASES = [
         args=(SID,),
         kwargs={"key": "k-1"},
         cli=["forms", "filling", "get", SID, "--key", "k-1"],
-        mcp=("forms_filling_get", {"survey": SID, "key": "k-1"}),
+        mcp=("forms_filling_get", {"survey_id": SID, "key": "k-1"}),
         exchanges=[(Sent("GET", f"surveys/{SID}/form", {"key": "k-1"}), Reply(json=FORM))],
     ),
     Case(
@@ -36,7 +36,7 @@ CASES = [
         mcp=(
             "forms_filling_submit",
             {
-                "survey": SID,
+                "survey_id": SID,
                 "body": {"name": "Ann", "rating": 5},
                 "validate_only": True,
                 "key": "k-2",
@@ -75,7 +75,7 @@ CASES = [
         mcp=(
             "forms_filling_suggest",
             {
-                "survey": SID,
+                "survey_id": SID,
                 "question": "city",
                 "text": "Ber",
                 "suggest_id": "1,2",

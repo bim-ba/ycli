@@ -874,7 +874,7 @@ Post a response with ``filling_submit``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `survey` | string | yes | Form id, its slug, or an id+verification-key combination. |
+| `survey_id` | string | yes | Form id, its slug, or an id+verification-key combination. |
 | `key` | string or null |  | Personal-link fill key, when the form uses one. |
 
 ## `forms_filling_suggest`
@@ -888,7 +888,7 @@ item's ``id``/``text`` is a candidate value for the answer.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `survey` | string | yes | Form id or slug. |
+| `survey_id` | string | yes | Form id or slug. |
 | `question` | string or null |  | Question slug to suggest for. |
 | `text` | string or null |  | Search text typed so far. |
 | `suggest_id` | string or null |  | Comma-separated suggestion-object ids to resolve (the API's ``id``). |
@@ -906,7 +906,7 @@ Returns the success-page payload (``answer_id`` confirms the save).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `survey` | string | yes | Form id or slug of a published form. |
+| `survey_id` | string | yes | Form id or slug of a published form. |
 | `body` | object | yes | Answer map keyed by question slug (see ``filling_get`` for the slugs). |
 | `validate_only` | boolean |  | Validate only — saves nothing and fires no integrations. |
 | `key` | string or null |  | Personal-link fill key, when the form uses one. |

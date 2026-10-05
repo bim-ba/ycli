@@ -2024,7 +2024,7 @@ Current status of an async entity bulk-change operation started by ``entities_up
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `operation_id` | string | yes | Operation id returned by entities_update_bulk. |
+| `bulk_id` | string | yes | Operation id returned by entities_update_bulk. |
 
 ## `tracker_entities_comments_list_relative`
 

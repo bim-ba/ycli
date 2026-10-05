@@ -42,9 +42,9 @@ forms files delete: --dry-run:BOOLEAN=False --format:CHOICE --path:TEXT --profil
 forms files download: --download:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --hash:TEXT --output:TEXT --path:TEXT! --profile:TEXT --yes:BOOLEAN=False
 forms files upload: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FILE_PATH:FILE! SURVEY_ID:TEXT!
 forms files verify: --dry-run:BOOLEAN=False --format:CHOICE --path:TEXT --profile:TEXT --url:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
-forms filling get: --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY:TEXT!
-forms filling submit: --body-file:FILE! --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT --profile:TEXT --validate-only:BOOLEAN=False --yes:BOOLEAN=False SURVEY:TEXT!
-forms filling suggest: --dry-run:BOOLEAN=False --format:CHOICE --parent-id:TEXT --profile:TEXT --question:TEXT --suggest-id:TEXT --text:TEXT --yes:BOOLEAN=False SURVEY:TEXT!
+forms filling get: --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms filling submit: --body-file:FILE! --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT --profile:TEXT --validate-only:BOOLEAN=False --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms filling suggest: --dry-run:BOOLEAN=False --format:CHOICE --parent-id:TEXT --profile:TEXT --question:TEXT --suggest-id:TEXT --text:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms history list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --ordering:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms hooks create: --active:BOOLEAN --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms hooks delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False HOOK_ID:INTEGER! SURVEY_ID:TEXT!
@@ -144,7 +144,7 @@ tracker entities attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --p
 tracker entities attachments download: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILENAME:TEXT! FILE_ID:TEXT!
 tracker entities attachments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT! FILE_ID:TEXT!
 tracker entities attachments list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
-tracker entities bulk-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
+tracker entities bulk-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False BULK_ID:TEXT!
 tracker entities checklists create: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities checklists delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities checklists items-delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT! ITEM_ID:TEXT!
