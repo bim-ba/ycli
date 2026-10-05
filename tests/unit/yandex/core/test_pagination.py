@@ -166,3 +166,17 @@ def test_a_next_page_on_another_host_gets_its_own_host_header():
     following = pagination.next(_request(), response, [1])
     assert following is not None
     assert following.headers["Host"] == "cdn.test"
+
+
+def test_a_body_cursor_is_sent_as_the_number_it_is_read_as():
+    """DataLens takes the page of two listings by its number, and page 0 is a page."""
+    pagination = BodyCursorPagination(
+        cursor_of=lambda response: response.json().get("page"), cursor_param="page"
+    )
+    bare = httpx2.Request("POST", BASE)
+    first = pagination.next(bare, httpx2.Response(200, json={"page": 0}), [1])
+    assert first is not None
+    assert json.loads(first.content) == {"page": 0}
+    assert pagination.next(first, httpx2.Response(200, json={"page": 0}), [1]) is None
+    assert pagination.next(first, httpx2.Response(200, json={"page": ""}), [1]) is None
+    assert pagination.next(first, httpx2.Response(200, json={}), [1]) is None

@@ -2,20 +2,21 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and what they hold, creating, moving and deleting them, the roles on them, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks), reads and writes, and the details of the DataLens instance. Workbooks, connections, datasets, charts and dashboards are not wrapped yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, and the details of the DataLens instance. Connections, datasets, charts and dashboards are listed as the entries of a workbook but not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
 - Finding a collection or a workbook: listing the root and descending
-- Creating, renaming, moving or deleting collections
-- Seeing or changing who has which role on a collection
+- Listing what a workbook holds: its connections, datasets, charts and dashboards
+- Creating, renaming, moving or deleting collections and workbooks
+- Seeing or changing who has which role on a collection or a workbook
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -24,7 +25,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
 - Reading or editing Forms — use `yandex-360-forms`
-- Workbooks, connections, datasets, charts, dashboards — not wrapped yet
+- Opening or changing a connection, dataset, chart or dashboard — not wrapped yet
 
 ## Surfaces
 
@@ -68,6 +69,15 @@ DataLens differs from the other services in both credentials:
 | Path from the root | `uv run ycli datalens collections breadcrumbs-list <collection_id>` | `datalens_collections_breadcrumbs_list` |
 | What you may create in the root | `uv run ycli datalens collections permissions-get-root` | `datalens_collections_permissions_get_root` |
 | Who has which role | `uv run ycli datalens collections access-bindings-list <collection_id> [--get-inherited-bindings]` | `datalens_collections_access_bindings_list` |
+| Workbooks of the root, or of one collection | `uv run ycli datalens workbooks list [--collection-id <id>] [--filter-string …] [--all]` | `datalens_workbooks_list` |
+| One workbook | `uv run ycli datalens workbooks get <workbook_id>` | `datalens_workbooks_get` |
+| Several workbooks by id | `uv run ycli datalens workbooks list-by-ids <id> <id>…` | `datalens_workbooks_list_by_ids` |
+| What a workbook holds | `uv run ycli datalens workbooks entries-list <workbook_id> [--scope dash] [--scope dataset] [--all]` | `datalens_workbooks_entries_list` |
+| Who has which role on a workbook | `uv run ycli datalens workbooks access-bindings-list <workbook_id>` | `datalens_workbooks_access_bindings_list` |
+
+**`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
+
+**An entry's `scope` is its kind**: `connection`, `dataset`, `widget` (a chart), `dash`, `report`. `entries-list` takes `--order-by '{"field": "name", "direction": "asc"}'` and `--filters '{"name": "sales"}'` as JSON objects.
 
 **Content is mixed.** `content-list` returns collections, workbooks and entries in one list; `entity` says which (`collection`, `workbook`, `entry`). The root has no id: leave the id out (MCP: `collection_id` null).
 
@@ -86,10 +96,15 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Delete one | `uv run ycli datalens collections delete <collection_id>` | `datalens_collections_delete` |
 | Delete several | `uv run ycli datalens collections delete-bulk <id> <id>…` | `datalens_collections_delete_bulk` |
 | Give or take away roles | `uv run ycli datalens collections access-bindings-update <collection_id> --delta '<json>'…` | `datalens_collections_access_bindings_update` |
+| Create a workbook | `uv run ycli datalens workbooks create --title … [--collection-id <id>] [--description …]` | `datalens_workbooks_create` |
+| Rename or describe a workbook | `uv run ycli datalens workbooks update <workbook_id> [--title …] [--description …]` | `datalens_workbooks_update` |
+| Move one or several workbooks | `uv run ycli datalens workbooks move <workbook_id> [--collection-id <id>]` · `move-bulk <id> <id>…` | `datalens_workbooks_move` · `datalens_workbooks_move_bulk` |
+| Delete one or several workbooks | `uv run ycli datalens workbooks delete <workbook_id>` · `delete-bulk <id> <id>…` | `datalens_workbooks_delete` · `datalens_workbooks_delete_bulk` |
+| Give or take away roles on a workbook | `uv run ycli datalens workbooks access-bindings-update <workbook_id> --delta '<json>'…` | `datalens_workbooks_access_bindings_update` |
 
-**No parent is the root.** Leave `--parent-id` / `parent_id` out to create in the root or to move there: `move <collection_id>` with no parent moves the collection to the root.
+**No parent is the root.** Leave `--parent-id` / `parent_id` (a collection) or `--collection-id` / `collection_id` (a workbook) out to create in the root or to move there: `move <id>` with no destination moves it to the root.
 
-**Deleting a collection deletes what it holds**: nested collections, workbooks and their entries. The reply lists the deleted collections.
+**Deleting a collection or a workbook deletes what it holds**: nested collections, workbooks and their entries. The reply lists what was deleted.
 
 **Roles change by deltas.** `access-bindings-update` does not replace the list: each delta adds or removes one role of one subject, and the roles it does not name stay.
 

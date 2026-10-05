@@ -168,7 +168,8 @@ class BodyCursorPagination(Pagination):
     """A cursor read from the response, sent back in the JSON body (DataLens ``pageToken``).
 
     For an API whose listings are ``POST`` with every argument in the body. ``page_size``, when
-    given, is sent with every page as ``size_param``.
+    given, is sent with every page as ``size_param``. The cursor is sent as ``cursor_of``
+    returns it: a string, or a number where the API takes the page by its number.
 
     Examples:
         >>> paging = BodyCursorPagination(cursor_of=lambda r: r.json().get("nextPageToken"))
@@ -178,7 +179,7 @@ class BodyCursorPagination(Pagination):
         b'{"scope":"dash","pageToken":"t2"}'
     """
 
-    cursor_of: Callable[[httpx2.Response], str | None]
+    cursor_of: Callable[[httpx2.Response], str | int | None]
     cursor_param: str = "pageToken"
     page_size: int | None = None
     size_param: str = "pageSize"
@@ -195,8 +196,9 @@ class BodyCursorPagination(Pagination):
         """The request with the response's cursor, or ``None`` when absent or not advancing."""
         cursor = self.cursor_of(response)
         sent = json.loads(request.content).get(self.cursor_param) if request.content else None
-        # A cursor equal to the one just sent means the API stopped advancing.
-        if not cursor or sent == cursor:
+        # A cursor equal to the one just sent means the API stopped advancing. A number is
+        # a cursor whatever its value: page 0 is a page.
+        if cursor is None or cursor == "" or sent == cursor:
             return None
         return _with_body(request, {self.cursor_param: cursor})
 
