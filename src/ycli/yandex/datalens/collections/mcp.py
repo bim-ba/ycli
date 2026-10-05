@@ -25,6 +25,7 @@ from ycli.yandex.datalens.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    PermissionsInfo,
     app_config,
     datalens_client,
 )
@@ -39,9 +40,6 @@ from ycli.yandex.models import ItemList, SortDirection
 mcp = FastMCP("datalens-collections")
 
 CollectionID = Annotated[str, Field(description="Collection id.")]
-PermissionsInfo = Annotated[
-    bool | None, Field(description="Also say what the caller may do with it.")
-]
 
 
 @mcp.tool(name="collections_get", annotations={**RO, "title": "Get DataLens collection"})

@@ -17,6 +17,18 @@ datalens collections move-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field
 datalens collections permissions-get-root: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens collections update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens workbooks access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks create: --body-file:FILE --collection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT! --yes:BOOLEAN=False
+datalens workbooks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks delete-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_IDS:TEXT!
+datalens workbooks entries-list: --all:BOOLEAN=False --body-file:FILE --created-by:TEXT --dry-run:BOOLEAN=False --field:TEXT --filters:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --only-my:BOOLEAN --order-by:TEXT --profile:TEXT --scope:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks list: --all:BOOLEAN=False --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --filter-string:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --only-my:BOOLEAN --order-direction:TEXT --order-field:TEXT --profile:TEXT --yes:BOOLEAN=False
+datalens workbooks list-by-ids: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_IDS:TEXT!
+datalens workbooks move: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbooks move-bulk: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_IDS:TEXT!
+datalens workbooks update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
 doctor: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 forms access grant: --action:TEXT! --body-file:FILE --cloud-uid:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --group-id:TEXT --group-src:TEXT --profile:TEXT --uid:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms access list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!

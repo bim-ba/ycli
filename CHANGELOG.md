@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.84.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.83.1
+  ([`5e05c67`](https://github.com/bim-ba/ycli/commit/5e05c67fd6a697439dc0c5a76b219ff1f5c933f2))
+
+### Features
+
+- **datalens**: Workbooks, read and written from the CLI, the MCP server and Python
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`a90cec5`](https://github.com/bim-ba/ycli/commit/a90cec55d0f64f8220c79568592fde449fa7b2c6))
+
+
 ## v0.83.1 (2026-10-05)
 
 ### Bug Fixes

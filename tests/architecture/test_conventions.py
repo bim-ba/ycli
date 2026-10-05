@@ -247,6 +247,12 @@ BODY_AND_REPLY = {
 }
 
 
+def _is_generated(model: type[BaseModel]) -> bool:
+    """Whether ``model`` is a class of a generated module (``GENERATED``)."""
+    homes = tuple("ycli." + ".".join(home.parts) + "." for home in GENERATED)
+    return model.__module__.startswith(homes)
+
+
 def _model_roles() -> tuple[set[type[BaseModel]], set[type[BaseModel]]]:
     """The models that request bodies are built from, and the ones replies are read into.
 
@@ -254,11 +260,10 @@ def _model_roles() -> tuple[set[type[BaseModel]], set[type[BaseModel]]]:
     generated layer keeps its own rule (the envelope of a request is closed, the rest is
     read as it comes; docs/conventions/resources.md, "Generated models").
     """
-    generated = tuple("ycli." + ".".join(home.parts) + "." for home in GENERATED)
 
     def collect(annotation: Any, found: set[type[BaseModel]], *, inside: bool = False) -> None:
         for model in api_drift._models(annotation):
-            if inside and model.__module__.startswith(generated):
+            if inside and _is_generated(model):
                 continue
             if model not in found:
                 found.add(model)
@@ -278,8 +283,16 @@ def _model_roles() -> tuple[set[type[BaseModel]], set[type[BaseModel]]]:
 
 
 def _open_bodies(bodies: set[type[BaseModel]], replies: set[type[BaseModel]]) -> list[str]:
-    """Body-only models that would send a key they do not declare."""
-    return sorted(_name(model) for model in bodies - replies if not issubclass(model, RequestBody))
+    """Body-only models that would send a key they do not declare.
+
+    A generated model is not counted: of the generated layer only the envelope of a request
+    is closed, and the generator's own tests hold that.
+    """
+    return sorted(
+        _name(model)
+        for model in bodies - replies
+        if not issubclass(model, RequestBody) and not _is_generated(model)
+    )
 
 
 def test_a_request_body_is_closed_or_listed_with_its_reason():

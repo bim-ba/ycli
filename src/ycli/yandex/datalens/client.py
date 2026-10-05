@@ -11,6 +11,7 @@ from ycli.yandex.base import DomainClient
 from ycli.yandex.datalens import SERVICE
 from ycli.yandex.datalens.collections.client import CollectionsClient
 from ycli.yandex.datalens.tenant.client import TenantClient
+from ycli.yandex.datalens.workbooks.client import WorkbooksClient
 
 
 class DataLensClient(DomainClient):
@@ -30,3 +31,4 @@ class DataLensClient(DomainClient):
     def _wire(self, session: SyncSession) -> None:
         self.tenant = TenantClient(session=session)
         self.collections = CollectionsClient(session=session)
+        self.workbooks = WorkbooksClient(session=session)

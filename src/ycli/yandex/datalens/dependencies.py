@@ -1,5 +1,9 @@
 """Per-request DataLens MCP client provider (see ycli.yandex.mcp.client_provider)."""
 
+from typing import Annotated
+
+from pydantic import Field
+
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
@@ -13,6 +17,9 @@ from ycli.yandex.mcp import (
 )
 
 TAGS: set[str] = {"datalens"}
+PermissionsInfo = Annotated[
+    bool | None, Field(description="Also say what the caller may do with it.")
+]
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
 datalens_client = client_provider(DataLensClient)
 
@@ -24,6 +31,7 @@ __all__ = [
     "WRITE",
     "WRITE_IDEMPOTENT",
     "WRITE_TAGS",
+    "PermissionsInfo",
     "app_config",
     "datalens_client",
 ]
