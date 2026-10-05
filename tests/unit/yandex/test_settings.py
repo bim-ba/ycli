@@ -3,7 +3,15 @@
 import pytest
 from pydantic import BaseModel, SecretStr, ValidationError
 
-from ycli.settings import AppConfig, Credentials, HTTPConfig, OAuthAppConfig, missing_credentials
+from ycli.settings import (
+    AppConfig,
+    Credentials,
+    HTTPConfig,
+    MCPHTTPConfig,
+    OAuthAppConfig,
+    _EnvSettings,
+    missing_credentials,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -131,6 +139,25 @@ def test_two_tokens_at_once_are_refused_and_named(monkeypatch):
         "YANDEX_ID_OAUTH_TOKEN and YANDEX_CLOUD_IAM_TOKEN are both set: keep one of them"
     )
     assert missing_credentials(caught.value) == []  # set, not missing: a configuration error
+
+
+def test_an_error_about_the_credentials_never_quotes_a_value(monkeypatch):
+    """The text of the error is what pytest, a log or an SDK caller's traceback shows."""
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "oauth-value")
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "iam-value")
+    with pytest.raises(ValidationError) as caught:
+        Credentials()
+    assert "both set" in str(caught.value)
+    assert "oauth-value" not in str(caught.value)
+    assert "iam-value" not in str(caught.value)
+    assert "oauth-value" not in repr(caught.value)
+
+
+def test_every_settings_model_hides_its_input_in_errors():
+    """A subclass with a configuration of its own still inherits the switch."""
+    models = _EnvSettings.__subclasses__()
+    assert {OAuthAppConfig, MCPHTTPConfig, Credentials} <= set(models)
+    assert all(model.model_config.get("hide_input_in_errors") for model in models)
 
 
 def test_no_token_and_no_organization_are_both_reported(monkeypatch):

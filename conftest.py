@@ -23,6 +23,7 @@ from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
 
 @cache
@@ -44,6 +45,17 @@ def _contract_api() -> MockAPI:
                 content=reply.content,
             )
     return api
+
+
+@pytest.fixture(autouse=True)
+def _no_developer_dotenv(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Run from an empty directory: the settings read ``.env`` of the working directory.
+
+    A developer keeps real credentials in the ``.env`` of the repository root. Removing a
+    variable from the environment is not enough to unset it there, so a test would pass or
+    fail by whose machine it runs on, and an error could quote a real value.
+    """
+    monkeypatch.chdir(tmp_path)
 
 
 @pytest.fixture(autouse=True)
