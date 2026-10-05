@@ -3,7 +3,7 @@
 `ycli` exposes one SDK four ways (CLI, MCP server, Python SDK, Claude Code plugin).
 Its strength is a regular, symmetric layout — and that regularity is enforced, not hoped for.
 These invariants are checked by `tests/architecture/`, import-linter (`pyproject.toml`),
-and `tests/test_snapshots.py`. A failing build names the violated invariant.
+and `tests/architecture/test_snapshots.py`. A failing build names the violated invariant.
 
 ## Layout
 
@@ -184,7 +184,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   tool returns (its output schema) change only on purpose.
 - **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
   them.
-- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures,mcp_prompts_and_resources,mcp_output_schemas}.txt`
+- **Check:** `tests/architecture/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures,mcp_prompts_and_resources,mcp_output_schemas}.txt`
   (the last holds a digest of each tool's output schema);
   accept a change with `uv run python -m tests.snapshots --update`.
 - **Exceptions:** none. Fields nested inside an MCP `body` model are not snapshotted.

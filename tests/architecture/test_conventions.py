@@ -24,7 +24,7 @@ from ycli.yandex.models import (
     ignored_fields,
 )
 
-SRC = Path(__file__).resolve().parent.parent / "src"
+SRC = Path(__file__).resolve().parents[2] / "src"
 
 # A pydantic model in ``ycli.yandex`` that is not an ``APIModel``, and why.
 MODEL_BASE_EXCEPTIONS = {

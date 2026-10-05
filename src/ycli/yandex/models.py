@@ -148,8 +148,8 @@ class WarnsOnIgnored(RequestBody):
     """A request body with a field the API ignores: giving that field a value logs a warning.
 
     A body model that marks a field with ``IGNORED_BY_API`` inherits from this class, so that
-    only such models pay for the check; ``tests/test_conventions.py`` fails on a marked model
-    that does not.
+    only such models pay for the check; ``tests/architecture/test_conventions.py`` fails on a
+    marked model that does not.
 
     Examples:
         >>> from pydantic import Field

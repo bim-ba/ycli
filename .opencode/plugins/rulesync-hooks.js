@@ -2,7 +2,7 @@ export const RulesyncHooksPlugin = async ({ $ }) => {
   return {
     event: async ({ event }) => {
       if (event.type === "session.idle") {
-        await $`cd "$(git rev-parse --show-toplevel)" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/architecture/ tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/architecture/ tests/test_snapshots.py --no-cov && uv run lint-imports'`;
+        await $`cd "$(git rev-parse --show-toplevel)" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/architecture/ -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/architecture/ tests/architecture/test_snapshots.py --no-cov && uv run lint-imports'`;
       }
     },
     "tool.execute.before": async (input) => {

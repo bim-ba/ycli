@@ -29,7 +29,7 @@ built, not something sent to the API. Never use bare `pydantic.BaseModel` inside
 
 Two lists hold what is open on purpose, each entry with its reason: `OPEN_BODIES` in
 `scripts/api_drift.py` (an issue takes custom fields; the drift comparison skips only these
-bodies) and `BODY_AND_REPLY` in `tests/test_conventions.py` (a model that both builds a body
+bodies) and `BODY_AND_REPLY` in `tests/architecture/test_conventions.py` (a model that both builds a body
 and reads a reply stays open, so a key it does not declare, nested in a body, reaches the API;
 its declared fields are still compared with the published ones).
 
@@ -40,7 +40,7 @@ A shape that two or more resources of a service read (a reference with `self`, `
 (`ycli.yandex.tracker.models.Reference`), not a class per resource. Models of one kind that
 differ by a few fields share a base class and add their own (`KeyedReference(Reference)`
 adds `key`); models of different kinds that only happen to match stay separate. A model
-used by one resource stays in that resource. `tests/test_model_shapes.py` fails when two models of a
+used by one resource stays in that resource. `tests/architecture/test_model_shapes.py` fails when two models of a
 service have the same schema, unless the group is listed in `SAME_SHAPE` with its reason.
 
 A public model that is renamed or merged stops importing under its old name in the same
@@ -421,7 +421,7 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 
 - **An acronym keeps its capitals inside a CapWords name** (PEP 8): `QueueID`, `HTTPSubscription`,
   `JSONRPCSubscription`, `SurveyAPIKey`, `ACL`; a plural adds a lower-case `s` (`UserIDs`). The
-  list is `ACRONYMS` in `tests/test_conventions.py`. A name that has a spelling of its own keeps
+  list is `ACRONYMS` in `tests/architecture/test_conventions.py`. A name that has a spelling of its own keeps
   it and is recorded with its reason in `OWN_SPELLINGS` (`OAuth`). A snake_case name is all
   lower case as before (`queue_id`, `api_key`).
 - **An `Annotated` alias is defined once.** The same text in two modules is one alias: it moves
@@ -438,16 +438,16 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 
 | Rule | Enforced by |
 |---|---|
-| `APIModel` base | `tests/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
-| No list class of a resource's own | `tests/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
+| `APIModel` base | `tests/architecture/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
+| No list class of a resource's own | `tests/architecture/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
 | `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
 | MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/architecture/test_arch3.py` |
 | Serialization confinement | `tests/architecture/test_arch4.py` |
-| Discriminated MCP output unions | `tests/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
+| Discriminated MCP output unions | `tests/architecture/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
 | MCP tool description + output schema | `tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema` |
-| Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
+| Acronyms keep their capitals in a CapWords name | `tests/architecture/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
 | One name on every surface, no synonym, `get` returns one object | `tests/architecture/test_arch1.py`: `test_arch1_cli_path_equals_mcp_name`, `test_arch1_sdk_method_equals_tool_name`, `test_arch1_a_get_returns_one_object` |
 | The verb, the parts and their order | review: `/arch-review` against [Naming an operation](#7-naming-an-operation) |
-| An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |
-| Every model field carries a description | `tests/test_conventions.py::test_every_model_field_has_a_description` |
-| An alias name means one thing | `tests/test_conventions.py::test_an_alias_name_means_one_thing` |
+| An `Annotated` alias is defined once | `tests/architecture/test_conventions.py::test_an_annotated_alias_is_defined_once` |
+| Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
+| An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |

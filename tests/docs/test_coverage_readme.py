@@ -1,6 +1,6 @@
 """The README Coverage tables are generated from the code and never drift by hand.
 
-Mirrors ``tests/test_snapshots.py``: instead of a committed snapshot file, the source of
+Mirrors ``architecture/test_snapshots.py``: instead of a committed snapshot file, the source of
 truth is ``scripts/gen_coverage.py`` (which introspects the live domain clients). The block
 embedded in ``README.md`` between the ``COVERAGE:START`` / ``COVERAGE:END`` markers must equal
 the generator's output, so the tables cannot silently fall out of sync with the code.

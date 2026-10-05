@@ -20,7 +20,7 @@ from tests.snapshots._surface import (
     mcp_signatures,
 )
 
-HERE = Path(__file__).resolve().parent / "snapshots"
+HERE = Path(__file__).resolve().parents[1] / "snapshots"
 HINT = "run `uv run python -m tests.snapshots --update` to accept the new surface"
 
 
