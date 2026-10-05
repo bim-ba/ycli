@@ -35,17 +35,17 @@ class FillingClient(Resource):
         return self._session.send(endpoints.get(survey, key=key))
 
     def submit(
-        self, survey: str, body: SubmitBody, *, dry_run: bool = False, key: str | None = None
+        self, survey: str, body: SubmitBody, *, validate_only: bool = False, key: str | None = None
     ) -> SubmitResult:
         """``POST /surveys/{survey}/form`` — submit a response → :class:`SubmitResult`.
 
-        ``body`` maps each question ``slug`` to its answer. ``dry_run=True`` validates
+        ``body`` maps each question ``slug`` to its answer. ``validate_only=True`` validates
         everything but saves nothing and fires no integrations.
 
         Args:
             survey: The form's id, slug, or id+verification-key combination.
             body: The answers, keyed by question ``slug``.
-            dry_run: Whether to validate only, saving nothing.
+            validate_only: Whether to validate only, saving nothing.
             key: The personal-link fill key.
 
         Returns:
@@ -57,7 +57,7 @@ class FillingClient(Resource):
             >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
-        endpoint = endpoints.submit(survey, body, dry_run=dry_run, key=key or None)
+        endpoint = endpoints.submit(survey, body, validate_only=validate_only, key=key or None)
         return self._session.send(endpoint)
 
     def suggest(

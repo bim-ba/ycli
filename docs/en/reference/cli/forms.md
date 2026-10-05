@@ -1786,7 +1786,7 @@ $ ycli forms notifications list [OPTIONS]
 * `--finished-since TEXT`: ISO-8601: ended at or after.
 * `--finished-until TEXT`: ISO-8601: ended at or before.
 * `--visible / --no-visible`: Only shown (or only hidden) runs.
-* `--type TEXT`: Only runs of this kind of integration. Known values: email, tracker, tracker_comment, wiki, jsonrpc, post, put, http, function.
+* `--integration-type TEXT`: Only runs of this kind of integration. Known values: email, tracker, tracker_comment, wiki, jsonrpc, post, put, http, function.
 * `--ordering TEXT`: asc is oldest first, the default. Known values: asc, desc.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
@@ -2169,7 +2169,7 @@ $ ycli forms filling suggest [OPTIONS] SURVEY_ID
 
 * `--question TEXT`: Question slug the suggestion is for.
 * `--text TEXT`: Text to search suggestions for.
-* `--id TEXT`: Comma-separated suggestion-object ids to resolve.
+* `--suggest-id TEXT`: Comma-separated suggestion-object ids to resolve.
 * `--parent-id TEXT`: Parent ids for a Master/Detail lookup.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

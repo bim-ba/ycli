@@ -71,8 +71,8 @@ def get(
     fields: Annotated[
         str | None, typer.Option(help="Extra blocks, e.g. attributes,user_permissions.")
     ] = None,
-    filter_: Annotated[
-        str | None, typer.Option("--filter", help="Row filter expr, e.g. [slug] ~ wiki.")
+    row_filter: Annotated[
+        str | None, typer.Option("--row-filter", help="Row filter expr, e.g. [slug] ~ wiki.")
     ] = None,
     only_cols: Annotated[
         str | None, typer.Option("--only-cols", help="Only these column slugs (CSV).")
@@ -91,7 +91,7 @@ def get(
     return wiki.grids.get(
         grid_id,
         fields=fields,
-        row_filter=filter_,
+        row_filter=row_filter,
         only_cols=only_cols,
         only_rows=only_rows,
         revision=revision,

@@ -67,13 +67,13 @@ MCP tool (annotated `readOnlyHint=True`).
 | CLI command | MCP tool | Purpose |
 |-------------|----------|---------|
 | `uv run ycli tracker issues get KEY` | `tracker_issues_get` | Compact view: key, summary, type, status, priority, **epic**, parent, assignee. Append `-o json` for the full raw payload (every field) |
-| `uv run ycli tracker issues list [--queue ...] [--status ...] [--assignee ...] [--epic ...] [--type ...]` | `tracker_issues_list` | Filtered list — all filters optional; pass none for everything you can read, any subset to narrow |
+| `uv run ycli tracker issues list [--queue ...] [--status ...] [--assignee ...] [--epic ...] [--issue-type ...]` | `tracker_issues_list` | Filtered list — all filters optional; pass none for everything you can read, any subset to narrow |
 | `uv run ycli tracker issues search '...'` | `tracker_issues_search` | Full-text search via Tracker Query Language |
 | `uv run ycli tracker issues count [--query '...'] [--queue X] [--status Y]` | `tracker_issues_count` | Count without listing — sanity-check a filter first. `--query` is mutually exclusive with `--queue`/`--status` |
 | `uv run ycli tracker comments list KEY` | `tracker_comments_list` | List comments |
 | `uv run ycli tracker comments get KEY ID [--expand all]` | `tracker_comments_get` | One comment (by `id` or `longId`), optionally with HTML and attachments |
 | `uv run ycli tracker links list KEY` | `tracker_links_list` | List links between issues |
-| `uv run ycli tracker links list-filtered KEY [--type 'is subtask for'] [--field …]` | `tracker_links_list_filtered` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links create`, not link type ids |
+| `uv run ycli tracker links list-filtered KEY [--link-types 'is subtask for'] [--fields …]` | `tracker_links_list_filtered` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links create`, not link type ids |
 | `uv run ycli tracker attachments list KEY` / `get KEY FILE_ID` | `tracker_attachments_list` / `tracker_attachments_get` | Attachment metadata |
 | `uv run ycli tracker changelog list KEY` | `tracker_changelog_list` | Changelog: who changed what, when |
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
@@ -238,8 +238,8 @@ below is irreversible or changes shared configuration, so confirm with the user.
 | Queue versions and access | `queues versions-get ID`, `user-permissions-get QUEUE USER`, `group-permissions-get QUEUE GROUP` | `queues versions-update ID`, `versions-delete ID` |
 | Triggers | `triggers list QUEUE` | — |
 | Projects (legacy API) | `projects list` / `get ID` / `queues ID` | `projects create` / `update` (needs `--version` and `--queues`) / `delete` |
-| Gaps (absences, admin) | `gaps search USER… [--from … --to …]` | `gaps create` (flags or `--gap` JSON) / `delete GAP_ID…` |
-| Entity rights | `entities permissions-get-direct TYPE ID` (no inheritance), `entities search report` | `entities permissions-update-direct TYPE ID --grant … --revoke …` |
+| Gaps (absences, admin) | `gaps search USER… [--date-from … --date-to …]` | `gaps create` (flags or `--gap` JSON) / `delete GAP_ID…` |
+| Entity rights | `entities permissions-get-direct ENTITY_TYPE ID` (no inheritance), `entities search report` | `entities permissions-update-direct ENTITY_TYPE ID --grant … --revoke …` |
 | Filters | `filters get ID` | `filters delete ID` |
 
 ---
@@ -277,7 +277,7 @@ below is irreversible or changes shared configuration, so confirm with the user.
 
 ### Admin-surface quirks (live-verified 2026-10-02)
 
-- **`links list-filtered --type` takes relationship phrases** (`relates`, `depends on`,
+- **`links list-filtered --link-types` takes relationship phrases** (`relates`, `depends on`,
   `is subtask for`, …), the same words as `links create`; link type ids such as `subtask` or `epic`
   answer 400.
 - **`filters delete` uses the `/v3/` route** although the docs print `/v2/`.

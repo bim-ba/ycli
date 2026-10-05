@@ -121,7 +121,8 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `get`: Print the page body (default...
+* `get`: Print the text of the page SLUG;...
+* `get-meta`: Print the page SLUG without its text: id,...
 * `descendants-list`: Print descendant slugs under SLUG...
 * `get-by-id`: Fetch a page by numeric id (GET...
 * `descendants-list-by-id`: Print descendant slugs under a numeric...
@@ -138,7 +139,7 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 
 ### `ycli wiki pages get`
 
-Print the page body (default fields=content) for SLUG.
+Print the text of the page SLUG; `get-meta` prints what is known about it.
 
 **Usage**:
 
@@ -152,9 +153,30 @@ $ ycli wiki pages get [OPTIONS] SLUG
 
 **Options**:
 
-* `--fields TEXT`: Comma-separated fields, e.g. content,attributes.  [default: content]
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
 * `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli wiki pages get-meta`
+
+Print the page SLUG without its text: id, title, attributes and owner.
+
+**Usage**:
+
+```console
+$ ycli wiki pages get-meta [OPTIONS] SLUG
+```
+
+**Arguments**:
+
+* `SLUG`: Wiki page slug.  [required]
+
+**Options**:
+
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -280,7 +302,7 @@ $ ycli wiki pages create [OPTIONS]
 * `--title TEXT`: Page title.  [required]
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--silent`: Do not notify the page's subscribers.
+* `--is-silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -306,7 +328,7 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--title TEXT`: New title (optional).
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--silent`: Do not notify the page's subscribers.
+* `--is-silent`: Do not notify the page's subscribers.
 * `--allow-merge`: Merge with a concurrent edit instead of failing.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -360,7 +382,7 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 * `--content TEXT`: YFM fragment to append — pass "$(cat file.md)".  [required]
 * `--location TEXT`: Where in the body. Known values: top, bottom.  [default: bottom]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--silent`: Do not notify the page's subscribers.
+* `--is-silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -676,7 +698,7 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: created_at.
 * `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
-* `--status TEXT`: Only comments in this state. Known values: resolved, unresolved.
+* `--status-filter TEXT`: Only comments in this state. Known values: resolved, unresolved.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -975,7 +997,7 @@ $ ycli wiki attachments attach [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--session TEXT`: Finished upload-session id to attach (repeatable).  [required]
+* `--session-ids TEXT`: Finished upload-session id to attach (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1133,7 +1155,7 @@ $ ycli wiki grids get [OPTIONS] GRID_ID
 **Options**:
 
 * `--fields TEXT`: Extra blocks, e.g. attributes,user_permissions.
-* `--filter TEXT`: Row filter expr, e.g. [slug] ~ wiki.
+* `--row-filter TEXT`: Row filter expr, e.g. [slug] ~ wiki.
 * `--only-cols TEXT`: Only these column slugs (CSV).
 * `--only-rows TEXT`: Only these row ids (CSV).
 * `--revision TEXT`: Load a historical revision.

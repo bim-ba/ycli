@@ -81,10 +81,10 @@ def delete(
 )
 def upload(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
-    file_name: Annotated[str, Field(description="Name of the file being uploaded.")],
+    filename: Annotated[str, Field(description="Name of the file being uploaded.")],
     data: Annotated[Base64Bytes, Field(description="The file's bytes, base64-encoded.")],
     rename_to: Annotated[
-        str | None, Field(description="Store the file under this name instead of ``file_name``.")
+        str | None, Field(description="Store the file under this name instead of ``filename``.")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Attachment:
@@ -93,7 +93,7 @@ def upload(
     The file travels as base64 in the request, so keep it small; for a large file run
     ``ycli tracker attachments upload`` instead.
     """
-    return client.attachments.upload(issue_key, filename=file_name, data=data, rename_to=rename_to)
+    return client.attachments.upload(issue_key, filename=filename, data=data, rename_to=rename_to)
 
 
 @mcp.tool(
@@ -101,10 +101,10 @@ def upload(
     annotations={**WRITE, "title": "Upload temporary Tracker file"},
 )
 def upload_temp(
-    file_name: Annotated[str, Field(description="Name of the file being uploaded.")],
+    filename: Annotated[str, Field(description="Name of the file being uploaded.")],
     data: Annotated[Base64Bytes, Field(description="The file's bytes, base64-encoded.")],
     rename_to: Annotated[
-        str | None, Field(description="Store the file under this name instead of ``file_name``.")
+        str | None, Field(description="Store the file under this name instead of ``filename``.")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Attachment:
@@ -113,7 +113,7 @@ def upload_temp(
     The returned ``id`` goes into ``attachmentIds`` of the issue or comment body, and works
     once. The file travels as base64 in the request, so keep it small.
     """
-    return client.attachments.upload_temp(filename=file_name, data=data, rename_to=rename_to)
+    return client.attachments.upload_temp(filename=filename, data=data, rename_to=rename_to)
 
 
 @mcp.tool(

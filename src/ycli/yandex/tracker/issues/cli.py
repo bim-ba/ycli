@@ -66,7 +66,7 @@ def list_(
     status: Annotated[str | None, typer.Option(help="Status key.")] = None,
     assignee: Annotated[str | None, typer.Option(help="Assignee login.")] = None,
     epic: Annotated[str | None, typer.Option(help="Epic key.")] = None,
-    type_: Annotated[str | None, typer.Option("--type", help="Issue type key.")] = None,
+    issue_type: Annotated[str | None, typer.Option("--issue-type", help="Issue type key.")] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
     *,
@@ -74,7 +74,7 @@ def list_(
     tracker: TrackerClient,
 ) -> ItemList[Issue]:
     """List issues matching the supplied filters (auto-paginated; --all for everything)."""
-    body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
+    body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=issue_type)
     return tracker.issues.search(body, limit=config.http.cap(limit, all_=all_))
 
 

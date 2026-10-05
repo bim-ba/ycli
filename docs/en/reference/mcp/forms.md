@@ -898,7 +898,7 @@ item's ``id``/``text`` is a candidate value for the answer.
 
 *Submit Forms response* · write
 
-Submit a response to a published form — this saves a REAL answer unless ``dry_run`` is set.
+Submit a response to a published form: a REAL answer is saved unless ``validate_only``.
 
 ``body`` maps each question ``slug`` (discover them via ``filling_get``) to its answer — a
 scalar, a string list, a ``{begin, end}`` date range, or matrix ``{row, column}`` items.
@@ -908,7 +908,7 @@ Returns the success-page payload (``answer_id`` confirms the save).
 |---|---|:---:|---|
 | `survey` | string | yes | Form id or slug of a published form. |
 | `body` | object | yes | Answer map keyed by question slug (see ``filling_get`` for the slugs). |
-| `dry_run` | boolean |  | Validate only — saves nothing and fires no integrations. |
+| `validate_only` | boolean |  | Validate only — saves nothing and fires no integrations. |
 | `key` | string or null |  | Personal-link fill key, when the form uses one. |
 
 ## `forms_hooks_list`

@@ -389,6 +389,13 @@ of new operations with it. That includes "a `get` returns one object" for a name
 and are marked in the code. A renamed operation stops answering to its old name in the same
 release, and the changelog lists both.
 
+### A parameter has one name too
+
+The name is the SDK argument's. The MCP parameter is that name, the CLI option is it with
+hyphens (`is_silent` is `--is-silent`), and a positional argument shows it in capitals
+(`ENTITY_TYPE`). Where a command has no SDK argument behind an option, it takes the name the
+tool gives the parameter (`--issue-type`).
+
 ### A deliberate departure
 
 Code that departs from a rule on purpose says so where it does, in one line:

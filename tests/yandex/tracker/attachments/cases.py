@@ -87,7 +87,7 @@ CASES = [
             "tracker_attachments_upload",
             {
                 "issue_key": "JUNE-7",
-                "file_name": "upload.txt",
+                "filename": "upload.txt",
                 "data": "YXR0YWNobWVudCBieXRlcw==",
                 "rename_to": "kept.txt",
             },
@@ -140,7 +140,7 @@ CASES = [
         mcp=(
             "tracker_attachments_upload_temp",
             {
-                "file_name": "temp-upload.txt",
+                "filename": "temp-upload.txt",
                 "data": "dGVtcG9yYXJ5IGJ5dGVz",
                 "rename_to": "scratch.txt",
             },

@@ -56,8 +56,8 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 | Operation | CLI command | MCP tool |
 |-----------|-------------|----------|
 | Full page content | `uv run ycli wiki pages get <slug>` | `wiki_pages_get` |
-| Metadata only (id, title, owner, timestamps) | `uv run ycli wiki pages get <slug> --fields attributes` | `wiki_pages_get_meta` |
-| Content **and** metadata in one call | `uv run ycli wiki pages get <slug> --fields content,attributes` | — |
+| Metadata only (id, title, owner, timestamps) | `uv run ycli wiki pages get-meta <slug>` | `wiki_pages_get_meta` |
+| Content **and** metadata in one call | `uv run ycli wiki pages get-by-id <page_id> --fields content,attributes` | `wiki_pages_get_by_id` |
 | Descendant slugs (auto-paginated) | `uv run ycli wiki pages descendants-list <slug> [--limit N \| --all]` | `wiki_pages_descendants_list` |
 | Full-text search (one page of hits) | `uv run ycli wiki pages search <text> [--type page\|file] [--cluster <slug>] [--limit N] [--cursor N]` | `wiki_pages_search` |
 | A page's saved revisions, newest first ¹ | `uv run ycli wiki pages revisions-list <page_id> [--ids 1,2] [--limit N \| --all]` | `wiki_pages_revisions_list` |
@@ -72,11 +72,11 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 # Page content
 uv run ycli wiki pages get your-space/page
 
-# Metadata only — note --fields REPLACES the default (content); body is NOT returned
-uv run ycli wiki pages get your-space/page --fields attributes
+# Metadata only: id, title, attributes and owner, without the text
+uv run ycli wiki pages get-meta your-space/page
 
-# Both at once
-uv run ycli wiki pages get your-space/page --fields content,attributes
+# Both at once, by the id that get-meta printed
+uv run ycli wiki pages get-by-id 4821 --fields content,attributes
 ```
 
 ### Tree navigation
@@ -88,7 +88,7 @@ uv run ycli wiki pages descendants-list team
 uv run ycli wiki pages descendants-list team --all   # a subtree larger than the cap
 ```
 
-Use this to build a slug→title map of a subtree, then `pages get <slug> --fields attributes` per slug for titles.
+Use this to build a slug→title map of a subtree, then `pages get-meta <slug>` per slug for titles.
 
 ¹ **Undocumented by Yandex** (see [Undocumented operations](#undocumented-operations)).
 

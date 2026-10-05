@@ -112,15 +112,15 @@ def delete(
 @app.command()
 def attach(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    session: Annotated[
+    session_ids: Annotated[
         list[str],
-        typer.Option("--session", help="Finished upload-session id to attach (repeatable)."),
+        typer.Option("--session-ids", help="Finished upload-session id to attach (repeatable)."),
     ],
     *,
     wiki: WikiClient,
 ) -> ItemList[AttachedFile]:
     """Attach uploaded file(s) to a page by upload-session id (POST /pages/{id}/attachments)."""
-    return wiki.attachments.attach(page_id, session)
+    return wiki.attachments.attach(page_id, session_ids)
 
 
 @app.command()

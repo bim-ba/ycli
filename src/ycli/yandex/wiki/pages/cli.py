@@ -52,7 +52,7 @@ ReplyFieldsOption = Annotated[
     str | None, typer.Option("--fields", help="Comma-separated blocks to include in the reply.")
 ]
 SilentOption = Annotated[
-    bool, typer.Option("--silent", help="Do not notify the page's subscribers.")
+    bool, typer.Option("--is-silent", help="Do not notify the page's subscribers.")
 ]
 IncludeSelfOption = Annotated[
     bool, typer.Option("--include-self", help="Also list the ancestor page itself.")
@@ -63,19 +63,24 @@ ShowAllOption = Annotated[bool, typer.Option("--show-all", help="The API's show_
 @app.command()
 def get(
     slug: SlugArg,
-    fields: Annotated[
-        str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
-    ] = "content",
     revision_id: RevisionIDOption = None,
     raise_on_redirect: RaiseOnRedirectOption = False,
     *,
     wiki: WikiClient,
 ) -> str:
-    """Print the page body (default fields=content) for SLUG."""
+    """Print the text of the page SLUG; `get-meta` prints what is known about it."""
+    # violation(arch-9): the API returns a page without its text unless asked; `get` shows the text
     page = wiki.pages.get(
-        slug=slug, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
+        slug=slug, fields="content", revision_id=revision_id, raise_on_redirect=raise_on_redirect
     )
     return page.content or ""
+
+
+@app.command("get-meta")
+def get_meta(slug: SlugArg, *, wiki: WikiClient) -> PageDetails:
+    """Print the page SLUG without its text: id, title, attributes and owner."""
+    # violation(arch-9): the API returns neither block unless asked; `get-meta` is those two
+    return wiki.pages.get(slug=slug, fields="attributes,owner")
 
 
 @app.command()
@@ -166,7 +171,7 @@ def create(
     title: Annotated[str, typer.Option(help="Page title.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
     fields: ReplyFieldsOption = None,
-    silent: SilentOption = False,
+    is_silent: SilentOption = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -174,7 +179,7 @@ def create(
     return wiki.pages.create(
         body=PageCreate(slug=slug, title=title, content=content),
         fields=fields,
-        is_silent=silent,
+        is_silent=is_silent,
     )
 
 
@@ -184,7 +189,7 @@ def update(
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
     title: Annotated[str | None, typer.Option(help="New title (optional).")] = None,
     fields: ReplyFieldsOption = None,
-    silent: SilentOption = False,
+    is_silent: SilentOption = False,
     allow_merge: Annotated[
         bool,
         typer.Option("--allow-merge", help="Merge with a concurrent edit instead of failing."),
@@ -197,7 +202,7 @@ def update(
         page_id=page_id,
         body=PageUpdate(content=content, title=title),
         fields=fields,
-        is_silent=silent,
+        is_silent=is_silent,
         allow_merge=allow_merge,
     )
 
@@ -221,7 +226,7 @@ def append(
     content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
     location: Annotated[str, values_option(Location, help="Where in the body.")] = "bottom",
     fields: ReplyFieldsOption = None,
-    silent: SilentOption = False,
+    is_silent: SilentOption = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -239,7 +244,7 @@ def append(
         page_id=page_id,
         body=payload,
         fields=fields,
-        is_silent=silent,
+        is_silent=is_silent,
     )
 
 
@@ -311,7 +316,7 @@ def move(
         position=position,
     )
     body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access)
-    operation = wiki.pages.move(body=body, dry_run=validate_only)
+    operation = wiki.pages.move(body=body, validate_only=validate_only)
     # A validation applies nothing, and the task id it returns answers 404 when polled.
     polled = wait and not validate_only
     if polled and operation.operation is not None and operation.operation.id is not None:

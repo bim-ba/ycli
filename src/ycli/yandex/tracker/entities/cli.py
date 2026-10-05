@@ -62,7 +62,8 @@ app = typer.Typer(
 )
 
 EntityTypeArg = Annotated[
-    str, values_argument(EntityType, metavar="TYPE", help="Entity type (report: search only).")
+    str,
+    values_argument(EntityType, metavar="ENTITY_TYPE", help="Entity type (report: search only)."),
 ]
 EntityIDArg = Annotated[str, typer.Argument(metavar="ID", help="Entity id (or shortId).")]
 EntityFieldOpt = Annotated[
@@ -108,7 +109,7 @@ def _fields_body(
 
 @app.command()
 def get(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     expand: Annotated[str | None, typer.Option(help="Extra info, e.g. attachments.")] = None,
     fields: Annotated[
@@ -118,12 +119,12 @@ def get(
     tracker: TrackerClient,
 ) -> Entity:
     """Print a single entity (project/portfolio/goal) by ID."""
-    return tracker.entities.get(type_, entity_id, expand=expand, fields=fields)
+    return tracker.entities.get(entity_type, entity_id, expand=expand, fields=fields)
 
 
 @app.command()
 def create(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     summary: Annotated[str, typer.Option(help="Entity name (required).")],
     description: Annotated[str | None, typer.Option(help="Description.")] = None,
     lead: Annotated[str | None, typer.Option(help="Responsible user id/login.")] = None,
@@ -145,17 +146,17 @@ def create(
     *,
     tracker: TrackerClient,
 ) -> Entity:
-    """Create an entity (POST /entities/TYPE). summary is required; other fields optional."""
+    """Create an entity (POST /entities/ENTITY_TYPE). summary is required; other fields optional."""
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityCreate.model_validate({"fields": fields_body})
-    return tracker.entities.create(type_, body=body, fields=fields)
+    return tracker.entities.create(entity_type, body=body, fields=fields)
 
 
 @app.command()
 def update(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     summary: Annotated[str | None, typer.Option(help="New name.")] = None,
     description: Annotated[str | None, typer.Option(help="New description.")] = None,
@@ -178,17 +179,17 @@ def update(
     *,
     tracker: TrackerClient,
 ) -> Entity:
-    """Edit entity ID (PATCH /entities/TYPE/ID) — only supplied fields are sent."""
+    """Edit entity ID (PATCH /entities/ENTITY_TYPE/ID) — only supplied fields are sent."""
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment})
-    return tracker.entities.update(type_, entity_id, body=body, expand=expand, fields=fields)
+    return tracker.entities.update(entity_type, entity_id, body=body, expand=expand, fields=fields)
 
 
 @app.command()
 def delete(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     with_board: Annotated[
         bool, typer.Option("--with-board", help="Also delete the entity's board.")
@@ -196,16 +197,16 @@ def delete(
     *,
     tracker: TrackerClient,
 ) -> Ack:
-    """Delete entity ID (DELETE /entities/TYPE/ID)."""
-    tracker.entities.delete(type_, entity_id, with_board=with_board or None)
-    return Ack.deleted(type_, entity_id)
+    """Delete entity ID (DELETE /entities/ENTITY_TYPE/ID)."""
+    tracker.entities.delete(entity_type, entity_id, with_board=with_board or None)
+    return Ack.deleted(entity_type, entity_id)
 
 
 @app.command()
 def search(
-    type_: EntityTypeArg,
-    input_: Annotated[
-        str | None, typer.Option("--input", help="Substring in the entity name.")
+    entity_type: EntityTypeArg,
+    input_text: Annotated[
+        str | None, typer.Option("--input-text", help="Substring in the entity name.")
     ] = None,
     filter_: Annotated[
         list[str] | None,
@@ -224,22 +225,22 @@ def search(
     *,
     tracker: TrackerClient,
 ) -> ItemList[Entity]:
-    """Search entities of TYPE (POST /entities/TYPE/_search)."""
+    """Search entities of ENTITY_TYPE (POST /entities/ENTITY_TYPE/_search)."""
     body = EntitySearch.model_validate(
         {
-            "input": input_,
+            "input": input_text,
             "filter": parse_fields(filter_) or None,
             "orderBy": order_by,
             "orderAsc": order_asc if order_by is not None or order_asc else None,
             "rootOnly": root_only or None,
         }
     )
-    return tracker.entities.search(type_, body, fields=fields)
+    return tracker.entities.search(entity_type, body, fields=fields)
 
 
 @app.command()
 def events_list(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     limit: Annotated[int | None, typer.Option(help="Max events (default: all).")] = None,
     selected: Annotated[str | None, typer.Option(help="Event id to build the list around.")] = None,
@@ -255,7 +256,7 @@ def events_list(
 ) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
     return tracker.entities.events_list(
-        type_,
+        entity_type,
         entity_id,
         limit=limit,
         selected=selected,
@@ -266,15 +267,15 @@ def events_list(
 
 @app.command()
 def permissions_get(
-    type_: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
 ) -> ExtendedPermissions:
     """Print an entity's access settings (GET …/extendedPermissions)."""
-    return tracker.entities.permissions_get(type_, entity_id)
+    return tracker.entities.permissions_get(entity_type, entity_id)
 
 
 @app.command("permissions-update")
 def permissions_update(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     field: Annotated[
         list[str] | None,
@@ -294,20 +295,20 @@ def permissions_update(
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
     body = PermissionsUpdate.model_validate({"acl": parse_fields(field)})
-    return tracker.entities.permissions_update(type_, entity_id, body=body)
+    return tracker.entities.permissions_update(entity_type, entity_id, body=body)
 
 
 @app.command("permissions-get-direct")
 def permissions_get_direct(
-    type_: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
 ) -> ACL:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
-    return tracker.entities.permissions_get_direct(type_, entity_id)
+    return tracker.entities.permissions_get_direct(entity_type, entity_id)
 
 
 @app.command("permissions-update-direct")
 def permissions_update_direct(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     grant: Annotated[
         str | None,
@@ -325,12 +326,12 @@ def permissions_update_direct(
         grant=ACLInput.model_validate_json(grant) if grant is not None else None,
         revoke=ACLInput.model_validate_json(revoke) if revoke is not None else None,
     )
-    return tracker.entities.permissions_update_direct(type_, entity_id, body)
+    return tracker.entities.permissions_update_direct(entity_type, entity_id, body)
 
 
 @app.command()
 def update_bulk(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
     comment: Annotated[str | None, typer.Option(help="Comment to add to every entity.")] = None,
     field: EntityFieldOpt = None,
@@ -340,7 +341,7 @@ def update_bulk(
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
     values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment)
     body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
-    return tracker.entities.update_bulk(type_, body=body)
+    return tracker.entities.update_bulk(entity_type, body=body)
 
 
 @app.command("bulk-get")
@@ -391,7 +392,7 @@ EntityCommentIDArg = Annotated[str, typer.Argument(metavar="COMMENT_ID", help="C
 
 @comments_app.command("list")
 def comments_list(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     all_: Annotated[
         bool, typer.Option("--all", help="Drain the paginated (_relative) listing.")
@@ -404,32 +405,32 @@ def comments_list(
 ) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
-        return tracker.entities.comments_list_relative(type_, entity_id, limit=limit)
-    return tracker.entities.comments_list(type_, entity_id)
+        return tracker.entities.comments_list_relative(entity_type, entity_id, limit=limit)
+    return tracker.entities.comments_list(entity_type, entity_id)
 
 
 @comments_app.command("get")
 def comments_get(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     comment_id: EntityCommentIDArg,
     *,
     tracker: TrackerClient,
 ) -> Comment:
     """Get one comment on an entity (GET …/comments/COMMENT_ID)."""
-    return tracker.entities.comments_get(type_, entity_id, comment_id)
+    return tracker.entities.comments_get(entity_type, entity_id, comment_id)
 
 
 @comments_app.command("create")
 def comments_create(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
     summon: Annotated[
         list[str] | None, typer.Option("--summon", help="User to summon (repeatable).")
     ] = None,
     expand: ExpandOpt = None,
-    add_to_followers: AddToFollowersOpt = None,
+    is_add_to_followers: AddToFollowersOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -438,11 +439,11 @@ def comments_create(
     """Add a comment to an entity (POST …/comments)."""
     body = CommentCreate(text=text, summonees=summon or None)
     return tracker.entities.comments_create(
-        type_,
+        entity_type,
         entity_id,
         body=body,
         expand=expand,
-        is_add_to_followers=add_to_followers,
+        is_add_to_followers=is_add_to_followers,
         notify=notify,
         notify_author=notify_author,
     )
@@ -450,12 +451,12 @@ def comments_create(
 
 @comments_app.command("update")
 def comments_update(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     comment_id: EntityCommentIDArg,
     text: Annotated[str, typer.Option(help="New comment text.")],
     expand: ExpandOpt = None,
-    add_to_followers: AddToFollowersOpt = None,
+    is_add_to_followers: AddToFollowersOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -464,12 +465,12 @@ def comments_update(
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
     body = CommentUpdate(text=text)
     return tracker.entities.comments_update(
-        type_,
+        entity_type,
         entity_id,
         comment_id,
         body=body,
         expand=expand,
-        is_add_to_followers=add_to_followers,
+        is_add_to_followers=is_add_to_followers,
         notify=notify,
         notify_author=notify_author,
     )
@@ -477,7 +478,7 @@ def comments_update(
 
 @comments_app.command("delete")
 def comments_delete(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     comment_id: EntityCommentIDArg,
     notify: NotifyOpt = None,
@@ -487,9 +488,9 @@ def comments_delete(
 ) -> Ack:
     """Delete a comment from an entity (DELETE …/comments/COMMENT_ID)."""
     tracker.entities.comments_delete(
-        type_, entity_id, comment_id, notify=notify, notify_author=notify_author
+        entity_type, entity_id, comment_id, notify=notify, notify_author=notify_author
     )
-    return Ack.deleted("comment", comment_id, on=f"{type_} {entity_id}")
+    return Ack.deleted("comment", comment_id, on=f"{entity_type} {entity_id}")
 
 
 # --------------------------------------------------------------------------------------------
@@ -519,7 +520,7 @@ def _item_input(
 
 @checklists_app.command("create")
 def checklists_create(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     text: Annotated[
         list[str], typer.Option("--text", help="Item text (repeatable — one per item).")
@@ -534,7 +535,7 @@ def checklists_create(
     """Add checklist items to an entity (POST …/checklistItems)."""
     items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text])
     return tracker.entities.checklists_create(
-        type_,
+        entity_type,
         entity_id,
         body=items,
         expand=expand,
@@ -546,7 +547,7 @@ def checklists_create(
 
 @checklists_app.command("update")
 def checklists_update(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     item: Annotated[
         list[str],
@@ -572,7 +573,7 @@ def checklists_update(
         inputs.append(ChecklistItemInput(id=item_id, text=text))
     items = ItemList[ChecklistItemInput](inputs)
     return tracker.entities.checklists_update(
-        type_,
+        entity_type,
         entity_id,
         body=items,
         expand=expand,
@@ -584,7 +585,7 @@ def checklists_update(
 
 @checklists_app.command("items-update")
 def checklists_items_update(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     item_id: ItemIDArg,
     text: Annotated[str | None, typer.Option(help="New item text.")] = None,
@@ -605,7 +606,7 @@ def checklists_items_update(
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
     body = _item_input(text, checked, assignee, deadline)
     return tracker.entities.checklists_items_update(
-        type_,
+        entity_type,
         entity_id,
         item_id,
         body=body,
@@ -618,7 +619,7 @@ def checklists_items_update(
 
 @checklists_app.command("items-delete")
 def checklists_items_delete(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     item_id: ItemIDArg,
     expand: ExpandOpt = None,
@@ -630,7 +631,7 @@ def checklists_items_delete(
 ) -> Entity:
     """Remove one checklist item (DELETE …/checklistItems/ITEM_ID)."""
     return tracker.entities.checklists_items_delete(
-        type_,
+        entity_type,
         entity_id,
         item_id,
         expand=expand,
@@ -642,7 +643,7 @@ def checklists_items_delete(
 
 @checklists_app.command("delete")
 def checklists_delete(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     expand: ExpandOpt = None,
     fields: ReplyFieldsOpt = None,
@@ -653,7 +654,7 @@ def checklists_delete(
 ) -> Entity:
     """Clear the whole checklist (DELETE …/checklistItems)."""
     return tracker.entities.checklists_delete(
-        type_,
+        entity_type,
         entity_id,
         expand=expand,
         fields=fields,
@@ -664,7 +665,7 @@ def checklists_delete(
 
 @checklists_app.command("move")
 def checklists_move(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     item_id: ItemIDArg,
     before: Annotated[
@@ -680,7 +681,7 @@ def checklists_move(
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
     body = ChecklistMove(before=before)
     return tracker.entities.checklists_move(
-        type_,
+        entity_type,
         entity_id,
         item_id,
         body=body,
@@ -701,15 +702,15 @@ app.add_typer(links_app)
 
 @links_app.command("list")
 def links_list(
-    type_: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
 ) -> ItemList[Link]:
     """List an entity's links to other entities (GET …/links)."""
-    return tracker.entities.links_list(type_, entity_id)
+    return tracker.entities.links_list(entity_type, entity_id)
 
 
 @links_app.command("create")
 def links_create(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     relationship: Annotated[str, typer.Option(help="Link type, e.g. relates, depends on.")],
     entity: Annotated[str, typer.Option(help="Id of the entity to link to.")],
@@ -718,21 +719,21 @@ def links_create(
 ) -> Ack:
     """Create a link between entities (POST …/links)."""
     body = LinkInput(relationship=relationship, entity=entity)
-    tracker.entities.links_create(type_, entity_id, body=body)
-    return Ack.linked(type_, entity_id, entity, relationship)
+    tracker.entities.links_create(entity_type, entity_id, body=body)
+    return Ack.linked(entity_type, entity_id, entity, relationship)
 
 
 @links_app.command("delete")
 def links_delete(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     right: Annotated[str, typer.Argument(metavar="RIGHT", help="Id of the entity to unlink.")],
     *,
     tracker: TrackerClient,
 ) -> Ack:
     """Delete a link (DELETE …/links?right=RIGHT)."""
-    tracker.entities.links_delete(type_, entity_id, right)
-    return Ack.unlinked(type_, entity_id, right)
+    tracker.entities.links_delete(entity_type, entity_id, right)
+    return Ack.unlinked(entity_type, entity_id, right)
 
 
 # --------------------------------------------------------------------------------------------
@@ -747,18 +748,22 @@ FileIDArg = Annotated[str, typer.Argument(metavar="FILE_ID", help="Attachment fi
 
 @attachments_app.command("list")
 def attachments_list(
-    type_: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
 ) -> ItemList[Attachment]:
     """List files attached to an entity (GET …/attachments)."""
-    return tracker.entities.attachments_list(type_, entity_id)
+    return tracker.entities.attachments_list(entity_type, entity_id)
 
 
 @attachments_app.command("get")
 def attachments_get(
-    type_: EntityTypeArg, entity_id: EntityIDArg, file_id: FileIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg,
+    entity_id: EntityIDArg,
+    file_id: FileIDArg,
+    *,
+    tracker: TrackerClient,
 ) -> Attachment:
     """Get one attachment's metadata (GET …/attachments/FILE_ID)."""
-    return tracker.entities.attachments_get(type_, entity_id, file_id)
+    return tracker.entities.attachments_get(entity_type, entity_id, file_id)
 
 
 @attachments_app.command("download")
@@ -778,7 +783,7 @@ def attachments_download(
 
 @attachments_app.command("attach")
 def attachments_attach(
-    type_: EntityTypeArg,
+    entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     temp_file_id: Annotated[str, typer.Argument(metavar="TEMP_FILE_ID", help="Temp file id.")],
     expand: ExpandOpt = None,
@@ -790,7 +795,7 @@ def attachments_attach(
 ) -> Entity:
     """Attach a previously uploaded temp file to an entity (POST …/attachments/TEMP_FILE_ID)."""
     return tracker.entities.attachments_attach(
-        type_,
+        entity_type,
         entity_id,
         temp_file_id,
         expand=expand,
@@ -802,8 +807,12 @@ def attachments_attach(
 
 @attachments_app.command("delete")
 def attachments_delete(
-    type_: EntityTypeArg, entity_id: EntityIDArg, file_id: FileIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg,
+    entity_id: EntityIDArg,
+    file_id: FileIDArg,
+    *,
+    tracker: TrackerClient,
 ) -> Ack:
     """Detach a file from an entity (DELETE …/attachments/FILE_ID; empty response body)."""
-    tracker.entities.attachments_delete(type_, entity_id, file_id)
-    return Ack.deleted("attachment", file_id, on=f"{type_} {entity_id}")
+    tracker.entities.attachments_delete(entity_type, entity_id, file_id)
+    return Ack.deleted("attachment", file_id, on=f"{entity_type} {entity_id}")

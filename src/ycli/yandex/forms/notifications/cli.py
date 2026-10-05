@@ -51,7 +51,9 @@ def list_(
     ] = None,
     integration_type: Annotated[
         str | None,
-        values_option(IntegrationType, "--type", help="Only runs of this kind of integration."),
+        values_option(
+            IntegrationType, "--integration-type", help="Only runs of this kind of integration."
+        ),
     ] = None,
     ordering: Annotated[
         str | None, values_option(SortDirection, help="asc is oldest first, the default.")

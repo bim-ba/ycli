@@ -27,7 +27,8 @@ def list_(
         str | None, typer.Option(help="Only changes of this field, e.g. status.")
     ] = None,
     change_type: Annotated[
-        str | None, typer.Option("--type", help="Only changes of this type, e.g. IssueWorkflow.")
+        str | None,
+        typer.Option("--change-type", help="Only changes of this type, e.g. IssueWorkflow."),
     ] = None,
     sort: Annotated[str | None, values_option(SortDirection, help="Order of the changes.")] = None,
     *,

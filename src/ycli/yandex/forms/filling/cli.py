@@ -56,7 +56,7 @@ def submit(
 ) -> SubmitResult:
     """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
     payload = SubmitBody.model_validate_json(body_file.read_bytes())
-    return forms.filling.submit(survey, payload, dry_run=validate_only, key=key)
+    return forms.filling.submit(survey, payload, validate_only=validate_only, key=key)
 
 
 @app.command()
@@ -67,7 +67,8 @@ def suggest(
     ] = None,
     text: Annotated[str | None, typer.Option(help="Text to search suggestions for.")] = None,
     suggest_id: Annotated[
-        str | None, typer.Option("--id", help="Comma-separated suggestion-object ids to resolve.")
+        str | None,
+        typer.Option("--suggest-id", help="Comma-separated suggestion-object ids to resolve."),
     ] = None,
     parent_id: Annotated[
         str | None, typer.Option("--parent-id", help="Parent ids for a Master/Detail lookup.")

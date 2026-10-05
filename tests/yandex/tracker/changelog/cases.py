@@ -61,7 +61,7 @@ CASES += [
         CASES,
         "tracker.changelog.list",
         kwargs={"field": "status", "change_type": "IssueWorkflow", "sort": "desc"},
-        cli=["--field", "status", "--type", "IssueWorkflow", "--sort", "desc"],
+        cli=["--field", "status", "--change-type", "IssueWorkflow", "--sort", "desc"],
         params={"field": "status", "type": "IssueWorkflow", "sort": "desc"},
     ),
 ]

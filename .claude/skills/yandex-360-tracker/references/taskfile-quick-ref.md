@@ -20,7 +20,7 @@ uv run ycli tracker links list MYQUEUE-123
 uv run ycli tracker changelog list MYQUEUE-123
 uv run ycli tracker worklog list MYQUEUE-123
 
-# Filtered listing — combine any subset of --queue / --status / --assignee / --epic / --type
+# Filtered listing — combine any subset of --queue / --status / --assignee / --epic / --issue-type
 uv run ycli tracker issues list                                   # all queues you can read
 uv run ycli tracker issues list --queue MYQUEUE --status inProgress
 uv run ycli tracker issues list --assignee <your-login>
@@ -42,7 +42,7 @@ uv run ycli tracker transitions list MYQUEUE-123
 
 # Comments, links, attachments, structure
 uv run ycli tracker comments get MYQUEUE-123 <comment-id> --expand all
-uv run ycli tracker links list-filtered MYQUEUE-123 --type relates
+uv run ycli tracker links list-filtered MYQUEUE-123 --link-types relates
 uv run ycli tracker attachments get MYQUEUE-123 <file-id>
 uv run ycli tracker components list-for-queue MYQUEUE
 uv run ycli tracker queues user-permissions-get MYQUEUE <login>

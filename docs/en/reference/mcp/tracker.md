@@ -1533,9 +1533,9 @@ The file travels as base64 in the request, so keep it small; for a large file ru
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key or id, e.g. ``JUNE-2``. |
-| `file_name` | string | yes | Name of the file being uploaded. |
+| `filename` | string | yes | Name of the file being uploaded. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
-| `rename_to` | string or null |  | Store the file under this name instead of ``file_name``. |
+| `rename_to` | string or null |  | Store the file under this name instead of ``filename``. |
 
 ## `tracker_attachments_upload_temp`
 
@@ -1548,9 +1548,9 @@ once. The file travels as base64 in the request, so keep it small.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `file_name` | string | yes | Name of the file being uploaded. |
+| `filename` | string | yes | Name of the file being uploaded. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
-| `rename_to` | string or null |  | Store the file under this name instead of ``file_name``. |
+| `rename_to` | string or null |  | Store the file under this name instead of ``filename``. |
 
 ## `tracker_attachments_import`
 

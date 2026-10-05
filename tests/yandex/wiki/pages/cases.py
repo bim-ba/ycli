@@ -82,7 +82,7 @@ CASES = [
         "wiki.pages.get",
         args=("team/handbook",),
         kwargs={"fields": "content,attributes"},
-        cli=["wiki", "pages", "get", "team/handbook", "--fields", "content,attributes"],
+        cli=None,
         mcp=None,
         exchanges=[
             (
@@ -90,7 +90,6 @@ CASES = [
                 Reply(json=_page(4001, "team/handbook", content="# Handbook")),
             )
         ],
-        cli_output=b"# Handbook\n",
     ),
     Case(
         "wiki.pages.get",
@@ -123,7 +122,7 @@ CASES = [
         "wiki.pages.get",
         args=("team/roadmap",),
         kwargs={"fields": "attributes,owner"},
-        cli=None,
+        cli=["wiki", "pages", "get-meta", "team/roadmap"],
         mcp=("wiki_pages_get_meta", {"slug": "team/roadmap"}),
         exchanges=[
             (
@@ -553,7 +552,7 @@ CASES = [
                 }
             ),
         ),
-        kwargs={"dry_run": True},
+        kwargs={"validate_only": True},
         cli=[
             "wiki",
             "pages",
@@ -581,7 +580,7 @@ CASES = [
                     ],
                     "copy_inherited_access": True,
                 },
-                "dry_run": True,
+                "validate_only": True,
             },
         ),
         exchanges=[
@@ -1025,7 +1024,7 @@ CASES = [
             "# Quiet",
             "--fields",
             "content",
-            "--silent",
+            "--is-silent",
         ],
         mcp=(
             "wiki_pages_create",
@@ -1062,7 +1061,7 @@ CASES = [
             "# Merged",
             "--fields",
             "content",
-            "--silent",
+            "--is-silent",
             "--allow-merge",
         ],
         mcp=(
@@ -1119,7 +1118,7 @@ CASES = [
             "## Quiet note",
             "--fields",
             "content",
-            "--silent",
+            "--is-silent",
         ],
         mcp=(
             "wiki_pages_append",

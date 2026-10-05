@@ -1,7 +1,7 @@
 """Forms form-filling FastMCP tools (reads + writes, honest hints).
 
 All three endpoints are exposed: the ``get-settings`` and ``suggest`` reads, and the
-``submit`` write (posts a real response unless ``dry_run``).
+``submit`` write (posts a real response unless ``validate_only``).
 """
 
 from typing import Annotated
@@ -77,7 +77,7 @@ def submit(
         SubmitBody,
         Field(description="Answer map keyed by question slug (see ``filling_get`` for the slugs)."),
     ],
-    dry_run: Annotated[
+    validate_only: Annotated[
         bool,
         Field(description="Validate only — saves nothing and fires no integrations."),
     ] = False,
@@ -86,10 +86,10 @@ def submit(
     ] = None,
     client: FormsClient = Depends(forms_client),
 ) -> SubmitResult:
-    """Submit a response to a published form — this saves a REAL answer unless ``dry_run`` is set.
+    """Submit a response to a published form: a REAL answer is saved unless ``validate_only``.
 
     ``body`` maps each question ``slug`` (discover them via ``filling_get``) to its answer — a
     scalar, a string list, a ``{begin, end}`` date range, or matrix ``{row, column}`` items.
     Returns the success-page payload (``answer_id`` confirms the save).
     """
-    return client.filling.submit(survey, body, dry_run=dry_run, key=key)
+    return client.filling.submit(survey, body, validate_only=validate_only, key=key)

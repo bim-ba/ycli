@@ -16,6 +16,7 @@ from ycli.yandex.tracker.typedefs import (
     ExpandOpt,
     ImportCreatedAtOpt,
     ImportCreatedByOpt,
+    IssueKeyArg,
     KeyArg,
 )
 
@@ -101,13 +102,13 @@ def reactions_create(
 
 @app.command("import")
 def import_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     text: Annotated[str, typer.Option(help="Comment text.")],
     created_at: ImportCreatedAtOpt,
     created_by: ImportCreatedByOpt,
     *,
     tracker: TrackerClient,
 ) -> Comment:
-    """Import a comment onto issue KEY (POST /issues/{key}/comments/_import)."""
+    """Import a comment onto issue ISSUE_KEY (POST /issues/{issue_key}/comments/_import)."""
     body = ImportComment(text=text, createdAt=created_at, createdBy=created_by)
-    return tracker.comments.import_(key, body=body)
+    return tracker.comments.import_(issue_key, body=body)

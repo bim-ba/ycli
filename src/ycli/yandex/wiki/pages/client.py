@@ -324,7 +324,7 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.clone(page_id, body))
 
-    def move(self, body: PageMove, *, dry_run: bool = False) -> AsyncOperation:
+    def move(self, body: PageMove, *, validate_only: bool = False) -> AsyncOperation:
         """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
 
         The only way to rename or relocate a page: a page update has no ``slug``. Returns a
@@ -332,12 +332,12 @@ class PagesClient(Resource):
         until terminal. ``body`` is a :class:`PageMove`
         (``{operations: [{source, target, next_to_slug?, position?}], copy_inherited_access}``;
         the API answers 400 unless ``copy_inherited_access`` is a boolean). A page moves with its
-        subtree. ``dry_run=True`` validates the request without applying it, and the task id it
-        returns answers 404 when polled.
+        subtree. ``validate_only=True`` validates the request without applying it, and the task id
+        it returns answers 404 when polled.
 
         Args:
             body: The moves and ``copy_inherited_access``.
-            dry_run: Validate the request without applying it.
+            validate_only: Validate the request without applying it.
 
         Returns:
             The move operation to poll.
@@ -350,10 +350,10 @@ class PagesClient(Resource):
             ...         "copy_inherited_access": False,
             ...     }
             ... )
-            >>> wiki.pages.move(body, dry_run=True).operation.id
+            >>> wiki.pages.move(body, validate_only=True).operation.id
             'mv-6101'
         """
-        return self._session.send(endpoints.move(body, dry_run=dry_run))
+        return self._session.send(endpoints.move(body, validate_only=validate_only))
 
     def revisions_list(
         self,

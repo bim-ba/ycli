@@ -117,9 +117,9 @@ CASES = [
             "attachments",
             "attach",
             "5605",
-            "--session",
+            "--session-ids",
             "s-5605-a",
-            "--session",
+            "--session-ids",
             "s-5605-b",
         ],
         mcp=(
