@@ -31,6 +31,8 @@ from ycli.yandex.status.mcp import mcp as status_mcp
 if TYPE_CHECKING:
     from fastmcp.server.auth import AuthProvider
 
+    from ycli.yandex.service import Service
+
 
 def build_server(selection: Selection, auth: AuthProvider | None = None) -> FastMCP:
     """The root server for ``selection``: only the selected services are imported and mounted.
@@ -55,22 +57,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     """
     mounted_names = selection.services()
     mounted = [service for service in SERVICES if service.name in mounted_names]
-    server = FastMCP(
-        "yandex",
-        instructions=(
-            "Read/write access to Yandex 360. Tools are namespaced per service: "
-            + "; ".join(f"{service.name}_* — {service.help}" for service in mounted)
-            + ". Every tool carries honest annotations: reads have readOnlyHint=true; writes "
-            "have readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true "
-            f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
-            f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
-            "caller's Yandex account). Each service has a guide to read before its first call, "
-            "as a resource: "
-            + ", ".join(f"ycli://{service.name}/guide" for service in mounted)
-            + "."
-        ),
-        auth=auth,
-    )
+    server = FastMCP("yandex", instructions=_instructions(mounted), auth=auth)
 
     @server.resource(
         "ycli://guide",
@@ -86,7 +73,26 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
     server.add_transform(DerivedTags())
+    _apply_selection(server, selection)
+    return server
 
+
+def _instructions(mounted: list[Service]) -> str:
+    """What the server tells a client about itself: the mounted services and how to start."""
+    return (
+        "Read/write access to Yandex 360. Tools are namespaced per service: "
+        + "; ".join(f"{service.name}_* — {service.help}" for service in mounted)
+        + ". Every tool carries honest annotations: reads have readOnlyHint=true; writes "
+        "have readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true "
+        f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
+        f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
+        "caller's Yandex account). Each service has a guide to read before its first call, "
+        "as a resource: " + ", ".join(f"ycli://{service.name}/guide" for service in mounted) + "."
+    )
+
+
+def _apply_selection(server: FastMCP, selection: Selection) -> None:
+    """Show only what ``selection`` serves. The order of the transforms matters: see each."""
     if not selection.serves_everything:
         server.enable(names=set(selection.listed_names()), only=True)
         for name in selection.listed_services():
@@ -102,7 +108,6 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     if selection.tool_search:
         server.add_transform(BM25SearchTransform(always_visible=[STATUS_TOOL]))
     server.add_transform(LightListing())  # last, so it slims the search tools and their results too
-    return server
 
 
 async def check_tool_names(selection: Selection) -> None:
