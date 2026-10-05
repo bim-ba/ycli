@@ -3,7 +3,7 @@
 
 Two questions, one per mode:
 
-* **Does ycli match the published API?** Every contract case (``tests/contract.py``) is replayed
+* **Does ycli match the published API?** Every contract case (``tests/contract/``) is replayed
   through the SDK against its canned replies, which yields the endpoints ycli really sends:
   method, path, query parameters and the response model. They are matched to the
   committed snapshots (``scripts/api_snapshot/``, see ``scripts/api_surface.py``). The result is

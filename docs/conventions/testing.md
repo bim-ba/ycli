@@ -7,17 +7,17 @@ What a resource ships with, which test catches what, and how the suite stays hon
 
 | Kind | What it proves | How it is written |
 |---|---|---|
-| Contract | the SDK, CLI and MCP reach each operation with the same requests (method, path, query, body), carrying the credentials; MCP hints match the strongest effect sent; the SDK keeps what the API returned; the CLI prints the SDK result and MCP returns the same data, also when the API answers with an empty object | one `Case` per way of reaching an operation in `tests/yandex/<domain>/<resource>/cases.py`, all driven by `tests/test_contract.py` |
+| Contract | the SDK, CLI and MCP reach each operation with the same requests (method, path, query, body), carrying the credentials; MCP hints match the strongest effect sent; the SDK keeps what the API returned; the CLI prints the SDK result and MCP returns the same data, also when the API answers with an empty object | one `Case` per way of reaching an operation in `tests/unit/yandex/<domain>/<resource>/cases.py`, all driven by `tests/contract/test_contract.py` |
 | Registry & architecture | parity, layers, effects, one output path, single sources, DI, typed boundaries | `tests/architecture/`, import-linter, signature snapshots — small and hand-written |
-| Models | logic on a model that no contract case reaches | a resource has no `test_models.py` of its own: that a reply parses into its models (aliases, unions, validators) is proved by the contract cases, which check the SDK result against the reply. One is written only for a line or branch nothing else covers, and holds only those tests (`tests/yandex/tracker/links/test_models.py`, the `Link` properties). That every field is described is checked once for all models (`tests/architecture/test_conventions.py::test_every_model_field_has_a_description`) |
-| Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/yandex/core/`, `tests/yandex/test_settings.py`) |
+| Models | logic on a model that no contract case reaches | a resource has no `test_models.py` of its own: that a reply parses into its models (aliases, unions, validators) is proved by the contract cases, which check the SDK result against the reply. One is written only for a line or branch nothing else covers, and holds only those tests (`tests/unit/yandex/tracker/links/test_models.py`, the `Link` properties). That every field is described is checked once for all models (`tests/architecture/test_conventions.py::test_every_model_field_has_a_description`) |
+| Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/unit/yandex/core/`, `tests/unit/yandex/test_settings.py`) |
 | Special behaviour | errors, multi-step flows (`--wait` polling), guards that refuse a request, paging quirks of one API | by hand, only where a contract case cannot reach |
 | Live e2e | the real API accepts what ycli sends and reaches the expected state | YAML scenarios in `e2e/` run against the test organization, outside the coverage gate; see [`e2e/README.md`](../../e2e/README.md) |
 
 A resource on the core ships its endpoint declarations, its contract cases and its models. It
 has no per-surface `test_client.py` / `test_cli.py` / `test_mcp.py` repeating the same request
 three times: a resource stops carrying those as soon as its cases exist. Each pagination kind is
-tested once, in `tests/yandex/core/`, not per resource.
+tested once, in `tests/unit/yandex/core/`, not per resource.
 
 ## Writing contract cases
 

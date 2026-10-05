@@ -18,7 +18,7 @@ Run the generator, then finish wiring the new resource:
    handed to it), then mount the
    new sub-app into the domain `cli.py` (`app.add_typer(...)`) and the new subserver into the
    domain `mcp.py` (`mcp.mount(...)`), mirroring a sibling resource.
-4. Add `tests/yandex/<domain>/<resource>/cases.py`: one contract `Case` per way of reaching
+4. Add `tests/unit/yandex/<domain>/<resource>/cases.py`: one contract `Case` per way of reaching
    each operation through the SDK, CLI and MCP, with distinct literal values
    (`docs/conventions/testing.md`). Hand-write tests only for what a case cannot reach (errors,
    multi-step flows, guards); keep the 100% coverage gate green.
