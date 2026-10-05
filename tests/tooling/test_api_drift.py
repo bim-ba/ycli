@@ -20,6 +20,7 @@ from scripts import api_drift, api_surface
 from scripts.api_drift import Call, compare
 from scripts.api_surface import Operation
 
+from tests.architecture.scanners import SRC, violation_markers
 from tests.contract import load_cases
 from ycli.yandex.registry import SERVICES
 
@@ -938,26 +939,31 @@ def test_the_explained_check_bites_in_both_directions():
 
 
 # A marked field the comparison cannot see: its name is published for another question type.
-def test_a_field_the_api_ignores_is_explained_by_its_mark():
-    """The ``IGNORED_BY_API`` mark of a body field is the one statement that the API ignores it.
+def test_a_body_field_is_explained_where_it_is_declared():
+    """A body field that differs says why in the code: a mark in its description or above it.
 
-    The mark is what a caller reads in ``--help``, in the MCP input schema and on the site, and
-    what makes setting the field log a warning; the comparison takes its reason from the same
-    mark. Both directions on the real code: with the marks every difference is explained and
-    none is stale; without them the marked fields are differences with no reason; and a mark on
-    a field that makes no difference is stale unless ``IGNORED_THOUGH_PUBLISHED`` names it.
+    ``IGNORED_BY_API`` at the start of the description is what a caller reads in ``--help``, in
+    the MCP input schema and on the site, and what makes setting the field log a warning;
+    ``# violation(api-drift): <reason>`` above the field is for a reason of ycli's own. The
+    comparison takes its reasons from both. Both directions on the real code: with the marks
+    every difference is explained and none is stale; without them the marked fields are
+    differences with no reason; and a mark on a field that makes no difference is stale unless
+    ``IGNORED_THOUGH_PUBLISHED`` names it.
     """
     drifts = api_drift.drifts()
-    marks = api_drift.ignored_marks()
-    assert marks >= api_drift.IGNORED_THOUGH_PUBLISHED
+    ignored = api_drift.ignored_marks()
+    departures = set(api_drift.violation_marks())
+    assert ignored >= api_drift.IGNORED_THOUGH_PUBLISHED
+    assert departures and not departures & ignored
     bare, _ = api_drift.unexplained(drifts, api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE)
     assert sorted(bare) == sorted(
         " ".join((service, method, path, "unknown_request", name))
-        for service, method, path, name in marks - api_drift.IGNORED_THOUGH_PUBLISHED
+        for service, method, path, name in (ignored - api_drift.IGNORED_THOUGH_PUBLISHED)
+        | departures
     )
     every_mark = {
         (service, method, path, "unknown_request", name): api_drift.IGNORED
-        for service, method, path, name in marks
+        for service, method, path, name in ignored | departures
     }
     _, stale = api_drift.unexplained(
         drifts, {**every_mark, **api_drift.EXPLAINED}, api_drift.EXPLAINED_EVERYWHERE
@@ -966,6 +972,37 @@ def test_a_field_the_api_ignores_is_explained_by_its_mark():
         " ".join((service, method, path, "unknown_request", name))
         for service, method, path, name in api_drift.IGNORED_THOUGH_PUBLISHED
     )
+
+
+def test_a_departure_marker_is_read_with_its_reason_and_none_is_left_unread():
+    """``# violation(api-drift)`` above a body field gives the comparison its reason.
+
+    A marker that stands above something the comparison does not read (not a field of a body
+    model) would explain nothing and hide nothing, so every one in the package must be read.
+    """
+    from ycli.yandex.forms.subscriptions.models import EmailSubscription, SubscriptionHeader
+
+    reason, path, line = api_drift.marked_fields(EmailSubscription)["id"]
+    assert reason == "one model builds the body and reads the reply, which carries `id`"
+    assert path.endswith("forms/subscriptions/models.py") and line > 1
+    assert api_drift.marked_fields(SubscriptionHeader) == {}
+    marks = api_drift.violation_marks()
+    assert {key[-1] for key in marks} == {"id"}
+    assert (
+        api_drift.explained()[
+            "forms", "POST", "/surveys/{}/hooks/{}/subscriptions", "unknown_request", "id"
+        ]
+        == reason
+    )
+    read = {(path, line) for _, path, line in marks.values()}
+    written = {
+        (str(path), marker)
+        for path in sorted(SRC.rglob("*.py"))
+        for marker in violation_markers(
+            path.read_text(encoding="utf-8"), api_drift.MARKER_RULE
+        ).values()
+    }
+    assert written == read
 
 
 def test_the_ignored_mark_warns_when_the_field_is_set(caplog):

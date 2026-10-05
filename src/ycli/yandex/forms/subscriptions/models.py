@@ -195,6 +195,7 @@ class WikiGrid(APIModel):
 class _SubscriptionBase(APIModel):
     """Fields every subscription type shares."""
 
+    # violation(api-drift): one model builds the body and reads the reply, which carries `id`
     id: int | None = Field(default=None, description="Subscription id (integer, read only).")
     active: bool | None = Field(default=None, description="Whether the integration runs.")
     follow: bool | None = Field(
