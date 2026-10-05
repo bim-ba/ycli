@@ -26,6 +26,7 @@ def list_(survey_id: str) -> Endpoint[ItemList[Permission]]:
 
 
 def update(survey_id: str, body: AccessUpdate) -> Endpoint[ItemList[Permission]]:
+    # violation(arch-3): POST sets an access level: sending twice converges
     return Endpoint(
         "POST", _access(survey_id), ItemList[Permission], json=body, effect="idempotent_write"
     )
@@ -33,9 +34,11 @@ def update(survey_id: str, body: AccessUpdate) -> Endpoint[ItemList[Permission]]
 
 def grant(survey_id: str, body: AccessGrant) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/grant"
+    # violation(arch-3): POST grants access: granting twice converges
     return Endpoint("POST", path, ItemList[Permission], json=body, effect="idempotent_write")
 
 
 def revoke(survey_id: str, body: AccessRevoke) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/revoke"
+    # violation(arch-3): POST revokes access: it removes a permission
     return Endpoint("POST", path, ItemList[Permission], json=body, effect="destructive")

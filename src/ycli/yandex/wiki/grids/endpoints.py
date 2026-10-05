@@ -77,6 +77,7 @@ def create(body: GridCreate) -> Endpoint[Grid]:
 
 
 def update(grid_id: str, body: GridUpdate) -> Endpoint[RevisionResult]:
+    # violation(arch-3): POST /grids/{id} replaces fields; a resend is a no-op
     return Endpoint("POST", _grid(grid_id), RevisionResult, json=body, effect="idempotent_write")
 
 
@@ -110,6 +111,7 @@ def columns_move(grid_id: str, body: ColumnsMove) -> Endpoint[RevisionResult]:
 
 def cells_update(grid_id: str, body: CellsUpdate) -> Endpoint[CellsUpdateResult]:
     path = _grid(grid_id, "/cells")
+    # violation(arch-3): POST cells sets values; a resend is a no-op
     return Endpoint("POST", path, CellsUpdateResult, json=body, effect="idempotent_write")
 
 
@@ -120,6 +122,7 @@ def clone(grid_id: str, body: GridClone) -> Endpoint[AsyncOperation]:
 def columns_suggest(grid_id: str, body: ColumnSuggest) -> Endpoint[ColumnSuggestion]:
     """``POST /grids/{id}/columns/suggest`` (undocumented): checks a slug, changes nothing."""
     path = _grid(grid_id, "/columns/suggest")
+    # violation(arch-3): POST columns/suggest only reads (checks a slug)
     return Endpoint("POST", path, ColumnSuggestion, json=body, effect="read")
 
 
@@ -128,10 +131,12 @@ def columns_update(
 ) -> Endpoint[ColumnUpdateResult]:
     """``POST /grids/{id}/column/{slug}`` (undocumented; the path says ``column``, singular)."""
     path = _grid(grid_id, f"/column/{segment(column_slug)}")
+    # violation(arch-3): POST column/{slug} sets fields; a resend is a no-op
     return Endpoint("POST", path, ColumnUpdateResult, json=body, effect="idempotent_write")
 
 
 def rows_update(grid_id: str, row_id: str, body: RowUpdate) -> Endpoint[RowUpdateResult]:
     """``POST /grids/{id}/rows/{row_id}`` (undocumented): pin or colour one row."""
     path = _grid(grid_id, f"/rows/{segment(row_id)}")
+    # violation(arch-3): POST rows/{id} sets pin and colour; resent, a no-op
     return Endpoint("POST", path, RowUpdateResult, json=body, effect="idempotent_write")

@@ -109,6 +109,7 @@ def search(
     page: int | None,
 ) -> Endpoint[EntitySearchResponse]:
     """``POST …/_search`` only reads; one page, the one ``per_page``/``page`` select."""
+    # violation(arch-3): POST _search only reads
     return Endpoint(
         "POST",
         f"entities/{segment(entity_type)}/_search",

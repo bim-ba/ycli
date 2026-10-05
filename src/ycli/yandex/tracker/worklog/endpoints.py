@@ -48,6 +48,7 @@ def list_(issue_key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Workl
 
 def search(body: WorklogSearch) -> Endpoint[ItemList[Worklog]]:
     """``POST /worklog/_search`` only reads."""
+    # violation(arch-3): POST _search only reads
     return Endpoint("POST", "worklog/_search", ItemList[Worklog], json=body, effect="read")
 
 

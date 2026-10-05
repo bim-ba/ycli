@@ -28,6 +28,7 @@ def update(
     page_id: int, access_id: str, body: PageAccessUpdate, *, prevent_selflock: bool
 ) -> Endpoint[PageAccess]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
+    # violation(arch-3): POST access sets role; a resend is a no-op
     return Endpoint(
         "POST",
         path,

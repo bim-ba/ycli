@@ -109,6 +109,7 @@ def update(
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}"
     params = {"fields": fields, "is_silent": flag(is_silent), "allow_merge": flag(allow_merge)}
+    # violation(arch-3): POST /pages/{id} replaces fields; a resend is a no-op
     return Endpoint("POST", path, PageDetails, params=params, json=body, effect="idempotent_write")
 
 
@@ -167,4 +168,5 @@ def backlinks_list(
 
 def search(body: SearchRequest) -> Endpoint[SearchPage]:
     """``POST /search`` only reads: one page of full-text hits."""
+    # violation(arch-3): POST /search only reads
     return Endpoint("POST", "search", SearchPage, json=body, effect="read")

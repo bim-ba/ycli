@@ -80,6 +80,7 @@ def permissions_update(queue_id: str, body: QueuePermissionsUpdate) -> Endpoint[
 
 def tags_delete(queue_id: str, body: QueueTagRemove) -> Endpoint[None]:
     """``POST /queues/{id}/tags/_remove`` — strips the tag from every issue of the queue."""
+    # violation(arch-3): POST _remove strips the tag from every issue
     return Endpoint("POST", f"{_queue(queue_id)}/tags/_remove", json=body, effect="destructive")
 
 

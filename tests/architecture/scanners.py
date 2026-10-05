@@ -109,6 +109,17 @@ def violation_markers(source: str, rule: str) -> dict[int, int]:
     return found
 
 
+def unexplained(findings: list[tuple[int, str]], source: str, rule: str, path: str) -> list[str]:
+    """Findings (line, text) with no marker of ``rule`` above them, and such markers above none."""
+    markers = violation_markers(source, rule)
+    lines = {line for line, _ in findings}
+    return [text for line, text in findings if line not in markers] + [
+        f"{path}:{marker}: violation({rule}) marks nothing the check finds"
+        for line, marker in sorted(markers.items())
+        if line not in lines
+    ]
+
+
 def malformed_markers(source: str) -> list[str]:
     """What is wrong with the form of the markers of ``source``, one line per marker.
 

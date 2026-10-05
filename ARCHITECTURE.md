@@ -130,8 +130,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   for an unannotated tool is "destructive".
 - **Check:** the contract test (`tests/test_contract.py`, one case per way of reaching an
   operation, fail-closed both ways) runs every tool and compares its hints with the strongest
-  effect of the endpoints it sends; `test_arch3_effect_overrides_are_listed` keeps every
-  `effect=` that differs from the method in `ARCH3_EFFECT_OVERRIDES`;
+  effect of the endpoints it sends; `test_arch3_effect_overrides_are_marked` keeps
+  `# violation(arch-3): <reason>` above every `effect=`, and every such marker above one;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
@@ -140,7 +140,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   the `write` tag; a resource template names the read tool it repeats and returns what that
   tool returns; the server offers neither when one of those tools is not served, so `--read-only`
   and every other selection flag cover them without a rule of their own.
-- **Exceptions:** `ARCH3_EFFECT_OVERRIDES` (a read over `POST`, an idempotent `POST`).
+- **Exceptions:** the `# violation(arch-3)` markers in `endpoints.py` (a read over `POST`, an
+  idempotent `POST`).
 
 ### ARCH-4 — One output path
 - **Rule:** a CLI command returns its result; only `output.render` writes to stdout.

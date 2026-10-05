@@ -300,7 +300,7 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 an `Endpoint` (or a `Paged` listing with its core `Pagination`) and named like the client method
 that sends it (`boards.update` sends `endpoints.update`; a builtin's name takes an underscore,
 `list_`; a method that sends several names each after itself, `search` and `search_scroll`); every caller-supplied path part goes through
-`segment()`; `effect=` only where the method misleads, listed in `ARCH3_EFFECT_OVERRIDES`.
+`segment()`; `effect=` only where the method misleads, with `# violation(arch-3): <reason>` above it.
 
 **`client.py`** — HTTP only (ARCH-2):
 
