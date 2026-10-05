@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.79.1 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A generated model copies no limit on a value from the specification
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`6ccdfbd`](https://github.com/bim-ba/ycli/commit/6ccdfbd81f43306689c63e570adc3f80aa72126a))
+
+### Build System
+
+- Re-lock uv.lock for 0.79.0
+  ([`116bf90`](https://github.com/bim-ba/ycli/commit/116bf901d183a40d9fd6bd3187638ca5dfb92e98))
+
+
 ## v0.79.0 (2026-10-05)
 
 ### Build System
