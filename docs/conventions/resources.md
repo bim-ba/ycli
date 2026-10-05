@@ -47,6 +47,23 @@ A public model that is renamed or merged stops importing under its old name in t
 release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` footer listing
 "was → is", which becomes the changelog entry.
 
+### Generated models
+
+DataLens publishes one OpenAPI document with about 600 schemas, and its objects are too large to
+write by hand, so `scripts/gen_datalens_models.py` generates them into
+`src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
+are met by the script, not by an editor: it reads replies openly, opens every set of values,
+closes only the envelope of a request, and gives that envelope `RequestBody`. A generated file
+is never edited by hand and carries no `# violation` marker; the checks of this page skip the
+directory (`GENERATED` in `tests/architecture/scanners.py`), and
+`tests/tooling/test_gen_datalens_models.py` holds what stands in for them: no file differs from
+what the script leaves, and every module imports. The specification itself is not committed;
+the weekly `api-drift` run regenerates from the published one and reports a difference.
+
+A resource does not hand a generated class to its callers under the generator's name: its
+`models.py` imports the classes it uses and gives them their public names, and those names
+follow this page.
+
 ### A field with a set of values
 
 A set of values is the known values plus any string, and the definition itself says so:

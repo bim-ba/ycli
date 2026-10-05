@@ -1,7 +1,8 @@
 name: api-drift
 
 # Weekly: fetch what Yandex publishes (the Wiki and Forms OpenAPI documents, Tracker's API
-# reference) and compare it with scripts/api_snapshot/. While they differ, one issue labelled
+# reference) and compare it with scripts/api_snapshot/. It also regenerates the DataLens
+# models from the specification DataLens publishes and reports a difference. While they differ, one issue labelled
 # `api-drift` stays open with the changes. It never pushes, so it cannot trigger a release.
 # Not a required check.
 on:
@@ -40,6 +41,24 @@ jobs:
         run: |
           uv run python scripts/api_drift.py --live > "$RUNNER_TEMP/changes.md"
           cat "$RUNNER_TEMP/changes.md" >> "$GITHUB_STEP_SUMMARY"
+      # The models of DataLens are generated from its specification, which is not committed:
+      # this is the one place they are compared with it. A failed fetch fails the run.
+      - name: Compare the DataLens models with the published specification
+        run: |
+          status=0
+          uv run python scripts/gen_datalens_models.py --check --live > "$RUNNER_TEMP/models.txt" || status=$?
+          if [ -s "$RUNNER_TEMP/models.txt" ]; then
+            {
+              echo
+              echo "### DataLens models"
+              echo
+              echo "\`uv run scripts/gen_datalens_models.py\` regenerates them:"
+              echo
+              sed 's/^/- /' "$RUNNER_TEMP/models.txt"
+            } | tee -a "$RUNNER_TEMP/changes.md" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
       - name: Open, update or close the issue
         env:
           GH_TOKEN: ${{ github.token }}
