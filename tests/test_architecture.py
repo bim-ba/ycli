@@ -1543,8 +1543,6 @@ ARCH8_ERROR_MAPPERS = {
 # Functions that raise a status-carrying YandexError with no response to map, and why.
 ARCH8_LOCAL_RAISES = {
     "yandex/core/endpoint.py:check_path": "refuses a path before any request is sent",
-    # An empty 2xx body has no status to map; E2 moves this check into the clients.
-    "yandex/models.py:require_found": "a 2xx whose body parsed into an empty model",
 }
 # YandexError subclasses that carry no HTTP status: raising one maps no status.
 ARCH8_STATUSLESS_ERRORS = {

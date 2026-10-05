@@ -2,19 +2,21 @@
 
 Each surface must send exactly the case's requests, carrying the credentials; the MCP tool's
 hints must agree with the strongest effect among them, and the CLI must print what the SDK
-returned and the MCP tool return the same data. Coverage is fail-closed: every operation, CLI
-command and MCP tool of a resource on the httpx2 core needs a case, and every case must name
-something that exists.
+returned and the MCP tool return the same data, also when the API answers with an empty
+object. Coverage is fail-closed: every operation, CLI command and MCP tool of a resource on
+the httpx2 core needs a case, and every case must name something that exists.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 import pytest
 from fastmcp import Client
+from fastmcp.exceptions import McpError, ToolError
 from pydantic import BaseModel
 from typer.testing import CliRunner
 
@@ -168,6 +170,52 @@ def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_
         assert not wrong, f"{case.mcp[0]}: effect {case.expected_effect!r} but {wrong} disagree"
         if case.cli is not None:
             assert cli_output == mcp_output, "the CLI and MCP return different data"
+
+
+def _emptied(case: Case) -> Case:
+    """``case`` with every JSON object the API answers replaced by an empty one."""
+    return replace(
+        case,
+        exchanges=[
+            (sent, replace(reply, json={}) if isinstance(reply.json, dict) else reply)
+            for sent, reply in case.exchanges
+        ],
+    )
+
+
+# A case both surfaces reach whose reply is an object; a command that prints part of its
+# result has no whole result to compare.
+EMPTY_REPLY_CASES = [
+    case
+    for case in CASES
+    if case.cli is not None
+    and case.mcp is not None
+    and case.cli_output is UNSTATED
+    and any(isinstance(reply.json, dict) for _, reply in case.exchanges)
+]
+REFUSED = "refused"
+
+
+@pytest.mark.parametrize("case", EMPTY_REPLY_CASES, ids=[case.id for case in EMPTY_REPLY_CASES])
+def test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp(
+    case: Case, monkeypatch, mcp_session
+):
+    """ARCH-1: neither surface judges a reply the other shows as it is (#314)."""
+    emptied = _emptied(case)
+    assert emptied.cli is not None
+    assert emptied.mcp is not None
+    for name, value in case.env.items():
+        monkeypatch.setenv(name, value)
+    _serve(monkeypatch, emptied)
+    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
+    printed = CliRunner().invoke(app, ["--format", "json", *confirmed, *emptied.cli])
+    cli_answer = json.loads(printed.stdout_bytes) if printed.exit_code == 0 else REFUSED
+    _serve(monkeypatch, emptied)
+    try:
+        mcp_answer = mcp_session.call(*emptied.mcp)
+    except (ToolError, McpError):
+        mcp_answer = REFUSED
+    assert cli_answer == mcp_answer, "the CLI and MCP answer an empty reply differently"
 
 
 def _core_resources() -> dict[str, object]:

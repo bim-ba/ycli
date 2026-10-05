@@ -94,6 +94,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_endpoint_function_is_named_like_its_method` holds each function of
   `endpoints.py` to the name of the one client method that sends it (`search` and
   `search_scroll` where a method sends two), so nothing is shared between operations.
+  `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/test_contract.py`)
+  replays every contract case with an empty object for a reply: the command and the tool
+  return the same data or both fail, so neither judges a reply the other shows as it is.
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
   one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
   CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file
@@ -208,7 +211,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   hand-built status-carrying `YandexError` (AST, import aliases resolved).
 - **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (empty); `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange and
   the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
-  `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
+  `ARCH8_LOCAL_RAISES` (a request refused before it is sent); `ARCH8_STATUSLESS_ERRORS` (a
   timeout or a lost connection has no status to map).
 
 ### ARCH-9 — The API answers for its own rules

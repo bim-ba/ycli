@@ -9,7 +9,6 @@ from pydantic import Field
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, forms_client
 from ycli.yandex.forms.models import OperationResult
-from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-operations")
 
@@ -29,12 +28,4 @@ def get(
     from the ``id`` an async trigger returned (e.g. the ``answers_export`` tool or
     ``ycli forms answers export … --no-wait``); re-call until ``status`` is ``ok`` or ``fail``.
     """
-    result = client.operations.get(operation_id)
-    # Forms models are fully lenient — a 404 / empty body deserializes into an all-None
-    # OperationResult rather than raising; turn that into a clean not-found error.
-    return require_found(
-        result,
-        sentinel=lambda r: r.id is None,
-        message=f"operation {operation_id!r} not found "
-        "(empty response — check the id or permissions)",
-    )
+    return client.operations.get(operation_id)

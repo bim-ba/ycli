@@ -17,7 +17,7 @@ from ycli.yandex.forms.dependencies import (
     forms_client,
 )
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
-from ycli.yandex.models import Ack, ItemList, require_found
+from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-hooks")
 
@@ -36,13 +36,7 @@ def list_(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> I
 @mcp.tool(name="hooks_get", annotations={**RO, "title": "Get Forms integration group"})
 def get(survey_id: SurveyID, hook_id: HookID, client: FormsClient = Depends(forms_client)) -> Hook:
     """One integration group by id, with its conditions and integrations."""
-    result = client.hooks.get(survey_id, hook_id)
-    return require_found(
-        result,
-        sentinel=lambda r: r.id is None,
-        message=f"hook {hook_id!r} not found in survey {survey_id!r} "
-        "(empty response — check ids or permissions)",
-    )
+    return client.hooks.get(survey_id, hook_id)
 
 
 @mcp.tool(

@@ -16,8 +16,6 @@ from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, RootModel, model_serializer
 
-from ycli.yandex.errors import YandexNotFoundError
-
 #: The order of a sorted listing.
 SortDirection = Literal["asc", "desc"] | str
 #: Where a group is kept: the organization's directory, the cloud, Yandex ID or the staff list.
@@ -359,42 +357,6 @@ class Ack(APIModel):
             'cleared search scroll resources'
         """
         return cls(detail=f"cleared {what}")
-
-
-def require_found[M](result: M, *, sentinel: Callable[[M], bool], message: str) -> M:
-    """Turn an all-None model into a typed ``YandexNotFoundError``.
-
-    Several Forms/Tracker models parse leniently, so an empty 2xx body deserializes into an
-    all-None model instead of failing (a real 404 is already raised by the transport); every
-    MCP ``get``-style tool over such a model guards for that itself. ``sentinel`` decides what
-    "empty" means for that model (e.g. ``lambda r: r.id is None``); the caller composes
-    ``message`` so the wording stays specific to the resource being fetched.
-
-    Args:
-        result: The parsed model.
-        sentinel: Tells whether ``result`` is empty.
-        message: The error message, specific to the resource.
-
-    Returns:
-        ``result``, when it is not empty.
-
-    Raises:
-        YandexNotFoundError: ``sentinel`` says ``result`` is empty.
-
-    Examples:
-        >>> class _Result:
-        ...     value = None
-        >>> require_found(_Result(), sentinel=lambda r: r.value is None, message="not found")
-        Traceback (most recent call last):
-            ...
-        ycli.yandex.errors.YandexNotFoundError: not found
-        >>> _Result.value = "x"
-        >>> require_found(_Result(), sentinel=lambda r: r.value is None, message="x").value
-        'x'
-    """
-    if sentinel(result):
-        raise YandexNotFoundError(message)
-    return result
 
 
 def _extract(field: str) -> Callable[[Any], Any]:
