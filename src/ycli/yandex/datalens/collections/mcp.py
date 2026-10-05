@@ -196,7 +196,11 @@ def move_bulk(
     parent_id: ParentID = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> CollectionsMoved:
-    """Move several collections into another one, or into the root when none is given."""
+    """Move several collections into another one, or into the root when none is given.
+
+    All or none: if one collection already lies in the destination, the API answers 409 and
+    moves none of them.
+    """
     return client.collections.move_bulk(collection_ids, parent_id=parent_id)
 
 
