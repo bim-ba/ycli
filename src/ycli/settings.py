@@ -21,9 +21,10 @@ Examples:
 
 from __future__ import annotations
 
+import enum
 import os
 import re
-from typing import TYPE_CHECKING, Annotated, Literal, Self
+from typing import TYPE_CHECKING, Annotated, Self
 
 from dotenv import dotenv_values
 from platformdirs import user_config_path
@@ -46,7 +47,7 @@ from pydantic import (
 from pydantic_core import ErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ycli.log import LogFormat
+from ycli.log import LogFormat, LogLevel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -58,6 +59,9 @@ ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
 IAM_TOKEN_ENV = "YANDEX_CLOUD_IAM_TOKEN"
 # The profile to use when ``--profile`` is not given.
 PROFILE_ENV = "YCLI_PROFILE"
+# Every name a credential is read under: Yandex's own first, then ycli's fallback.
+_OAUTH_TOKEN_NAMES = (OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN")
+_ORGANIZATION_ID_NAMES = (ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID")
 # A profile's name is a file name: nothing in it can leave the profiles directory.
 _PROFILE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9_-]*")
 _PROFILE_SUFFIX = ".env"
@@ -68,10 +72,18 @@ _CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
 NOT_SET = "not set"
 # The error type of credentials with no token at all (the OAuth token is the one asked for).
 NO_TOKEN = "no_token"
-type CredentialKind = Literal["oauth", "iam"]
 
-type LogLevel = Annotated[
-    Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+
+class CredentialKind(enum.StrEnum):
+    """Which token the credentials hold."""
+
+    OAUTH = "oauth"
+    IAM = "iam"
+
+
+# `YCLI__LOGGING__LEVEL=debug` is read as DEBUG.
+type AnyCaseLogLevel = Annotated[
+    LogLevel,
     BeforeValidator(lambda value: value.upper() if isinstance(value, str) else value),
 ]
 
@@ -124,8 +136,8 @@ class LoggingConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    level: LogLevel = "WARNING"
-    format: LogFormat = "text"
+    level: AnyCaseLogLevel = LogLevel.WARNING
+    format: LogFormat = LogFormat.TEXT
 
 
 class _EnvSettings(BaseSettings):
@@ -219,7 +231,7 @@ class Credentials(_EnvSettings):
 
     Examples:
         >>> Credentials(oauth_token=None, iam_token="t1.x", organization_id="1").kind
-        'iam'
+        <CredentialKind.IAM: 'iam'>
     """
 
     iam_token: SecretStr | None = Field(default=None, min_length=1, validation_alias=IAM_TOKEN_ENV)
@@ -227,11 +239,11 @@ class Credentials(_EnvSettings):
         default=None,
         min_length=1,
         validate_default=True,  # so that no token at all is reported beside a missing organization
-        validation_alias=AliasChoices(OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
+        validation_alias=AliasChoices(*_OAUTH_TOKEN_NAMES),
     )
     organization_id: str = Field(
         min_length=1,
-        validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
+        validation_alias=AliasChoices(*_ORGANIZATION_ID_NAMES),
     )
 
     _profile: str | None = PrivateAttr(default=None)
@@ -316,7 +328,7 @@ class Credentials(_EnvSettings):
     @property
     def kind(self) -> CredentialKind:
         """Which token this is: ``oauth`` or ``iam``."""
-        return "oauth" if self.oauth_token is not None else "iam"
+        return CredentialKind.OAUTH if self.oauth_token is not None else CredentialKind.IAM
 
     @property
     def token(self) -> SecretStr:
@@ -360,7 +372,7 @@ class MCPHTTPConfig(_EnvSettings):
     base_url: AnyHttpUrl
     organization_id: str = Field(
         min_length=1,
-        validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
+        validation_alias=AliasChoices(*_ORGANIZATION_ID_NAMES),
     )
     host: str = "127.0.0.1"
     port: PositiveInt = 8000
@@ -405,9 +417,9 @@ def credential_sources(profile: str | None = None) -> dict[str, str]:
         return _profile_sources(profile)
     in_file = dotenv_values(".env")
     names = {
-        OAUTH_TOKEN_ENV: (OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
+        OAUTH_TOKEN_ENV: _OAUTH_TOKEN_NAMES,
         IAM_TOKEN_ENV: (IAM_TOKEN_ENV,),
-        ORGANIZATION_ID_ENV: (ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
+        ORGANIZATION_ID_ENV: _ORGANIZATION_ID_NAMES,
     }
     sources = {
         name: "environment"

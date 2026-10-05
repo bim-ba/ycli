@@ -13,6 +13,7 @@ Examples:
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, Self
 
 from pydantic import SecretStr
@@ -30,8 +31,8 @@ if TYPE_CHECKING:
     from ycli.yandex.core.session import BeforeSend, SyncSession
 
 
-class DomainClient:
-    """One service's resource clients over one core session; a subclass declares only ``_wire``.
+class DomainClient(ABC):
+    """One service's resource clients over one core session; a subclass wires and probes them.
 
     Sign in with ``oauth_token=`` (a Yandex ID OAuth token), or with ``auth=`` for anything
     else: :class:`~ycli.yandex.core.auth.IAMTokenAuth`, ``ServiceAccountAuth`` or your own
@@ -60,12 +61,17 @@ class DomainClient:
             raise ValueError("pass an OAuth token or an auth, one of the two")
         if not organization_id:
             raise ValueError("an organization id is required")
-        self._session = self._connect(
-            auth or SecretStr(oauth_token or ""),
-            organization_id,
-            http or HTTPConfig(),
-            transport,
-            before_send,
+        # Imported here: httpx2 costs ~0.2 s, paid only once a domain client is built.
+        from ycli.yandex.core.auth import OAuthTokenAuth
+        from ycli.yandex.core.session import connect
+
+        self._session = connect(
+            self.profile,
+            auth=auth or OAuthTokenAuth(SecretStr(oauth_token or "")),
+            organization_id=organization_id,
+            http=http or HTTPConfig(),
+            transport=transport,
+            before_send=before_send,
         )
         self._wire(self._session)
 
@@ -95,35 +101,14 @@ class DomainClient:
         """Yield the items of any ``paged`` listing of this service, at most ``limit``."""
         return self._session.iterate(paged, limit=limit)
 
+    @abstractmethod
     def probe(self) -> None:
         """One cheap authenticated read: returns when the token works for this service.
 
         A rejected token raises :class:`~ycli.yandex.errors.YandexAuthError`; ``ycli auth
         status`` calls this for every service in the registry.
         """
-        raise NotImplementedError
 
-    def _connect(
-        self,
-        auth: httpx2.Auth | SecretStr,
-        organization_id: str,
-        http: HTTPConfig,
-        transport: httpx2.BaseTransport | None,
-        before_send: BeforeSend | None,
-    ) -> SyncSession:
-        # Imported here: httpx2 costs ~0.2 s, paid only once a domain client is built.
-        from ycli.yandex.core.auth import OAuthTokenAuth
-        from ycli.yandex.core.session import connect
-
-        return connect(
-            self.profile,
-            auth=OAuthTokenAuth(auth) if isinstance(auth, SecretStr) else auth,
-            organization_id=organization_id,
-            http=http,
-            transport=transport,
-            before_send=before_send,
-        )
-
+    @abstractmethod
     def _wire(self, session: SyncSession) -> None:
         """Attach the per-resource clients over the shared ``session`` (per domain)."""
-        raise NotImplementedError

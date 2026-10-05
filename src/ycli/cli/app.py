@@ -103,7 +103,7 @@ def _main(
 ) -> None:
     """Declare the global options, configure logging, build the AppContext."""
     from ycli.cli.context import AppContext
-    from ycli.log import configure
+    from ycli.log import LogLevel, configure
     from ycli.settings import AppConfig
 
     # A caller (a test, an embedding app) may hand in its own context; otherwise build one.
@@ -116,7 +116,7 @@ def _main(
     if verbose:  # -v only ever makes the configured level more verbose
         level = min(
             level,
-            "INFO" if verbose == 1 else "DEBUG",
+            LogLevel.INFO if verbose == 1 else LogLevel.DEBUG,
             key=logging.getLevelNamesMapping().__getitem__,
         )
     configure(level=level, log_format=logging_config.format)
