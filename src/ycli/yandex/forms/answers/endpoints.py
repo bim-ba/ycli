@@ -91,7 +91,7 @@ def export_results_get(survey_id: str, task_id: str) -> Endpoint[OperationResult
     )
 
 
-def download_export(survey_id: str, task_id: str) -> Endpoint[bytes]:
+def export_download(survey_id: str, task_id: str) -> Endpoint[bytes]:
     path = f"surveys/{segment(survey_id)}/answers/export-results"
     return Endpoint("GET", path, bytes, params={"task_id": task_id})
 

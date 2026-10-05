@@ -1086,7 +1086,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_update_item",
+        "tracker.entities.checklists_items_update",
         args=(
             "portfolio",
             "pf32",
@@ -1104,7 +1104,7 @@ CASES = [
             "tracker",
             "entities",
             "checklists",
-            "update-item",
+            "items-update",
             "portfolio",
             "pf32",
             "1f",
@@ -1117,7 +1117,7 @@ CASES = [
             "2025-12-01T00:00:00.000+0000",
         ],
         mcp=(
-            "tracker_entities_checklists_update_item",
+            "tracker_entities_checklists_items_update",
             {
                 "entity_type": "portfolio",
                 "entity_id": "pf32",
@@ -1150,13 +1150,13 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_update_item",
+        "tracker.entities.checklists_items_update",
         args=("goal", "g33", "2f", ChecklistItemInput.model_validate({"checked": False})),
         cli=[
             "tracker",
             "entities",
             "checklists",
-            "update-item",
+            "items-update",
             "goal",
             "g33",
             "2f",
@@ -1186,11 +1186,11 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_delete_item",
+        "tracker.entities.checklists_items_delete",
         args=("goal", "g35", "3f"),
-        cli=["tracker", "entities", "checklists", "delete-item", "goal", "g35", "3f"],
+        cli=["tracker", "entities", "checklists", "items-delete", "goal", "g35", "3f"],
         mcp=(
-            "tracker_entities_checklists_delete_item",
+            "tracker_entities_checklists_items_delete",
             {"entity_type": "goal", "entity_id": "g35", "item_id": "3f"},
         ),
         exchanges=[
@@ -1640,7 +1640,7 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.checklists_update_item",
+        "tracker.entities.checklists_items_update",
         kwargs=_REPLY_AND_NOTICE,
         cli=_REPLY_AND_NOTICE_CLI,
         params=_REPLY_AND_NOTICE_SENT,
@@ -1654,7 +1654,7 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.checklists_delete_item",
+        "tracker.entities.checklists_items_delete",
         kwargs=_REPLY_AND_NOTICE,
         cli=_REPLY_AND_NOTICE_CLI,
         params=_REPLY_AND_NOTICE_SENT,

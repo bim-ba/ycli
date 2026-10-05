@@ -121,7 +121,7 @@ def _finish_export(
         max_wait_seconds=config.http.max_wait_seconds,
     )
     if final.is_ready:
-        return BinaryResult(forms.answers.download_export(survey_id, task_id), output)
+        return BinaryResult(forms.answers.export_download(survey_id, task_id), output)
     return final
 
 

@@ -1,6 +1,6 @@
 """Wiki /upload_sessions FastMCP tools — the full upload pipeline plus the ``get`` read.
 
-The pipeline: ``uploadsessions_create`` opens a session, ``uploadsessions_upload_part``
+The pipeline: ``uploadsessions_create`` opens a session, ``uploadsessions_parts_upload``
 PUTs the file bytes (base64 in the request, raw octet-stream on the wire),
 ``uploadsessions_finish`` closes it, then ``attachments_attach`` wires the finished session
 to a page (``attachments_upload`` runs all four steps for one small file).
@@ -60,7 +60,7 @@ def create(
 ) -> UploadSession:
     """Open an upload session — step 1 of the Wiki file-upload pipeline.
 
-    The returned ``session_id`` addresses the session for ``uploadsessions_upload_part`` /
+    The returned ``session_id`` addresses the session for ``uploadsessions_parts_upload`` /
     ``uploadsessions_finish``. For a single small file, ``attachments_upload`` runs the whole
     pipeline in one call instead.
     """
@@ -68,10 +68,10 @@ def create(
 
 
 @mcp.tool(
-    name="uploadsessions_upload_part",
+    name="uploadsessions_parts_upload",
     annotations={**WRITE_IDEMPOTENT, "title": "Upload Wiki file part"},
 )
-def upload_part(
+def parts_upload(
     session_id: SessionIDParam,
     part_number: Annotated[
         int, Field(description="1-based part index (1 for the first part, +1 for each next).")
@@ -85,7 +85,7 @@ def upload_part(
     Parts may be 5-16 MB except the last; a small file fits in a single ``part_number=1``
     call. Returns the session (poll ``status`` via ``uploadsessions_get``).
     """
-    return client.uploadsessions.upload_part(session_id, part_number=part_number, data=data)
+    return client.uploadsessions.parts_upload(session_id, part_number=part_number, data=data)
 
 
 @mcp.tool(

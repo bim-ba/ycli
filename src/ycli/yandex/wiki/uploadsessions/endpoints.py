@@ -5,7 +5,7 @@ the session, then attach the file to a page. Aborting is a ``POST`` that discard
 so both aborts declare themselves destructive.
 
 Examples:
-    >>> upload_part("s-1", part_number=2, data=b"x").params
+    >>> parts_upload("s-1", part_number=2, data=b"x").params
     {'part_number': 2}
     >>> abort("s-1").effect
     'destructive'
@@ -29,7 +29,7 @@ def get(session_id: str) -> Endpoint[UploadSession]:
     return Endpoint("GET", f"upload_sessions/{segment(session_id)}", UploadSession)
 
 
-def upload_part(session_id: str, *, part_number: int, data: bytes) -> Endpoint[UploadSession]:
+def parts_upload(session_id: str, *, part_number: int, data: bytes) -> Endpoint[UploadSession]:
     """``PUT …/upload_part``: the raw bytes as the body, the 1-based part index in the query."""
     return Endpoint(
         "PUT",

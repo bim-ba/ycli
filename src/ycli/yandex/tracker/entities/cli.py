@@ -582,8 +582,8 @@ def checklists_update(
     )
 
 
-@checklists_app.command("update-item")
-def checklists_update_item(
+@checklists_app.command("items-update")
+def checklists_items_update(
     type_: EntityTypeArg,
     entity_id: EntityIDArg,
     item_id: ItemIDArg,
@@ -604,7 +604,7 @@ def checklists_update_item(
 ) -> Entity:
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
     body = _item_input(text, checked, assignee, deadline)
-    return tracker.entities.checklists_update_item(
+    return tracker.entities.checklists_items_update(
         type_,
         entity_id,
         item_id,
@@ -616,8 +616,8 @@ def checklists_update_item(
     )
 
 
-@checklists_app.command("delete-item")
-def checklists_delete_item(
+@checklists_app.command("items-delete")
+def checklists_items_delete(
     type_: EntityTypeArg,
     entity_id: EntityIDArg,
     item_id: ItemIDArg,
@@ -629,7 +629,7 @@ def checklists_delete_item(
     tracker: TrackerClient,
 ) -> Entity:
     """Remove one checklist item (DELETE …/checklistItems/ITEM_ID)."""
-    return tracker.entities.checklists_delete_item(
+    return tracker.entities.checklists_items_delete(
         type_,
         entity_id,
         item_id,

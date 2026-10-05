@@ -70,7 +70,7 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.get(page_id, file_id))
 
-    def preview_download(self, page_id: int, file_id: int) -> bytes:
+    def previews_download(self, page_id: int, file_id: int) -> bytes:
         r"""``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
 
         Undocumented by Yandex (live OpenAPI only), may change. The bytes are returned as sent.
@@ -86,10 +86,10 @@ class AttachmentsClient(Resource):
             The preview image's bytes.
 
         Examples:
-            >>> wiki.attachments.preview_download(5608, 5622)
+            >>> wiki.attachments.previews_download(5608, 5622)
             b'\x89PNG preview bytes'
         """
-        return self._session.send(endpoints.preview_download(page_id, file_id))
+        return self._session.send(endpoints.previews_download(page_id, file_id))
 
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.
@@ -175,7 +175,7 @@ class AttachmentsClient(Resource):
         Drives the four steps end to end against the injected ``sessions`` client: open a
         session sized to ``data``, PUT the bytes as a single octet-stream part, finish the
         session, then ``attach`` the finished session to the page. Small-file path — the bytes
-        go up as one ``part_number=1`` part (chunk large files with ``upload_part`` directly).
+        go up as one ``part_number=1`` part (chunk large files with ``parts_upload`` directly).
         Returns the flat list of newly-attached files.
 
         Args:
@@ -195,6 +195,6 @@ class AttachmentsClient(Resource):
         """
         session = sessions.create(UploadSessionCreate(file_name=file_name, file_size=len(data)))
         session_id = session.session_id or ""
-        sessions.upload_part(session_id, part_number=1, data=data)
+        sessions.parts_upload(session_id, part_number=1, data=data)
         sessions.finish(session_id=session_id)
         return self.attach(page_id, [session_id])

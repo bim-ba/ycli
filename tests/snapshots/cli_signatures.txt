@@ -147,10 +147,10 @@ tracker entities attachments list: --dry-run:BOOLEAN=False --format:CHOICE --pro
 tracker entities bulk-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
 tracker entities checklists create: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
 tracker entities checklists delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
-tracker entities checklists delete-item: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists items-delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists items-update: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
 tracker entities checklists move: --before:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
 tracker entities checklists update: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --item:TEXT! --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
-tracker entities checklists update-item: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
 tracker entities comments create: --add-to-followers:BOOLEAN --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --summon:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
 tracker entities comments delete: --dry-run:BOOLEAN=False --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:TEXT!
 tracker entities comments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:TEXT!
@@ -290,7 +290,7 @@ wiki attachments download: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT
 wiki attachments download-by-url: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT --profile:TEXT --yes:BOOLEAN=False URL:TEXT!
 wiki attachments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --order-by:TEXT --order-direction:TEXT --profile:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki attachments preview-download: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
+wiki attachments previews-download: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments upload: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FILE_PATH:FILE! PAGE_ID:INTEGER!
 wiki auth status: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 wiki comments create: --body:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --inline-text:TEXT --parent-id:INTEGER --profile:TEXT --thread-id:INTEGER --yes:BOOLEAN=False PAGE_ID:INTEGER!
@@ -338,4 +338,4 @@ wiki uploadsessions abort-all: --dry-run:BOOLEAN=False --format:CHOICE --profile
 wiki uploadsessions create: --dry-run:BOOLEAN=False --file-name:TEXT! --file-size:INTEGER! --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 wiki uploadsessions finish: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SESSION_ID:TEXT!
 wiki uploadsessions get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SESSION_ID:TEXT!
-wiki uploadsessions upload-part: --dry-run:BOOLEAN=False --format:CHOICE --part-number:INTEGER=1 --profile:TEXT --yes:BOOLEAN=False FILE_PATH:FILE! SESSION_ID:TEXT!
+wiki uploadsessions parts-upload: --dry-run:BOOLEAN=False --format:CHOICE --part-number:INTEGER=1 --profile:TEXT --yes:BOOLEAN=False FILE_PATH:FILE! SESSION_ID:TEXT!

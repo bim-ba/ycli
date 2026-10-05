@@ -51,12 +51,12 @@ CASES = [
         exchanges=[(Sent("GET", f"upload_sessions/{SID}"), Reply(json=_session("in_progress")))],
     ),
     Case(
-        "wiki.uploadsessions.upload_part",
+        "wiki.uploadsessions.parts_upload",
         args=(SID,),
         kwargs={"part_number": 3, "data": DATA},
-        cli=["wiki", "uploadsessions", "upload-part", SID, str(PART), "--part-number", "3"],
+        cli=["wiki", "uploadsessions", "parts-upload", SID, str(PART), "--part-number", "3"],
         mcp=(
-            "wiki_uploadsessions_upload_part",
+            "wiki_uploadsessions_parts_upload",
             {"session_id": SID, "part_number": 3, "data": base64.b64encode(DATA).decode()},
         ),
         exchanges=[
@@ -73,10 +73,10 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.uploadsessions.upload_part",
+        "wiki.uploadsessions.parts_upload",
         args=(SID,),
         kwargs={"part_number": 1, "data": DATA},
-        cli=["wiki", "uploadsessions", "upload-part", SID, str(PART)],
+        cli=["wiki", "uploadsessions", "parts-upload", SID, str(PART)],
         mcp=None,
         exchanges=[
             (
