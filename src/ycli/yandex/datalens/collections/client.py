@@ -243,6 +243,9 @@ class CollectionsClient(Resource):
     ) -> CollectionsMoved:
         """``moveCollections`` — move several collections into another one, or into the root.
 
+        All or none: if one collection already lies in the destination, the API answers 409
+        "The collection already exists" and moves none of them.
+
         Args:
             collection_ids: The ids of the collections.
             parent_id: The collection to move them into; the root when left out.

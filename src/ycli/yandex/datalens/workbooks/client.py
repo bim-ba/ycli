@@ -251,6 +251,9 @@ class WorkbooksClient(Resource):
     ) -> WorkbooksMoved:
         """``moveWorkbooks`` — move several workbooks into a collection, or into the root.
 
+        All or none: if one workbook already lies in the destination, the API answers 409
+        "The workbook already exists" and moves none of them.
+
         Args:
             workbook_ids: The ids of the workbooks.
             collection_id: The collection to move them into; the root when left out.

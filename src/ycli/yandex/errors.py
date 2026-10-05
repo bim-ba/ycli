@@ -100,10 +100,11 @@ def _error_item(item: object) -> str:
 def _field_errors(details: object) -> str:
     """The fields a DataLens validation error names: ``collectionId: Too big; title: ...``.
 
-    ``details`` is ``{"details": [{"path": ["a", 0, "b"], "message": ...}]}``; an item without
-    a path reads as its message alone, and any other shape as ``""``.
+    DataLens sends the list in two places (both measured): ``details`` is the list itself
+    (``[{"path": ["sort"], "message": ...}]``), or holds it (``{"details": [...]}``). An item
+    without a path reads as its message alone, and any other shape as ``""``.
     """
-    items = details.get("details") if isinstance(details, dict) else None
+    items = details.get("details") if isinstance(details, dict) else details
     found: list[str] = []
     for item in items if isinstance(items, list) else []:
         entry = cast("dict[str, object]", item) if isinstance(item, dict) else {}

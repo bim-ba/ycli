@@ -127,6 +127,9 @@ Move a collection into another one, or into the root when no parent is given.
 
 Move several collections into another one, or into the root when none is given.
 
+All or none: if one collection already lies in the destination, the API answers 409 and
+moves none of them.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `collection_ids` | array of string | yes | Collection ids. |
@@ -276,6 +279,9 @@ Move a workbook into a collection, or into the root when no collection is given.
 *Move DataLens workbooks* · write
 
 Move several workbooks into a collection, or into the root when none is given.
+
+All or none: if one workbook already lies in the destination, the API answers 409 and
+moves none of them.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
