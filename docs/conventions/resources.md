@@ -236,9 +236,8 @@ field with no default, and in a field the model does not declare (an open body: 
 a field given as `null`). A command that merges `--field` values into its body dumps the named
 options, merges, and validates the result into the model.
 
-The only exception is a binary upload, which takes `Base64Bytes` (see below);
-`ARCH8_BODY_DICT_ALLOWLIST` in `tests/architecture/test_arch8.py` is where another would be listed,
-and it is empty.
+The only exception is a binary upload, which takes `Base64Bytes` (see below); another would carry
+`# violation(arch-8): <reason>` above the function, and there is none.
 
 ### `Ack` for bodyless write responses
 

@@ -102,6 +102,7 @@ def check_path(raw_path: str) -> None:
         or "//" in raw_path
         or any(part in {".", ".."} for part in segments)
     ):
+        # violation(arch-8): refuses a path before any request is sent
         raise YandexClientError(f"refusing a path that leaves its endpoint: {raw_path}")
 
 

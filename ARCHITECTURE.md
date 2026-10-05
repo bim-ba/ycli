@@ -213,10 +213,12 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
   nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no
   hand-built status-carrying `YandexError` (AST, import aliases resolved).
-- **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (empty); `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange and
-  the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
-  `ARCH8_LOCAL_RAISES` (a request refused before it is sent); `ARCH8_STATUSLESS_ERRORS` (a
-  timeout or a lost connection has no status to map).
+- **Exceptions:** `# violation(arch-8): <reason>` above a `dict` body (there is none) or above a
+  status error built by hand (a path refused before it is sent);
+  `test_arch8_a_marker_stands_above_what_it_explains` keeps a marker from outliving either.
+  Definitions, not exceptions: `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange
+  and the OAuth login flow, whose device-flow polling states arrive as HTTP 400) and
+  `ARCH8_STATUSLESS_ERRORS` (a timeout or a lost connection has no status to map).
 
 ### ARCH-9 — The API answers for its own rules
 - **Rule:** ycli refuses a request before sending it only where the request cannot be built,
