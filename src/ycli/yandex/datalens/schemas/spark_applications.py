@@ -42,9 +42,11 @@ class CancelSparkApplicationArgs(RequestBody):
 
 
 class ListSparkApplicationLogResult(APIModel):
-    content: str = Field(..., description="Requested fragment of the Spark application log.")
-    next_page_token: str = Field(
-        ...,
+    content: str | None = Field(
+        default=None, description="Requested fragment of the Spark application log."
+    )
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next fragment of the Spark application log.",
     )
@@ -70,54 +72,68 @@ class ListSparkApplicationLogArgs(RequestBody):
 class SparkApplicationVariant1CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant1StartedAt(APIModel):
     """Time when the Spark application was started."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant1FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant1CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class SparkApplicationVariant1SparkApplication(APIModel):
-    args: list[str] = Field(..., description="Arguments passed to the Spark driver.")
-    jar_file_uris: list[str] = Field(
-        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
+    args: list[str] | None = Field(
+        default=None, description="Arguments passed to the Spark driver."
     )
-    file_uris: list[str] = Field(
-        ...,
+    jar_file_uris: list[str] | None = Field(
+        default=None,
+        alias="jarFileUris",
+        description="JAR files added to the Spark classpaths.",
+    )
+    file_uris: list[str] | None = Field(
+        default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
     )
-    archive_uris: list[str] = Field(
-        ...,
+    archive_uris: list[str] | None = Field(
+        default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
     )
-    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
-    main_jar_file_uri: str = Field(
-        ...,
+    properties: dict[str, str] | None = Field(
+        default=None, description="Spark configuration properties."
+    )
+    main_jar_file_uri: str | None = Field(
+        default=None,
         alias="mainJarFileUri",
         description="URI of the JAR file that contains the main class.",
     )
-    main_class: str = Field(..., alias="mainClass", description="Name of the driver main class.")
-    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
-    repositories: list[str] = Field(..., description="Additional Maven repositories.")
-    exclude_packages: list[str] = Field(
-        ...,
+    main_class: str | None = Field(
+        default=None, alias="mainClass", description="Name of the driver main class."
+    )
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
+    )
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
+    )
+    exclude_packages: list[str] | None = Field(
+        default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
     )
@@ -126,56 +142,70 @@ class SparkApplicationVariant1SparkApplication(APIModel):
 class SparkApplicationVariant2CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant2StartedAt(APIModel):
     """Time when the Spark application was started."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant2FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant2CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class SparkApplicationVariant2PysparkApplication(APIModel):
-    args: list[str] = Field(..., description="Arguments passed to the PySpark driver.")
-    jar_file_uris: list[str] = Field(
-        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
+    args: list[str] | None = Field(
+        default=None, description="Arguments passed to the PySpark driver."
     )
-    file_uris: list[str] = Field(
-        ...,
+    jar_file_uris: list[str] | None = Field(
+        default=None,
+        alias="jarFileUris",
+        description="JAR files added to the Spark classpaths.",
+    )
+    file_uris: list[str] | None = Field(
+        default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
     )
-    archive_uris: list[str] = Field(
-        ...,
+    archive_uris: list[str] | None = Field(
+        default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
     )
-    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
-    main_python_file_uri: str = Field(
-        ..., alias="mainPythonFileUri", description="URI of the main Python file."
+    properties: dict[str, str] | None = Field(
+        default=None, description="Spark configuration properties."
     )
-    python_file_uris: list[str] = Field(
-        ...,
+    main_python_file_uri: str | None = Field(
+        default=None,
+        alias="mainPythonFileUri",
+        description="URI of the main Python file.",
+    )
+    python_file_uris: list[str] | None = Field(
+        default=None,
         alias="pythonFileUris",
         description="Additional Python files passed to PySpark.",
     )
-    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
-    repositories: list[str] = Field(..., description="Additional Maven repositories.")
-    exclude_packages: list[str] = Field(
-        ...,
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
+    )
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
+    )
+    exclude_packages: list[str] | None = Field(
+        default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
     )
@@ -184,47 +214,57 @@ class SparkApplicationVariant2PysparkApplication(APIModel):
 class SparkApplicationVariant3CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant3StartedAt(APIModel):
     """Time when the Spark application was started."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant3FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant3CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class SparkApplicationVariant3SparkConnectApplication(APIModel):
-    jar_file_uris: list[str] = Field(
-        ..., alias="jarFileUris", description="JAR files added to the Spark classpaths."
+    jar_file_uris: list[str] | None = Field(
+        default=None,
+        alias="jarFileUris",
+        description="JAR files added to the Spark classpaths.",
     )
-    file_uris: list[str] = Field(
-        ...,
+    file_uris: list[str] | None = Field(
+        default=None,
         alias="fileUris",
         description="Files copied to the Spark working directory.",
     )
-    archive_uris: list[str] = Field(
-        ...,
+    archive_uris: list[str] | None = Field(
+        default=None,
         alias="archiveUris",
         description="Archives extracted in the Spark working directory.",
     )
-    properties: dict[str, str] = Field(..., description="Spark configuration properties.")
-    packages: list[str] = Field(..., description="Maven packages added to the Spark classpaths.")
-    repositories: list[str] = Field(..., description="Additional Maven repositories.")
-    exclude_packages: list[str] = Field(
-        ...,
+    properties: dict[str, str] | None = Field(
+        default=None, description="Spark configuration properties."
+    )
+    packages: list[str] | None = Field(
+        default=None, description="Maven packages added to the Spark classpaths."
+    )
+    repositories: list[str] | None = Field(
+        default=None, description="Additional Maven repositories."
+    )
+    exclude_packages: list[str] | None = Field(
+        default=None,
         alias="excludePackages",
         description="Maven packages excluded during dependency resolution.",
     )
@@ -233,26 +273,28 @@ class SparkApplicationVariant3SparkConnectApplication(APIModel):
 class SparkApplicationVariant4CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant4StartedAt(APIModel):
     """Time when the Spark application was started."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant4FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class SparkApplicationVariant4CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class CreateSparkApplicationArgsVariant1CatalogsItem(APIModel):
@@ -386,14 +428,16 @@ class CreateSparkApplicationArgsVariant3SparkConnectApplication(APIModel):
 
 
 class SparkApplicationVariant1(APIModel):
-    id: str = Field(..., description="ID of the Spark application.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
-    created_at: SparkApplicationVariant1CreatedAt = Field(..., alias="createdAt")
-    started_at: SparkApplicationVariant1StartedAt | None = Field(..., alias="startedAt")
-    finished_at: SparkApplicationVariant1FinishedAt | None = Field(..., alias="finishedAt")
-    name: str = Field(..., description="Name of the Spark application.")
-    created_by: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Spark application.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
+    created_at: SparkApplicationVariant1CreatedAt | None = Field(default=None, alias="createdAt")
+    started_at: SparkApplicationVariant1StartedAt | None = Field(default=None, alias="startedAt")
+    finished_at: SparkApplicationVariant1FinishedAt | None = Field(default=None, alias="finishedAt")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
+    created_by: str | None = Field(
+        default=None,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
     )
@@ -409,26 +453,31 @@ class SparkApplicationVariant1(APIModel):
             "CANCELLING",
         ]
         | str
-    ) = Field(..., description="Current status of the Spark application.")
-    connect_url: str = Field(..., alias="connectUrl", description="Spark Connect URL.")
-    catalogs: list[SparkApplicationVariant1CatalogsItem] = Field(
-        ..., description="REST catalogs attached to the Spark application."
+        | None
+    ) = Field(default=None, description="Current status of the Spark application.")
+    connect_url: str | None = Field(
+        default=None, alias="connectUrl", description="Spark Connect URL."
     )
-    spark_application: SparkApplicationVariant1SparkApplication = Field(
-        ..., alias="sparkApplication"
+    catalogs: list[SparkApplicationVariant1CatalogsItem] | None = Field(
+        default=None, description="REST catalogs attached to the Spark application."
+    )
+    spark_application: SparkApplicationVariant1SparkApplication | None = Field(
+        default=None, alias="sparkApplication"
     )
     application_spec: Literal["sparkApplication"] = Field(..., alias="applicationSpec")
 
 
 class SparkApplicationVariant2(APIModel):
-    id: str = Field(..., description="ID of the Spark application.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
-    created_at: SparkApplicationVariant2CreatedAt = Field(..., alias="createdAt")
-    started_at: SparkApplicationVariant2StartedAt | None = Field(..., alias="startedAt")
-    finished_at: SparkApplicationVariant2FinishedAt | None = Field(..., alias="finishedAt")
-    name: str = Field(..., description="Name of the Spark application.")
-    created_by: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Spark application.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
+    created_at: SparkApplicationVariant2CreatedAt | None = Field(default=None, alias="createdAt")
+    started_at: SparkApplicationVariant2StartedAt | None = Field(default=None, alias="startedAt")
+    finished_at: SparkApplicationVariant2FinishedAt | None = Field(default=None, alias="finishedAt")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
+    created_by: str | None = Field(
+        default=None,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
     )
@@ -444,26 +493,31 @@ class SparkApplicationVariant2(APIModel):
             "CANCELLING",
         ]
         | str
-    ) = Field(..., description="Current status of the Spark application.")
-    connect_url: str = Field(..., alias="connectUrl", description="Spark Connect URL.")
-    catalogs: list[SparkApplicationVariant2CatalogsItem] = Field(
-        ..., description="REST catalogs attached to the Spark application."
+        | None
+    ) = Field(default=None, description="Current status of the Spark application.")
+    connect_url: str | None = Field(
+        default=None, alias="connectUrl", description="Spark Connect URL."
     )
-    pyspark_application: SparkApplicationVariant2PysparkApplication = Field(
-        ..., alias="pysparkApplication"
+    catalogs: list[SparkApplicationVariant2CatalogsItem] | None = Field(
+        default=None, description="REST catalogs attached to the Spark application."
+    )
+    pyspark_application: SparkApplicationVariant2PysparkApplication | None = Field(
+        default=None, alias="pysparkApplication"
     )
     application_spec: Literal["pysparkApplication"] = Field(..., alias="applicationSpec")
 
 
 class SparkApplicationVariant3(APIModel):
-    id: str = Field(..., description="ID of the Spark application.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
-    created_at: SparkApplicationVariant3CreatedAt = Field(..., alias="createdAt")
-    started_at: SparkApplicationVariant3StartedAt | None = Field(..., alias="startedAt")
-    finished_at: SparkApplicationVariant3FinishedAt | None = Field(..., alias="finishedAt")
-    name: str = Field(..., description="Name of the Spark application.")
-    created_by: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Spark application.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
+    created_at: SparkApplicationVariant3CreatedAt | None = Field(default=None, alias="createdAt")
+    started_at: SparkApplicationVariant3StartedAt | None = Field(default=None, alias="startedAt")
+    finished_at: SparkApplicationVariant3FinishedAt | None = Field(default=None, alias="finishedAt")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
+    created_by: str | None = Field(
+        default=None,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
     )
@@ -479,26 +533,31 @@ class SparkApplicationVariant3(APIModel):
             "CANCELLING",
         ]
         | str
-    ) = Field(..., description="Current status of the Spark application.")
-    connect_url: str = Field(..., alias="connectUrl", description="Spark Connect URL.")
-    catalogs: list[SparkApplicationVariant3CatalogsItem] = Field(
-        ..., description="REST catalogs attached to the Spark application."
+        | None
+    ) = Field(default=None, description="Current status of the Spark application.")
+    connect_url: str | None = Field(
+        default=None, alias="connectUrl", description="Spark Connect URL."
     )
-    spark_connect_application: SparkApplicationVariant3SparkConnectApplication = Field(
-        ..., alias="sparkConnectApplication"
+    catalogs: list[SparkApplicationVariant3CatalogsItem] | None = Field(
+        default=None, description="REST catalogs attached to the Spark application."
+    )
+    spark_connect_application: SparkApplicationVariant3SparkConnectApplication | None = Field(
+        default=None, alias="sparkConnectApplication"
     )
     application_spec: Literal["sparkConnectApplication"] = Field(..., alias="applicationSpec")
 
 
 class SparkApplicationVariant4(APIModel):
-    id: str = Field(..., description="ID of the Spark application.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
-    created_at: SparkApplicationVariant4CreatedAt = Field(..., alias="createdAt")
-    started_at: SparkApplicationVariant4StartedAt | None = Field(..., alias="startedAt")
-    finished_at: SparkApplicationVariant4FinishedAt | None = Field(..., alias="finishedAt")
-    name: str = Field(..., description="Name of the Spark application.")
-    created_by: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Spark application.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
+    created_at: SparkApplicationVariant4CreatedAt | None = Field(default=None, alias="createdAt")
+    started_at: SparkApplicationVariant4StartedAt | None = Field(default=None, alias="startedAt")
+    finished_at: SparkApplicationVariant4FinishedAt | None = Field(default=None, alias="finishedAt")
+    name: str | None = Field(default=None, description="Name of the Spark application.")
+    created_by: str | None = Field(
+        default=None,
         alias="createdBy",
         description="ID of the user who created the Spark application.",
     )
@@ -514,10 +573,13 @@ class SparkApplicationVariant4(APIModel):
             "CANCELLING",
         ]
         | str
-    ) = Field(..., description="Current status of the Spark application.")
-    connect_url: str = Field(..., alias="connectUrl", description="Spark Connect URL.")
-    catalogs: list[SparkApplicationVariant4CatalogsItem] = Field(
-        ..., description="REST catalogs attached to the Spark application."
+        | None
+    ) = Field(default=None, description="Current status of the Spark application.")
+    connect_url: str | None = Field(
+        default=None, alias="connectUrl", description="Spark Connect URL."
+    )
+    catalogs: list[SparkApplicationVariant4CatalogsItem] | None = Field(
+        default=None, description="REST catalogs attached to the Spark application."
     )
 
 
@@ -571,11 +633,11 @@ class SparkApplication(
 
 
 class ListSparkApplicationsResult(APIModel):
-    applications: list[SparkApplication] = Field(
-        ..., description="Spark applications matching the request."
+    applications: list[SparkApplication] | None = Field(
+        default=None, description="Spark applications matching the request."
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of Spark applications.",
     )

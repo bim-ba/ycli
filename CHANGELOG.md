@@ -9,6 +9,33 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.81.2 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A reply is read even when DataLens leaves out a field its document requires
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`5b5b335`](https://github.com/bim-ba/ycli/commit/5b5b33569d7ccde5b4074f86fa9de97ff6d2d80c))
+
+### Build System
+
+- Re-lock uv.lock for 0.81.1
+  ([`ae58625`](https://github.com/bim-ba/ycli/commit/ae5862569566124ff837f2da2cd5b13b099c431f))
+
+
+## v0.81.1 (2026-10-05)
+
+### Bug Fixes
+
+- **settings**: An error about the credentials never quotes the value that failed
+  ([`da7ef04`](https://github.com/bim-ba/ycli/commit/da7ef04e0fb0009bc4519b6e188613ee258b0bfd))
+
+### Build System
+
+- Re-lock uv.lock for 0.81.0
+  ([`57d54f6`](https://github.com/bim-ba/ycli/commit/57d54f6149dfa9e73317377237483aaf8b9e22c9))
+
+
 ## v0.81.0 (2026-10-05)
 
 ### Build System

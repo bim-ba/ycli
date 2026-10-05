@@ -4208,10 +4208,18 @@ class WizardV1Annotation(APIModel):
 class GetWizardChartV1ResultPermissions(APIModel):
     """Permissions for the chart."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class WizardV1FiltersItemSchemaFilter(APIModel):
@@ -8522,20 +8530,34 @@ class WizardV1ConfigSchema(APIModel):
 
 class WizardV1(APIModel):
     version: Literal[1] = Field(..., description="Entry API version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Wizard chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Wizard chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Wizard chart belongs to.",
     )
@@ -8555,14 +8577,16 @@ class WizardV1(APIModel):
         | str
         | None
     ) = None
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: WizardV1Annotation | None = None
-    data: WizardV1ConfigSchema
+    data: WizardV1ConfigSchema | None = None
 
 
 class GetWizardChartV1Result(APIModel):
-    entry: WizardV1
+    entry: WizardV1 | None = None
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
@@ -8572,7 +8596,7 @@ class GetWizardChartV1Result(APIModel):
 
 
 class UpdateWizardV1Result(APIModel):
-    entry: WizardV1
+    entry: WizardV1 | None = None
 
 
 class UpdateWizardV1Args(RequestBody):
@@ -8584,7 +8608,7 @@ class UpdateWizardV1Args(RequestBody):
 
 
 class CreateWizardChartV1Result(APIModel):
-    entry: WizardV1
+    entry: WizardV1 | None = None
 
 
 class CreateWizardChartV1Args(EntryLocationIdentifiers):

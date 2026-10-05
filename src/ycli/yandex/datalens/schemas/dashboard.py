@@ -625,25 +625,25 @@ class DashboardV2DataSettings(APIModel):
     """Dashboard settings."""
 
     autoupdate_interval: float | None = Field(
-        ...,
+        default=None,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
     max_concurrent_requests: float | None = Field(
-        ...,
+        default=None,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
     )
     load_priority: Literal["charts", "selectors"] | str | None = Field(
         default=None, alias="loadPriority", description="Dashboard loading priority."
     )
-    silent_loading: bool = Field(
-        ...,
+    silent_loading: bool | None = Field(
+        default=None,
         alias="silentLoading",
         description="Whether to suppress the loading indicator.",
     )
-    dependent_selectors: bool = Field(
-        ...,
+    dependent_selectors: bool | None = Field(
+        default=None,
         alias="dependentSelectors",
         description="Whether selectors can depend on each other.",
     )
@@ -665,8 +665,10 @@ class DashboardV2DataSettings(APIModel):
         alias="hideDashTitle",
         description="Whether to hide the dashboard title.",
     )
-    expand_toc: bool = Field(
-        ..., alias="expandTOC", description="Whether to expand the table of contents."
+    expand_toc: bool | None = Field(
+        default=None,
+        alias="expandTOC",
+        description="Whether to expand the table of contents.",
     )
     background_settings: DashboardV2DataSettingsBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
@@ -892,10 +894,12 @@ class CreateDashboardV2Args(RequestBody):
 class DashboardV2Data(APIModel):
     """Versioned data of the dashboard."""
 
-    counter: int = Field(..., description="Counter used to generate item identifiers.")
-    salt: str = Field(..., description="Salt used to generate item identifiers.")
-    tabs: list[DashTabV2] = Field(..., description="Dashboard tabs.")
-    settings: DashboardV2DataSettings
+    counter: int | None = Field(
+        default=None, description="Counter used to generate item identifiers."
+    )
+    salt: str | None = Field(default=None, description="Salt used to generate item identifiers.")
+    tabs: list[DashTabV2] | None = Field(default=None, description="Dashboard tabs.")
+    settings: DashboardV2DataSettings | None = None
     support_description: str | None = Field(
         default=None,
         alias="supportDescription",
@@ -918,42 +922,54 @@ class UpdateDashboardV2ArgsEntry(APIModel):
 
 class DashboardV2(APIModel):
     annotation: DashboardV2Annotation | None = None
-    created_at: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the dashboard was created.",
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the dashboard."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the dashboard.",
     )
-    data: DashboardV2Data
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the dashboard.")
-    hidden: bool = Field(..., description="Whether the dashboard is hidden.")
-    key: str | None = Field(..., description="Key of the dashboard entry.")
+    data: DashboardV2Data | None = None
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the dashboard."
+    )
+    hidden: bool | None = Field(default=None, description="Whether the dashboard is hidden.")
+    key: str | None = Field(default=None, description="Key of the dashboard entry.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the dashboard."
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata of the dashboard.")
-    public: bool = Field(..., description="Whether the dashboard is public.")
+    meta: dict[str, Any] | None = Field(default=None, description="Metadata of the dashboard.")
+    public: bool | None = Field(default=None, description="Whether the dashboard is public.")
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published dashboard revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published dashboard revision.",
     )
-    rev_id: str = Field(..., alias="revId", description="ID of the current dashboard revision.")
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved dashboard revision.")
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current dashboard revision."
+    )
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved dashboard revision."
+    )
     scope: Literal["dash"] = Field(..., description="Scope of the dashboard entry.")
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the dashboard."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the dashboard.",
     )
     type: Literal[""] = Field(
         ..., description="Type of the dashboard entry. Always an empty string."
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the dashboard was last updated.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the dashboard.",
     )
@@ -969,14 +985,14 @@ class DashboardV2(APIModel):
     )
     version: Literal[2] = Field(..., description="Schema version of the dashboard.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook containing the dashboard.",
     )
 
 
 class GetDashboardV2Result(APIModel):
-    entry: DashboardV2
+    entry: DashboardV2 | None = None
     is_favorite: bool | None = Field(default=None, alias="isFavorite")
     permissions: shared.EntryPermissions | None = None
 
@@ -988,8 +1004,8 @@ class UpdateDashboardV2Args(RequestBody):
 
 
 class CreateDashboardResponse(APIModel):
-    entry: DashboardV2
+    entry: DashboardV2 | None = None
 
 
 class UpdateDashboardResponse(APIModel):
-    entry: DashboardV2
+    entry: DashboardV2 | None = None

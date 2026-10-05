@@ -8,7 +8,9 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class CreateBucketDownloadUrlResult(APIModel):
-    url: str = Field(..., description="Temporary signed URL for accessing the object.")
+    url: str | None = Field(
+        default=None, description="Temporary signed URL for accessing the object."
+    )
 
 
 class CreateBucketDownloadUrlArgs(RequestBody):
@@ -24,7 +26,9 @@ class CreateBucketDownloadUrlArgs(RequestBody):
 
 
 class CreateBucketUploadUrlResult(APIModel):
-    url: str = Field(..., description="Temporary signed URL for accessing the object.")
+    url: str | None = Field(
+        default=None, description="Temporary signed URL for accessing the object."
+    )
 
 
 class CreateBucketUploadUrlArgs(RequestBody):
@@ -58,9 +62,13 @@ class GetBucketObjectMetadataArgs(RequestBody):
 
 
 class ListBucketObjectsResult(APIModel):
-    keys: list[str] = Field(..., description="Paths of objects matching the request.")
-    next_page_token: str = Field(
-        ..., alias="nextPageToken", description="Token for the next page of objects."
+    keys: list[str] | None = Field(
+        default=None, description="Paths of objects matching the request."
+    )
+    next_page_token: str | None = Field(
+        default=None,
+        alias="nextPageToken",
+        description="Token for the next page of objects.",
     )
 
 
@@ -89,12 +97,12 @@ class ListBucketObjectsArgs(RequestBody):
 class GetBucketObjectMetadataResultLastModified(APIModel):
     """Time when the object was last modified."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class GetBucketObjectMetadataResult(APIModel):
-    size: str = Field(..., description="Size of the object in bytes.")
+    size: str | None = Field(default=None, description="Size of the object in bytes.")
     last_modified: GetBucketObjectMetadataResultLastModified | None = Field(
         default=None, alias="lastModified"
     )

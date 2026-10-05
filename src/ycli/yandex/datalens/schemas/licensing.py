@@ -10,46 +10,60 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class LicenseWithLastLogin(APIModel):
-    license_id: str = Field(..., alias="licenseId", description="Unique identifier of the license.")
-    meta: dict[str, Any] = Field(..., description="Additional license metadata.")
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the license."
+    license_id: str | None = Field(
+        default=None, alias="licenseId", description="Unique identifier of the license."
     )
-    user_id: str = Field(..., alias="userId", description="ID of the user assigned the license.")
-    license_type: Literal["creator", "viewer"] | str = Field(
-        ..., alias="licenseType", description="Type of the license."
+    meta: dict[str, Any] | None = Field(default=None, description="Additional license metadata.")
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the license.",
     )
-    is_active: bool = Field(..., alias="isActive", description="Whether the license is active.")
+    user_id: str | None = Field(
+        default=None, alias="userId", description="ID of the user assigned the license."
+    )
+    license_type: Literal["creator", "viewer"] | str | None = Field(
+        default=None, alias="licenseType", description="Type of the license."
+    )
+    is_active: bool | None = Field(
+        default=None, alias="isActive", description="Whether the license is active."
+    )
     expires_at: str | None = Field(
-        ..., alias="expiresAt", description="Date and time when the license expires."
+        default=None,
+        alias="expiresAt",
+        description="Date and time when the license expires.",
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the license."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the license.",
     )
-    created_at: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the license was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the license.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the license was last updated.",
     )
     last_login_at: str | None = Field(
-        ...,
+        default=None,
         alias="lastLoginAt",
         description="Date and time when the licensed user last logged in.",
     )
 
 
 class GetLicensesResult(APIModel):
-    licenses: list[LicenseWithLastLogin] = Field(..., description="Licenses matching the request.")
+    licenses: list[LicenseWithLastLogin] | None = Field(
+        default=None, description="Licenses matching the request."
+    )
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -85,34 +99,46 @@ class SetLicenseLimitArgs(RequestBody):
 
 
 class License(APIModel):
-    license_id: str = Field(..., alias="licenseId", description="Unique identifier of the license.")
-    meta: dict[str, Any] = Field(..., description="Additional license metadata.")
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the license."
+    license_id: str | None = Field(
+        default=None, alias="licenseId", description="Unique identifier of the license."
     )
-    user_id: str = Field(..., alias="userId", description="ID of the user assigned the license.")
-    license_type: Literal["creator", "viewer"] | str = Field(
-        ..., alias="licenseType", description="Type of the license."
+    meta: dict[str, Any] | None = Field(default=None, description="Additional license metadata.")
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the license.",
     )
-    is_active: bool = Field(..., alias="isActive", description="Whether the license is active.")
+    user_id: str | None = Field(
+        default=None, alias="userId", description="ID of the user assigned the license."
+    )
+    license_type: Literal["creator", "viewer"] | str | None = Field(
+        default=None, alias="licenseType", description="Type of the license."
+    )
+    is_active: bool | None = Field(
+        default=None, alias="isActive", description="Whether the license is active."
+    )
     expires_at: str | None = Field(
-        ..., alias="expiresAt", description="Date and time when the license expires."
+        default=None,
+        alias="expiresAt",
+        description="Date and time when the license expires.",
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the license."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the license.",
     )
-    created_at: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the license was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the license.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the license was last updated.",
     )
@@ -133,15 +159,17 @@ class AssignLicensesResponse(RootModel[list[License]]):
 class LicenseLimitsCurrent(APIModel):
     """Current license limit."""
 
-    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
-    value: float = Field(..., description="Maximum number of active licenses.")
-    started_at: str = Field(
-        ...,
+    type: Literal["regular", "forced"] | str | None = Field(
+        default=None, description="Type of the license limit."
+    )
+    value: float | None = Field(default=None, description="Maximum number of active licenses.")
+    started_at: str | None = Field(
+        default=None,
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
     active_licenses_count: float | None = Field(
-        ...,
+        default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",
     )
@@ -150,20 +178,22 @@ class LicenseLimitsCurrent(APIModel):
 class LicenseLimitsNext(APIModel):
     """Upcoming license limit."""
 
-    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
-    value: float = Field(..., description="Maximum number of active licenses.")
-    started_at: str = Field(
-        ...,
+    type: Literal["regular", "forced"] | str | None = Field(
+        default=None, description="Type of the license limit."
+    )
+    value: float | None = Field(default=None, description="Maximum number of active licenses.")
+    started_at: str | None = Field(
+        default=None,
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
     active_licenses_count: float | None = Field(
-        ...,
+        default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",
     )
 
 
 class LicenseLimits(APIModel):
-    current: LicenseLimitsCurrent | None
-    next: LicenseLimitsNext | None
+    current: LicenseLimitsCurrent | None = None
+    next: LicenseLimitsNext | None = None

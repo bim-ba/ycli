@@ -47,31 +47,33 @@ class ListCatalogsArgs(RequestBody):
 class ListCatalogsResultRestCatalogsItemCreatedAt(APIModel):
     """Time when the REST catalog was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class ListCatalogsResultRestCatalogsItemUpdatedAt(APIModel):
     """Time when the REST catalog was last updated."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class ListCatalogsResultRestCatalogsItemBucketSettings(APIModel):
     """Settings of the REST catalog bucket."""
 
-    storage_class: str = Field(
-        ...,
+    storage_class: str | None = Field(
+        default=None,
         alias="storageClass",
         description="Storage class of the REST catalog bucket.",
     )
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum size of the REST catalog bucket in bytes.",
     )
-    alias: str = Field(..., description="Human-readable alias of the REST catalog bucket.")
+    alias: str | None = Field(
+        default=None, description="Human-readable alias of the REST catalog bucket."
+    )
     description: str | None = Field(
         default=None, description="Description of the REST catalog bucket."
     )
@@ -80,7 +82,7 @@ class ListCatalogsResultRestCatalogsItemBucketSettings(APIModel):
 class ListCatalogsResultRestCatalogsItemBucketDetailsUpdatedAt(APIModel):
     """Time when the bucket details were updated."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
@@ -134,53 +136,55 @@ class ListCatalogsResultRestCatalogsItemBucketDetails(APIModel):
 class ListCatalogsResultRestCatalogsItemBucket(APIModel):
     """Bucket associated with the REST catalog."""
 
-    settings: ListCatalogsResultRestCatalogsItemBucketSettings
+    settings: ListCatalogsResultRestCatalogsItemBucketSettings | None = None
     details: ListCatalogsResultRestCatalogsItemBucketDetails | None = None
 
 
 class ListCatalogsResultRestCatalogsItem(APIModel):
-    id: str = Field(..., description="ID of the REST catalog.")
-    organization_id: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the REST catalog.")
+    organization_id: str | None = Field(
+        default=None,
         alias="organizationId",
         description="ID of the organization that owns the REST catalog.",
     )
-    tenant_id: str = Field(
-        ...,
+    tenant_id: str | None = Field(
+        default=None,
         alias="tenantId",
         description="ID of the tenant that owns the REST catalog.",
     )
-    cloud_environment_id: str = Field(
-        ...,
+    cloud_environment_id: str | None = Field(
+        default=None,
         alias="cloudEnvironmentId",
         description="ID of the associated cloud environment.",
     )
-    name: str = Field(..., description="Name of the REST catalog.")
-    description: str = Field(..., description="Description of the REST catalog.")
+    name: str | None = Field(default=None, description="Name of the REST catalog.")
+    description: str | None = Field(default=None, description="Description of the REST catalog.")
     labels: dict[str, str] | None = Field(default=None, description="REST catalog labels.")
     created_at: ListCatalogsResultRestCatalogsItemCreatedAt | None = Field(
         default=None, alias="createdAt"
     )
-    created_by_id: str = Field(
-        ...,
+    created_by_id: str | None = Field(
+        default=None,
         alias="createdById",
         description="ID of the user who created the REST catalog.",
     )
     updated_at: ListCatalogsResultRestCatalogsItemUpdatedAt | None = Field(
         default=None, alias="updatedAt"
     )
-    bucket: ListCatalogsResultRestCatalogsItemBucket
+    bucket: ListCatalogsResultRestCatalogsItemBucket | None = None
     permissions: dict[str, bool] | None = Field(
         default=None, description="Permissions for the REST catalog."
     )
 
 
 class ListCatalogsResult(APIModel):
-    rest_catalogs: list[ListCatalogsResultRestCatalogsItem] = Field(
-        ..., alias="restCatalogs", description="REST catalogs matching the request."
+    rest_catalogs: list[ListCatalogsResultRestCatalogsItem] | None = Field(
+        default=None,
+        alias="restCatalogs",
+        description="REST catalogs matching the request.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of REST catalogs.",
     )
