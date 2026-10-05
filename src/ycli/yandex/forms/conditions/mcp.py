@@ -23,7 +23,7 @@ from ycli.yandex.forms.dependencies import (
     forms_client,
 )
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-conditions")
 
@@ -41,16 +41,6 @@ NewGroup = Annotated[
 ReplacementGroup = Annotated[
     ConditionUpdate, Field(description="FULL replacement (PATCH validates the complete group).")
 ]
-
-
-def _found(result: Condition, condition_id: int, where: str) -> Condition:
-    # A 404 / empty body parses into an all-None group (lenient model): report it as missing.
-    return require_found(
-        result,
-        sentinel=lambda r: r.id is None,
-        message=f"condition {condition_id!r} not found on {where} "
-        "(empty response — check ids or permissions)",
-    )
 
 
 # --- question family ---
@@ -86,8 +76,7 @@ def question_get(
     Clauses have no ids of their own: edit one by replacing the whole group via
     ``conditions_question_update``.
     """
-    result = client.conditions.question_get(survey_id, question_id, condition_id)
-    return _found(result, condition_id, f"question {question_id!r} in survey {survey_id!r}")
+    return client.conditions.question_get(survey_id, question_id, condition_id)
 
 
 @mcp.tool(
@@ -188,8 +177,7 @@ def page_get(
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """One condition group of a page by id — its ``operator`` and clause ``items``."""
-    result = client.conditions.page_get(survey_id, page_id, condition_id)
-    return _found(result, condition_id, f"page {page_id!r} in survey {survey_id!r}")
+    return client.conditions.page_get(survey_id, page_id, condition_id)
 
 
 @mcp.tool(
@@ -279,8 +267,7 @@ def submit_get(
     survey_id: SurveyID, condition_id: ConditionID, client: FormsClient = Depends(forms_client)
 ) -> Condition:
     """One condition group of the submit button by id — its ``operator`` and clauses."""
-    result = client.conditions.submit_get(survey_id, condition_id)
-    return _found(result, condition_id, f"survey {survey_id!r}")
+    return client.conditions.submit_get(survey_id, condition_id)
 
 
 @mcp.tool(
@@ -359,8 +346,7 @@ def hook_get(
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """One condition group of an integration group by id — its ``operator`` and clauses."""
-    result = client.conditions.hook_get(survey_id, hook_id, condition_id)
-    return _found(result, condition_id, f"hook {hook_id!r} in survey {survey_id!r}")
+    return client.conditions.hook_get(survey_id, hook_id, condition_id)
 
 
 @mcp.tool(

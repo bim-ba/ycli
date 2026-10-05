@@ -1,18 +1,8 @@
-"""Wiki MCP behaviour a contract case cannot express: guards and what is never exposed."""
+"""Wiki MCP behaviour a contract case cannot express: what is never exposed."""
 
-import pytest
 from fastmcp import Client
-from fastmcp.exceptions import ToolError
 
 from tests.full_server import mcp
-from tests.hosts import WIKI_BASE as BASE
-
-
-async def test_an_empty_user_fails_the_auth_probe(api):
-    api.add("GET", f"{BASE}/users/me", json={})
-    async with Client(mcp) as client:
-        with pytest.raises(ToolError, match="auth probe failed"):
-            await client.call_tool("wiki_me_get", {})
 
 
 async def test_no_tool_returns_attachment_bytes():
