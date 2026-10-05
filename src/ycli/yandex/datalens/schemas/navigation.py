@@ -45,10 +45,12 @@ class GetEntriesV2ResultEntriesItemVariant2Permissions(APIModel):
 class GetEntriesV2ArgsOrderBy(APIModel):
     """Entry sorting configuration."""
 
-    field: Literal["createdAt", "name"] | str = Field(
-        ..., description="Field used to sort entries: creation date or name."
+    field: Literal["createdAt", "name"] | str | None = Field(
+        default=None, description="Field used to sort entries: creation date or name."
     )
-    direction: Literal["desc", "asc"] | str = Field(..., description="Entry sort direction.")
+    direction: Literal["desc", "asc"] | str | None = Field(
+        default=None, description="Entry sort direction."
+    )
 
 
 class GetEntriesV2ArgsFilters(APIModel):
@@ -94,10 +96,12 @@ class ListDirectoryEntryPermissions(APIModel):
 class ListDirectoryArgsOrderBy(APIModel):
     """Sorting configuration."""
 
-    field: Literal["createdAt", "name"] | str = Field(
-        ..., description="Field used to sort entries: creation date or name."
+    field: Literal["createdAt", "name"] | str | None = Field(
+        default=None, description="Field used to sort entries: creation date or name."
     )
-    direction: Literal["desc", "asc"] | str = Field(..., description="Entry sort direction.")
+    direction: Literal["desc", "asc"] | str | None = Field(
+        default=None, description="Entry sort direction."
+    )
 
 
 class ListDirectoryArgsFilters(APIModel):

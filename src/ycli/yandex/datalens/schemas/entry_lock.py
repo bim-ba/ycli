@@ -34,23 +34,27 @@ class EntryLock(APIModel):
 
 
 class CreateEntryLockArgsData(APIModel):
-    duration: float = Field(..., description="Lock duration in milliseconds.")
+    duration: float | None = Field(default=None, description="Lock duration in milliseconds.")
     force: bool | None = Field(
         default=None, description="Whether to replace an existing active lock."
     )
 
 
 class ExtendEntryLockArgsData(APIModel):
-    lock_token: str = Field(
-        ..., alias="lockToken", description="Token identifying the lock to extend."
+    lock_token: str | None = Field(
+        default=None,
+        alias="lockToken",
+        description="Token identifying the lock to extend.",
     )
-    duration: float = Field(..., description="New lock duration in milliseconds.")
+    duration: float | None = Field(default=None, description="New lock duration in milliseconds.")
     force: bool | None = Field(default=None, description="Whether to force lock extension.")
 
 
 class DeleteEntryLockArgsParams(APIModel):
-    lock_token: str = Field(
-        ..., alias="lockToken", description="Token identifying the lock to delete."
+    lock_token: str | None = Field(
+        default=None,
+        alias="lockToken",
+        description="Token identifying the lock to delete.",
     )
     force: bool | None = Field(default=None, description="Whether to force lock deletion.")
 

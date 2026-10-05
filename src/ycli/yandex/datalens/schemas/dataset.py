@@ -301,7 +301,7 @@ class DeleteField(APIModel):
 
 
 class DeleteObligatoryFilter(APIModel):
-    id: str
+    id: str | None = None
 
 
 class FieldInterDependencyItem(APIModel):
@@ -351,7 +351,7 @@ class FormulaCalculationSpec(APIModel):
 
 
 class IndexInfo(APIModel):
-    columns: list[str]
+    columns: list[str] | None = None
     kind: Literal["table_sorting"] | None = None
 
 
@@ -365,7 +365,7 @@ class Preview(APIModel):
 
 
 class RLSSubject(APIModel):
-    subject_id: str
+    subject_id: str | None = None
     subject_name: str | None = None
     subject_type: Literal["user", "group", "all", "userid", "unknown", "notfound"] | str | None = (
         None
@@ -382,8 +382,8 @@ class RelationBase(APIModel):
 
 
 class ReplaceConnection(APIModel):
-    id: str
-    new_id: str
+    id: str | None = None
+    new_id: str | None = None
 
 
 class SQLParameters(APIModel):
@@ -402,8 +402,10 @@ class SchematizedParameters(APIModel):
 
 
 class Setting(APIModel):
-    name: Literal["load_preview_by_default", "template_enabled", "data_export_forbidden"] | str
-    value: bool
+    name: (
+        Literal["load_preview_by_default", "template_enabled", "data_export_forbidden"] | str | None
+    ) = None
+    value: bool | None = None
 
 
 class SimpleParameters(APIModel):
@@ -418,7 +420,7 @@ class SnowFlakeTableParameters(APIModel):
 
 
 class SourceAvatar(APIModel):
-    id: str
+    id: str | None = None
     is_root: bool | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     source_id: str | None = None
@@ -428,9 +430,9 @@ class SourceAvatar(APIModel):
 
 
 class SourceAvatarStrict(APIModel):
-    id: str
+    id: str | None = None
     is_root: bool | None = None
-    managed_by: Literal["user", "feature", "compiler_runtime"] | str | None
+    managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     source_id: str | None = None
     title: str | None = None
     valid: bool | None = None
@@ -461,7 +463,7 @@ class SubselectParameters(APIModel):
 
 
 class Where(APIModel):
-    column: str
+    column: str | None = None
     operation: (
         Literal[
             "ISNULL",
@@ -491,15 +493,16 @@ class Where(APIModel):
             "BETWEEN",
         ]
         | str
-    )
-    values: list[Any] | None
+        | None
+    ) = None
+    values: list[Any] | None = None
 
 
 class AddSourceAvatar(APIModel):
     action: Literal["add_source_avatar"]
     disable_fields_update: bool | None = None
     order_index: int | None = None
-    source_avatar: SourceAvatar
+    source_avatar: SourceAvatar | None = None
 
 
 class ArrayFloat(APIModel):
@@ -526,7 +529,7 @@ class ClickhouseDatetime64NativeType(APIModel):
     lowcardinality: bool | None = None
     name: str | None = None
     nullable: bool | None = None
-    precision: int
+    precision: int | None = None
     native_type_class_name: Literal["clickhouse_datetime64_native_type"]
 
 
@@ -535,7 +538,7 @@ class ClickhouseDatetime64withtzNativeType(APIModel):
     lowcardinality: bool | None = None
     name: str | None = None
     nullable: bool | None = None
-    precision: int
+    precision: int | None = None
     timezone_name: str | None = None
     native_type_class_name: Literal["clickhouse_datetime64withtz_native_type"]
 
@@ -558,7 +561,7 @@ class ClickhouseNativeType(APIModel):
 
 class CloneFieldModel(APIModel):
     action: Literal["clone_field"]
-    field: CloneField
+    field: CloneField | None = None
     order_index: int | None = None
 
 
@@ -589,38 +592,38 @@ class Default(APIModel):
 
 class DeleteAvatarRelation(APIModel):
     action: Literal["delete_avatar_relation"]
-    avatar_relation: RelationBase
+    avatar_relation: RelationBase | None = None
     order_index: int | None = None
 
 
 class DeleteFieldModel(APIModel):
     action: Literal["delete_field"]
-    field: DeleteField
+    field: DeleteField | None = None
     order_index: int | None = None
 
 
 class DeleteObligatoryFilterModel(APIModel):
     action: Literal["delete_obligatory_filter"]
-    obligatory_filter: DeleteObligatoryFilter
+    obligatory_filter: DeleteObligatoryFilter | None = None
     order_index: int | None = None
 
 
 class DeleteSource(APIModel):
     action: Literal["delete_source"]
     order_index: int | None = None
-    source: SourceBase
+    source: SourceBase | None = None
 
 
 class DeleteSourceAvatar(APIModel):
     action: Literal["delete_source_avatar"]
     disable_fields_update: bool | None = None
     order_index: int | None = None
-    source_avatar: AvatarBase
+    source_avatar: AvatarBase | None = None
 
 
 class Direct(APIModel):
     calc_mode: Literal["direct"]
-    source: str
+    source: str | None = None
 
 
 class Direct1(APIModel):
@@ -706,7 +709,7 @@ class Direct1(APIModel):
     lock_aggregation: bool | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     source: str | None = None
-    title: str
+    title: str | None = None
     type: Literal["DIMENSION", "MEASURE"] | str | None = None
     ui_settings: str | None = None
     valid: bool | None = None
@@ -721,7 +724,7 @@ class Float(APIModel):
 
 class Formula(APIModel):
     calc_mode: Literal["formula"]
-    formula: str
+    formula: str | None = None
 
 
 class Formula2(APIModel):
@@ -807,7 +810,7 @@ class Formula2(APIModel):
     ) = None
     lock_aggregation: bool | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
-    title: str
+    title: str | None = None
     type: Literal["DIMENSION", "MEASURE"] | str | None = None
     ui_settings: str | None = None
     valid: bool | None = None
@@ -855,7 +858,7 @@ class Markup(APIModel):
 class RefreshSourceModel(APIModel):
     action: Literal["refresh_source"]
     order_index: int | None = None
-    source: RefreshSource
+    source: RefreshSource | None = None
 
 
 class Regex(APIModel):
@@ -871,7 +874,7 @@ class ReplaceConnectionModel(APIModel):
 
 class ResultField(APIModel):
     calc_mode: Literal["result_field"]
-    field_id: str
+    field_id: str | None = None
 
 
 class String(APIModel):
@@ -886,21 +889,21 @@ class TreeStr(APIModel):
 
 class UpdateDescription(APIModel):
     action: Literal["update_description"]
-    description: str
+    description: str | None = None
     order_index: int | None = None
 
 
 class UpdateSetting(APIModel):
     action: Literal["update_setting"]
     order_index: int | None = None
-    setting: Setting
+    setting: Setting | None = None
 
 
 class UpdateSourceAvatar(APIModel):
     action: Literal["update_source_avatar"]
     disable_fields_update: bool | None = None
     order_index: int | None = None
-    source_avatar: SourceAvatar
+    source_avatar: SourceAvatar | None = None
 
 
 class Uuid(APIModel):
@@ -1025,16 +1028,16 @@ class FieldInterDependencyInfo(APIModel):
 
 
 class JoinCondition(APIModel):
-    left: ConditionPartGeneric
-    operator: Literal["gt", "lt", "gte", "lte", "eq", "ne"] | str
-    right: ConditionPartGeneric
+    left: ConditionPartGeneric | None = None
+    operator: Literal["gt", "lt", "gte", "lte", "eq", "ne"] | str | None = None
+    right: ConditionPartGeneric | None = None
     type: Literal["binary"]
 
 
 class ObligatoryFilter(APIModel):
     default_filters: list[Where] | None = None
     field_guid: str | None = None
-    id: str
+    id: str | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     valid: bool | None = None
 
@@ -1069,7 +1072,7 @@ class RLS2ConfigEntry(APIModel):
     allowed_value: str | None = None
     field_guid: str | None = None
     pattern_type: Literal["value", "all", "userid"] | str | None = None
-    subject: RLSSubject
+    subject: RLSSubject | None = None
 
 
 class RawSchemaColumn(APIModel):
@@ -1111,56 +1114,56 @@ class ResultSchemaAux(APIModel):
 
 class SNOWFLAKETABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SnowFlakeTableParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["SNOWFLAKE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class SNOWFLAKETABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SnowFlakeTableParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["SNOWFLAKE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class SPEECHSENSETABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["SPEECHSENSE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class SPEECHSENSETABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["SPEECHSENSE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -1173,56 +1176,56 @@ class Sources(APIModel):
 
 class TRINOSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["TRINO_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class TRINOSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["TRINO_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class TRINOTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["TRINO_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class TRINOTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["TRINO_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -1269,119 +1272,119 @@ class Value(
 
 class YDBSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YDB_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YDBSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YDB_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YDBTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YDB_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YDBTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YDB_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YQSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YQ_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YQSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YQ_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YQTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YQ_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class YQTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["YQ_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class AddObligatoryFilter(APIModel):
     action: Literal["add_obligatory_filter"]
-    obligatory_filter: ObligatoryFilter
+    obligatory_filter: ObligatoryFilter | None = None
     order_index: int | None = None
 
 
@@ -1468,7 +1471,7 @@ class Parameter1(APIModel):
     lock_aggregation: bool | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     template_enabled: bool | None = None
-    title: str
+    title: str | None = None
     type: Literal["DIMENSION", "MEASURE"] | str | None = None
     ui_settings: str | None = None
     valid: bool | None = None
@@ -1479,34 +1482,34 @@ class Parameter1(APIModel):
 
 class UpdateObligatoryFilter(APIModel):
     action: Literal["update_obligatory_filter"]
-    obligatory_filter: ObligatoryFilter
+    obligatory_filter: ObligatoryFilter | None = None
     order_index: int | None = None
 
 
 class APPMETRICAAPI(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["APPMETRICA_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class APPMETRICAAPI1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["APPMETRICA_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -1550,14 +1553,14 @@ class AddField(APIModel):
     source: str | None = None
     strict: bool | None = None
     template_enabled: bool | None = None
-    title: str
+    title: str | None = None
     ui_settings: str | None = None
     value_constraint: ParameterValueConstraint | None = None
 
 
 class AvatarRelation(APIModel):
     conditions: list[JoinCondition] | None = None
-    id: str
+    id: str | None = None
     join_type: Literal["inner", "left", "right", "full"] | str | None = None
     left_avatar_id: str | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
@@ -1568,392 +1571,392 @@ class AvatarRelation(APIModel):
 
 class BIGQUERYSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BIGQUERY_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class BIGQUERYSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BIGQUERY_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class BIGQUERYTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: BigQueryTableParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BIGQUERY_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class BIGQUERYTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: BigQueryTableParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BIGQUERY_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class BITRIXGDS(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BITRIX_GDS"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class BITRIXGDS1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["BITRIX_GDS"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLELIST(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: CHYTTableListParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE_LIST"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLELIST1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: CHYTTableListParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE_LIST"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLERANGE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: CHYTTableRangeParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE_RANGE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYTYTSAURUSTABLERANGE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: CHYTTableRangeParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CHYT_YTSAURUS_TABLE_RANGE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHBILLINGANALYTICSTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_BILLING_ANALYTICS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHBILLINGANALYTICSTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_BILLING_ANALYTICS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHSMBHEATMAPSTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_SMB_HEATMAPS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHSMBHEATMAPSTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_SMB_HEATMAPS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHUSAGETRACKINGAGGTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_USAGE_TRACKING_AGG_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHUSAGETRACKINGAGGTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_USAGE_TRACKING_AGG_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHUSAGETRACKINGTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_USAGE_TRACKING_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHUSAGETRACKINGTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_USAGE_TRACKING_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYAMUSICPODCASTSTATSTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_YA_MUSIC_PODCAST_STATS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class CHYAMUSICPODCASTSTATSTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["CH_YA_MUSIC_PODCAST_STATS_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -1968,448 +1971,448 @@ class CacheInvalidationSource(APIModel):
 
 class EQUEOCHTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["EQUEO_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class EQUEOCHTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["EQUEO_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class EXTRACTOR1CCHTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["EXTRACTOR_1C_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class EXTRACTOR1CCHTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["EXTRACTOR_1C_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GPSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GP_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GPSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GP_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GPTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GP_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GPTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GP_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GSHEETS(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GSHEETS"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class GSHEETS1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["GSHEETS"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class JSONAPI(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["JSON_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class JSONAPI1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["JSON_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class KONTURMARKETCHTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["KONTUR_MARKET_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class KONTURMARKETCHTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["KONTUR_MARKET_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class METRIKAAPI(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["METRIKA_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class METRIKAAPI1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["METRIKA_API"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MONITORING(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MONITORING"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MONITORING1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MONITORING"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MOYSKLADCHTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MOYSKLAD_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MOYSKLADCHTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MOYSKLAD_CH_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MSSQLSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MSSQL_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MSSQLSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MSSQL_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MSSQLTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MSSQL_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MSSQLTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MSSQL_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MYSQLSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MYSQL_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MYSQLSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MYSQL_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MYSQLTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MYSQL_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class MYSQLTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SQLParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["MYSQL_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class ORACLESUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["ORACLE_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class ORACLESUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["ORACLE_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class ORACLETABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["ORACLE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class ORACLETABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["ORACLE_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -2431,84 +2434,84 @@ class Options(APIModel):
 
 class PGSUBSELECT(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PG_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class PGSUBSELECT1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SubselectParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PG_SUBSELECT"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class PGTABLE(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PG_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class PGTABLE1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SchematizedParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PG_TABLE"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class PROMQL(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PROMQL"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
 
 class PROMQL1(APIModel):
     connection_id: str | None = None
-    id: str
+    id: str | None = None
     index_info_set: list[IndexInfo] | None = None
     managed_by: Literal["user", "feature", "compiler_runtime"] | str | None = None
     parameter_hash: str | None = None
     parameters: SimpleParameters | None = None
     raw_schema: list[RawSchemaColumn] | None = None
     source_type: Literal["PROMQL"]
-    title: str
+    title: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
 
@@ -2563,7 +2566,7 @@ class UpdateField(APIModel):
 
 class AddAvatarRelation(APIModel):
     action: Literal["add_avatar_relation"]
-    avatar_relation: AvatarRelation
+    avatar_relation: AvatarRelation | None = None
     order_index: int | None = None
 
 
@@ -2575,13 +2578,13 @@ class AddFieldModel(APIModel):
 
 class UpdateAvatarRelation(APIModel):
     action: Literal["update_avatar_relation"]
-    avatar_relation: AvatarRelation
+    avatar_relation: AvatarRelation | None = None
     order_index: int | None = None
 
 
 class UpdateCacheInvalidationSource(APIModel):
     action: Literal["update_cache_invalidation_source"]
-    cache_invalidation_source: CacheInvalidationSource
+    cache_invalidation_source: CacheInvalidationSource | None = None
     order_index: int | None = None
 
 
@@ -2829,7 +2832,7 @@ class DatasetRead(APIModel):
 
 
 class DatasetUpdate(APIModel):
-    dataset: DatasetContentInternal
+    dataset: DatasetContentInternal | None = None
     mode: Literal["publish", "save"] | str | None = None
     options: Options | None = None
     published_id: str | None = Field(default=None, alias="publishedId")
@@ -2840,13 +2843,13 @@ class DatasetUpdate(APIModel):
 class AddSource(APIModel):
     action: Literal["add_source"]
     order_index: int | None = None
-    source: DataSource
+    source: DataSource | None = None
 
 
 class UpdateSource(APIModel):
     action: Literal["update_source"]
     order_index: int | None = None
-    source: DataSource
+    source: DataSource | None = None
 
 
 class UpdateDatasetRequest(RequestBody):

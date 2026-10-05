@@ -298,7 +298,9 @@ class SparkApplicationVariant4CatalogsItem(APIModel):
 
 
 class CreateSparkApplicationArgsVariant1CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class CreateSparkApplicationArgsVariant1SparkApplication(APIModel):
@@ -323,8 +325,8 @@ class CreateSparkApplicationArgsVariant1SparkApplication(APIModel):
     properties: dict[str, str] | None = Field(
         default=None, description="Spark configuration properties."
     )
-    main_jar_file_uri: str = Field(
-        ...,
+    main_jar_file_uri: str | None = Field(
+        default=None,
         alias="mainJarFileUri",
         description="URI of the JAR file that contains the main class.",
     )
@@ -345,7 +347,9 @@ class CreateSparkApplicationArgsVariant1SparkApplication(APIModel):
 
 
 class CreateSparkApplicationArgsVariant2CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class CreateSparkApplicationArgsVariant2PysparkApplication(APIModel):
@@ -370,8 +374,10 @@ class CreateSparkApplicationArgsVariant2PysparkApplication(APIModel):
     properties: dict[str, str] | None = Field(
         default=None, description="Spark configuration properties."
     )
-    main_python_file_uri: str = Field(
-        ..., alias="mainPythonFileUri", description="URI of the main Python file."
+    main_python_file_uri: str | None = Field(
+        default=None,
+        alias="mainPythonFileUri",
+        description="URI of the main Python file.",
     )
     python_file_uris: list[str] | None = Field(
         default=None,
@@ -392,7 +398,9 @@ class CreateSparkApplicationArgsVariant2PysparkApplication(APIModel):
 
 
 class CreateSparkApplicationArgsVariant3CatalogsItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class CreateSparkApplicationArgsVariant3SparkConnectApplication(APIModel):
@@ -584,35 +592,41 @@ class SparkApplicationVariant4(APIModel):
 
 
 class CreateSparkApplicationArgsVariant1(APIModel):
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant1CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    spark_application: CreateSparkApplicationArgsVariant1SparkApplication = Field(
-        ..., alias="sparkApplication"
+    spark_application: CreateSparkApplicationArgsVariant1SparkApplication | None = Field(
+        default=None, alias="sparkApplication"
     )
 
 
 class CreateSparkApplicationArgsVariant2(APIModel):
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant2CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    pyspark_application: CreateSparkApplicationArgsVariant2PysparkApplication = Field(
-        ..., alias="pysparkApplication"
+    pyspark_application: CreateSparkApplicationArgsVariant2PysparkApplication | None = Field(
+        default=None, alias="pysparkApplication"
     )
 
 
 class CreateSparkApplicationArgsVariant3(APIModel):
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the Spark cluster."
+    )
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant3CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    spark_connect_application: CreateSparkApplicationArgsVariant3SparkConnectApplication = Field(
-        ..., alias="sparkConnectApplication"
+    spark_connect_application: CreateSparkApplicationArgsVariant3SparkConnectApplication | None = (
+        Field(default=None, alias="sparkConnectApplication")
     )
 
 

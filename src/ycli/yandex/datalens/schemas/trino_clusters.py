@@ -153,26 +153,40 @@ class TrinoClusterConfigWorkerConfigScalePolicyAutoScale(APIModel):
 
 
 class CreateTrinoClusterArgsCatalogsConfigItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class CreateTrinoClusterArgsWorkerConfigResources(APIModel):
     """Resources assigned to each worker."""
 
-    resource_preset_id: str = Field(
-        ..., alias="resourcePresetId", description="ID of the Trino resource preset."
+    resource_preset_id: str | None = Field(
+        default=None,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
     )
 
 
 class CreateTrinoClusterArgsWorkerConfigScalePolicyAutoScale(APIModel):
-    min_count: str = Field(..., alias="minCount", description="Minimum number of worker instances.")
-    max_count: str = Field(..., alias="maxCount", description="Maximum number of worker instances.")
+    min_count: str | None = Field(
+        default=None,
+        alias="minCount",
+        description="Minimum number of worker instances.",
+    )
+    max_count: str | None = Field(
+        default=None,
+        alias="maxCount",
+        description="Maximum number of worker instances.",
+    )
 
 
 class AddTrinoClusterCatalogArgsCatalog(APIModel):
     """REST catalog to attach to the cluster."""
 
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class AddTrinoClusterCatalogArgs(RequestBody):
@@ -192,8 +206,8 @@ class TrinoClusterConfigWorkerConfigScalePolicy(APIModel):
 
 
 class CreateTrinoClusterArgsWorkerConfigScalePolicy(APIModel):
-    auto_scale: CreateTrinoClusterArgsWorkerConfigScalePolicyAutoScale = Field(
-        ..., alias="autoScale"
+    auto_scale: CreateTrinoClusterArgsWorkerConfigScalePolicyAutoScale | None = Field(
+        default=None, alias="autoScale"
     )
 
 
@@ -205,8 +219,10 @@ class TrinoClusterConfigWorkerConfig(APIModel):
 
 
 class CreateTrinoClusterArgsWorkerConfig(APIModel):
-    resources: CreateTrinoClusterArgsWorkerConfigResources
-    scale_policy: CreateTrinoClusterArgsWorkerConfigScalePolicy = Field(..., alias="scalePolicy")
+    resources: CreateTrinoClusterArgsWorkerConfigResources | None = None
+    scale_policy: CreateTrinoClusterArgsWorkerConfigScalePolicy | None = Field(
+        default=None, alias="scalePolicy"
+    )
 
 
 class CreateTrinoClusterArgs(RequestBody):

@@ -104,7 +104,7 @@ class CreateHtmlPageResultEntryPermissions(APIModel):
 class CreateHtmlPageArgsAnnotation(APIModel):
     """Annotation of the HTML page."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class GetHtmlPageResultMeta(APIModel):
@@ -186,19 +186,23 @@ class UpdateHtmlPageResultEntryPermissions(APIModel):
 class UpdateHtmlPageArgsVariant1Annotation(APIModel):
     """New annotation of the HTML page."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateHtmlPageArgsVariant2(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to update.")
-    rev_id: str = Field(..., alias="revId", description="ID of the revision to use.")
-    mode: Literal["save", "publish"] | str = Field(
-        ..., description="HTML page revision update mode."
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="ID of the HTML page to update."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the revision to use."
+    )
+    mode: Literal["save", "publish"] | str | None = Field(
+        default=None, description="HTML page revision update mode."
     )
 
 
 class CreateHtmlPageArgs(EntryLocationIdentifiers):
-    content: str = Field(..., description="HTML content of the page.")
+    content: str | None = Field(default=None, description="HTML content of the page.")
     annotation: CreateHtmlPageArgsAnnotation | None = None
 
 
@@ -453,8 +457,10 @@ class UpdateHtmlPageResultEntry(APIModel):
 
 
 class UpdateHtmlPageArgsVariant1(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to update.")
-    content: str = Field(..., description="New HTML content of the page.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="ID of the HTML page to update."
+    )
+    content: str | None = Field(default=None, description="New HTML content of the page.")
     annotation: UpdateHtmlPageArgsVariant1Annotation | None = None
     mode: Literal["save", "publish"] | str | None = Field(
         default=None, description="HTML page update mode."

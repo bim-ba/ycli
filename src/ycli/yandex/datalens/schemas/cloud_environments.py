@@ -71,8 +71,8 @@ class CloudEnvironmentStorage(APIModel):
 class CreateCloudEnvironmentArgsStorage(APIModel):
     """Storage settings of the cloud environment."""
 
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
     )
@@ -81,8 +81,8 @@ class CreateCloudEnvironmentArgsStorage(APIModel):
 class UpdateCloudEnvironmentArgsStorage(APIModel):
     """New storage settings of the cloud environment. Fails for an environment created without storage."""
 
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
     )

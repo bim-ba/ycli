@@ -10,8 +10,9 @@ The pipeline has two steps of ycli's own around ``datamodel-code-generator``:
 
 1. :func:`prepare` rewrites the specification so that the generator's output follows ycli's
    rules (docs/conventions/resources.md, "Generated models"): no directive to the generator, no
-   default and no limit on a value survives, a reply is read as it comes and requires no
-   field but the one that tells its kind, a set of values is open, only the envelope of a
+   default and no limit on a value survives, a reply is read as it comes, no object requires
+   a field but the one that tells its kind (the top level of a request keeps the arguments
+   of its operation), a set of values is open, only the envelope of a
    request refuses an unknown field, every object has a name made from its place, and each
    schema an operation reaches has a module.
 2. :func:`finish` gives a request envelope the ``RequestBody`` base and each file its header.
@@ -181,6 +182,52 @@ def _plain(spec: dict[str, Any]) -> None:
             del schema[key]
 
 
+def _spread_unions(spec: dict[str, Any]) -> int:
+    """Write "these fields and one of those" as "one of those, each with these fields"; count them.
+
+    ``allOf: [{name}, {anyOf: [A, B]}]`` becomes ``anyOf: [{name, ...A}, {name, ...B}]``. The
+    generator does the same, but names every class it makes after the property and numbers them in
+    the order it meets them (``ParamModel7``), so a schema added elsewhere would rename them. Each
+    member written out here is an object in place, and gets its name from where it stands.
+    """
+
+    def objects(schemas: list[dict[str, Any]]) -> list[dict[str, Any]] | None:
+        """The objects ``schemas`` are or refer to; ``None`` when one of them is no object."""
+        found = [aimed for schema in schemas if (aimed := _target(spec, schema)) is not None]
+        whole = len(found) == len(schemas) and all("properties" in aimed for aimed in found)
+        return found if whole else None
+
+    spread = 0
+    for schema in list(_every_schema(spec)):
+        members = schema.get("allOf")
+        if not isinstance(members, list):
+            continue
+        unions = [member for member in members if "anyOf" in member or "oneOf" in member]
+        parts = objects([member for member in members if member not in unions])
+        # A union that names its members by a mapping keeps them as the schemas they are.
+        if len(unions) != 1 or parts is None or "discriminator" in unions[0]:
+            continue
+        (union,) = unions
+        key = "anyOf" if "anyOf" in union else "oneOf"
+        pieces = [objects([*parts, variant]) for variant in union[key]]
+        if any(found is None for found in pieces):
+            continue
+        variants = []
+        for found in pieces:
+            merged: dict[str, Any] = {"type": "object", "properties": {}, "required": []}
+            for piece in found or []:
+                merged["properties"].update(copy.deepcopy(piece["properties"]))
+                merged["required"] += [
+                    name for name in piece.get("required", []) if name not in merged["required"]
+                ]
+            variants.append(merged)
+        del schema["allOf"]
+        schema.update({name: value for name, value in union.items() if name != key})
+        schema[key] = variants
+        spread += 1
+    return spread
+
+
 def _require_discriminators(spec: dict[str, Any]) -> set[int]:
     """Make each union's discriminator a required property of its members; return those nodes.
 
@@ -235,21 +282,6 @@ def _close_only_requests(spec: dict[str, Any]) -> None:
             envelope.setdefault("additionalProperties", False)
 
 
-def _reached(spec: dict[str, Any], kind: str) -> dict[int, dict[str, Any]]:
-    """Every schema the requests (``Request``) or the replies (``Response``) reach, by identity."""
-    found: dict[int, dict[str, Any]] = {}
-    pending = [holder["schema"] for _, _, held, holder in _bodies(spec) if held == kind]
-    while pending:
-        for schema in _schemas(pending.pop()):
-            if id(schema) in found:
-                continue
-            found[id(schema)] = schema
-            aimed = _target(spec, schema)
-            if aimed is not None and aimed is not schema:
-                pending.append(aimed)
-    return found
-
-
 def _one_value(schema: object) -> bool:
     """Whether ``schema`` takes one value only: ``{"enum": ["entry"]}`` or ``{"const": 1}``."""
     if not isinstance(schema, dict):
@@ -258,21 +290,27 @@ def _one_value(schema: object) -> bool:
     return "const" in schema or (isinstance(values, list) and len(values) == 1)
 
 
-def _optional_replies(spec: dict[str, Any], keep: set[int]) -> int:
-    """No field of a reply is required, except one that tells its kind; return how many changed.
+def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
+    """Require only what tells a kind and the arguments of an operation; return how many went.
 
-    A reply is read as it comes. The document calls fields required that DataLens leaves out:
-    ``getWorkbook`` answers without ``permissions`` unless the request asks for them, and a model
-    that required the field would refuse every such reply. What stays required tells which
-    member of a union a value is: a discriminator, and a field with one value only (``entity``
-    of an item of a collection, where the document names no discriminator). A schema a request
-    also reaches keeps what it requires: there the document says what the API refuses.
+    The document calls fields required that DataLens leaves out: ``getWorkbook`` answers without
+    ``permissions`` unless the request asks for them, and a model that required the field would
+    refuse every such reply. Most objects are both read and sent back (read, change, write), so
+    one class serves both ways and requires nothing: what a request lacks DataLens says itself.
+    Two things stay required. A field that tells which member of a union a value is: a
+    discriminator, and a field with one value only (``entity`` of an item of a collection, where
+    the document names no discriminator). And the top level of a request, whose fields are the
+    arguments of the operation.
     """
-    requests = _reached(spec, "Request")
+    envelopes = {
+        id(_target(spec, holder["schema"]))
+        for _, _, kind, holder in _bodies(spec)
+        if kind == "Request"
+    }
     changed = 0
-    for found, schema in _reached(spec, "Response").items():
+    for schema in list(_every_schema(spec)):
         required = schema.get("required")
-        if found in requests or not isinstance(required, list):
+        if id(schema) in envelopes or not isinstance(required, list):
             continue
         properties = schema.get("properties", {})
         tags = [
@@ -363,10 +401,11 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         spec: The OpenAPI document as DataLens publishes it.
 
     Returns:
-        A copy with no generator directives and no defaults, in which a union's discriminator is
-        required in its members, a set of string values is open, no other field of a reply is
-        required, only a request envelope is closed to unknown fields, every object has a name
-        made from its place, a schema no
+        A copy with no generator directives and no defaults, in which "these fields and one of
+        those" is written as its members, a union's discriminator is
+        required in its members, a set of string values is open, nothing else is required
+        below the top level of a request, only a request envelope is closed to unknown fields,
+        every object has a name made from its place, a schema no
         operation reaches is gone, and each schema is named ``<section>.<Name>``.
 
     Raises:
@@ -397,9 +436,10 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _spread_unions(spec)
     tags = _require_discriminators(spec)
     _open_value_sets(spec, keep=tags)
-    _optional_replies(spec, keep=tags)
+    _require_only_kinds(spec, keep=tags)
     _close_only_requests(spec)
     _name_every_object(spec)
     section = _sections(spec)
