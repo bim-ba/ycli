@@ -9,7 +9,7 @@ Usage::
     uv run scripts/gen_reference.py            # write the pages under docs/en/reference/
     uv run scripts/gen_reference.py --check    # exit 1 if a committed page is stale
 
-``tests/test_docs_site.py`` runs the check, so the reference never drifts from the code.
+``tests/docs/test_docs_site.py`` runs the check, so the reference never drifts from the code.
 """
 
 from __future__ import annotations

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from scripts import api_drift, api_surface
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 HINT = "run `uv run python scripts/gen_coverage.py --write` to regenerate the README tables"
 DOCS_BASE = "https://yandex.ru/support/"
 LINK = re.compile(r"\[[^\]]+\]\((https?://[^)]+)\)")
