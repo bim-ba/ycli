@@ -9,6 +9,43 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.81.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.80.0
+  ([`0aaceeb`](https://github.com/bim-ba/ycli/commit/0aaceeba19b5a71eef74d554fef74a09ce2a2a3f))
+
+- **deps**: FastMCP 4.0.11, which stops inlining a schema that would grow past its limits
+  ([#372](https://github.com/bim-ba/ycli/pull/372),
+  [`e14bef0`](https://github.com/bim-ba/ycli/commit/e14bef0d1175d7ae4a0dd5252c8926c3ed95ad27))
+
+### Features
+
+- **cli**: -F and --body-file set any field of a request body on every command
+  ([#354](https://github.com/bim-ba/ycli/pull/354),
+  [`b2851bd`](https://github.com/bim-ba/ycli/commit/b2851bd3c86aecd7d3309ed2e42913bc02b6691e))
+
+### Breaking Changes
+
+- **cli**: A flag of the command now wins over `-F`, and `-F` over `--body-file`. `tracker issues
+  create` / `update` and `forms surveys create` / `update`: `--summary A -F summary=B` sends A (it
+  sent B). `forms questions create` / `update` and the eight `forms conditions ... create` /
+  `update`: a flag given beside `--body-file` is no longer dropped, it wins over the file.
+
+- `tracker entities create` / `update`: `-F priority=high` becomes `-F 'fields[priority]=high'`;
+  `-F` names a key of the body everywhere.
+
+- `forms subscriptions create` / `update` and `forms filling submit`: `--body-file` is no longer a
+  required option of its own; the body comes from `--body-file` and `-F` together. `forms filling
+  submit` with neither is still refused, and a body that does not fit the model is refused as
+  before.
+
+- SDK: `ycli.yandex.core.session.BeforeSend` returns `httpx2.Request | None`, and a request it
+  returns is sent in place of the one it was shown. A hook that returns `None` works as before; only
+  a hook that returned something else, which was ignored, has to change.
+
+
 ## v0.80.0 (2026-10-05)
 
 ### Build System
