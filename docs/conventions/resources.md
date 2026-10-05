@@ -446,7 +446,7 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | `APIModel` base | `tests/architecture/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
 | No list class of a resource's own | `tests/architecture/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
 | `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
-| MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/architecture/test_arch3.py` |
+| MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/contract/test_contract.py`, `tests/architecture/test_arch3.py` |
 | Serialization confinement | `tests/architecture/test_arch4.py` |
 | Discriminated MCP output unions | `tests/architecture/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
 | MCP tool description + output schema | `tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema` |

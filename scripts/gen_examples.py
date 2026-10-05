@@ -4,9 +4,10 @@ A page shows one operation three ways by including a snippet::
 
     --8 < --"docs/examples/operations/tracker.issues.get.md"
 
-Each snippet is written from the operation's contract case (``tests/yandex/*/*/cases.py``): the
-same argv, tool call and SDK call that ``tests/test_contract.py`` runs through every surface, so
-an example on the site cannot drift from what the code does. Only the operations some page
+Each snippet is written from the operation's contract case
+(``tests/unit/yandex/*/*/cases.py``): the same argv, tool call and SDK call that
+``tests/contract/test_contract.py`` runs through every surface, so an example on the site
+cannot drift from what the code does. Only the operations some page
 includes are generated.
 
 Usage::
