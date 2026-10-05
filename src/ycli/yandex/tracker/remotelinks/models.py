@@ -86,14 +86,12 @@ class RemoteLinkCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/remotelinks`` (add an external link).
 
     Examples:
-        >>> RemoteLinkCreate(key="TEST-17", origin="ru.yandex.bitbucket").model_dump(
-        ...     exclude_none=True
-        ... )
+        >>> RemoteLinkCreate(
+        ...     relationship="RELATES", key="TEST-17", origin="ru.yandex.bitbucket"
+        ... ).model_dump(exclude_none=True)
         {'relationship': 'RELATES', 'key': 'TEST-17', 'origin': 'ru.yandex.bitbucket'}
     """
 
-    relationship: str = Field(
-        default="RELATES", description="Link type; ``RELATES`` (related) is recommended."
-    )
+    relationship: str = Field(description="Link type; ``RELATES`` (related) is recommended.")
     key: str = Field(description="Key of the object in the external application.")
     origin: str = Field(description="Identifier of the external application to link with.")

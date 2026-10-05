@@ -29,7 +29,7 @@ CASES = [
             SID,
             [
                 FileIn(path="a/b/cv.txt", url="https://forms.test/a/b/cv.txt"),
-                FileIn(path="c/d.pdf"),
+                FileIn(path="c/d.pdf", url="https://forms.test/c/d.pdf"),
             ],
         ),
         cli=[
@@ -44,7 +44,7 @@ CASES = [
             "--path",
             "c/d.pdf",
             "--url",
-            "",
+            "https://forms.test/c/d.pdf",
         ],
         mcp=(
             "forms_files_verify",
@@ -52,7 +52,7 @@ CASES = [
                 "survey_id": SID,
                 "files": [
                     {"path": "a/b/cv.txt", "url": "https://forms.test/a/b/cv.txt"},
-                    {"path": "c/d.pdf"},
+                    {"path": "c/d.pdf", "url": "https://forms.test/c/d.pdf"},
                 ],
             },
         ),
@@ -63,7 +63,7 @@ CASES = [
                     f"surveys/{SID}/files/verify",
                     json=[
                         {"path": "a/b/cv.txt", "url": "https://forms.test/a/b/cv.txt"},
-                        {"path": "c/d.pdf"},
+                        {"path": "c/d.pdf", "url": "https://forms.test/c/d.pdf"},
                     ],
                 ),
                 Reply(json=[FILE]),

@@ -78,9 +78,9 @@ def submit(
         Field(description="Answer map keyed by question slug (see ``filling_get`` for the slugs)."),
     ],
     validate_only: Annotated[
-        bool,
+        bool | None,
         Field(description="Validate only — saves nothing and fires no integrations."),
-    ] = False,
+    ] = None,
     key: Annotated[
         str | None, Field(description="Personal-link fill key, when the form uses one.")
     ] = None,

@@ -57,7 +57,9 @@ app.add_typer(columns_app)
 app.add_typer(cells_app)
 
 GridIDArg = Annotated[str, typer.Argument(metavar="GRID_ID", help="Grid UUID.")]
-RevisionOpt = Annotated[str, typer.Option("--revision", help="Grid revision the edit is based on.")]
+RevisionOpt = Annotated[
+    str | None, typer.Option("--revision", help="Grid revision the edit is based on.")
+]
 OptionalRevisionOpt = Annotated[
     str | None,
     typer.Option("--revision", help="Grid revision (this endpoint does not enforce it)."),
@@ -119,7 +121,7 @@ def create(
 @app.command()
 def update(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
+    revision: RevisionOpt = None,
     title: Annotated[str | None, typer.Option(help="New grid title.")] = None,
     default_sort: Annotated[
         str | None,
@@ -159,8 +161,11 @@ def clone(
     ],
     title: Annotated[str | None, typer.Option(help="Title of the copy, if renaming.")] = None,
     with_data: Annotated[
-        bool, typer.Option("--with-data", help="Copy the rows too, not just the structure.")
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--with-data/--no-with-data", help="Copy the rows too, not just the structure."
+        ),
+    ] = None,
     wait: Annotated[
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
@@ -186,10 +191,10 @@ def clone(
 @rows_app.command("create")
 def rows_create(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     rows: Annotated[
         str, typer.Option("--rows", help='Rows as JSON, e.g. \'[{"name":"x"}]\' (slug→value).')
     ],
+    revision: RevisionOpt = None,
     position: PositionOpt = None,
     after_row_id: Annotated[
         str | None, typer.Option("--after-row-id", help="Insert after this row id.")
@@ -210,8 +215,8 @@ def rows_create(
 @rows_app.command("delete")
 def rows_delete(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     row_id: Annotated[list[str], typer.Option("--row-id", help="Row id to delete (repeatable).")],
+    revision: RevisionOpt = None,
     *,
     wiki: WikiClient,
 ) -> RevisionResult:
@@ -223,10 +228,8 @@ def rows_delete(
 @rows_app.command("move")
 def rows_move(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
-    row_id: Annotated[
-        str | None, typer.Option("--row-id", help="Id of the first row to move.")
-    ] = None,
+    row_id: Annotated[str, typer.Option("--row-id", help="Id of the first row to move.")],
+    revision: RevisionOpt = None,
     after_row_id: Annotated[
         str | None, typer.Option("--after-row-id", help="Move to just after this row id.")
     ] = None,
@@ -251,7 +254,6 @@ def rows_move(
 @columns_app.command("create")
 def columns_create(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     columns: Annotated[
         str,
         typer.Option(
@@ -259,6 +261,7 @@ def columns_create(
             help='Columns as JSON, e.g. \'[{"title":"C","type":"string","slug":"c"}]\'.',
         ),
     ],
+    revision: RevisionOpt = None,
     position: PositionOpt = None,
     *,
     wiki: WikiClient,
@@ -274,10 +277,10 @@ def columns_create(
 @columns_app.command("delete")
 def columns_delete(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     column_slug: Annotated[
         list[str], typer.Option("--column-slug", help="Column slug to delete (repeatable).")
     ],
+    revision: RevisionOpt = None,
     *,
     wiki: WikiClient,
 ) -> RevisionResult:
@@ -289,11 +292,11 @@ def columns_delete(
 @columns_app.command("move")
 def columns_move(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     column_slug: Annotated[
-        str | None, typer.Option("--column-slug", help="Slug of the first column to move.")
-    ] = None,
-    position: PositionOpt = None,
+        str, typer.Option("--column-slug", help="Slug of the first column to move.")
+    ],
+    position: Annotated[int, typer.Option("--position", help="Zero-based destination index.")],
+    revision: RevisionOpt = None,
     columns_count: Annotated[
         int | None, typer.Option("--columns-count", help="How many consecutive columns to move.")
     ] = None,
@@ -313,7 +316,6 @@ def columns_move(
 @cells_app.command("update")
 def cells_update(
     grid_id: GridIDArg,
-    revision: RevisionOpt,
     cells: Annotated[
         str,
         typer.Option(
@@ -321,6 +323,7 @@ def cells_update(
             help='Cells as JSON, e.g. \'[{"row_id":1,"column_slug":"name","value":"x"}]\'.',
         ),
     ],
+    revision: RevisionOpt = None,
     *,
     wiki: WikiClient,
 ) -> CellsUpdateResult:

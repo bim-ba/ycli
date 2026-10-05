@@ -9,19 +9,12 @@ import typer
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
-from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
-from ycli.yandex.tracker.typedefs import OptionOpt, OptionsTypeOpt
+from ycli.yandex.tracker.models import FieldCreate, LocalizedName
+from ycli.yandex.tracker.typedefs import OptionOpt, OptionsTypeOpt, options_provider
 
 app = typer.Typer(name="localfields", help="Tracker per-queue local fields.", no_args_is_help=True)
 
 QueueArg = Annotated[str, typer.Argument(help="Queue key (case-sensitive) or numeric id.")]
-
-
-def _options_provider(values: list[str] | None, provider_type: str) -> OptionsProviderInput | None:
-    """Build an ``OptionsProviderInput`` from repeated ``--option`` values, or None when empty."""
-    if not values:
-        return None
-    return OptionsProviderInput(type=provider_type, values=values)
 
 
 @app.command("list")
@@ -56,7 +49,7 @@ def create(
         typer.Option("--readonly/--no-readonly", help="Whether the field value is read-only."),
     ] = None,
     option: OptionOpt = None,
-    options_type: OptionsTypeOpt = "FixedListOptionsProvider",
+    options_type: OptionsTypeOpt = None,
     *,
     tracker: TrackerClient,
 ) -> LocalField:
@@ -66,7 +59,7 @@ def create(
         id=id_,
         category=category,
         type=type_,
-        options_provider=_options_provider(option, options_type),
+        options_provider=options_provider(option, options_type),
         order=order,
         description=description,
         readonly=readonly,
@@ -99,7 +92,7 @@ def update(
         bool | None, typer.Option("--hidden/--no-hidden", help="Fully hide the field.")
     ] = None,
     option: OptionOpt = None,
-    options_type: OptionsTypeOpt = "FixedListOptionsProvider",
+    options_type: OptionsTypeOpt = None,
     *,
     tracker: TrackerClient,
 ) -> LocalField:
@@ -108,7 +101,7 @@ def update(
     body = LocalFieldUpdate(
         name=LocalizedName(ru=name_ru, en=name_en) if named else None,
         category=category,
-        options_provider=_options_provider(option, options_type),
+        options_provider=options_provider(option, options_type),
         order=order,
         description=description,
         readonly=readonly,

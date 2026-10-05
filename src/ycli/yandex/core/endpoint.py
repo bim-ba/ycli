@@ -72,22 +72,6 @@ def segment(value: object) -> str:
     return quote(str(value), safe="")
 
 
-def flag(value: bool) -> str | None:
-    """A boolean query parameter: ``true`` when set, absent otherwise.
-
-    Args:
-        value: Whether the flag is set.
-
-    Returns:
-        ``"true"``, or ``None`` so that the parameter is left out of the request.
-
-    Examples:
-        >>> flag(True), flag(False)
-        ('true', None)
-    """
-    return "true" if value else None
-
-
 def check_path(raw_path: str) -> None:
     """Refuse a percent-encoded URL path that the server would route to another endpoint.
 

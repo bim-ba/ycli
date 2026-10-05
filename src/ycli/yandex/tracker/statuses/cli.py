@@ -24,13 +24,13 @@ def list_(*, tracker: TrackerClient) -> ItemList[Status]:
 @app.command()
 def create(
     key: Annotated[str, typer.Option(help="Key of the new status (Latin, lower-case start).")],
+    type_: Annotated[str, values_option(StatusType, "--type", help="Status type.")],
     name_ru: Annotated[
         str | None, typer.Option("--name-ru", help="Status name in Russian.")
     ] = None,
     name_en: Annotated[
         str | None, typer.Option("--name-en", help="Status name in English.")
     ] = None,
-    type_: Annotated[str, values_option(StatusType, "--type", help="Status type.")] = "new",
     *,
     tracker: TrackerClient,
 ) -> Status:

@@ -42,8 +42,8 @@ def list_(
         bool | None, Field(description="Only favourites (true) or only the others (false).")
     ] = None,
     show_all: Annotated[
-        bool, Field(description="For an administrator, every form of the organization.")
-    ] = False,
+        bool | None, Field(description="For an administrator, every form of the organization.")
+    ] = None,
     orderby: Annotated[
         str | None, Field(description="Sort, a comma list such as ``name,-modified,-count``.")
     ] = None,

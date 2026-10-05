@@ -66,7 +66,9 @@ class FilesClient(Resource):
         return self._session.send(endpoints.verify(survey_id, ItemList[FileIn](list(files))))
 
     # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
-    def download(self, path: str, *, download: bool = False, file_hash: str | None = None) -> bytes:
+    def download(
+        self, path: str, *, download: bool | None = None, file_hash: str | None = None
+    ) -> bytes:
         """``GET /files?path=…`` → a stored file's raw bytes.
 
         ``download=True`` asks for a ``Content-Disposition`` filename header; ``file_hash`` (the
@@ -85,7 +87,7 @@ class FilesClient(Resource):
             >>> forms.files.download("a/b/cv.txt", download=True, file_hash="h4sh")
             b'resume bytes'
         """
-        endpoint = endpoints.download(path, download=download, file_hash=file_hash or None)
+        endpoint = endpoints.download(path, download=download, file_hash=file_hash)
         return self._session.send(endpoint)
 
     def delete(self, *, path: str | None = None, url: str | None = None) -> Ack:

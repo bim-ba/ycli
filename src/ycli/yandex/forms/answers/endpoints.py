@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import NextURLPagination
 from ycli.yandex.forms.answers.models import (
     Answer,
@@ -42,7 +42,7 @@ def list_(
     survey_id: str,
     *,
     questions: str | None,
-    use_slugs: bool,
+    use_slugs: bool | None,
     date_from: str | None,
     date_to: str | None,
     ordering: str | None,
@@ -56,7 +56,7 @@ def list_(
     """
     params = {
         "questions": questions,
-        "use_slugs": flag(use_slugs),
+        "use_slugs": use_slugs,
         "date_from": date_from,
         "date_to": date_to,
         "ordering": ordering,

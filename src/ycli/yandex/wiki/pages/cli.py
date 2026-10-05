@@ -45,26 +45,33 @@ RevisionIDOption = Annotated[
     typer.Option("--revision-id", help="Show this past revision (ids from `revisions-list`)."),
 ]
 RaiseOnRedirectOption = Annotated[
-    bool,
-    typer.Option("--raise-on-redirect", help="Fail if the page is a redirect, do not follow it."),
+    bool | None,
+    typer.Option(
+        "--raise-on-redirect/--no-raise-on-redirect",
+        help="Fail if the page is a redirect, do not follow it.",
+    ),
 ]
 ReplyFieldsOption = Annotated[
     str | None, typer.Option("--fields", help="Comma-separated blocks to include in the reply.")
 ]
 SilentOption = Annotated[
-    bool, typer.Option("--is-silent", help="Do not notify the page's subscribers.")
+    bool | None,
+    typer.Option("--is-silent/--no-is-silent", help="Do not notify the page's subscribers."),
 ]
 IncludeSelfOption = Annotated[
-    bool, typer.Option("--include-self", help="Also list the ancestor page itself.")
+    bool | None,
+    typer.Option("--include-self/--no-include-self", help="Also list the ancestor page itself."),
 ]
-ShowAllOption = Annotated[bool, typer.Option("--show-all", help="The API's show_all flag.")]
+ShowAllOption = Annotated[
+    bool | None, typer.Option("--show-all/--no-show-all", help="The API's show_all flag.")
+]
 
 
 @app.command()
 def get(
     slug: SlugArg,
     revision_id: RevisionIDOption = None,
-    raise_on_redirect: RaiseOnRedirectOption = False,
+    raise_on_redirect: RaiseOnRedirectOption = None,
     *,
     wiki: WikiClient,
 ) -> str:
@@ -88,8 +95,8 @@ def descendants_list(
     slug: SlugArg,
     limit: LimitOption = None,
     all_: AllOption = False,
-    include_self: IncludeSelfOption = False,
-    show_all: ShowAllOption = False,
+    include_self: IncludeSelfOption = None,
+    show_all: ShowAllOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -105,10 +112,10 @@ def descendants_list(
 def get_by_id(
     page_id: PageIDArg,
     fields: Annotated[
-        str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
-    ] = "content",
+        str | None, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
+    ] = None,
     revision_id: RevisionIDOption = None,
-    raise_on_redirect: RaiseOnRedirectOption = False,
+    raise_on_redirect: RaiseOnRedirectOption = None,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -126,8 +133,8 @@ def descendants_list_by_id(
     page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
-    include_self: IncludeSelfOption = False,
-    show_all: ShowAllOption = False,
+    include_self: IncludeSelfOption = None,
+    show_all: ShowAllOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -171,7 +178,7 @@ def create(
     title: Annotated[str, typer.Option(help="Page title.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
     fields: ReplyFieldsOption = None,
-    is_silent: SilentOption = False,
+    is_silent: SilentOption = None,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -189,11 +196,14 @@ def update(
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
     title: Annotated[str | None, typer.Option(help="New title (optional).")] = None,
     fields: ReplyFieldsOption = None,
-    is_silent: SilentOption = False,
+    is_silent: SilentOption = None,
     allow_merge: Annotated[
-        bool,
-        typer.Option("--allow-merge", help="Merge with a concurrent edit instead of failing."),
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--allow-merge/--no-allow-merge",
+            help="Merge with a concurrent edit instead of failing.",
+        ),
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -211,8 +221,9 @@ def update(
 def delete(
     page_id: PageIDArg,
     recursive: Annotated[
-        bool, typer.Option("--recursive", help="Also delete every page under it.")
-    ] = False,
+        bool | None,
+        typer.Option("--recursive/--no-recursive", help="Also delete every page under it."),
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> PageDeleteResult:
@@ -224,21 +235,23 @@ def delete(
 def append(
     page_id: PageIDArg,
     content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
-    location: Annotated[str, values_option(Location, help="Where in the body.")] = "bottom",
+    location: Annotated[
+        str | None,
+        values_option(Location, help="Where in the body; without a placement the API answers 400."),
+    ] = None,
     fields: ReplyFieldsOption = None,
-    is_silent: SilentOption = False,
+    is_silent: SilentOption = None,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
     """Append content to a wiki page (POST /pages/{id}/append-content).
 
     The API requires exactly one placement selector (``body`` / ``section`` / ``anchor``) and
-    rejects a bare ``{content}`` with 400, so the CLI always sends the whole-page ``body``
-    selector — ``--location bottom`` unless overridden with ``--location top``.
+    rejects a bare ``{content}`` with 400: ``--location`` gives the whole-page ``body`` selector.
     """
     payload = PageAppendContent(
         content=content,
-        body=PageAppendContentBody(location=location),
+        body=PageAppendContentBody(location=location) if location is not None else None,
     )
     return wiki.pages.append(
         page_id=page_id,
@@ -254,8 +267,9 @@ def clone(
     target: Annotated[str, typer.Option("--target", help="Destination slug for the copy.")],
     title: Annotated[str | None, typer.Option(help="Title of the copy, if renaming.")] = None,
     subscribe_me: Annotated[
-        bool, typer.Option("--subscribe-me", help="Subscribe yourself to the copy.")
-    ] = False,
+        bool | None,
+        typer.Option("--subscribe-me/--no-subscribe-me", help="Subscribe yourself to the copy."),
+    ] = None,
     wait: Annotated[
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
@@ -289,18 +303,20 @@ def move(
         str | None, values_option(OrderPosition, "--position", help="Which side of --next-to.")
     ] = None,
     copy_inherited_access: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--copy-inherited-access/--no-copy-inherited-access",
-            help="Copy accesses inherited from the old parent (the API needs an explicit choice).",
+            help="Copy accesses inherited from the old parent; "
+            "the API can refuse a move without a choice.",
         ),
-    ] = False,
+    ] = None,
     validate_only: Annotated[
-        bool,
+        bool | None,
         typer.Option(
-            "--validate-only", help="Validate the move without applying it (nothing to wait for)."
+            "--validate-only/--no-validate-only",
+            help="Validate the move without applying it (nothing to wait for).",
         ),
-    ] = False,
+    ] = None,
     wait: Annotated[
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
@@ -352,11 +368,15 @@ def revisions_list(
 def backlinks_list(
     page_id: PageIDArg,
     for_cluster: Annotated[
-        bool, typer.Option("--for-cluster", help="Links to the page's whole subtree.")
-    ] = False,
+        bool | None,
+        typer.Option("--for-cluster/--no-for-cluster", help="Links to the page's whole subtree."),
+    ] = None,
     show_all: Annotated[
-        bool, typer.Option("--show-all", help="The API's show_all flag (no effect seen live).")
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--show-all/--no-show-all", help="The API's show_all flag (no effect seen live)."
+        ),
+    ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
     *,
@@ -408,19 +428,20 @@ def search(
         typer.Option("--modified-to", help="Modified until (with --modified-from)."),
     ] = None,
     show_obsolete: Annotated[
-        bool, typer.Option("--show-obsolete", help="Also return obsolete documents.")
-    ] = False,
+        bool | None,
+        typer.Option("--show-obsolete/--no-show-obsolete", help="Also return obsolete documents."),
+    ] = None,
     order_by: Annotated[
-        str,
+        str | None,
         values_option(SearchOrder, "--order-by", help="What to sort the hits by."),
-    ] = "relevancy",
+    ] = None,
     highlight: Annotated[
-        bool, typer.Option("--highlight", help="Wrap matches in <em> tags.")
-    ] = False,
-    limit: Annotated[int, typer.Option(help="Results per page.")] = 10,
+        bool | None, typer.Option("--highlight/--no-highlight", help="Wrap matches in <em> tags.")
+    ] = None,
+    limit: Annotated[int | None, typer.Option(help="Results per page.")] = None,
     cursor: Annotated[
-        int, typer.Option(help="Result page to fetch, from 1 (see next_cursor).")
-    ] = 1,
+        int | None, typer.Option(help="Result page to fetch, from 1 (see next_cursor).")
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> SearchPage:

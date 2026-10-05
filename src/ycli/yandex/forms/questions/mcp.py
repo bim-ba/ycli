@@ -39,8 +39,8 @@ def get(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to fetch.")],
     with_slugs: Annotated[
-        bool, Field(description="Refer to other questions by slug instead of id.")
-    ] = False,
+        bool | None, Field(description="Refer to other questions by slug instead of id.")
+    ] = None,
     client: FormsClient = Depends(forms_client),
 ) -> Question:
     """One question's settings by id — label, slug, type and common presentation flags.
@@ -102,9 +102,9 @@ def delete(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to delete.")],
     force: Annotated[
-        bool,
+        bool | None,
         Field(description=IGNORED_BY_API + FORCE_IGNORED),
-    ] = False,
+    ] = None,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
     """Delete a question from a form; one that a display condition refers to is refused.

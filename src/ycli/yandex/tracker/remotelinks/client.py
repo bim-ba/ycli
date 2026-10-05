@@ -31,16 +31,16 @@ class RemoteLinksClient(Resource):
         return self._session.send(endpoints.list_(issue_key))
 
     def create(
-        self, issue_key: str, body: RemoteLinkCreate, backlink: str | None = None
+        self, issue_key: str, body: RemoteLinkCreate, backlink: bool | None = None
     ) -> RemoteLink:
         """``POST /issues/{issue_key}/remotelinks?backlink=…`` — add an external link.
 
-        ``backlink="true"`` asks Tracker to also create the mirror link in the external app.
+        ``backlink=True`` asks Tracker to also create the mirror link in the external app.
 
         Args:
             issue_key: The issue's key.
             body: The link's ``relationship``, external object ``key`` and ``origin``.
-            backlink: ``"true"`` also creates the mirror link in the external app.
+            backlink: ``True`` also creates the mirror link in the external app.
 
         Returns:
             The created external link.
@@ -56,7 +56,7 @@ class RemoteLinksClient(Resource):
             ...             "origin": "ru.yandex.bitbucket",
             ...         }
             ...     ),
-            ...     backlink="true",
+            ...     backlink=True,
             ... ).object_key
             'TEST-18'
         """

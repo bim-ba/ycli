@@ -2,12 +2,12 @@
 
 Examples:
     >>> delete("686d", "17", force=True).params
-    {'force': 'true'}
+    {'force': True}
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.questions.models import (
     Question,
     QuestionCreate,
@@ -21,9 +21,9 @@ def _questions(survey_id: str) -> str:
     return f"surveys/{segment(survey_id)}/questions"
 
 
-def get(survey_id: str, question_id: str, *, with_slugs: bool) -> Endpoint[Question]:
+def get(survey_id: str, question_id: str, *, with_slugs: bool | None) -> Endpoint[Question]:
     path = f"{_questions(survey_id)}/{segment(question_id)}"
-    return Endpoint("GET", path, Question, params={"with_slugs": flag(with_slugs)})
+    return Endpoint("GET", path, Question, params={"with_slugs": with_slugs})
 
 
 def list_(survey_id: str) -> Endpoint[QuestionsResponse]:
@@ -39,9 +39,9 @@ def update(survey_id: str, question_id: str, body: QuestionCreate) -> Endpoint[Q
     return Endpoint("PATCH", path, Question, json=body)
 
 
-def delete(survey_id: str, question_id: str, *, force: bool) -> Endpoint[None]:
+def delete(survey_id: str, question_id: str, *, force: bool | None) -> Endpoint[None]:
     path = f"{_questions(survey_id)}/{segment(question_id)}"
-    return Endpoint("DELETE", path, params={"force": flag(force)})
+    return Endpoint("DELETE", path, params={"force": force})
 
 
 def move(survey_id: str, question_id: str, body: QuestionMove) -> Endpoint[QuestionMoveResult]:

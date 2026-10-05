@@ -62,7 +62,7 @@ def parts_upload(
     ],
     part_number: Annotated[
         int, typer.Option(help="1-based part index (1 for the first part, +1 per next part).")
-    ] = 1,
+    ],
     *,
     wiki: WikiClient,
 ) -> UploadSession:

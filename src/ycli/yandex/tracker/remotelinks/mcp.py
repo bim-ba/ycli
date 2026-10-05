@@ -45,14 +45,14 @@ def create(
     issue_key: IssueKey,
     body: RemoteLinkCreate,
     backlink: Annotated[
-        str | None,
-        Field(description='``"true"`` to also create the mirror link in the external application.'),
+        bool | None,
+        Field(description="Also create the mirror link in the external application."),
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> RemoteLink:
     """Link a Tracker issue to an object in an external application; returns the created link.
 
-    Get the application id (``origin``) from ``applications_list``. Pass ``backlink="true"``
+    Get the application id (``origin``) from ``applications_list``. Pass ``backlink=true``
     to also create the mirror link in the external app.
     """
     return client.remotelinks.create(issue_key, body, backlink=backlink)

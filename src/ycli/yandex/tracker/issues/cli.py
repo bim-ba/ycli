@@ -156,7 +156,7 @@ def create(
         priority=_key(priority),
         parent=parent,
         description=description,
-        tags=tag or None,
+        tags=tag,
     )
     # The named options, then whatever --field adds or overrides.
     body = IssueCreate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
@@ -186,7 +186,7 @@ def update(
         priority=_key(priority),
         parent=parent,
         description=description,
-        tags=tag or None,
+        tags=tag,
     )
     body = IssueUpdate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
     return tracker.issues.update(issue_key, body=body)
@@ -287,7 +287,9 @@ BulkValueOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Field to set, key=value (JSON-coerced; repeatable)."),
 ]
-BulkNotifyOpt = Annotated[bool, typer.Option("--notify/--no-notify", help="Notify affected users.")]
+BulkNotifyOpt = Annotated[
+    bool | None, typer.Option("--notify/--no-notify", help="Notify affected users.")
+]
 BulkWaitOpt = Annotated[
     bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
 ]
@@ -323,17 +325,15 @@ def update_bulk(
     issue: BulkIssueOpt = None,
     query: BulkQueryOpt = None,
     field: BulkValueOpt = None,
-    notify: BulkNotifyOpt = False,
+    notify: BulkNotifyOpt = None,
     wait: BulkWaitOpt = True,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> BulkChange:
     """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
-    body = BulkUpdate(
-        issues=_bulk_issues(issue, query), values=parse_fields(field), notify=notify or None
-    )
-    started = tracker.issues.update_bulk(body=body, notify=notify or None)
+    body = BulkUpdate(issues=_bulk_issues(issue, query), values=parse_fields(field), notify=notify)
+    started = tracker.issues.update_bulk(body=body, notify=notify)
     return _bulk_finish(tracker, config, started, wait)
 
 
@@ -344,12 +344,20 @@ def move_bulk(
     query: BulkQueryOpt = None,
     field: BulkValueOpt = None,
     move_all_fields: Annotated[
-        bool, typer.Option("--move-all-fields", help="Carry versions/components/projects across.")
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--move-all-fields/--no-move-all-fields",
+            help="Carry versions/components/projects across.",
+        ),
+    ] = None,
     initial_status: Annotated[
-        bool, typer.Option("--initial-status", help="Reset each issue's status to the initial one.")
-    ] = False,
-    notify: BulkNotifyOpt = False,
+        bool | None,
+        typer.Option(
+            "--initial-status/--no-initial-status",
+            help="Reset each issue's status to the initial one.",
+        ),
+    ] = None,
+    notify: BulkNotifyOpt = None,
     wait: BulkWaitOpt = True,
     *,
     config: AppConfig,
@@ -360,11 +368,11 @@ def move_bulk(
         queue=queue,
         issues=_bulk_issues(issue, query),
         values=parse_fields(field) or None,
-        moveAllFields=move_all_fields or None,
-        initialStatus=initial_status or None,
-        notify=notify or None,
+        moveAllFields=move_all_fields,
+        initialStatus=initial_status,
+        notify=notify,
     )
-    started = tracker.issues.move_bulk(body=body, notify=notify or None)
+    started = tracker.issues.move_bulk(body=body, notify=notify)
     return _bulk_finish(tracker, config, started, wait)
 
 
@@ -376,7 +384,7 @@ def transition_bulk(
     issue: BulkIssueOpt = None,
     query: BulkQueryOpt = None,
     field: BulkValueOpt = None,
-    notify: BulkNotifyOpt = False,
+    notify: BulkNotifyOpt = None,
     wait: BulkWaitOpt = True,
     *,
     config: AppConfig,
@@ -387,9 +395,9 @@ def transition_bulk(
         transition=transition,
         issues=_bulk_issues(issue, query),
         values=parse_fields(field) or None,
-        notify=notify or None,
+        notify=notify,
     )
-    started = tracker.issues.transition_bulk(body=body, notify=notify or None)
+    started = tracker.issues.transition_bulk(body=body, notify=notify)
     return _bulk_finish(tracker, config, started, wait)
 
 

@@ -9,7 +9,7 @@ Examples:
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import OffsetLimitPagination
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveysResponse, SurveyUpdate
 
@@ -23,7 +23,7 @@ def list_(
     ownership: str | None,
     group: str | None,
     favourite: bool | None,
-    show_all: bool,
+    show_all: bool | None,
     orderby: str | None,
 ) -> Paged[SurveysResponse, Survey]:
     """``GET /surveys``, paged by ``offset``/``limit`` until a short page."""
@@ -33,7 +33,7 @@ def list_(
         "ownership": ownership,
         "group": group,
         "favourite": favourite,
-        "show_all": flag(show_all),
+        "show_all": show_all,
         "orderby": orderby,
     }
     return Paged(

@@ -694,6 +694,8 @@ CASES = [
             "tracker",
             "entities",
             "reports-create",
+            "--type",
+            "issueFilterExport",
             "--summary",
             "Support export",
             "--query",
@@ -714,6 +716,7 @@ CASES = [
                     "fields": {
                         "summary": "Support export",
                         "parameters": {
+                            "type": "issueFilterExport",
                             "format": "csv",
                             "filter": {"query": "Queue: SUPPORT"},
                             "fields": ["key", "summary", "assignee"],
@@ -743,7 +746,7 @@ CASES = [
             )
         ],
     ),
-    # Defaults: xlsx and no columns.
+    # Only what the API requires: the type, the query and a column; no format.
     Case(
         "tracker.entities.reports_create",
         args=(
@@ -753,9 +756,8 @@ CASES = [
                         "summary": "Default export",
                         "parameters": {
                             "type": "issueFilterExport",
-                            "format": "xlsx",
                             "filter": {"query": "Queue: OPS"},
-                            "fields": [],
+                            "fields": ["key"],
                         },
                     }
                 }
@@ -765,10 +767,14 @@ CASES = [
             "tracker",
             "entities",
             "reports-create",
+            "--type",
+            "issueFilterExport",
             "--summary",
             "Default export",
             "--query",
             "Queue: OPS",
+            "--field",
+            "key",
         ],
         mcp=None,
         exchanges=[
@@ -781,9 +787,8 @@ CASES = [
                             "summary": "Default export",
                             "parameters": {
                                 "type": "issueFilterExport",
-                                "format": "xlsx",
                                 "filter": {"query": "Queue: OPS"},
-                                "fields": [],
+                                "fields": ["key"],
                             },
                         }
                     },
@@ -1115,6 +1120,8 @@ CASES = [
             "user-32",
             "--deadline",
             "2025-12-01T00:00:00.000+0000",
+            "--deadline-type",
+            "date",
         ],
         mcp=(
             "tracker_entities_checklists_items_update",
@@ -1126,7 +1133,7 @@ CASES = [
                     "text": "Sign off",
                     "checked": True,
                     "assignee": "user-32",
-                    "deadline": {"date": "2025-12-01T00:00:00.000+0000"},
+                    "deadline": {"date": "2025-12-01T00:00:00.000+0000", "deadlineType": "date"},
                 },
             },
         ),
@@ -1387,7 +1394,7 @@ CASES = [
         "tracker.entities.search",
         args=(
             "report",
-            {"filter": {"author": "report-author"}, "orderBy": "createdAt", "orderAsc": False},
+            {"filter": {"author": "report-author"}, "orderBy": "createdAt"},
         ),
         cli=[
             "tracker",
@@ -1408,7 +1415,6 @@ CASES = [
                     json={
                         "filter": {"author": "report-author"},
                         "orderBy": "createdAt",
-                        "orderAsc": False,
                     },
                 ),
                 Reply(

@@ -246,15 +246,15 @@ CASES = [
             )
         ],
     ),
-    # A bare --position visibly defaults the page to 1: the API ignores a position alone.
+    # A bare --position goes as given; the API answers 200 and moves nothing.
     Case(
         "forms.questions.move",
-        args=(SID, "21", QuestionMove(page=1, position=3)),
+        args=(SID, "21", QuestionMove(position=3)),
         cli=["forms", "questions", "move", SID, "21", "--position", "3"],
         mcp=None,
         exchanges=[
             (
-                Sent("POST", f"{QUESTIONS}/21/move", json={"page": 1, "position": 3}),
+                Sent("POST", f"{QUESTIONS}/21/move", json={"position": 3}),
                 Reply(json={"id": 21}),
             )
         ],

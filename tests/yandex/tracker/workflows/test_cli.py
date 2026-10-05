@@ -5,16 +5,21 @@ from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 
+_CREATE = ["create", "--name", "X"]
+
 
 @pytest.mark.parametrize(
     ("argv", "option"),
     [
-        (["create", "--name", "X", "--initial-action", "{oops"], "--initial-action"),
+        (
+            ["create", "--name", "X", "--initial-action", "{oops", "--step", "{}"],
+            "--initial-action",
+        ),
         (["create", "--name", "X", "--initial-action", "{}", "--step", "nope"], "--step"),
         (["update", "W1", "--version", "1", "--step", "["], "--step"),
         (["update", "W1", "--version", "1", "--initial-action", "{"], "--initial-action"),
         (
-            ["create", "--name", "X", "--initial-action", "{}", "--issue-type-resolution", "x"],
+            [*_CREATE, "--initial-action", "{}", "--step", "{}", "--issue-type-resolution", "x"],
             "--issue-type-resolution",
         ),
         (["actions-update", "W1", "open", "go", "--version", "1", "--action", "{"], "--action"),

@@ -25,7 +25,7 @@ The page's markdown body for SLUG.
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
 | `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
-| `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
+| `raise_on_redirect` | boolean or null |  | Fail if the page is a redirect instead of following it. |
 
 ## `wiki_pages_get_meta`
 
@@ -49,8 +49,8 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
 | `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
-| `include_self` | boolean |  | Also return the ancestor page itself. |
-| `show_all` | boolean |  | The API's ``show_all`` flag. |
+| `include_self` | boolean or null |  | Also return the ancestor page itself. |
+| `show_all` | boolean or null |  | The API's ``show_all`` flag. |
 
 ## `wiki_pages_grids_list`
 
@@ -85,7 +85,7 @@ without it the response carries id/slug/title only; ask for ``content`` or
 | `page_id` | integer | yes | Numeric page id to fetch. |
 | `fields` | string or null |  | Extra blocks (CSV), e.g. ``content,attributes,breadcrumbs``. Omitted = id/slug/title only. |
 | `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
-| `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
+| `raise_on_redirect` | boolean or null |  | Fail if the page is a redirect instead of following it. |
 
 ## `wiki_pages_descendants_list_by_id`
 
@@ -101,8 +101,8 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose subtree to list. |
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
-| `include_self` | boolean |  | Also return the ancestor page itself. |
-| `show_all` | boolean |  | The API's ``show_all`` flag. |
+| `include_self` | boolean or null |  | Also return the ancestor page itself. |
+| `show_all` | boolean or null |  | The API's ``show_all`` flag. |
 
 ## `wiki_pages_create`
 
@@ -120,7 +120,7 @@ then answers 404 and links to it break, so pick the slug carefully. Returns the 
 | `title` | string | yes | Page title. |
 | `content` | string | yes | Page body in YFM markdown. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
-| `is_silent` | boolean |  | Do not notify the page's subscribers. |
+| `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
 
 ## `wiki_pages_update`
 
@@ -138,8 +138,8 @@ handles that quirk. Repeating the same call yields the same page state (idempote
 | `content` | string | yes | New page body in YFM markdown (full replace). |
 | `title` | string or null |  | New title (unchanged when omitted). |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
-| `is_silent` | boolean |  | Do not notify the page's subscribers. |
-| `allow_merge` | boolean |  | Merge with a concurrent edit (3-way merge) instead of failing. |
+| `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
+| `allow_merge` | boolean or null |  | Merge with a concurrent edit (3-way merge) instead of failing. |
 
 ## `wiki_pages_delete`
 
@@ -154,7 +154,7 @@ anchor too, so double-check the id (``pages_get_by_id``) before calling.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to delete. |
-| `recursive` | boolean |  | Also delete every page under it. |
+| `recursive` | boolean or null |  | Also delete every page under it. |
 
 ## `wiki_pages_append`
 
@@ -171,7 +171,7 @@ text ``body.anchor``. Returns the updated page.
 | `page_id` | integer | yes | Numeric id of the page to append to. |
 | `body` | object | yes | What to append and where: required ``content`` (YFM fragment) plus optional ``body`` (top/bottom), ``section`` or ``anchor`` placement. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
-| `is_silent` | boolean |  | Do not notify the page's subscribers. |
+| `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
 
 ## `wiki_pages_clone`
 
@@ -204,7 +204,7 @@ and may change it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Move spec: ``operations`` (each ``source`` slug and new ``target`` slug, optionally ``next_to_slug`` with ``position`` before/after) and optional ``copy_inherited_access``. |
-| `validate_only` | boolean |  | Validate the move without applying it. |
+| `validate_only` | boolean or null |  | Validate the move without applying it. |
 
 ## `wiki_pages_revisions_list`
 
@@ -234,8 +234,8 @@ may change it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page that is linked to. |
-| `for_cluster` | boolean |  | Links to the page's whole subtree, not just the page. |
-| `show_all` | boolean |  | The API's ``show_all`` flag (undocumented; no effect seen live). |
+| `for_cluster` | boolean or null |  | Links to the page's whole subtree, not just the page. |
+| `show_all` | boolean or null |  | The API's ``show_all`` flag (undocumented; no effect seen live). |
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
 
 ## `wiki_pages_search`
@@ -253,10 +253,10 @@ empty page. A new page can take seconds to appear in the index.
 |---|---|:---:|---|
 | `text` | string | yes | Text to search for. |
 | `filters` | object or null |  | Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and ``show_obsolete``. |
-| `order_by` | `relevancy` · `creation_date` · `modified_date` or string |  | How to sort the hits. |
-| `highlight` | boolean |  | Wrap the matches in ``<em>`` tags in title and content. |
-| `limit` | integer |  | Hits per page. |
-| `cursor` | integer |  | Number of the result page to fetch, from 1. |
+| `order_by` | `relevancy` · `creation_date` · `modified_date` or string or null |  | How to sort the hits. |
+| `highlight` | boolean or null |  | Wrap the matches in ``<em>`` tags in title and content. |
+| `limit` | integer or null |  | Hits per page. |
+| `cursor` | integer or null |  | Number of the result page to fetch, from 1. |
 
 ## `wiki_access_create`
 
@@ -286,7 +286,7 @@ The page owner's own entry cannot be changed.
 | `page_id` | integer | yes | Numeric id of the page. |
 | `access_id` | string | yes | Id of the access entry, from the page's ``access_lists``. |
 | `body` | object | yes | The new ``role`` and/or ``inheritance`` (one at least). |
-| `prevent_selflock` | boolean |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
 
 ## `wiki_access_delete`
 
@@ -300,7 +300,7 @@ The page owner's own entry cannot be revoked.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page. |
 | `access_id` | string | yes | Id of the access entry, from the page's ``access_lists``. |
-| `prevent_selflock` | boolean |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
 
 ## `wiki_access_clear`
 
@@ -314,7 +314,7 @@ entries are not kept.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page. |
-| `prevent_selflock` | boolean |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
 
 ## `wiki_comments_list`
 

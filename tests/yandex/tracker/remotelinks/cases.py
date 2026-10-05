@@ -62,7 +62,7 @@ CASES = [
             )
         ],
     ),
-    # The CLI defaults: relationship RELATES and an explicit backlink=false.
+    # --no-backlink is sent as backlink=false.
     Case(
         "tracker.remotelinks.create",
         args=(
@@ -71,12 +71,15 @@ CASES = [
                 {"relationship": "RELATES", "key": "TEST-19", "origin": "ru.yandex.lunapark"}
             ),
         ),
-        kwargs={"backlink": "false"},
+        kwargs={"backlink": False},
         cli=[
             "tracker",
             "remotelinks",
             "create",
             "JUNE-4",
+            "--relationship",
+            "RELATES",
+            "--no-backlink",
             "--key",
             "TEST-19",
             "--origin",
@@ -95,7 +98,7 @@ CASES = [
             )
         ],
     ),
-    # MCP without a backlink sends no query at all; the body defaults to RELATES.
+    # Without a backlink no query is sent at all.
     Case(
         "tracker.remotelinks.create",
         args=(
@@ -107,7 +110,14 @@ CASES = [
         cli=None,
         mcp=(
             "tracker_remotelinks_create",
-            {"issue_key": "JUNE-5", "body": {"key": "TEST-20", "origin": "ru.yandex.jenkins"}},
+            {
+                "issue_key": "JUNE-5",
+                "body": {
+                    "relationship": "RELATES",
+                    "key": "TEST-20",
+                    "origin": "ru.yandex.jenkins",
+                },
+            },
         ),
         exchanges=[
             (

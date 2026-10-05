@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ycli.yandex.core.endpoint import Endpoint, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import ItemList
 
@@ -29,8 +29,8 @@ def verify(survey_id: str, body: ItemList[FileIn]) -> Endpoint[ItemList[FileOut]
     return Endpoint("POST", path, ItemList[FileOut], json=body, effect="read")
 
 
-def download(path: str, *, download: bool, file_hash: str | None) -> Endpoint[bytes]:
-    params = {"path": path, "download": flag(download), "hash": file_hash}
+def download(path: str, *, download: bool | None, file_hash: str | None) -> Endpoint[bytes]:
+    params = {"path": path, "download": download, "hash": file_hash}
     return Endpoint("GET", "files", bytes, params=params)
 
 
