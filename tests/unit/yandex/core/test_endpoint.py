@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, RootModel, TypeAdapter
 
 from ycli.yandex.core.endpoint import (
     ENDPOINT_EXTENSION,
+    RPC,
     Effect,
     Endpoint,
     check_path,
@@ -222,3 +223,20 @@ def test_a_reply_a_parser_cannot_read_is_the_same_typed_error():
     )
     with pytest.raises(YandexUnexpectedReplyError, match="the reply to GET things does not fit"):
         endpoint.parse(response)
+
+
+def test_an_rpc_operation_is_a_post_to_its_name_with_the_stated_effect():
+    read = RPC("getDashboard", dict, json={"dashboardId": "d1"}, effect=Effect.READ)
+    assert (read.method, read.path, read.body) == (
+        HTTPMethod.POST,
+        "rpc/getDashboard",
+        {"dashboardId": "d1"},
+    )
+    assert read.effect is Effect.READ and read.idempotent
+    assert RPC("deleteDashboard", effect=Effect.DESTRUCTIVE).response_type is None
+
+
+def test_an_rpc_operation_cannot_leave_its_effect_to_the_method():
+    """Every RPC call is a ``POST``: the method would call a read a write, so none is implied."""
+    with pytest.raises(TypeError, match="effect"):
+        RPC("getDashboard", dict)  # ty: ignore[missing-argument]

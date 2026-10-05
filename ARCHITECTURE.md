@@ -123,7 +123,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-3 — Honest effects
 - **Rule:** what an operation does to the server (read, write, idempotent write, destructive) is
-  declared once, and MCP annotations, the `write` tag and `--read-only` agree with it. A tool
+  declared once, and MCP annotations, the `write` tag and `--read-only` agree with it. The effect
+  follows from the HTTP method; where the method says nothing (an RPC API, every operation a
+  `POST`), the effect is always named: `RPC(name, …, effect=…)` has no default for it. A tool
   states its annotations only: the root server derives its tags, the service from the name and
   `write` from `readOnlyHint`.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
@@ -141,7 +143,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   tool returns; the server offers neither when one of those tools is not served, so `--read-only`
   and every other selection flag cover them without a rule of their own.
 - **Exceptions:** the `# violation(arch-3)` markers in `endpoints.py` (a read over `POST`, an
-  idempotent `POST`).
+  idempotent `POST`). An `RPC(...)` endpoint is not one: its effect overrides nothing.
 
 ### ARCH-4 — One output path
 - **Rule:** a CLI command returns its result; only `output.render` writes to stdout.
