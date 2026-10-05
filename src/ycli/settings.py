@@ -174,11 +174,18 @@ class _EnvSettings(BaseSettings):
     """What every settings model shares: read ``.env`` too, and stay immutable.
 
     ``env_ignore_empty``: an exported-but-empty variable reads as "not set", so the CLI routes
-    it to the same "run `ycli auth login`" hint as a missing one.
+    it to the same "run `ycli auth login`" hint as a missing one. ``hide_input_in_errors``: a
+    value that fails validation here may be a token, and the text of a ``ValidationError``
+    would quote it.
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
+        env_file=".env",
+        env_ignore_empty=True,
+        extra="ignore",
+        validate_by_name=True,
+        frozen=True,
+        hide_input_in_errors=True,
     )
 
 
