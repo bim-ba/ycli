@@ -75,6 +75,15 @@ steps:
       text: note ${RUN}
     save:
       comment: id
+    reads:
+      - tracker entities get project ${project}
+      - tracker entities search project --input-text "${RUN}"
+      - tracker entities comments get project ${project} ${comment}
+      - tracker entities comments list project ${project}
+      - tracker entities attachments list project ${project}
+      - tracker entities links list project ${project}
+      - tracker entities permissions-get project ${project}
+      - tracker entities permissions-get-direct project ${project}
   - id: entity-comment-delete
     run: tracker entities comments delete project ${project} ${comment} --no-notify
   - id: events

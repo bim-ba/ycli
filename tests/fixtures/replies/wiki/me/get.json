@@ -1,0 +1,16 @@
+{
+  "body": {
+    "home_cluster": "<home_cluster>",
+    "identity": {
+      "cloud_uid": "<cloud_uid>",
+      "uid": "<uid>"
+    },
+    "org": {
+      "collab_id": "<collab_id>",
+      "dir_id": "<dir_id>"
+    },
+    "username": "<username>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

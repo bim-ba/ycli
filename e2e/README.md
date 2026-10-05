@@ -31,10 +31,36 @@ uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |
 | `steps[].cleanup` | command run when the scenario ends, newest first, even after a failure |
 | `steps[].disarms` | earlier step ids whose cleanup this step already did |
+| `steps[].reads` | commands that only read, run right after the step and only by a recording run (below) |
 
 Every object a run creates is named after `${RUN}` = `e2e-<unix seconds>-<4 hex>`. Tracker issues cannot be deleted through the API, so issue scenarios end with the issue closed in the sandbox queue.
 
-`tests/tooling/test_e2e_scenarios.py` checks offline, on every pull request, that each file parses and each `run`/`cleanup` is a valid ycli command line.
+`tests/tooling/test_e2e_scenarios.py` checks offline, on every pull request, that each file parses and each `run`, `cleanup` and read is a valid ycli command line.
+
+## Recording replies
+
+```bash
+set -a; . ./.env; set +a
+YCLI_E2E=1 uv run pytest e2e --no-cov -n 0 -p no:cacheprovider --record
+```
+
+`--record` runs the same scenarios through the CLI in this process instead of the installed binary, lets every request through to the real API and keeps the first good reply of each operation as `tests/fixtures/replies/<service>/<resource>/<method>.json`. A fixture is never edited by hand: record again and review the diff. `tests/contract/test_recorded_replies.py` then checks, offline, that the model of each operation reads its recorded reply.
+
+The repository is public, so a reply is scrubbed before it is written (`scrub.py`), and what reaches the file is decided by a list of what is allowed, not by what looks personal:
+
+| In the reply | In the file |
+|---|---|
+| a key the model of that position reads, or a name that is public already (a field of another model, a name in `scripts/api_snapshot/`) | kept |
+| any other key | `<unknown-N>`; a key of a map (`dict[str, X]`) becomes `<key-N>` |
+| a string the model lists as a `Literal` or enum value there | kept |
+| any other string | `<key>`; a date becomes one constant |
+| a boolean, `null`, a number below 100 000 under a key that names no identifier | kept |
+| any other number | 1, 2, 3… |
+| a list | one item per distinct shape |
+
+A fixture also counts the keys its model does not know (`unknown_keys`); the offline check fails when a model stops knowing a key it knew. Their names, and the reads that failed, go to the file `--record-report` names (outside the repository); the terminal shows numbers only.
+
+While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures.
 
 ## Janitor
 

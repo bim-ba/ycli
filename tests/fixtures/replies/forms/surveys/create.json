@@ -1,0 +1,40 @@
+{
+  "body": {
+    "allow_multiple_answers": true,
+    "answers": 0,
+    "author": {
+      "display_name": "<display_name>",
+      "identity": {
+        "cloud_uid": "<cloud_uid>",
+        "uid": "<uid>"
+      },
+      "username": "<username>"
+    },
+    "collab_id": "<collab_id>",
+    "created": "<created>",
+    "dir_id": "<dir_id>",
+    "fill_again": true,
+    "footer": true,
+    "id": "<id>",
+    "iframe": false,
+    "is_favourite": false,
+    "is_public": false,
+    "language": "<language>",
+    "name": "<name>",
+    "need_auth": false,
+    "share": true,
+    "show_last_answer": false,
+    "stats": false,
+    "teaser": true,
+    "texts": {
+      "back": "<back>",
+      "next": "<next>",
+      "redirect": "<redirect>",
+      "submit": "<submit>",
+      "subtitle": "<subtitle>",
+      "title": "<title>"
+    }
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

@@ -1,0 +1,84 @@
+{
+  "body": {
+    "<unknown-10>": false,
+    "<unknown-1>": false,
+    "<unknown-2>": false,
+    "<unknown-3>": false,
+    "<unknown-4>": true,
+    "<unknown-5>": true,
+    "<unknown-6>": true,
+    "<unknown-7>": "<unknown-7>",
+    "<unknown-8>": false,
+    "<unknown-9>": "<unknown-9>",
+    "assignAuto": false,
+    "defaultPriority": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "defaultType": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "denyVoting": false,
+    "description": "<description>",
+    "id": 1,
+    "issueTypes": [
+      {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      }
+    ],
+    "issueTypesConfig": [
+      {
+        "issueType": {
+          "display": "<display>",
+          "id": "<id>",
+          "key": "<key>",
+          "self": "<self>"
+        },
+        "resolutions": [
+          {
+            "display": "<display>",
+            "id": "<id>",
+            "key": "<key>",
+            "self": "<self>"
+          }
+        ],
+        "workflow": {
+          "display": "<display>",
+          "id": "<id>",
+          "self": "<self>"
+        }
+      }
+    ],
+    "key": "<key>",
+    "lead": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 3,
+      "self": "<self>"
+    },
+    "name": "<name>",
+    "self": "<self>",
+    "version": 2,
+    "workflows": {
+      "<key-1>": [
+        {
+          "display": "<display>",
+          "id": "<id>",
+          "key": "<key>",
+          "self": "<self>"
+        }
+      ]
+    }
+  },
+  "status": 200,
+  "unknown_keys": 10
+}

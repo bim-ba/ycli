@@ -1,0 +1,10 @@
+{
+  "body": {
+    "cloud_uid": "<cloud_uid>",
+    "email": "<email>",
+    "id": 1,
+    "uid": "<uid>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

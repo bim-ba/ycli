@@ -54,6 +54,10 @@ steps:
       resolve_status: unresolved
       reactions: []
       "author.username != null": true
+    reads:
+      - wiki me get
+      - wiki pages backlinks-list ${id}
+      - wiki pages search "${RUN}"
   - id: comments
     run: wiki comments list ${id} --order-by created_at --order-direction desc --status-filter unresolved --all
     expect:

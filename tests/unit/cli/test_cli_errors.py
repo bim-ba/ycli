@@ -43,7 +43,6 @@ def test_non_auth_error_has_no_login_hint():
 
 def _missing_credentials_error(monkeypatch, tmp_path) -> ValidationError:
     """Build the real pydantic error raised when neither credential env var is set."""
-    monkeypatch.chdir(tmp_path)  # no repo .env
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     with pytest.raises(ValidationError) as exc_info:
@@ -60,8 +59,7 @@ def test_missing_both_credentials_routes_to_auth_login(monkeypatch, tmp_path):
     assert not message.startswith("Error:")  # a friendly banner, not a raw validation dump
 
 
-def test_missing_single_credential_uses_singular_phrasing(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)
+def test_missing_single_credential_uses_singular_phrasing(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "present")
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     with pytest.raises(ValidationError) as exc_info:

@@ -20,6 +20,16 @@ steps:
     run: forms questions create ${id} --type string --label "${RUN} question" --slug name
     save:
       question: id
+    reads:
+      - forms questions list ${id}
+      - forms access list ${id}
+      - forms conditions submit list ${id}
+      - forms conditions question list ${id} ${question}
+      - forms hooks list ${id}
+      - forms keysets list ${id}
+      - forms variables list ${id}
+      - forms history list ${id}
+      - forms notifications list --survey-id ${id}
   - id: question
     run: forms questions get ${id} ${question} --with-slugs
     expect:
@@ -27,6 +37,8 @@ steps:
       type: string
   - id: publish
     run: forms surveys publish ${id}
+    reads:
+      - forms filling get ${id}
   - id: listed
     run: forms surveys list --name "${RUN} survey" --published --ownership mine --no-favourite --orderby name --all
     expect:

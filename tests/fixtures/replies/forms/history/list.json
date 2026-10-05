@@ -1,0 +1,23 @@
+{
+  "body": {
+    "items": [
+      {
+        "action": "<action>",
+        "created": "<created>",
+        "id": 1,
+        "model": "<model>",
+        "user": {
+          "display_name": "<display_name>",
+          "identity": {
+            "cloud_uid": "<cloud_uid>",
+            "uid": "<uid>"
+          },
+          "username": "<username>"
+        }
+      }
+    ],
+    "limit": 100
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

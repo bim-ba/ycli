@@ -15,9 +15,8 @@ from ycli.settings import (
 
 
 @pytest.fixture(autouse=True)
-def _isolated_env(monkeypatch, tmp_path):
+def _isolated_env(monkeypatch):
     """No repo-root .env and no inherited YCLI__* variables leak into these tests."""
-    monkeypatch.chdir(tmp_path)
     for name in (
         "YCLI__HTTP__TIMEOUT_SECONDS",
         "YCLI__HTTP__RETRIES",

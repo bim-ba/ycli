@@ -1,0 +1,14 @@
+{
+  "body": {
+    "next_cursor": null,
+    "prev_cursor": null,
+    "results": [
+      {
+        "id": 1,
+        "slug": "<slug>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 1
+}

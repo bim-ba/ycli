@@ -1,0 +1,94 @@
+{
+  "body": [
+    {
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "name": "<name>",
+      "type": "<type>"
+    },
+    {
+      "arguments": [
+        "<arguments>"
+      ],
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "name": "<name>",
+      "type": "<type>"
+    },
+    {
+      "arguments": [
+        "<arguments>"
+      ],
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "filters": {
+        "<key-1>": {
+          "<unknown-1>": "<unknown-1>"
+        }
+      },
+      "name": "<name>",
+      "type": "<type>"
+    },
+    {
+      "arguments": [
+        "<arguments>"
+      ],
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "name": "<name>",
+      "renderers": [
+        {
+          "name": "<name>",
+          "type": "<type>"
+        }
+      ],
+      "type": "<type>"
+    },
+    {
+      "arguments": [
+        "<arguments>"
+      ],
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "filters": {
+        "<key-1>": {
+          "<unknown-1>": "<unknown-1>"
+        }
+      },
+      "name": "<name>",
+      "renderers": [
+        {
+          "name": "<name>",
+          "type": "<type>"
+        }
+      ],
+      "type": "<type>"
+    },
+    {
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
+      },
+      "name": "<name>",
+      "renderers": [
+        {
+          "name": "<name>",
+          "type": "<type>"
+        }
+      ],
+      "type": "<type>"
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}

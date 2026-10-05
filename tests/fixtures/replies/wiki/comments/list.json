@@ -1,0 +1,33 @@
+{
+  "body": {
+    "next_cursor": null,
+    "prev_cursor": null,
+    "results": [
+      {
+        "<unknown-1>": null,
+        "author": {
+          "affiliation": "<affiliation>",
+          "display_name": "<display_name>",
+          "id": 2,
+          "identity": {
+            "cloud_uid": "<cloud_uid>",
+            "uid": "<uid>"
+          },
+          "is_dismissed": false,
+          "username": "<username>"
+        },
+        "body": "<body>",
+        "created_at": "<created_at>",
+        "id": 1,
+        "inline_text": null,
+        "is_deleted": false,
+        "parent_id": null,
+        "reactions": [],
+        "resolve_status": "<resolve_status>",
+        "thread_id": null
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 7
+}

@@ -1,0 +1,64 @@
+{
+  "body": {
+    "hasNext": false,
+    "users": [
+      {
+        "cloudUid": "<cloudUid>",
+        "disableNotifications": true,
+        "dismissed": false,
+        "display": "<display>",
+        "email": "<email>",
+        "external": false,
+        "firstName": "<firstName>",
+        "hasLicense": true,
+        "lastName": "<lastName>",
+        "login": "<login>",
+        "passportUid": 3,
+        "self": "<self>",
+        "trackerUid": 2,
+        "uid": 1,
+        "useNewFilters": true
+      },
+      {
+        "cloudUid": "<cloudUid>",
+        "disableNotifications": false,
+        "dismissed": false,
+        "display": "<display>",
+        "email": "<email>",
+        "external": false,
+        "firstLoginDate": "<firstLoginDate>",
+        "firstName": "<firstName>",
+        "hasLicense": true,
+        "lastLoginDate": "<lastLoginDate>",
+        "lastName": "<lastName>",
+        "login": "<login>",
+        "passportUid": 6,
+        "self": "<self>",
+        "sources": [
+          "<sources>"
+        ],
+        "trackerUid": 5,
+        "uid": 4,
+        "useNewFilters": true
+      },
+      {
+        "disableNotifications": true,
+        "dismissed": false,
+        "display": "<display>",
+        "email": "<email>",
+        "external": false,
+        "firstName": "<firstName>",
+        "hasLicense": true,
+        "lastName": "<lastName>",
+        "login": "<login>",
+        "passportUid": 9,
+        "self": "<self>",
+        "trackerUid": 8,
+        "uid": 7,
+        "useNewFilters": true
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

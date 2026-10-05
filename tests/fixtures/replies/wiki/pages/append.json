@@ -1,0 +1,19 @@
+{
+  "body": {
+    "access_lists": null,
+    "access_policy": null,
+    "active_revision": null,
+    "actuality": null,
+    "attributes": null,
+    "breadcrumbs": null,
+    "content": "<content>",
+    "id": 1,
+    "owner": null,
+    "page_type": "<page_type>",
+    "redirect": null,
+    "slug": "<slug>",
+    "title": "<title>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

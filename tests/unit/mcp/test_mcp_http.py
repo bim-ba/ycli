@@ -72,11 +72,8 @@ async def test_a_tool_call_over_http_uses_the_callers_token_not_the_environments
     assert api.calls[0].headers["X-Org-Id"] == "org-env"
 
 
-async def test_an_http_call_works_in_the_organization_the_server_checked_at_start(
-    api, monkeypatch, tmp_path
-):
+async def test_an_http_call_works_in_the_organization_the_server_checked_at_start(api, monkeypatch):
     """Configured only as YCLI__MCP__ORGANIZATION_ID, the organization still reaches the call."""
-    monkeypatch.chdir(tmp_path)  # a developer's own .env names an organization too
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.setenv("YCLI__MCP__ORGANIZATION_ID", "org-mcp")
     monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
@@ -88,8 +85,7 @@ async def test_an_http_call_works_in_the_organization_the_server_checked_at_star
     assert api.calls[0].headers["X-Org-Id"] == "org-mcp"
 
 
-def test_a_bare_organization_id_variable_does_not_configure_the_http_server(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)  # no repo .env
+def test_a_bare_organization_id_variable_does_not_configure_the_http_server(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
     monkeypatch.setenv("ORGANIZATION_ID", "222")
@@ -97,10 +93,7 @@ def test_a_bare_organization_id_variable_does_not_configure_the_http_server(monk
         MCPHTTPConfig()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
 
 
-def test_the_http_organization_comes_from_its_named_variables_or_the_field_name(
-    monkeypatch, tmp_path
-):
-    monkeypatch.chdir(tmp_path)
+def test_the_http_organization_comes_from_its_named_variables_or_the_field_name(monkeypatch):
     monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.setenv("ORGANIZATION_ID", "222")
@@ -210,8 +203,7 @@ def test_serve_http_runs_stateless_streamable_http_on_the_configured_address(htt
     assert ran == {"transport": "http", "host": "127.0.0.1", "port": 9000, "stateless_http": True}
 
 
-def test_serve_http_names_the_missing_settings(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)  # no repo .env
+def test_serve_http_names_the_missing_settings(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     with pytest.raises(ValueError, match="YCLI__MCP__BASE_URL") as raised:
         serve_http(Selection())
@@ -230,8 +222,7 @@ class _NoSecret:
     client_secret = None
 
 
-def test_mcp_start_over_http_without_configuration_is_a_usage_error(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)
+def test_mcp_start_over_http_without_configuration_is_a_usage_error(monkeypatch):
     result = CliRunner().invoke(ycli_app, ["mcp", "start", "--transport", "http"])
     assert result.exit_code == 2
     assert "YCLI__MCP__BASE_URL" in result.output
