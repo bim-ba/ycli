@@ -101,7 +101,7 @@ filterwarnings = ["error"]
 source = ["ycli"]
 # Lines and branches: a guard with an untested side counts as missing coverage.
 branch = true
-# tests/test_new_endpoint.py imports a throwaway scaffold from tmp_path into the ycli namespace
+# tests/tooling/test_new_endpoint.py imports a throwaway scaffold from tmp_path into the ycli namespace
 omit = ["*/scaffold_probe/*"]
 
 [tool.coverage.report]
@@ -139,7 +139,7 @@ version_toml = ["pyproject.toml:project.version"]
 # Everything released together with the package carries its version: the Claude Code plugin
 # (manifest + the pinned MCP server), the MCP Registry manifest (server.json: its own version,
 # the PyPI package, the `--with` pin and the OCI tag) and the Claude Desktop bundle (mcpb/).
-# tests/test_distribution.py fails when any of them drifts.
+# tests/tooling/test_distribution.py fails when any of them drifts.
 version_variables = [
     "plugins/yandex-360/.claude-plugin/plugin.json:version",
     "plugins/yandex-360/.mcp.json:yandex-cli[mcp]",

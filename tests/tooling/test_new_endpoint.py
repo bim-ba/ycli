@@ -15,7 +15,7 @@ from tests.architecture import test_arch1, test_arch4, test_arch5, test_arch8
 from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.core.resource import Resource
 
-SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "new_endpoint.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "new_endpoint.py"
 
 
 def _load_scaffolder():

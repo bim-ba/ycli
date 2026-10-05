@@ -34,7 +34,7 @@ uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 
 Every object a run creates is named after `${RUN}` = `e2e-<unix seconds>-<4 hex>`. Tracker issues cannot be deleted through the API, so issue scenarios end with the issue closed in the sandbox queue.
 
-`tests/test_e2e_scenarios.py` checks offline, on every pull request, that each file parses and each `run`/`cleanup` is a valid ycli command line.
+`tests/tooling/test_e2e_scenarios.py` checks offline, on every pull request, that each file parses and each `run`/`cleanup` is a valid ycli command line.
 
 ## Janitor
 

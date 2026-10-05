@@ -56,7 +56,7 @@ jobs:
               cat "$RUNNER_TEMP/changes.md"
               echo
               echo "To accept the change: \`uv run python scripts/api_drift.py --refresh\`, then"
-              echo "\`uv run python scripts/gen_coverage.py --write\`. \`uv run pytest tests/test_api_drift.py\`"
+              echo "\`uv run python scripts/gen_coverage.py --write\`. \`uv run pytest tests/tooling/test_api_drift.py\`"
               echo "fails on a new operation until ycli wraps it or lists it in \`NOT_WRAPPED\`."
               echo
               echo "Found by [this run]($RUN_URL); this issue is rewritten by every later run."
