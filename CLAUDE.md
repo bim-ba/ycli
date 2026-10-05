@@ -117,7 +117,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
 for the nine invariants (ARCH-1..9). They are verified by `tests/architecture/`,
-import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
+import-linter (`uv run lint-imports`), and `tests/architecture/test_snapshots.py`. Do **not** route around
 them; the rules themselves are stated only there. To change an invariant, edit `ARCHITECTURE.md` **and** its
 enforcing check in the **same** PR and flag it.
 
