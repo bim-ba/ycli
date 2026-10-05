@@ -12,12 +12,12 @@
     "lastLoginDate": "<lastLoginDate>",
     "lastName": "<lastName>",
     "login": "<login>",
-    "passportUid": 3,
+    "passportUid": 1,
     "self": "<self>",
     "sources": [
       "<sources>"
     ],
-    "trackerUid": 2,
+    "trackerUid": 1,
     "uid": 1,
     "useNewFilters": true
   },

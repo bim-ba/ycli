@@ -1,14 +1,6 @@
 {
   "body": [
     {
-      "category": {
-        "name": "<name>",
-        "type": "<type>"
-      },
-      "name": "<name>",
-      "type": "<type>"
-    },
-    {
       "arguments": [
         "<arguments>"
       ],
@@ -16,7 +8,18 @@
         "name": "<name>",
         "type": "<type>"
       },
+      "filters": {
+        "<key-1>": {
+          "<unknown-1>": "<unknown-1>"
+        }
+      },
       "name": "<name>",
+      "renderers": [
+        {
+          "name": "<name>",
+          "type": "<type>"
+        }
+      ],
       "type": "<type>"
     },
     {
@@ -60,10 +63,13 @@
         "name": "<name>",
         "type": "<type>"
       },
-      "filters": {
-        "<key-1>": {
-          "<unknown-1>": "<unknown-1>"
-        }
+      "name": "<name>",
+      "type": "<type>"
+    },
+    {
+      "category": {
+        "name": "<name>",
+        "type": "<type>"
       },
       "name": "<name>",
       "renderers": [
@@ -80,12 +86,6 @@
         "type": "<type>"
       },
       "name": "<name>",
-      "renderers": [
-        {
-          "name": "<name>",
-          "type": "<type>"
-        }
-      ],
       "type": "<type>"
     }
   ],

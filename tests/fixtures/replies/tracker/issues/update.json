@@ -1,62 +1,62 @@
 {
   "body": {
-    "<unknown-1>": "<unknown-1>",
-    "<unknown-2>": {
-      "display": "<display>",
-      "id": "<id>",
-      "key": "<key>"
+    "<unknown-1>": 0,
+    "<unknown-2>": 0,
+    "<unknown-3>": "<unknown-3>",
+    "<unknown-4>": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>"
     },
-    "<unknown-3>": 0,
-    "<unknown-4>": 0,
     "<unknown-5>": 0,
     "createdAt": "<createdAt>",
     "createdBy": {
-      "cloudUid": "<cloudUid>",
-      "display": "<display>",
-      "id": "<id>",
-      "passportUid": 3,
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
     },
     "description": "<description>",
     "favorite": false,
     "id": "<id>",
     "key": "<key>",
     "priority": {
-      "display": "<display>",
-      "id": "<id>",
-      "key": "<key>",
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
     },
     "queue": {
-      "display": "<display>",
-      "id": "<id>",
-      "key": "<key>",
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
     },
     "self": "<self>",
     "status": {
-      "display": "<display>",
-      "id": "<id>",
-      "key": "<key>",
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
     },
     "summary": "<summary>",
     "tags": [
       "<tags>"
     ],
     "type": {
-      "display": "<display>",
-      "id": "<id>",
-      "key": "<key>",
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
     },
     "updatedAt": "<updatedAt>",
     "updatedBy": {
-      "cloudUid": "<cloudUid>",
-      "display": "<display>",
-      "id": "<id>",
-      "passportUid": 2,
-      "self": "<self>"
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
     },
     "version": 1
   },

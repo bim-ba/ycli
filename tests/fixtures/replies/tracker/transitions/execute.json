@@ -3,6 +3,11 @@
     {
       "display": "<display>",
       "id": "<id>",
+      "screen": {
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>"
+      },
       "self": "<self>",
       "to": {
         "display": "<display>",
@@ -14,11 +19,6 @@
     {
       "display": "<display>",
       "id": "<id>",
-      "screen": {
-        "display": "<display>",
-        "id": "<id>",
-        "self": "<self>"
-      },
       "self": "<self>",
       "to": {
         "display": "<display>",
