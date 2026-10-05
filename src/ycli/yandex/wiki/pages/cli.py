@@ -69,7 +69,7 @@ def get(
     wiki: WikiClient,
 ) -> str:
     """Print the text of the page SLUG; `get-meta` prints what is known about it."""
-    # violation(arch-9): the API returns a page without its text unless asked; `get` shows the text
+    # violation(as-given): the API returns a page without its text unless asked; `get` shows it
     page = wiki.pages.get(
         slug=slug, fields="content", revision_id=revision_id, raise_on_redirect=raise_on_redirect
     )
@@ -79,7 +79,7 @@ def get(
 @app.command("get-meta")
 def get_meta(slug: SlugArg, *, wiki: WikiClient) -> PageDetails:
     """Print the page SLUG without its text: id, title, attributes and owner."""
-    # violation(arch-9): the API returns neither block unless asked; `get-meta` is those two
+    # violation(as-given): the API returns neither block unless asked; `get-meta` is those two
     return wiki.pages.get(slug=slug, fields="attributes,owner")
 
 

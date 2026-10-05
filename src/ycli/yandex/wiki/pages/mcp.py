@@ -67,7 +67,7 @@ def get(
     client: WikiClient = Depends(wiki_client),
 ) -> str:
     """The page's markdown body for SLUG."""
-    # violation(arch-9): the API returns a page without its text unless asked; `get` shows the text
+    # violation(as-given): the API returns a page without its text unless asked; `get` shows it
     page = client.pages.get(
         slug=slug, fields="content", revision_id=revision_id, raise_on_redirect=raise_on_redirect
     )
@@ -77,7 +77,7 @@ def get(
 @mcp.tool(name="pages_get_meta", annotations={**RO, "title": "Get Wiki page metadata"})
 def get_meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     """Page metadata for SLUG (attributes + owner)."""
-    # violation(arch-9): the API returns neither block unless asked; `get-meta` is those two
+    # violation(as-given): the API returns neither block unless asked; `get-meta` is those two
     return client.pages.get(slug=slug, fields="attributes,owner")
 
 

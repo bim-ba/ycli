@@ -405,9 +405,12 @@ Code that departs from a rule on purpose says so where it does, in one line:
 def logs_get(...) -> ItemList[AutoactionRunEntry]:
 ```
 
-The form is `# violation(<rule>): <reason>`; the rule is the name of a section here (`naming`) or
-an invariant (`arch-9`). A reviewer who meets the code sees that the departure was chosen, and a
-search for `violation(` lists every one.
+The form is `# violation(<rule>): <reason>`; the rule is one of this page (`naming`, `as-given`) or
+an invariant (`arch-9`). The marker is a comment line of its own, right above the line where the
+departure starts: the `raise`, the `Endpoint(...)`, the `def` of the method. A reviewer who meets
+the code sees that the departure was chosen, and a search for `violation(` lists every one.
+`tests/architecture/test_markers.py` holds the form; the check of an invariant that has a scanner
+(`arch-9`) also holds that each of its markers stands above what it scans for, and the reverse.
 
 ## 8. Names in code
 

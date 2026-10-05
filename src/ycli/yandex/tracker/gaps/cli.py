@@ -65,6 +65,7 @@ def create(
         try:
             gaps.append(GapInput.model_validate(json.loads(raw)))
         except json.JSONDecodeError as exc:
+            # violation(arch-9): --gap is JSON; text that does not parse gives no absence to send
             raise typer.BadParameter(f"--gap must be valid JSON: {exc}") from exc
     return tracker.gaps.create(GapsCreate(gaps=gaps))
 

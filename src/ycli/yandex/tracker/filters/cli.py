@@ -21,6 +21,7 @@ def _parse_filter(raw: str | None) -> Any:
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
+        # violation(arch-9): --filter is JSON; text that does not parse gives no value for the body
         raise typer.BadParameter(f"--filter must be valid JSON: {exc}") from exc
     return parsed
 
