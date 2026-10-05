@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 def attended() -> bool:
     """Whether a person can be asked: stdin and stdout are both terminals (not a pipe or a CI)."""
+    # violation(arch-4): only asks whether stdout is a terminal; it writes nothing
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
