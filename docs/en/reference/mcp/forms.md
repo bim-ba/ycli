@@ -56,7 +56,7 @@ Only the fields you set are sent. Follow up with ``questions_create`` to add que
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for creating a form (``POST /surveys``). Every setting the API publishes is a field. The CLI has an option for the common ones and takes the rest through its repeatable ``--field key=value`` JSON escape, merged onto this body. Unset (``None``) fields are dropped before the request is sent. ``language``, ``is_published`` and ``is_public`` are accepted and ignored by the API (checked live on 2026-10-04): they stay for callers that send them, and setting one logs a warning. |
+| `body` | object | yes | Typed request body for creating a form (``POST /surveys``). Every setting the API publishes is a field. The CLI has an option for the common ones; the rest are set with its common ``-F key=value`` and ``--body-file``. Unset (``None``) fields are dropped before the request is sent. ``language``, ``is_published`` and ``is_public`` are accepted and ignored by the API (checked live on 2026-10-04): they stay for callers that send them, and setting one logs a warning. |
 
 ## `forms_surveys_update`
 

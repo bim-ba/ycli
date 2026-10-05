@@ -12,7 +12,8 @@ and :class:`AsyncSession` differ only in ``await``. Both:
   never headers or bodies;
 - call an optional ``before_send`` hook once per endpoint, with its effect and the built request,
   before the first HTTP attempt (not per retry or page) — the seam a surface uses to confirm or
-  refuse a write; the hook decides by returning or by raising, and the core knows nothing else;
+  refuse a write; the hook decides by returning or by raising, and a request it returns is
+  sent in place of the built one; the core knows nothing else;
 - walk a paginated listing up to ``limit`` items, warn when items are left behind, and stop on an
   empty page or after ``max_pages`` so a misbehaving cursor cannot loop forever.
 
@@ -59,7 +60,7 @@ if TYPE_CHECKING:
     from ycli.yandex.core.profile import ServiceProfile
 
 # Called once per endpoint with what it does to the server and the request about to be sent.
-type BeforeSend = Callable[[Effect, httpx2.Request], None]
+type BeforeSend = Callable[[Effect, httpx2.Request], httpx2.Request | None]
 
 logger = logging.getLogger(HTTP_LOGGER_NAME)
 
@@ -73,10 +74,22 @@ def shown(url: httpx2.URL) -> httpx2.URL:
     return url.copy_merge_params(dict.fromkeys(secrets, "***")) if secrets else url
 
 
-def _announce(before_send: BeforeSend | None, endpoint: Endpoint, request: httpx2.Request) -> None:
-    """Tell the ``before_send`` hook, if there is one, what ``endpoint`` is about to do."""
-    if before_send is not None:
-        before_send(cast("Effect", endpoint.effect), request)  # set at construction
+def _announce(
+    before_send: BeforeSend | None, endpoint: Endpoint, request: httpx2.Request
+) -> httpx2.Request:
+    """Tell the ``before_send`` hook, if there is one, what ``endpoint`` is about to do.
+
+    Args:
+        before_send: The hook, or ``None``.
+        endpoint: The endpoint being sent.
+        request: The request built for it.
+
+    Returns:
+        The request to send: the hook's own when it hands one back, else ``request``.
+    """
+    if before_send is None:
+        return request
+    return before_send(cast("Effect", endpoint.effect), request) or request  # set at construction
 
 
 def _retry_after(response: httpx2.Response) -> float | None:
@@ -212,7 +225,7 @@ class SyncSession:
     def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
         request = endpoint.request(self._client)
-        _announce(self._before_send, endpoint, request)
+        request = _announce(self._before_send, endpoint, request)
         response = self._send(
             request,
             idempotent=endpoint.idempotent,
@@ -223,7 +236,7 @@ class SyncSession:
     def iterate[P, I](self, paged: Paged[P, I], *, limit: int | None = None) -> Iterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = _first_page(paged, self._client)
-        _announce(self._before_send, paged.endpoint, request)
+        request = _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(self._http.max_pages):
             response = self._send(
@@ -289,7 +302,7 @@ class AsyncSession:
     async def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
         request = endpoint.request(self._client)
-        _announce(self._before_send, endpoint, request)
+        request = _announce(self._before_send, endpoint, request)
         response = await self._send(
             request,
             idempotent=endpoint.idempotent,
@@ -302,7 +315,7 @@ class AsyncSession:
     ) -> AsyncIterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = _first_page(paged, self._client)
-        _announce(self._before_send, paged.endpoint, request)
+        request = _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(self._http.max_pages):
             response = await self._send(

@@ -3,11 +3,11 @@
 All three also reach MCP (``filling_get`` / ``filling_submit`` / ``filling_suggest``).
 """
 
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
+from ycli.cli.body_fields import CallerFields
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.forms.typedefs import (
@@ -18,18 +18,6 @@ from ycli.yandex.models import ItemList
 app = typer.Typer(name="filling", help="Forms form filling.", no_args_is_help=True)
 
 _KEY = typer.Option("--key", help="Personal-link fill key, when the form uses one.")
-# Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
-# via get_type_hints), keeping the import out of a TYPE_CHECKING block.
-AnswersFileArg = Annotated[
-    Path,
-    typer.Option(
-        "--body-file",
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        help="JSON file: an answer map keyed by question slug (see `filling get` values).",
-    ),
-]
 
 
 @app.command()
@@ -43,7 +31,6 @@ def get(
 @app.command()
 def submit(
     survey_id: SurveyIDArg,
-    body_file: AnswersFileArg,
     validate_only: Annotated[
         bool | None,
         typer.Option(
@@ -53,10 +40,21 @@ def submit(
     ] = None,
     key: Annotated[str | None, _KEY] = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> SubmitResult:
-    """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
-    payload = SubmitBody.model_validate_json(body_file.read_bytes())
+    """Submit a form response from --body-file and -F (POST …/form).
+
+    The answers are a map keyed by question slug (see ``filling get``); --validate-only saves
+    nothing.
+    """
+    if not caller.given:
+        # violation(arch-9): the answers have no flags of their own, so with neither option
+        # there is no body to send
+        raise typer.BadParameter(
+            "give the answers with --body-file or -F", param_hint="--body-file / -F"
+        )
+    payload = SubmitBody.model_validate(caller.over({}))
     return forms.filling.submit(survey_id, payload, validate_only=validate_only, key=key)
 
 

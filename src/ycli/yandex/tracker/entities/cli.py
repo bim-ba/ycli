@@ -67,9 +67,9 @@ EntityTypeArg = Annotated[
     values_argument(EntityType, metavar="ENTITY_TYPE", help="Entity type (report: search only)."),
 ]
 EntityIDArg = Annotated[str, typer.Argument(metavar="ID", help="Entity id (or shortId).")]
-EntityFieldOpt = Annotated[
+BulkFieldOpt = Annotated[
     list[str] | None,
-    typer.Option("--field", "-F", help="Extra fields entry key=value (JSON-coerced; repeatable)."),
+    typer.Option("--field", "-F", help="Field to set on every entity: key=value (repeatable)."),
 ]
 
 
@@ -84,15 +84,14 @@ def _fields_body(
     parent: str | None,
     team_user: list[str] | None,
     tag: list[str] | None,
-    field: list[str] | None,
 ) -> dict[str, Any]:
-    """Assemble the ``fields`` object (API alias keys) from CLI options, merging ``--field`` extras.
+    """Assemble the ``fields`` object (API alias keys) from CLI options.
 
     Builds the typed :class:`EntityFieldsInput` (the single source of truth for every API alias)
-    and dumps it, so the CLI never hand-assembles the aliased dict; ``--field key=value`` still
-    overrides or adds arbitrary field parameters (last write wins).
+    and dumps it, so the CLI never hand-assembles the aliased dict. A field with no option of
+    its own is given as ``-F 'fields[key]=value'``.
     """
-    fields = EntityFieldsInput(
+    return EntityFieldsInput(
         summary=summary,
         description=description,
         lead=lead,
@@ -104,8 +103,6 @@ def _fields_body(
         teamUsers=team_user,
         tags=tag,
     ).model_dump(exclude_none=True)
-    fields |= parse_fields(field)
-    return fields
 
 
 @app.command()
@@ -142,14 +139,13 @@ def create(
         list[str] | None, typer.Option("--team-user", help="Participant id/login (repeatable).")
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    field: EntityFieldOpt = None,
     fields: ReplyFieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
     """Create an entity (POST /entities/ENTITY_TYPE). summary is required; other fields optional."""
     fields_body = _fields_body(
-        summary, description, lead, author, status, start, end, parent, team_user, tag, field
+        summary, description, lead, author, status, start, end, parent, team_user, tag
     )
     body = EntityCreate.model_validate({"fields": fields_body})
     return tracker.entities.create(entity_type, body=body, fields=fields)
@@ -174,7 +170,6 @@ def update(
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     comment: Annotated[str | None, typer.Option(help="Comment to add with the change.")] = None,
-    field: EntityFieldOpt = None,
     expand: ExpandOpt = None,
     fields: ReplyFieldsOpt = None,
     *,
@@ -182,7 +177,7 @@ def update(
 ) -> Entity:
     """Edit entity ID (PATCH /entities/ENTITY_TYPE/ID) — only supplied fields are sent."""
     fields_body = _fields_body(
-        summary, description, lead, author, status, start, end, parent, team_user, tag, field
+        summary, description, lead, author, status, start, end, parent, team_user, tag
     )
     body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment})
     return tracker.entities.update(entity_type, entity_id, body=body, expand=expand, fields=fields)
@@ -340,7 +335,7 @@ def update_bulk(
     entity_type: EntityTypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
     comment: Annotated[str | None, typer.Option(help="Comment to add to every entity.")] = None,
-    field: EntityFieldOpt = None,
+    field: BulkFieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> BulkChangeOperation:

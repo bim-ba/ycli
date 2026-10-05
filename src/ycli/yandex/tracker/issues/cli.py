@@ -34,11 +34,6 @@ from ycli.yandex.tracker.typedefs import (
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
-IssueFieldOpt = Annotated[
-    list[str] | None,
-    typer.Option("--field", "-F", help="Extra field key=value (JSON-coerced; repeatable)."),
-]
-
 
 def _key(value: str | None) -> dict[str, str] | None:
     """The ``{"key": …}`` object Tracker takes for a type or priority; ``None`` when not given.
@@ -141,13 +136,12 @@ def create(
         str | None, typer.Option(help='Markdown body — pass "$(cat file.md)".')
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    field: IssueFieldOpt = None,
     notify: NotifyOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
     """Create an issue (POST /issues/). type/priority wrap to {"key": …}; queue/parent stay bare."""
-    named = IssueCreate(
+    body = IssueCreate(
         queue=queue,
         summary=summary,
         type=_key(type_),
@@ -156,8 +150,6 @@ def create(
         description=description,
         tags=tag,
     )
-    # The named options, then whatever --field adds or overrides.
-    body = IssueCreate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
     return tracker.issues.create(body=body, notify=notify)
 
 
@@ -173,12 +165,11 @@ def update(
         typer.Option(help='New markdown body — pass "$(cat file.md)"; "" clears it.'),
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    field: IssueFieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
     """Update issue ISSUE_KEY (PATCH /issues/{key}) — only supplied fields are sent."""
-    named = IssueUpdate(
+    body = IssueUpdate(
         summary=summary,
         type=_key(type_),
         priority=_key(priority),
@@ -186,7 +177,6 @@ def update(
         description=description,
         tags=tag,
     )
-    body = IssueUpdate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
     return tracker.issues.update(issue_key, body=body)
 
 

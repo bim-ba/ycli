@@ -74,7 +74,7 @@ CASES = [
             "--tag",
             "q4",
             "--field",
-            "markupType=md",
+            "fields[markupType]=md",
         ],
         mcp=(
             "tracker_entities_create",
@@ -122,12 +122,12 @@ CASES = [
             )
         ],
     ),
-    # `--field` merges last: it overrides an option and adds a JSON-coerced key.
+    # `-F` reaches a field with no option of its own by its path; an option wins over it.
     Case(
         "tracker.entities.create",
         args=(
             "goal",
-            EntityCreate.model_validate({"fields": {"summary": "Overridden", "teamAccess": True}}),
+            EntityCreate.model_validate({"fields": {"summary": "Original", "teamAccess": True}}),
         ),
         cli=[
             "tracker",
@@ -137,9 +137,9 @@ CASES = [
             "--summary",
             "Original",
             "-F",
-            "summary=Overridden",
+            "fields[summary]=Overridden",
             "-F",
-            "teamAccess=true",
+            "fields[teamAccess]=true",
         ],
         mcp=None,
         exchanges=[
@@ -147,7 +147,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/goal",
-                    json={"fields": {"summary": "Overridden", "teamAccess": True}},
+                    json={"fields": {"summary": "Original", "teamAccess": True}},
                 ),
                 Reply(json={"id": "g1", "entityType": "goal"}),
             )
@@ -252,7 +252,7 @@ CASES = [
             "--comment",
             "Re-planned",
             "-F",
-            'followers=["follower-4"]',
+            'fields[followers]=["follower-4"]',
         ],
         mcp=(
             "tracker_entities_update",

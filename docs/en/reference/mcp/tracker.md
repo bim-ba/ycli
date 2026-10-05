@@ -104,7 +104,7 @@ Create a Tracker issue; returns the new issue with its key.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``POST /issues/`` (create an issue). Covers the common fields; ``extra="allow"`` lets any custom (global or queue-local) field key=value pair pass through unvalidated, matching the CLI's ``-F key=value`` escape hatch. ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are valid per the Tracker API); the CLI sends the object form. |
+| `body` | object | yes | Typed request body for ``POST /issues/`` (create an issue). Covers the common fields; ``extra="allow"`` lets any custom (global or queue-local) field pass through unvalidated. ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are valid per the Tracker API); the CLI sends the object form. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_issues_update`
@@ -118,7 +118,7 @@ Status is NOT changed here — use ``transitions_execute``. Returns the updated 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `body` | object | yes | Typed request body for ``PATCH /issues/{key}`` (update an issue; only sent fields change). ``extra="allow"`` lets any custom field key=value pair pass through, matching the CLI's ``-F key=value`` escape hatch. Status is NOT changed here — use ``transitions_execute``. |
+| `body` | object | yes | Typed request body for ``PATCH /issues/{key}`` (update an issue; only sent fields change). ``extra="allow"`` lets any custom field pass through unvalidated. Status is NOT changed here — use ``transitions_execute``. |
 
 ## `tracker_issues_move`
 
@@ -384,7 +384,7 @@ available from the new status.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `transition_id` | string | yes | Transition id, from ``transitions_list``. |
-| `body` | object | yes | Typed request body for ``POST /issues/{key}/transitions/{id}/_execute``. Open-ended: any issue field can be set on transition (e.g. a resolution when closing), so ``extra="allow"`` lets arbitrary field key=value pairs (from the CLI's ``-F``) pass through unvalidated while the common fields below still document themselves in the MCP schema. |
+| `body` | object | yes | Typed request body for ``POST /issues/{key}/transitions/{id}/_execute``. Open-ended: any issue field can be set on transition (e.g. a resolution when closing), so ``extra="allow"`` lets arbitrary fields pass through unvalidated while the common fields below still document themselves in the MCP schema. |
 
 ## `tracker_worklog_list`
 

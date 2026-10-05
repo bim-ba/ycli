@@ -29,13 +29,21 @@ from typing import TYPE_CHECKING, Any, get_type_hints
 import typer
 
 from ycli.cli.context import AppContext
-from ycli.cli.global_options import apply_leaf_values, leaf_parameters
+from ycli.cli.global_options import (
+    NO_BODY,
+    apply_leaf_values,
+    leaf_name,
+    leaf_parameters,
+    refuse_fields,
+)
 from ycli.cli.guard import DryRunPlanned
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 _CONTEXT = "_ycli_typer_context"
+# What a command with its own ``-F`` says to the common one given before the subcommand.
+OWN_FIELD = "this command has a --field of its own; the common one before it has no use"
 
 
 def inject_dependencies(app: typer.Typer) -> None:
@@ -88,6 +96,11 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
         for name, parameter in signature.parameters.items()
         if name not in injected and name != own_context
     ]
+    leaf = leaf_parameters(visible)
+    own_field = leaf_name("field") not in {parameter.name for parameter in leaf}
+    # A command given a client or the fields can send a body; one that takes the context builds
+    # what it needs itself and answers for the fields itself.
+    can_send = own_context is not None or any(map(AppContext.sends, injected.values()))
 
     @functools.wraps(command)
     def run(*args: Any, **kwargs: Any) -> Any:
@@ -95,19 +108,30 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
         if own_context is not None:
             kwargs[own_context] = context
         root = context.find_root()
+        if own_field and root.params.get("field"):
+            # violation(arch-9): this command has a -F of its own, and one call cannot give
+            # the name two meanings
+            raise typer.BadParameter(OWN_FIELD, param_hint="-F")
         apply_leaf_values(kwargs, root.params)
+        if not can_send:
+            refuse_fields(context)
         app_context: AppContext = root.obj
         dependencies = {
             name: _Deferred(functools.partial(app_context.resolve, kind))
             for name, kind in injected.items()
         }
         try:
-            return command(*args, **kwargs, **dependencies)
+            result = command(*args, **kwargs, **dependencies)
         except DryRunPlanned as planned:  # --dry-run: the first write became its plan
             return planned.plan
+        fields = app_context.caller_fields
+        if fields.given and not fields.taken:
+            # violation(arch-9): the command sent no body at all, so the fields went nowhere
+            raise typer.BadParameter(NO_BODY, param_hint="-F / --body-file")
+        return result
 
     context = inspect.Parameter(_CONTEXT, inspect.Parameter.KEYWORD_ONLY, annotation=typer.Context)
     run.__signature__ = signature.replace(  # ty: ignore[unresolved-attribute]
-        parameters=[*visible, *leaf_parameters(visible), context]
+        parameters=[*visible, *leaf, context]
     )
     return run

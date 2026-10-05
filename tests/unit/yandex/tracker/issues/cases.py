@@ -206,14 +206,14 @@ CASES = [
             )
         ],
     ),
-    # `--description ""` clears the body; `--field` merges last, overriding an option, and an
-    # explicit null is sent.
+    # `--description ""` clears the body; `-F` adds fields under the options (an option wins
+    # over it), and an explicit null is sent.
     Case(
         "tracker.issues.update",
         args=(
             "DE-8",
             IssueUpdate.model_validate(
-                {"summary": "B", "description": "", "assignee": None, "sprint": 7}
+                {"summary": "A", "description": "", "assignee": None, "sprint": 7}
             ),
         ),
         cli=[
@@ -238,7 +238,7 @@ CASES = [
                 Sent(
                     "PATCH",
                     "issues/DE-8",
-                    json={"summary": "B", "description": "", "assignee": None, "sprint": 7},
+                    json={"summary": "A", "description": "", "assignee": None, "sprint": 7},
                 ),
                 Reply(json=ISSUE),
             )

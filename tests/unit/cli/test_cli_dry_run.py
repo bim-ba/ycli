@@ -12,6 +12,7 @@ from typer.testing import CliRunner
 from tests.hosts import TRACKER_BASE, WIKI_BASE
 from tests.mock_api import MockAPI
 from ycli.cli.app import app
+from ycli.cli.body_fields import CallerFields
 from ycli.cli.guard import DryRunPlanned, SendGuard
 from ycli.cli.planned_request import PlannedRequest
 from ycli.settings import HTTPConfig
@@ -94,7 +95,7 @@ def _session(api: MockAPI, guard: SendGuard):
 def test_reads_go_through_and_the_first_write_is_the_plan():
     api = MockAPI()
     api.add("GET", "https://api.test/v1/items", json=[1])
-    session = _session(api, SendGuard({"dry_run": True}))
+    session = _session(api, SendGuard({"dry_run": True}, CallerFields({"dry_run": True})))
     assert session.send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
     with pytest.raises(DryRunPlanned) as planned:
         session.send(Endpoint(HTTPMethod.PATCH, "items/1", json={"a": 1}))
@@ -106,7 +107,7 @@ def test_reads_go_through_and_the_first_write_is_the_plan():
 def test_every_kind_of_write_is_planned_and_a_dry_run_needs_no_yes(effect):
     request = httpx2.Request("POST", "https://api.test/v1/items")
     with pytest.raises(DryRunPlanned):
-        SendGuard({"dry_run": True})(effect, request)
+        SendGuard({"dry_run": True}, CallerFields({"dry_run": True}))(effect, request)
 
 
 # --- through the CLI ---------------------------------------------------------------------------
