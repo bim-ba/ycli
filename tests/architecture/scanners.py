@@ -74,10 +74,11 @@ def _dotted(expr: ast.expr, aliases: dict[str, str]) -> str:
 
 
 _VIOLATION_RE = re.compile(r"\s*# violation\((?P<rule>[a-z0-9-]+)\): \S")
-# The rules a marker may name besides an invariant (``arch-N``), and the section of
-# docs/conventions/resources.md that states each.
+# The rules a marker may name besides an invariant (``arch-N``), and where each is stated:
+# a section of docs/conventions/resources.md, or the script that holds the rule.
 CONVENTION_RULES = {
     "naming": "7. Naming an operation",
+    "api-drift": "scripts/api_drift.py: a body field that differs from the published API",
     "value-set": "1. Every model inherits `APIModel`: A field with a set of values",
     "as-given": "6. Writing a client and its CLI commands (ycli sends what the caller gave)",
 }

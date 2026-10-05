@@ -54,6 +54,7 @@ if str(ROOT) not in sys.path:
 
 from scripts import api_surface  # noqa: E402
 from scripts.api_surface import Operation, shape  # noqa: E402
+from tests.architecture.scanners import violation_markers  # noqa: E402
 from tests.contract import Case, Sibling, load_cases  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
@@ -86,23 +87,12 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
 # with ``IGNORED_BY_API`` (docs/conventions/resources.md), and ``explained`` reads that mark,
 # so the reason is stated once, where a caller reads it. A query parameter has no model to
 # carry the mark, so it is listed with the ``IGNORED`` reason.
+# A body field that differs for a reason of ycli's own says so where it is declared, with
+# ``# violation(api-drift): <reason>`` above it, and ``explained`` reads that too.
+MARKER_RULE = "api-drift"
 IGNORED = "the API accepts it and ignores it (checked live on 2026-10-04)"
 _RETURNED = "the API returns it (checked live on 2026-10-04), the published schema omits it"
-_SUBSCRIPTIONS = (
-    ("POST", "/surveys/{}/hooks/{}/subscriptions"),
-    ("PATCH", "/surveys/{}/hooks/{}/subscriptions/{}"),
-)
 EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, path, kind, name
-    **{
-        (
-            "forms",
-            method,
-            path,
-            "unknown_request",
-            "id",
-        ): "one model builds the body and reads the reply, and the reply carries `id`"
-        for method, path in _SUBSCRIPTIONS
-    },
     ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
 }
 # Body fields marked ``IGNORED_BY_API`` that the published schema does list: the API ignores
@@ -577,18 +567,69 @@ def ignored_marks() -> set[tuple[str, str, str, str]]:
     return marked
 
 
+def marked_fields(model: type[BaseModel]) -> dict[str, tuple[str, str, int]]:
+    """The fields of ``model`` declared under ``# violation(api-drift): <reason>``.
+
+    Args:
+        model: A body model; the fields its bases declare count as its own.
+
+    Returns:
+        Per field name: the reason, and the file and line of the marker.
+    """
+    found: dict[str, tuple[str, str, int]] = {}
+    for cls in model.__mro__:
+        if not cls.__module__.startswith("ycli."):
+            continue
+        path = inspect.getsourcefile(cls) or ""
+        lines = Path(path).read_text(encoding="utf-8").splitlines()
+        for explained_line, marker in violation_markers("\n".join(lines), MARKER_RULE).items():
+            declared = re.match(r"\s+(\w+)\s*:", lines[explained_line - 1])
+            if declared is None or declared[1] not in cls.__annotations__:
+                continue
+            first = lines[marker - 1].split("): ", 1)[1]
+            rest = [line.strip().lstrip("# ") for line in lines[marker : explained_line - 1]]
+            found.setdefault(declared[1], (" ".join([first, *rest]), path, marker))
+    return found
+
+
+@cache
+def violation_marks() -> dict[tuple[str, str, str, str], tuple[str, str, int]]:
+    """Every body field marked ``# violation(api-drift)``, as ``(service, method, path, name)``.
+
+    The value is the marker's reason, file and line.
+    """
+    marked = {}
+    for found in recorded():
+        service = found.case.operation.split(".")[0]
+        published = published_for(
+            api_surface.load(service), found.endpoint.method, "/" + found.endpoint.path.strip("/")
+        )
+        if published is None:
+            continue
+        for model in _models(typed_body(found)):
+            for name, mark in marked_fields(model).items():
+                marked[service, *published.key, name] = mark
+    return marked
+
+
 @cache
 def explained() -> Mapping[tuple[str, str, str, str, str], str]:
-    """``EXPLAINED``, plus the ``IGNORED`` reason for every body field that carries the mark.
+    """``EXPLAINED``, plus the reason of every body field that carries a mark of its own.
 
-    A marked field the published schema lists (``IGNORED_THOUGH_PUBLISHED``) makes no difference,
-    so it explains none; any other mark must match one, or the comparison calls it stale.
+    An ``IGNORED_BY_API`` description gives the ``IGNORED`` reason, a
+    ``# violation(api-drift)`` marker its own text. A marked field the published schema lists
+    (``IGNORED_THOUGH_PUBLISHED``) makes no difference, so it explains none; any other mark must
+    match one, or the comparison calls it stale.
     """
-    marked = {
+    ignored = {
         (service, method, path, "unknown_request", name): IGNORED
         for service, method, path, name in ignored_marks() - IGNORED_THOUGH_PUBLISHED
     }
-    return {**marked, **EXPLAINED}
+    departures = {
+        (service, method, path, "unknown_request", name): reason
+        for (service, method, path, name), (reason, _, _) in violation_marks().items()
+    }
+    return {**ignored, **departures, **EXPLAINED}
 
 
 def _unique(found: list[Call]) -> list[Call]:

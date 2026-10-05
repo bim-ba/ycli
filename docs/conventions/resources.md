@@ -417,7 +417,8 @@ Code that departs from a rule on purpose says so where it does, in one line:
 def logs_get(...) -> ItemList[AutoactionRunEntry]:
 ```
 
-The form is `# violation(<rule>): <reason>`; the rule is one of this page (`naming`, `as-given`, `value-set`) or
+The form is `# violation(<rule>): <reason>`; the rule is one of this page (`naming`, `as-given`, `value-set`), `api-drift` (a body field that
+differs from the published API for a reason of ycli's own, read by `scripts/api_drift.py`) or
 an invariant (`arch-9`). The marker is a comment line of its own, right above the line where the
 departure starts: the `raise`, the `Endpoint(...)`, the `def` of the method. A reviewer who meets
 the code sees that the departure was chosen, and a search for `violation(` lists every one.
