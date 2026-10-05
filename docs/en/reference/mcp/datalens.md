@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-26 tools.
+29 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -318,3 +318,42 @@ Give or take away roles on a workbook; the roles not named stay as they are.
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
 | `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+
+## `datalens_entrylocks_create`
+
+*Lock a DataLens entry* · write
+
+Lock an entry (a dataset, a chart, a dashboard) for editing.
+
+The reply holds the token of the lock and nothing else: keep it, extending and releasing
+the lock take it. An entry that is already locked answers 423 with who holds the lock
+and until when.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `data` | object | yes | How long to hold the lock, in milliseconds. |
+
+## `datalens_entrylocks_extend`
+
+*Extend the lock of a DataLens entry* · idempotent write
+
+Hold a lock longer; the reply says when it expires now.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `data` | object | yes | The token of the lock and its new terms. |
+
+## `datalens_entrylocks_delete`
+
+*Release the lock of a DataLens entry* · destructive write
+
+Release a lock; with ``force`` it releases a lock another editor holds.
+
+An entry that is not locked answers 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `params` | object | yes | The token of the lock, or `force` for another's lock. |

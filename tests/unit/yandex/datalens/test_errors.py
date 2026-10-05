@@ -87,6 +87,14 @@ async def test_an_agent_is_told_the_field_datalens_refused(api):
             '"Unknown field Region"}}',
             "ERR.DS_API.FIELD.NOT_FOUND: Unknown field Region",
         ),
+        # Measured (423): an entry locked by another; the details say by whom and until when.
+        (
+            '{"status": 423, "code": "ERR.US.ENTRY_IS_LOCKED", "message": "The entry is locked", '
+            '"details": {"title": "ERR.US.ENTRY_IS_LOCKED", "description": "The entry is '
+            'locked", "loginOrId": "user-1", "expiryDate": "2026-10-05T23:07:26.920Z"}}',
+            "ERR.US.ENTRY_IS_LOCKED: The entry is locked (loginOrId: user-1; expiryDate: "
+            "2026-10-05T23:07:26.920Z)",
+        ),
         # Details of another shape, or items that name nothing, add nothing.
         ('{"code": "X", "message": "Bad", "details": {"details": "text"}}', "X: Bad"),
         ('{"code": "X", "message": "Bad", "details": {"details": [{"path": []}, 5]}}', "X: Bad"),
