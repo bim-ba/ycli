@@ -9,6 +9,72 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.74.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.73.0
+  ([`1d2ff22`](https://github.com/bim-ba/ycli/commit/1d2ff22a5a36e45592100f41b20da41043649add))
+
+### Features
+
+- Ycli sends what the caller gave and nothing of its own
+  ([#296](https://github.com/bim-ba/ycli/pull/296),
+  [`494fc4c`](https://github.com/bim-ba/ycli/commit/494fc4c6f6400ac06c7ce92495fae459fb60daa2))
+
+### Testing
+
+- A refusal says why where it is, not in a list ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`3d44b4f`](https://github.com/bim-ba/ycli/commit/3d44b4f62dc7a7066520c73aa6725b6cb580da51))
+
+- An effect that differs from the method says why above the endpoint
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`7593dd2`](https://github.com/bim-ba/ycli/commit/7593dd25c114b839391e17e4723a4c8cfbfceb16))
+
+- An operation served by one surface says why above its method
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`10e20b5`](https://github.com/bim-ba/ycli/commit/10e20b5846fa862ff73e2eb29feb89985c92fee6))
+
+- The architecture checks are a package, a module per invariant
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`6f5b851`](https://github.com/bim-ba/ycli/commit/6f5b8517e69c68c1cdd5a58ef4476e702136f020))
+
+### Breaking Changes
+
+- Options that ycli used to fill are required: `tracker statuses create --type`, `tracker
+  remotelinks create --relationship`, `tracker worklog create --start`, `tracker entities
+  reports-create --type` (a new option) and `--field`, `tracker workflows create --step`, `wiki
+  uploadsessions parts-upload --part-number`, `wiki grids rows move --row-id`, `wiki grids columns
+  move --column-slug --position`.
+
+- Options that go together: `--deadline` needs `--deadline-type` (a new option; checklist items),
+  `--option` needs `--options-type` (Tracker fields and local fields); `wiki pages append` needs
+  `--location`; every column of `wiki grids columns create` needs `slug` and `required`.
+
+- Defaults of ycli's own are no longer sent, the API's apply: Wiki search `cursor`, `limit`,
+  `order_by`, `highlight`, `show_obsolete`; `with_data` of a grid clone; `subscribe_me` of a page
+  clone; `fallback` and `regex` of an append anchor; `format` and `upload` of a Forms export;
+  `format` and `orderAsc` of a Tracker report and of an entity search; `backlink=false` of a remote
+  link; `copy_inherited_access=false` of a page move; `page: 1` of `forms questions move
+  --position`; `fields=content` of `wiki pages get-by-id` on the command line.
+
+- Booleans are three-valued. 38 options send `false` for `--no-x` (36 had no such form); 23 tool
+  parameters and the SDK arguments behind them are `bool | None = None`. `backlink` of a remote link
+  is a boolean on every surface (it was the string "true" in the SDK and the tool).
+
+- The input schema of 37 MCP tools changes: 20 in their own parameters, 17 inside `body`
+  (`tracker_worklog_create`, the five checklist tools, `tracker_entities_reports_create`,
+  `wiki_grids_columns_create`, `wiki_grids_columns_move`, `wiki_grids_rows_move`,
+  `wiki_grids_cells_update` among them).
+
+- SDK: `ycli.yandex.core.endpoint.flag` is removed; an empty string is sent as given;
+  `subscriptions.create` / `update` no longer cut `id` from the body. Body models:
+  `RemoteLinkCreate.relationship`, `WorklogCreate.start`, `ReportParameters.type`,
+  `DeadlineInput.deadline_type`, `NewColumnSchema.slug` / `.required`, `RowsMove.row_id`,
+  `ColumnsMove.column_slug` / `.position` and `UpdateCellSchema.value` are required; `revision` is
+  optional in eight Wiki grid bodies; the fields that carried a default are `None` unless given.
+
+
 ## v0.73.0 (2026-10-05)
 
 ### Build System
