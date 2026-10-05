@@ -282,7 +282,7 @@ SUBSCRIPTION = "ycli.yandex.forms.subscriptions.models:Subscription"
 body: Annotated[Subscription, OverBudget(SUBSCRIPTION, "The integration; ``type`` selects its schema.")]
 ```
 
-The listing then shows the parameter as a free-form object whose description names the definition to read, and the `schema_get(service, name)` tool serves that definition and each one it refers to, one per call. The value is still validated by the model: the tool receives a typed body, and a call with a wrong field is refused with the field's path. The address is `module:name` of the model or of the named union; `schema_get` keeps no map of its own and reads the addresses from the listing. The SDK and the CLI do not change. `test_every_tool_lists_a_schema_within_the_budget` names the tool and the parameter to mark; a mark that is no longer needed is not checked for.
+The listing then shows the parameter as a free-form object whose description names the definition to read, and the `schema_get(service, name)` tool serves that definition and each one it refers to, one per call. The value is still validated by the model: the tool receives a typed body, and a call with a wrong field is refused with the field's path. The address is `module:name` of the model or of the named union; `schema_get` keeps no map of its own and reads the addresses from the listing. Within a service a name means one definition: two bodies may share one, and two different definitions under one name stop the index (`test_one_name_is_one_definition_within_a_service`). The SDK and the CLI do not change. `test_every_tool_lists_a_schema_within_the_budget` names the tool and the parameter to mark; a mark that is no longer needed is not checked for.
 
 ### `Ack` for bodyless write responses
 

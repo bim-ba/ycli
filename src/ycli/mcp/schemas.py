@@ -40,7 +40,19 @@ class SchemaDefinition(APIModel):
 def definitions(tools: Sequence[Tool]) -> dict[str, dict[str, dict[str, Any]]]:
     """Every definition the over-budget parameters of ``tools`` name: service → name → schema.
 
-    A tool's service is the namespace it is mounted under, the first word of its name.
+    A tool's service is the namespace it is mounted under, the first word of its name. Within
+    a service a name means one definition: two bodies may share a definition, and two
+    different ones under one name stop the index, since an agent asking for the name would
+    be handed the wrong schema.
+
+    Args:
+        tools: The tools a server lists.
+
+    Returns:
+        The definitions by service and name; empty when no parameter is marked.
+
+    Raises:
+        ValueError: Two definitions of one service have the same name and differ.
     """
     found: dict[str, dict[str, dict[str, Any]]] = {}
     for tool in tools:
@@ -50,8 +62,14 @@ def definitions(tools: Sequence[Tool]) -> dict[str, dict[str, dict[str, Any]]]:
                 continue
             schema = TypeAdapter(pkgutil.resolve_name(address)).json_schema()
             nested = schema.pop("$defs", {})
-            service = found.setdefault(tool.name.partition("_")[0], {})
-            service.update({address.rpartition(":")[2]: schema, **nested})
+            service = tool.name.partition("_")[0]
+            known = found.setdefault(service, {})
+            for name, definition in {address.rpartition(":")[2]: schema, **nested}.items():
+                if known.setdefault(name, definition) != definition:
+                    raise ValueError(
+                        f"two definitions named {name!r} in {service} differ; "
+                        f"the second comes with {address} ({tool.name})"
+                    )
     return found
 
 

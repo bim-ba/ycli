@@ -1,19 +1,22 @@
 """`schema_get` and the budget of a tool's input schema (#365)."""
 
+import asyncio
 import json
-from typing import Annotated
+import pkgutil
+from typing import Annotated, Any, get_args, get_type_hints
 
 import pytest
 from fastmcp import Client, FastMCP
 from fastmcp.exceptions import ToolError
-from pydantic import Field
+from pydantic import Field, TypeAdapter, create_model
+from scripts import api_drift
 
 from tests.full_server import mcp as full
 from ycli.mcp.schemas import definitions, schema_server
 from ycli.mcp.selection import Selection
 from ycli.mcp.server import build_server
 from ycli.yandex.mcp import RO, SCHEMA_ADDRESS, SCHEMA_BUDGET_BYTES, OverBudget
-from ycli.yandex.models import RequestBody
+from ycli.yandex.models import APIModel, RequestBody
 
 SUBSCRIPTION = "ycli.yandex.forms.subscriptions.models:Subscription"
 
@@ -116,3 +119,63 @@ async def test_schema_get_is_annotated_as_a_read():
     (tool,) = await schema_server(full.list_tools).list_tools()
     hints = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
     assert {key: hints.get(key) for key in RO} == RO
+
+
+def _body(field: str) -> Any:
+    """A body with a nested model named ``Shared`` that holds ``field``."""
+    fields: dict[str, Any] = {field: (str | None, None)}
+    shared: Any = create_model("Shared", __base__=APIModel, **fields)
+    return create_model(f"Body{field.title()}", __base__=RequestBody, shared=(shared, None))
+
+
+BodyTitle, BodyText = _body("title"), _body("text")
+
+
+def _two_tools(first: Any, second: Any) -> FastMCP:
+    """A server whose two tools take ``first`` and ``second``, each marked over the budget."""
+    server = FastMCP("things")
+
+    @server.tool(name="things_create", annotations=RO)
+    def create(body: Annotated[first, OverBudget(f"{__name__}:{first.__name__}", "x")]) -> None:
+        """Probe."""
+
+    @server.tool(name="things_update", annotations=RO)
+    def update(body: Annotated[second, OverBudget(f"{__name__}:{second.__name__}", "x")]) -> None:
+        """Probe."""
+
+    return server
+
+
+async def test_one_name_is_one_definition_within_a_service():
+    """Both sides: two bodies may share a definition; two different ones under a name stop it."""
+    shared = definitions(await _two_tools(BodyTitle, BodyTitle).list_tools())
+    assert set(shared["things"]) == {"BodyTitle", "Shared"}
+    with pytest.raises(ValueError, match="two definitions named 'Shared' in things differ"):
+        definitions(await _two_tools(BodyTitle, BodyText).list_tools())
+
+
+def test_an_address_names_the_type_its_parameter_takes():
+    """The address is written beside the type by hand: the two must be one model."""
+    marked = {
+        tool.name: [
+            name
+            for name, parameter in tool.parameters.get("properties", {}).items()
+            if SCHEMA_ADDRESS in parameter
+        ]
+        for tool in asyncio.run(full.list_tools())
+    }
+    checked = 0
+    for case in api_drift.load_cases():
+        if case.mcp is None or not marked.get(case.mcp[0]):
+            continue
+        domain, resource, _ = case.operation.split(".")
+        function = api_drift._tool_functions(domain, resource)[case.mcp[0]]
+        for name in marked[case.mcp[0]]:
+            taken, *notes = get_args(get_type_hints(function, include_extras=True)[name])
+            (mark,) = [note for note in notes if isinstance(note, OverBudget)]
+            others = [note for note in notes if note is not mark]
+            declared: Any = Annotated[taken, *others] if others else taken
+            named = pkgutil.resolve_name(mark.address)
+            assert TypeAdapter(declared).json_schema() == TypeAdapter(named).json_schema()
+            checked += 1
+    assert checked, "no marked parameter was looked at"
