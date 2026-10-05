@@ -138,10 +138,9 @@ CASES = [
             ),
         ],
     ),
-    # The root has no id: the API takes ``null`` for it, and every filter goes in the body.
+    # No collection is the root: the API takes ``null`` for it. Every filter goes in the body.
     Case(
         "datalens.collections.content_list",
-        args=(None,),
         kwargs={
             "limit": 45,
             "filter_string": "Q",

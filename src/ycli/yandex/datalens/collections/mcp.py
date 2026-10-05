@@ -1,4 +1,4 @@
-"""DataLens collections FastMCP tools (read-only) — Depends DI, native error handling."""
+"""DataLens collections FastMCP tools (reads and writes) — Depends DI, native error handling."""
 
 from typing import Annotated
 

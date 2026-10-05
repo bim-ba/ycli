@@ -17,6 +17,7 @@ from ycli.yandex.datalens.collections.models import (
     CollectionsDeleted,
     CollectionsMoved,
     ContentItem,
+    ContentMode,
     ContentPage,
     RootPermissions,
 )
@@ -25,6 +26,7 @@ from ycli.yandex.datalens.models import (
     AccessBindingDelta,
     AccessBindingsPage,
     Operation,
+    OrderField,
     SubjectWithBindings,
 )
 from ycli.yandex.datalens.schemas.collection import (
@@ -41,7 +43,7 @@ from ycli.yandex.datalens.schemas.collection import (
     UpdateCollectionAccessBindingsArgs,
     UpdateCollectionArgs,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 
 def get(
@@ -62,10 +64,10 @@ def content_list(
     collection_id: str | None,
     *,
     filter_string: str | None,
-    order_field: str | None,
-    order_direction: str | None,
+    order_field: OrderField | None,
+    order_direction: SortDirection | None,
     only_my: bool | None,
-    mode: str | None,
+    mode: ContentMode | None,
     include_permissions_info: bool | None,
 ) -> Paged[ContentPage, ContentItem]:
     body = GetStructureItemsArgs(

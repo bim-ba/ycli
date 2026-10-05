@@ -20,9 +20,11 @@ if TYPE_CHECKING:
         CollectionDetails,
         CollectionsDeleted,
         CollectionsMoved,
+        ContentMode,
         RootPermissions,
     )
-    from ycli.yandex.datalens.models import AccessBindingDelta, Operation
+    from ycli.yandex.datalens.models import AccessBindingDelta, Operation, OrderField
+    from ycli.yandex.models import SortDirection
 
 
 class CollectionsClient(Resource):
@@ -66,14 +68,14 @@ class CollectionsClient(Resource):
 
     def content_list(
         self,
-        collection_id: str | None,
+        collection_id: str | None = None,
         *,
         limit: int | None = None,
         filter_string: str | None = None,
-        order_field: str | None = None,
-        order_direction: str | None = None,
+        order_field: OrderField | None = None,
+        order_direction: SortDirection | None = None,
         only_my: bool | None = None,
-        mode: str | None = None,
+        mode: ContentMode | None = None,
         include_permissions_info: bool | None = None,
     ) -> ItemList[ContentItem]:
         """``getCollectionContent`` → what a collection holds, draining ``nextPageToken``.
@@ -81,7 +83,7 @@ class CollectionsClient(Resource):
         Capped at ``limit`` (``None`` = every item).
 
         Args:
-            collection_id: The collection's id; ``None`` lists the root.
+            collection_id: The collection's id; the root when left out.
             limit: The most items to return; ``None`` returns every item.
             filter_string: Keep the items whose title has this text.
             order_field: What to sort by: ``title``, ``createdAt`` or ``updatedAt``.
