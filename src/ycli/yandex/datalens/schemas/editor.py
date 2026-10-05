@@ -59,12 +59,12 @@ class EditorTableNodeAnnotation(APIModel):
 
 
 class EditorTableNodeData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -77,12 +77,12 @@ class EditorGravityChartsNodeAnnotation(APIModel):
 
 
 class EditorGravityChartsNodeData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -95,11 +95,11 @@ class EditorMarkdownNodeAnnotation(APIModel):
 
 
 class EditorMarkdownNodeData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class EditorAdvancedChartNodeAnnotation(APIModel):
@@ -109,11 +109,11 @@ class EditorAdvancedChartNodeAnnotation(APIModel):
 
 
 class EditorAdvancedChartNodeData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class EditorSelectorNodeAnnotation(APIModel):
@@ -123,10 +123,10 @@ class EditorSelectorNodeAnnotation(APIModel):
 
 
 class EditorSelectorNodeData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -135,10 +135,18 @@ class EditorSelectorNodeData(APIModel):
 class GetEditorChartResultPermissions(APIModel):
     """Permissions for the chart."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class CreateEditorTableNodeEntryAnnotation(APIModel):
@@ -303,155 +311,235 @@ class UpdateEditorSelectorNodeEntryData(APIModel):
 
 class EditorTableNode(APIModel):
     version: Literal[1] = Field(..., description="Editor version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Editor chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Editor chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
     )
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: EditorTableNodeAnnotation | None = None
     type: Literal["table_node"] = Field(
         ..., description="For Table Editor charts takes value: table_node"
     )
-    data: EditorTableNodeData
+    data: EditorTableNodeData | None = None
 
 
 class EditorGravityChartsNode(APIModel):
     version: Literal[1] = Field(..., description="Editor version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Editor chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Editor chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
     )
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: EditorGravityChartsNodeAnnotation | None = None
     type: Literal["d3_node"] = Field(..., description="For Gravity UI Charts takes value: d3_node")
-    data: EditorGravityChartsNodeData
+    data: EditorGravityChartsNodeData | None = None
 
 
 class EditorMarkdownNode(APIModel):
     version: Literal[1] = Field(..., description="Editor version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Editor chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Editor chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
     )
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: EditorMarkdownNodeAnnotation | None = None
     type: Literal["markdown_node"] = Field(
         ..., description="For Markdown Editor charts takes value: markdown_node"
     )
-    data: EditorMarkdownNodeData
+    data: EditorMarkdownNodeData | None = None
 
 
 class EditorAdvancedChartNode(APIModel):
     version: Literal[1] = Field(..., description="Editor version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Editor chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Editor chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
     )
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: EditorAdvancedChartNodeAnnotation | None = None
     type: Literal["advanced-chart_node"] = Field(
         ..., description="For Advanced Editor charts takes value: advanced-chart_node"
     )
-    data: EditorAdvancedChartNodeData
+    data: EditorAdvancedChartNodeData | None = None
 
 
 class EditorSelectorNode(APIModel):
     version: Literal[1] = Field(..., description="Editor version.")
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    rev_id: str = Field(..., alias="revId", description="Version ID for the Editor chart.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    tenant_id: str = Field(..., alias="tenantId", description="Tenant ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Editor chart."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
     )
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
     annotation: EditorSelectorNodeAnnotation | None = None
     type: Literal["control_node"] = Field(
         ..., description="For Editor JS selectors takes value: control_node"
     )
-    data: EditorSelectorNodeData
+    data: EditorSelectorNodeData | None = None
 
 
 class GetEditorChartResult(APIModel):
@@ -461,7 +549,8 @@ class GetEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-    ) = Field(..., discriminator="type")
+        | None
+    ) = Field(default=None, discriminator="type")
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
@@ -477,7 +566,8 @@ class CreateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-    ) = Field(..., discriminator="type")
+        | None
+    ) = Field(default=None, discriminator="type")
 
 
 class CreateEditorTableNodeEntry(APIModel):
@@ -573,7 +663,8 @@ class UpdateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-    ) = Field(..., discriminator="type")
+        | None
+    ) = Field(default=None, discriminator="type")
 
 
 class UpdateEditorTableNodeEntry(APIModel):

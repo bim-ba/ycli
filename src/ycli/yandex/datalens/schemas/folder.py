@@ -44,10 +44,10 @@ class DeleteFolderArgs(RequestBody):
 
 
 class MoveEntryResultEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="ID of the entry.")
-    key: str = Field(..., description="Key identifier of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(..., description="Type of the entry.")
+    entry_id: str | None = Field(default=None, alias="entryId", description="ID of the entry.")
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Type of the entry.")
 
 
 class MoveEntryResult(RootModel[list[MoveEntryResultEntry]]):
@@ -106,22 +106,22 @@ class DlsPermissionPendingParticipantExtrasVariant2(APIModel):
 class DlsPermissionPendingParticipantRequesterParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class DlsPermissionPendingParticipantSubjectParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class DlsPermissionParticipantApproverParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class DlsPermissionParticipantExtrasVariant2(APIModel):
@@ -133,15 +133,15 @@ class DlsPermissionParticipantExtrasVariant2(APIModel):
 class DlsPermissionParticipantRequesterParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class DlsPermissionParticipantSubjectParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class ModifyPermissionsArgsBodyDiffAddedAclAdmItem(APIModel):
@@ -239,61 +239,79 @@ class ModifyPermissionsArgsBodyDiffModifiedAclExecuteItemNew(APIModel):
 class DlsPermissionUnitParent(APIModel):
     """Parent group information."""
 
-    link: str = Field(..., description="Link to the parent group.")
-    title: str = Field(..., description="Display title of the parent group.")
+    link: str | None = Field(default=None, description="Link to the parent group.")
+    title: str | None = Field(default=None, description="Display title of the parent group.")
 
 
 class CreateFolderResult(APIModel):
-    entry_id: str = Field(
-        ..., alias="entryId", description="Unique identifier of the created folder."
+    entry_id: str | None = Field(
+        default=None,
+        alias="entryId",
+        description="Unique identifier of the created folder.",
     )
     scope: Literal["folder"] = Field(..., description="Scope of the created entry.")
     type: Literal[""] = Field(..., description="Type of the created folder entry.")
-    key: str = Field(..., description="Key of the created folder.")
-    unversioned_data: CreateFolderResultUnversionedData = Field(..., alias="unversionedData")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the folder."
+    key: str | None = Field(default=None, description="Key of the created folder.")
+    unversioned_data: CreateFolderResultUnversionedData | None = Field(
+        default=None, alias="unversionedData"
     )
-    created_at: str = Field(
-        ..., alias="createdAt", description="Date and time when the folder was created."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the folder.",
     )
-    updated_by: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
+        alias="createdAt",
+        description="Date and time when the folder was created.",
+    )
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the folder.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the folder was last updated.",
     )
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved folder revision.")
-    rev_id: str = Field(..., alias="revId", description="ID of the current folder revision.")
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved folder revision."
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current folder revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published folder revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published folder revision.",
     )
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the folder."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the folder.",
     )
-    data: CreateFolderResultData
-    meta: CreateFolderResultMeta
-    annotation: None = Field(..., description="Annotation of the folder.")
-    hidden: bool = Field(..., description="Whether the folder is hidden.")
-    mirrored: bool = Field(..., description="Whether the folder is mirrored.")
-    public: bool = Field(..., description="Whether the folder is public.")
+    data: CreateFolderResultData | None = None
+    meta: CreateFolderResultMeta | None = None
+    annotation: None = Field(default=None, description="Annotation of the folder.")
+    hidden: bool | None = Field(default=None, description="Whether the folder is hidden.")
+    mirrored: bool | None = Field(default=None, description="Whether the folder is mirrored.")
+    public: bool | None = Field(default=None, description="Whether the folder is public.")
     workbook_id: None = Field(
-        ..., alias="workbookId", description="Workbook ID associated with the folder."
+        default=None,
+        alias="workbookId",
+        description="Workbook ID associated with the folder.",
     )
     collection_id: None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="Collection ID associated with the folder.",
     )
-    version: None = Field(..., description="Folder schema version.")
+    version: None = Field(default=None, description="Folder schema version.")
     source_version: None = Field(
-        ..., alias="sourceVersion", description="Source folder schema version."
+        default=None, alias="sourceVersion", description="Source folder schema version."
     )
-    links: None = Field(..., description="Links associated with the folder.")
+    links: None = Field(default=None, description="Links associated with the folder.")
 
 
 class CreateFolderArgs(RequestBody):
@@ -588,17 +606,20 @@ class ModifyPermissionsArgsBodyDiffModifiedAclExecuteItem(APIModel):
 
 
 class DlsPermissionPendingParticipant(APIModel):
-    approver: None = Field(..., description="Always null for pending permissions.")
-    description: str = Field(
-        ..., description="Human-readable description of the pending permission request."
+    approver: None = Field(default=None, description="Always null for pending permissions.")
+    description: str | None = Field(
+        default=None,
+        description="Human-readable description of the pending permission request.",
     )
     extras: DlsPermissionPendingParticipantExtrasVariant2 | None = Field(
-        ..., description="Additional configuration for the permission request."
+        default=None, description="Additional configuration for the permission request."
     )
-    kind: Literal["user", "group"] | str = Field(..., description="Participant kind.")
-    name: str = Field(..., description="Subject id.")
-    requester: DlsPermissionPendingParticipantRequester | None
-    subject: DlsPermissionPendingParticipantSubject
+    kind: Literal["user", "group"] | str | None = Field(
+        default=None, description="Participant kind."
+    )
+    name: str | None = Field(default=None, description="Subject id.")
+    requester: DlsPermissionPendingParticipantRequester | None = None
+    subject: DlsPermissionPendingParticipantSubject | None = None
 
 
 class DlsPermissionParticipant(APIModel):
@@ -609,10 +630,12 @@ class DlsPermissionParticipant(APIModel):
     extras: DlsPermissionParticipantExtrasVariant2 | None = Field(
         default=None, description="Additional configuration for the permission."
     )
-    kind: Literal["user", "group"] | str = Field(..., description="Participant kind.")
-    name: str = Field(..., description="Subject id.")
+    kind: Literal["user", "group"] | str | None = Field(
+        default=None, description="Participant kind."
+    )
+    name: str | None = Field(default=None, description="Subject id.")
     requester: DlsPermissionParticipantRequester | None = None
-    subject: DlsPermissionParticipantSubject
+    subject: DlsPermissionParticipantSubject | None = None
 
 
 class GetPermissionsResultPendingPermissions(APIModel):
@@ -667,13 +690,14 @@ class ModifyPermissionsArgsBodyDiffModified(APIModel):
 
 
 class GetPermissionsResult(APIModel):
-    editable: bool = Field(
-        ..., description="Whether the current user can edit permissions for this entry."
+    editable: bool | None = Field(
+        default=None,
+        description="Whether the current user can edit permissions for this entry.",
     )
-    pending_permissions: GetPermissionsResultPendingPermissions = Field(
-        ..., alias="pendingPermissions"
+    pending_permissions: GetPermissionsResultPendingPermissions | None = Field(
+        default=None, alias="pendingPermissions"
     )
-    permissions: GetPermissionsResultPermissions
+    permissions: GetPermissionsResultPermissions | None = None
 
 
 class ModifyPermissionsArgsBodyDiff(APIModel):

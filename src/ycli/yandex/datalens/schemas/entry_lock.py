@@ -8,19 +8,29 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class CreateEntryLockResult(APIModel):
-    lock_token: str = Field(
-        ..., alias="lockToken", description="Token identifying the created lock."
+    lock_token: str | None = Field(
+        default=None,
+        alias="lockToken",
+        description="Token identifying the created lock.",
     )
 
 
 class EntryLock(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="ID of the locked entry.")
-    lock_id: str = Field(..., alias="lockId", description="Unique identifier of the lock.")
-    lock_token: str = Field(..., alias="lockToken", description="Token identifying the lock.")
-    expiry_date: str = Field(
-        ..., alias="expiryDate", description="Expiration date and time of the lock."
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="ID of the locked entry."
     )
-    login: str = Field(..., description="Login of the user who owns the lock.")
+    lock_id: str | None = Field(
+        default=None, alias="lockId", description="Unique identifier of the lock."
+    )
+    lock_token: str | None = Field(
+        default=None, alias="lockToken", description="Token identifying the lock."
+    )
+    expiry_date: str | None = Field(
+        default=None,
+        alias="expiryDate",
+        description="Expiration date and time of the lock.",
+    )
+    login: str | None = Field(default=None, description="Login of the user who owns the lock.")
 
 
 class CreateEntryLockArgsData(APIModel):

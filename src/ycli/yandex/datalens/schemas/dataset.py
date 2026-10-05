@@ -2811,7 +2811,7 @@ class DatasetCreate(RequestBody):
 class DatasetRead(APIModel):
     collection_id: str | None = None
     ctime: str | None = None
-    dataset: DatasetContentInternal
+    dataset: DatasetContentInternal | None = None
     full_permissions: dict[str, bool] | None = None
     id: str | None = None
     is_favorite: bool | None = None

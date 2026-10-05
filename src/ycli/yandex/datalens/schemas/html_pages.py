@@ -38,7 +38,7 @@ class DeleteHtmlPageArgs(RequestBody):
 
 
 class GetHtmlPagePreviewUrlResult(APIModel):
-    url: str = Field(..., description="Temporary URL for previewing the HTML page.")
+    url: str | None = Field(default=None, description="Temporary URL for previewing the HTML page.")
 
 
 class GetHtmlPagePreviewUrlArgs(RequestBody):
@@ -87,10 +87,18 @@ class CreateHtmlPageResultEntryAnnotation(APIModel):
 class CreateHtmlPageResultEntryPermissions(APIModel):
     """Permissions for the HTML page."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class CreateHtmlPageArgsAnnotation(APIModel):
@@ -123,10 +131,18 @@ class GetHtmlPageResultAnnotation(APIModel):
 class GetHtmlPageResultPermissions(APIModel):
     """Permissions for the HTML page."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class UpdateHtmlPageResultEntryMeta(APIModel):
@@ -153,10 +169,18 @@ class UpdateHtmlPageResultEntryAnnotation(APIModel):
 class UpdateHtmlPageResultEntryPermissions(APIModel):
     """Permissions for the HTML page."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class UpdateHtmlPageArgsVariant1Annotation(APIModel):
@@ -179,43 +203,55 @@ class CreateHtmlPageArgs(EntryLocationIdentifiers):
 
 
 class GetHtmlPageResult(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the HTML page.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the HTML page."
+    )
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
-    key: str = Field(..., description="Key of the HTML page entry.")
+    key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
     )
-    rev_id: str = Field(..., alias="revId", description="ID of the current HTML page revision.")
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved HTML page revision.")
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current HTML page revision."
+    )
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved HTML page revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published HTML page revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published HTML page revision.",
     )
-    data: dict[str, Any] = Field(..., description="Versioned data of the HTML page entry.")
-    meta: GetHtmlPageResultMeta
-    annotation: GetHtmlPageResultAnnotation | None
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the HTML page."
+    data: dict[str, Any] | None = Field(
+        default=None, description="Versioned data of the HTML page entry."
     )
-    created_at: str = Field(
-        ...,
+    meta: GetHtmlPageResultMeta | None = None
+    annotation: GetHtmlPageResultAnnotation | None = None
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the HTML page.",
+    )
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the HTML page was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the HTML page.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the HTML page was last updated.",
     )
@@ -229,12 +265,14 @@ class GetHtmlPageResult(APIModel):
         alias="revUpdatedAt",
         description="Date and time when the current revision was last updated.",
     )
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the HTML page."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the HTML page.",
     )
-    hidden: bool = Field(..., description="Whether the HTML page is hidden.")
+    hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
     version: Literal[1] = Field(..., description="Schema version of the HTML page.")
-    public: bool = Field(..., description="Whether the HTML page is public.")
+    public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."
     )
@@ -249,43 +287,55 @@ class GetHtmlPageResult(APIModel):
 class CreateHtmlPageResultEntry(APIModel):
     """Created HTML page entry."""
 
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the HTML page.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the HTML page."
+    )
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
-    key: str = Field(..., description="Key of the HTML page entry.")
+    key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
     )
-    rev_id: str = Field(..., alias="revId", description="ID of the current HTML page revision.")
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved HTML page revision.")
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current HTML page revision."
+    )
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved HTML page revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published HTML page revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published HTML page revision.",
     )
-    data: dict[str, Any] = Field(..., description="Versioned data of the HTML page entry.")
-    meta: CreateHtmlPageResultEntryMeta
-    annotation: CreateHtmlPageResultEntryAnnotation | None
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the HTML page."
+    data: dict[str, Any] | None = Field(
+        default=None, description="Versioned data of the HTML page entry."
     )
-    created_at: str = Field(
-        ...,
+    meta: CreateHtmlPageResultEntryMeta | None = None
+    annotation: CreateHtmlPageResultEntryAnnotation | None = None
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the HTML page.",
+    )
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the HTML page was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the HTML page.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the HTML page was last updated.",
     )
@@ -299,12 +349,14 @@ class CreateHtmlPageResultEntry(APIModel):
         alias="revUpdatedAt",
         description="Date and time when the current revision was last updated.",
     )
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the HTML page."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the HTML page.",
     )
-    hidden: bool = Field(..., description="Whether the HTML page is hidden.")
+    hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
     version: Literal[1] = Field(..., description="Schema version of the HTML page.")
-    public: bool = Field(..., description="Whether the HTML page is public.")
+    public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."
     )
@@ -319,43 +371,55 @@ class CreateHtmlPageResultEntry(APIModel):
 class UpdateHtmlPageResultEntry(APIModel):
     """Updated HTML page entry."""
 
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the HTML page.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the HTML page."
+    )
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
-    key: str = Field(..., description="Key of the HTML page entry.")
+    key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: str | None = Field(
-        ...,
+        default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
     )
-    rev_id: str = Field(..., alias="revId", description="ID of the current HTML page revision.")
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved HTML page revision.")
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current HTML page revision."
+    )
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved HTML page revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published HTML page revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published HTML page revision.",
     )
-    data: dict[str, Any] = Field(..., description="Versioned data of the HTML page entry.")
-    meta: UpdateHtmlPageResultEntryMeta
-    annotation: UpdateHtmlPageResultEntryAnnotation | None
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the HTML page."
+    data: dict[str, Any] | None = Field(
+        default=None, description="Versioned data of the HTML page entry."
     )
-    created_at: str = Field(
-        ...,
+    meta: UpdateHtmlPageResultEntryMeta | None = None
+    annotation: UpdateHtmlPageResultEntryAnnotation | None = None
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the HTML page.",
+    )
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the HTML page was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the HTML page.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the HTML page was last updated.",
     )
@@ -369,12 +433,14 @@ class UpdateHtmlPageResultEntry(APIModel):
         alias="revUpdatedAt",
         description="Date and time when the current revision was last updated.",
     )
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the HTML page."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the HTML page.",
     )
-    hidden: bool = Field(..., description="Whether the HTML page is hidden.")
+    hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
     version: Literal[1] = Field(..., description="Schema version of the HTML page.")
-    public: bool = Field(..., description="Whether the HTML page is public.")
+    public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."
     )
@@ -396,16 +462,18 @@ class UpdateHtmlPageArgsVariant1(APIModel):
 
 
 class CreateHtmlPageResult(APIModel):
-    entry: CreateHtmlPageResultEntry
-    warnings: list[str] = Field(
-        ..., description="Warning codes generated while processing the HTML content."
+    entry: CreateHtmlPageResultEntry | None = None
+    warnings: list[str] | None = Field(
+        default=None,
+        description="Warning codes generated while processing the HTML content.",
     )
 
 
 class UpdateHtmlPageResult(APIModel):
-    entry: UpdateHtmlPageResultEntry
-    warnings: list[str] = Field(
-        ..., description="Warning codes generated while processing the HTML content."
+    entry: UpdateHtmlPageResultEntry | None = None
+    warnings: list[str] | None = Field(
+        default=None,
+        description="Warning codes generated while processing the HTML content.",
     )
 
 
