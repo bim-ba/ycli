@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from tests.architecture.scanners import DOMAINS, SRC, YANDEX, violation_markers
+from tests.architecture.scanners import DOMAINS, SRC, YANDEX, unexplained
 
 _ARCH9_RAISES = {"typer.BadParameter", "YandexInvalidRequestError", "ValueError", "TypeError"}
 _ARCH9_VALIDATORS = {"model_validator", "field_validator"}
@@ -66,14 +66,7 @@ def _refusals(path: str, source: str) -> list[tuple[int, str]]:
 
 def _unexplained(path: str, source: str) -> list[str]:
     """Refusals of ``source`` with no ``# violation(arch-9)`` above them, and markers above none."""
-    markers = violation_markers(source, "arch-9")
-    refusals = _refusals(path, source)
-    lines = {line for line, _ in refusals}
-    return [text for line, text in refusals if line not in markers] + [
-        f"{path}:{marker}: violation(arch-9) marks no refusal"
-        for line, marker in sorted(markers.items())
-        if line not in lines
-    ]
+    return unexplained(_refusals(path, source), source, "arch-9", path)
 
 
 def test_arch9_a_request_is_refused_only_where_it_cannot_be_built():
@@ -133,4 +126,6 @@ def test_arch9_a_marker_and_a_refusal_go_together():
     unmarked = marked.replace("violation(arch-9)", "violation(naming)")
     assert _unexplained("a/cli.py", unmarked) == ["a/cli.py:create: raises typer.BadParameter"]
     stale = marked.replace("raise typer.BadParameter('not JSON')", "return None")
-    assert _unexplained("a/cli.py", stale) == ["a/cli.py:3: violation(arch-9) marks no refusal"]
+    assert _unexplained("a/cli.py", stale) == [
+        "a/cli.py:3: violation(arch-9) marks nothing the check finds"
+    ]

@@ -47,9 +47,11 @@ def finish(session_id: str) -> Endpoint[UploadSession]:
 
 def abort(session_id: str) -> Endpoint[UploadSession]:
     path = f"upload_sessions/{segment(session_id)}/abort"
+    # violation(arch-3): POST abort discards uploaded parts
     return Endpoint("POST", path, UploadSession, effect="destructive")
 
 
 def abort_all() -> Endpoint[AbortActiveUploadsResult]:
     path = "upload_sessions/abort_active_uploads"
+    # violation(arch-3): POST abort discards every upload
     return Endpoint("POST", path, AbortActiveUploadsResult, effect="destructive")

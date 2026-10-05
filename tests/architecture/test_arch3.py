@@ -4,67 +4,55 @@ from __future__ import annotations
 
 import ast
 
-from tests.architecture.scanners import SRC, YANDEX, _mcp_tools, _probe_tools
-
-# An endpoint may state an effect other than its method implies only here, with the reason:
-# a wrong label would also make the retry policy re-send a non-idempotent request.
-ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
-    "tracker/issues/endpoints.py:search": "POST _search only reads",
-    "tracker/issues/endpoints.py:search_scroll": "POST _search only reads",
-    "tracker/issues/endpoints.py:count": "POST _count only reads",
-    "tracker/issues/endpoints.py:scroll_clear": "releasing a scroll twice is harmless",
-    "tracker/worklog/endpoints.py:search": "POST _search only reads",
-    "forms/files/endpoints.py:verify": "POST verify only reads upload statuses",
-    "tracker/entities/endpoints.py:search": "POST _search only reads",
-    "tracker/links/endpoints.py:list_filtered": "POST _list only reads",
-    "tracker/gaps/endpoints.py:search": "POST _search only reads",
-    "tracker/queues/endpoints.py:tags_delete": "POST _remove strips the tag from every issue",
-    "wiki/pages/endpoints.py:update": "POST /pages/{id} replaces fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:update": "POST /grids/{id} replaces fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:cells_update": "POST cells sets values; a resend is a no-op",
-    "wiki/grids/endpoints.py:columns_suggest": "POST columns/suggest only reads (checks a slug)",
-    "wiki/grids/endpoints.py:columns_update": "POST column/{slug} sets fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:rows_update": "POST rows/{id} sets pin and colour; resent, a no-op",
-    "wiki/pages/endpoints.py:search": "POST /search only reads",
-    "wiki/access/endpoints.py:update": "POST access sets role; a resend is a no-op",
-    "wiki/uploadsessions/endpoints.py:abort": "POST abort discards uploaded parts",
-    "wiki/uploadsessions/endpoints.py:abort_all": "POST abort discards every upload",
-    "forms/access/endpoints.py:update": "POST sets an access level: sending twice converges",
-    "forms/access/endpoints.py:grant": "POST grants access: granting twice converges",
-    "forms/access/endpoints.py:revoke": "POST revokes access: it removes a permission",
-}
+from tests.architecture.scanners import SRC, YANDEX, _mcp_tools, _probe_tools, unexplained
 
 
-def _effect_overrides(source: str, module: str) -> set[str]:
-    """``module:function`` for every endpoint in ``source`` built with an ``effect=`` keyword."""
+def _effect_overrides(source: str, module: str) -> list[tuple[int, str]]:
+    """(line, ``module:function``) for every endpoint in ``source`` built with ``effect=``."""
     found = set()
     for function in ast.walk(ast.parse(source)):
         if isinstance(function, ast.FunctionDef):
             for call in ast.walk(function):
                 if isinstance(call, ast.Call) and any(k.arg == "effect" for k in call.keywords):
-                    found.add(f"{module}:{function.name}")
-    return found
+                    found.add((call.lineno, f"{module}:{function.name}"))
+    return sorted(found)
 
 
-def test_arch3_effect_overrides_are_listed():
-    found = {
-        override
-        for path in YANDEX.rglob("endpoints.py")
-        for override in _effect_overrides(
+def _unmarked_overrides(source: str, module: str) -> list[str]:
+    """Overrides of ``source`` with no ``# violation(arch-3)`` above, and markers above none."""
+    return unexplained(_effect_overrides(source, module), source, "arch-3", module)
+
+
+def test_arch3_effect_overrides_are_marked():
+    """An endpoint states an effect other than its method implies only with the reason above it.
+
+    A wrong label would also make the retry policy re-send a non-idempotent request.
+    """
+    found = [
+        finding
+        for path in sorted(YANDEX.rglob("endpoints.py"))
+        for finding in _unmarked_overrides(
             path.read_text(encoding="utf-8"), str(path.relative_to(YANDEX))
         )
-    }
-    assert found == set(ARCH3_EFFECT_OVERRIDES), (
-        f"unlisted: {sorted(found - set(ARCH3_EFFECT_OVERRIDES))}, "
-        f"stale: {sorted(set(ARCH3_EFFECT_OVERRIDES) - found)}"
-    )
+    ]
+    assert found == []
 
 
 def test_arch3_effect_override_guard_bites():
-    source = 'def move_issue(key):\n    return Endpoint("POST", "x", effect="read")\n'
-    assert _effect_overrides(source, "tracker/issues/endpoints.py") == {
-        "tracker/issues/endpoints.py:move_issue"
-    }
+    """Prove-it, both sides: an override with no marker, and a marker above no override."""
+    module = "tracker/issues/endpoints.py"
+    marked = (
+        "def search(body):\n"
+        "    # violation(arch-3): POST _search only reads\n"
+        '    return Endpoint("POST", "x", json=body, effect="read")\n'
+    )
+    assert _unmarked_overrides(marked, module) == []
+    unmarked = marked.replace("violation(arch-3)", "violation(arch-9)")
+    assert _unmarked_overrides(unmarked, module) == [f"{module}:search"]
+    stale = marked.replace(', effect="read"', "")
+    assert _unmarked_overrides(stale, module) == [
+        f"{module}:2: violation(arch-3) marks nothing the check finds"
+    ]
 
 
 def test_arch3_write_tools_carry_write_tag():

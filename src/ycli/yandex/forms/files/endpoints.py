@@ -25,6 +25,7 @@ def upload(survey_id: str, *, filename: str, data: bytes) -> Endpoint[FileOut]:
 def verify(survey_id: str, body: ItemList[FileIn]) -> Endpoint[ItemList[FileOut]]:
     """``POST …/files/verify`` only reads the status of files already uploaded."""
     path = f"surveys/{segment(survey_id)}/files/verify"
+    # violation(arch-3): POST verify only reads upload statuses
     return Endpoint("POST", path, ItemList[FileOut], json=body, effect="read")
 
 

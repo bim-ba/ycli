@@ -30,6 +30,7 @@ def list_filtered(
     """``POST /issues/{key}/links/_list`` only reads: a page of links, filtered by the body."""
     body = {"fields": fields, "linkTypes": link_types}
     return Paged(
+        # violation(arch-3): POST _list only reads
         Endpoint(
             "POST",
             f"issues/{segment(issue_key)}/links/_list",

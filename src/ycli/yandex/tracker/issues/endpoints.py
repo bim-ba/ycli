@@ -44,6 +44,7 @@ def search(
 
     Page-number paging covers up to 10 000 results; :func:`search_scroll` reads more.
     """
+    # violation(arch-3): POST _search only reads
     endpoint = Endpoint(
         "POST",
         "issues/_search",
@@ -74,6 +75,7 @@ def search_scroll(
         "perScroll": per_scroll,
         "scrollTTLMillis": scroll_ttl_millis,
     }
+    # violation(arch-3): POST _search only reads
     endpoint = Endpoint(
         "POST", "issues/_search", ItemList[Issue], params=params, json=body, effect="read"
     )
@@ -81,6 +83,7 @@ def search_scroll(
 
 
 def count(body: IssueSearch) -> Endpoint[int]:
+    # violation(arch-3): POST _count only reads
     return Endpoint("POST", "issues/_count", int, json=body, effect="read")
 
 
@@ -139,6 +142,7 @@ def suggest(
 
 def scroll_clear(body: ScrollClear) -> Endpoint[None]:
     """``POST /system/search/scroll/_clear`` — releasing a scroll is safe to repeat."""
+    # violation(arch-3): releasing a scroll twice is harmless
     return Endpoint("POST", "system/search/scroll/_clear", json=body, effect="idempotent_write")
 
 

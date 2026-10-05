@@ -29,6 +29,7 @@ def create(body: GapsCreate) -> Endpoint[GapCreated]:
 def search(body: dict[str, Any]) -> Paged[GapSearchPage, UserGaps]:
     """``POST /gaps/_search`` only reads; pages of users, each next page from ``page=``."""
     return Paged(
+        # violation(arch-3): POST _search only reads
         Endpoint("POST", "gaps/_search", GapSearchPage, json=body, effect="read"),
         PageNumberPagination(page_size=PAGE_SIZE),
         lambda page: page.user_gaps,
