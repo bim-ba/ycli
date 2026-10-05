@@ -61,7 +61,7 @@ class GetEditorChartDataResultResultsItemSchemaItem(APIModel):
 
 
 class GetDatasetDataRequestFiltersItem(APIModel):
-    guid: str = Field(..., description="Dataset field GUID.")
+    guid: str | None = Field(default=None, description="Dataset field GUID.")
     operation: (
         Literal[
             "in",
@@ -91,7 +91,8 @@ class GetDatasetDataRequestFiltersItem(APIModel):
             "lenlte",
         ]
         | str
-    ) = Field(..., description="Filter operation.")
+        | None
+    ) = Field(default=None, description="Filter operation.")
     values: list[str | float | bool] | None = Field(
         default=None,
         description="Filter values; the required count depends on the operation.",
@@ -99,13 +100,15 @@ class GetDatasetDataRequestFiltersItem(APIModel):
 
 
 class GetDatasetDataRequestParamsItem(APIModel):
-    guid: str = Field(..., description="Dataset parameter GUID.")
-    value: str | float | bool = Field(..., description="Parameter value.")
+    guid: str | None = Field(default=None, description="Dataset parameter GUID.")
+    value: str | float | bool | None = Field(default=None, description="Parameter value.")
 
 
 class GetDatasetDataRequestSortItem(APIModel):
-    guid: str = Field(..., description="Dataset field GUID.")
-    direction: Literal["asc", "desc"] | str = Field(..., description="Sort direction.")
+    guid: str | None = Field(default=None, description="Dataset field GUID.")
+    direction: Literal["asc", "desc"] | str | None = Field(
+        default=None, description="Sort direction."
+    )
 
 
 class GetDatasetDataResponseSchemaItem(APIModel):

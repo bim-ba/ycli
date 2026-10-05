@@ -289,18 +289,18 @@ class GetWorkbookEntriesEntryPermissions(APIModel):
 class GetWorkbookEntriesArgsOrderBy(APIModel):
     """Sorting configuration."""
 
-    field: Literal["name", "scope", "createdAt", "updatedAt"] | str = Field(
-        ..., description="Field to order workbook entries by."
+    field: Literal["name", "scope", "createdAt", "updatedAt"] | str | None = Field(
+        default=None, description="Field to order workbook entries by."
     )
-    direction: Literal["asc", "desc"] | str = Field(
-        ..., description="Workbook entry sorting direction."
+    direction: Literal["asc", "desc"] | str | None = Field(
+        default=None, description="Workbook entry sorting direction."
     )
 
 
 class GetWorkbookEntriesArgsFilters(APIModel):
     """Filtering configuration."""
 
-    name: str = Field(..., description="Filter entries by name.")
+    name: str | None = Field(default=None, description="Filter entries by name.")
 
 
 class CreateWorkbookResult(APIModel):

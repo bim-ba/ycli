@@ -31,7 +31,7 @@ class GetSqlQueryArgs(RequestBody):
 
 
 class Param(APIModel):
-    name: str
+    name: str | None = None
 
 
 class DeleteSqlQueryArgs(RequestBody):
@@ -40,10 +40,6 @@ class DeleteSqlQueryArgs(RequestBody):
 
 class DeleteSqlQueryResponse(APIModel):
     pass
-
-
-class ParamModel(APIModel):
-    name: str | None = None
 
 
 class SqlQueryDataParamsItemVariant1DefaultValue(APIModel):
@@ -101,12 +97,14 @@ class GetSqlQueryResultPermissions(APIModel):
 class CreateSqlQueryArgsParamsItemVariant1DefaultValue(APIModel):
     """Default value of the parameter."""
 
-    from_: str = Field(..., alias="from", description="Start of the interval.")
-    to: str = Field(..., description="End of the interval.")
+    from_: str | None = Field(default=None, alias="from", description="Start of the interval.")
+    to: str | None = Field(default=None, description="End of the interval.")
 
 
 class CreateSqlQueryArgsParamsItemVariant2(APIModel):
-    type: Literal["date"] | Literal["datetime"] = Field(..., description="Type of the parameter.")
+    type: Literal["date"] | Literal["datetime"] | None = Field(
+        default=None, description="Type of the parameter."
+    )
     default_value: str | None = Field(
         default=None,
         alias="defaultValue",
@@ -115,8 +113,8 @@ class CreateSqlQueryArgsParamsItemVariant2(APIModel):
 
 
 class CreateSqlQueryArgsParamsItemVariant3(APIModel):
-    type: Literal["string"] | Literal["number"] | Literal["boolean"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: str | float | bool | None = Field(
         default=None,
@@ -128,12 +126,14 @@ class CreateSqlQueryArgsParamsItemVariant3(APIModel):
 class UpdateSqlQueryArgsParamsItemVariant1DefaultValue(APIModel):
     """Default value of the parameter."""
 
-    from_: str = Field(..., alias="from", description="Start of the interval.")
-    to: str = Field(..., description="End of the interval.")
+    from_: str | None = Field(default=None, alias="from", description="Start of the interval.")
+    to: str | None = Field(default=None, description="End of the interval.")
 
 
 class UpdateSqlQueryArgsParamsItemVariant2(APIModel):
-    type: Literal["date"] | Literal["datetime"] = Field(..., description="Type of the parameter.")
+    type: Literal["date"] | Literal["datetime"] | None = Field(
+        default=None, description="Type of the parameter."
+    )
     default_value: str | None = Field(
         default=None,
         alias="defaultValue",
@@ -142,8 +142,8 @@ class UpdateSqlQueryArgsParamsItemVariant2(APIModel):
 
 
 class UpdateSqlQueryArgsParamsItemVariant3(APIModel):
-    type: Literal["string"] | Literal["number"] | Literal["boolean"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: str | float | bool | None = Field(
         default=None,
@@ -168,23 +168,23 @@ class RunSqlQueryResultResultsItemVariant2(APIModel):
 
 
 class RunSqlQueryArgsParamsValueVariant5(APIModel):
-    from_: str = Field(..., alias="from", description="Start of the interval.")
-    to: str = Field(..., description="End of the interval.")
+    from_: str | None = Field(default=None, alias="from", description="Start of the interval.")
+    to: str | None = Field(default=None, description="End of the interval.")
 
 
-class ParamModel1(CreateSqlQueryArgsParamsItemVariant2, Param):
+class ParamModel(CreateSqlQueryArgsParamsItemVariant2, Param):
     pass
 
 
-class ParamModel2(CreateSqlQueryArgsParamsItemVariant3, Param):
+class ParamModel1(CreateSqlQueryArgsParamsItemVariant3, Param):
     pass
 
 
-class ParamModel3(UpdateSqlQueryArgsParamsItemVariant2, Param):
+class ParamModel2(UpdateSqlQueryArgsParamsItemVariant2, Param):
     pass
 
 
-class ParamModel4(UpdateSqlQueryArgsParamsItemVariant3, Param):
+class ParamModel3(UpdateSqlQueryArgsParamsItemVariant3, Param):
     pass
 
 
@@ -202,11 +202,11 @@ class RunSqlQueryArgs(RequestBody):
     )
 
 
-class ParamModel5(SqlQueryDataParamsItemVariant2, ParamModel):
+class ParamModel4(SqlQueryDataParamsItemVariant2, Param):
     pass
 
 
-class ParamModel6(SqlQueryDataParamsItemVariant3, ParamModel):
+class ParamModel5(SqlQueryDataParamsItemVariant3, Param):
     pass
 
 
@@ -220,8 +220,8 @@ class SqlQueryDataParamsItemVariant1(APIModel):
 
 
 class CreateSqlQueryArgsParamsItemVariant1(APIModel):
-    type: Literal["date-interval"] | Literal["datetime-interval"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: CreateSqlQueryArgsParamsItemVariant1DefaultValue | None = Field(
         default=None, alias="defaultValue"
@@ -229,8 +229,8 @@ class CreateSqlQueryArgsParamsItemVariant1(APIModel):
 
 
 class UpdateSqlQueryArgsParamsItemVariant1(APIModel):
-    type: Literal["date-interval"] | Literal["datetime-interval"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: UpdateSqlQueryArgsParamsItemVariant1DefaultValue | None = Field(
         default=None, alias="defaultValue"
@@ -254,12 +254,12 @@ class RunSqlQueryResultResultsItemVariant1(APIModel):
     )
 
 
-class ParamModel7(CreateSqlQueryArgsParamsItemVariant1, Param):
+class ParamModel6(CreateSqlQueryArgsParamsItemVariant1, Param):
     pass
 
 
-class ParamModel8(RootModel[ParamModel7 | ParamModel1 | ParamModel2]):
-    root: ParamModel7 | ParamModel1 | ParamModel2
+class ParamModel7(RootModel[ParamModel6 | ParamModel | ParamModel1]):
+    root: ParamModel6 | ParamModel | ParamModel1
 
 
 class CreateSqlQueryArgs(RequestBody):
@@ -276,17 +276,17 @@ class CreateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel8] | None = Field(
+    params: list[ParamModel7] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 
 
-class ParamModel9(UpdateSqlQueryArgsParamsItemVariant1, Param):
+class ParamModel8(UpdateSqlQueryArgsParamsItemVariant1, Param):
     pass
 
 
-class ParamModel10(RootModel[ParamModel9 | ParamModel3 | ParamModel4]):
-    root: ParamModel9 | ParamModel3 | ParamModel4
+class ParamModel9(RootModel[ParamModel8 | ParamModel2 | ParamModel3]):
+    root: ParamModel8 | ParamModel2 | ParamModel3
 
 
 class UpdateSqlQueryArgs(RequestBody):
@@ -298,7 +298,7 @@ class UpdateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel10] | None = Field(
+    params: list[ParamModel9] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 
@@ -343,12 +343,12 @@ class RunSqlQueryResult(APIModel):
     )
 
 
-class ParamModel11(SqlQueryDataParamsItemVariant1, ParamModel):
+class ParamModel10(SqlQueryDataParamsItemVariant1, Param):
     pass
 
 
-class ParamModel12(RootModel[ParamModel11 | ParamModel5 | ParamModel6]):
-    root: ParamModel11 | ParamModel5 | ParamModel6
+class ParamModel11(RootModel[ParamModel10 | ParamModel4 | ParamModel5]):
+    root: ParamModel10 | ParamModel4 | ParamModel5
 
 
 class SqlQueryData(APIModel):
@@ -363,7 +363,7 @@ class SqlQueryData(APIModel):
         alias="statementPositions",
         description="Start and end indexes of the query statements.",
     )
-    params: list[ParamModel12] | None = Field(
+    params: list[ParamModel11] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 

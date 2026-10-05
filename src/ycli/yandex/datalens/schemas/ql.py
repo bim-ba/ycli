@@ -87,4 +87,4 @@ class UpdateQLChartArgs(APIModel):
 class CreateQLChartArgs(EntryLocationIdentifiers):
     template: Literal["ql"]
     annotation: shared.EntryAnnotationArg | None = None
-    data: CreateQLChartArgsData
+    data: CreateQLChartArgsData | None = None

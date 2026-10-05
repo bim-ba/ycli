@@ -56,9 +56,13 @@ class DashColorByThemeV2(APIModel):
 class DashControlSourceDatasetV2(APIModel):
     """Dataset control source."""
 
-    dataset_id: str = Field(..., alias="datasetId", description="Source dataset identifier.")
-    dataset_field_id: str = Field(
-        ..., alias="datasetFieldId", description="Source dataset field identifier."
+    dataset_id: str | None = Field(
+        default=None, alias="datasetId", description="Source dataset identifier."
+    )
+    dataset_field_id: str | None = Field(
+        default=None,
+        alias="datasetFieldId",
+        description="Source dataset field identifier.",
     )
     field_type: (
         Literal[
@@ -94,21 +98,23 @@ class DashControlSourceDatasetV2(APIModel):
 class DashControlSourceExternalV2(APIModel):
     """External control source."""
 
-    chart_id: str = Field(..., alias="chartId", description="Source chart identifier.")
+    chart_id: str | None = Field(
+        default=None, alias="chartId", description="Source chart identifier."
+    )
 
 
 class DashLayoutItemV2(APIModel):
-    i: str = Field(..., description="Dashboard item identifier.")
-    h: float = Field(..., description="Item height in grid units.")
-    w: float = Field(..., description="Item width in grid units.")
-    x: float = Field(..., description="Horizontal grid position.")
-    y: float = Field(..., description="Vertical grid position.")
+    i: str | None = Field(default=None, description="Dashboard item identifier.")
+    h: float | None = Field(default=None, description="Item height in grid units.")
+    w: float | None = Field(default=None, description="Item width in grid units.")
+    x: float | None = Field(default=None, description="Horizontal grid position.")
+    y: float | None = Field(default=None, description="Vertical grid position.")
     parent: str | None = Field(default=None, description="Parent item identifier.")
 
 
 class DashConnectionV2(APIModel):
-    from_: str = Field(..., alias="from", description="Source widget identifier.")
-    to: str = Field(..., description="Target widget identifier.")
+    from_: str | None = Field(default=None, alias="from", description="Source widget identifier.")
+    to: str | None = Field(default=None, description="Target widget identifier.")
     kind: Literal["ignore"] = Field(..., description="Connection type.")
 
 
@@ -134,7 +140,7 @@ class EntryBranch(RootModel[Literal["saved", "published"] | str]):
 
 
 class EntryAnnotationArg(APIModel):
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class EntryLocationIdentifiers(APIModel):
@@ -503,23 +509,27 @@ class DashControlElementV2Variant4(APIModel):
     element_type: Literal["checkbox"] = Field(
         ..., alias="elementType", description="Checkbox control type."
     )
-    default_value: str = Field(..., alias="defaultValue", description="Default checkbox value.")
+    default_value: str | None = Field(
+        default=None, alias="defaultValue", description="Default checkbox value."
+    )
 
 
 class DashControlSourceManualV2AcceptableValuesVariant1Item(APIModel):
-    value: str = Field(..., description="Allowed control value.")
-    title: str = Field(..., description="Label for the allowed value.")
+    value: str | None = Field(default=None, description="Allowed control value.")
+    title: str | None = Field(default=None, description="Label for the allowed value.")
 
 
 class DashControlSourceManualV2AcceptableValuesVariant2(APIModel):
-    from_: str = Field(..., alias="from", description="Start of the allowed value range.")
-    to: str = Field(..., description="End of the allowed value range.")
+    from_: str | None = Field(
+        default=None, alias="from", description="Start of the allowed value range."
+    )
+    to: str | None = Field(default=None, description="End of the allowed value range.")
 
 
 class USAccessBindingDeltaAccessBindingSubject(APIModel):
     """Subject to which the role is assigned."""
 
-    id: str = Field(..., description="Unique identifier of the subject.")
+    id: str | None = Field(default=None, description="Unique identifier of the subject.")
     type: (
         Literal[
             "system",
@@ -530,7 +540,8 @@ class USAccessBindingDeltaAccessBindingSubject(APIModel):
             "invitee",
         ]
         | str
-    ) = Field(..., description="Type of the subject.")
+        | None
+    ) = Field(default=None, description="Type of the subject.")
 
 
 class AccessBindingInheritedFrom(APIModel):
@@ -664,8 +675,10 @@ class DashControlSourceDatasetV2Model4(
 class DashControlSourceManualV2(APIModel):
     """Manual control source."""
 
-    field_name: str = Field(
-        ..., alias="fieldName", description="Parameter name for the manual control."
+    field_name: str | None = Field(
+        default=None,
+        alias="fieldName",
+        description="Parameter name for the manual control.",
     )
     acceptable_values: (
         list[DashControlSourceManualV2AcceptableValuesVariant1Item]
@@ -781,12 +794,18 @@ class LakehouseOperation(APIModel):
 class USAccessBindingDeltaAccessBinding(APIModel):
     """Access binding to add or remove."""
 
-    role_id: str = Field(..., alias="roleId", description="ID of the role assigned to the subject.")
-    subject: USAccessBindingDeltaAccessBindingSubject
+    role_id: str | None = Field(
+        default=None,
+        alias="roleId",
+        description="ID of the role assigned to the subject.",
+    )
+    subject: USAccessBindingDeltaAccessBindingSubject | None = None
 
 
 class USAccessBindingDelta(APIModel):
-    action: Literal["ADD", "REMOVE"] | str = Field(
-        ..., description="Action to perform on the access binding."
+    action: Literal["ADD", "REMOVE"] | str | None = Field(
+        default=None, description="Action to perform on the access binding."
     )
-    access_binding: USAccessBindingDeltaAccessBinding = Field(..., alias="accessBinding")
+    access_binding: USAccessBindingDeltaAccessBinding | None = Field(
+        default=None, alias="accessBinding"
+    )

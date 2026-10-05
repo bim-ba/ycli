@@ -90,14 +90,18 @@ class CreateRestCatalogArgsBucketSettings(APIModel):
     """Settings of the REST catalog bucket."""
 
     storage_class: (
-        Literal["STANDARD", "COLD", "STANDARD_IA", "NEARLINE", "ICE", "GLACIER"] | str
-    ) = Field(..., alias="storageClass", description="Storage class of the REST catalog bucket.")
-    max_size: str = Field(
-        ...,
+        Literal["STANDARD", "COLD", "STANDARD_IA", "NEARLINE", "ICE", "GLACIER"] | str | None
+    ) = Field(
+        default=None, alias="storageClass", description="Storage class of the REST catalog bucket."
+    )
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum size of the REST catalog bucket in bytes.",
     )
-    alias: str = Field(..., description="Human-readable alias of the REST catalog bucket.")
+    alias: str | None = Field(
+        default=None, description="Human-readable alias of the REST catalog bucket."
+    )
     description: str | None = Field(
         default=None, description="Description of the REST catalog bucket."
     )

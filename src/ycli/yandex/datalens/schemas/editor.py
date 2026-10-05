@@ -152,16 +152,16 @@ class GetEditorChartResultPermissions(APIModel):
 class CreateEditorTableNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class CreateEditorTableNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -170,16 +170,16 @@ class CreateEditorTableNodeEntryData(APIModel):
 class CreateEditorGravityChartsNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class CreateEditorGravityChartsNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -188,42 +188,42 @@ class CreateEditorGravityChartsNodeEntryData(APIModel):
 class CreateEditorMarkdownNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class CreateEditorMarkdownNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class CreateEditorAdvancedChartNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class CreateEditorAdvancedChartNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class CreateEditorSelectorNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class CreateEditorSelectorNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -232,16 +232,16 @@ class CreateEditorSelectorNodeEntryData(APIModel):
 class UpdateEditorTableNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateEditorTableNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -250,16 +250,16 @@ class UpdateEditorTableNodeEntryData(APIModel):
 class UpdateEditorGravityChartsNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateEditorGravityChartsNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
-    config: str = Field(..., description="Configuration from the Config tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
+    config: str | None = Field(default=None, description="Configuration from the Config tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -268,42 +268,42 @@ class UpdateEditorGravityChartsNodeEntryData(APIModel):
 class UpdateEditorMarkdownNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateEditorMarkdownNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class UpdateEditorAdvancedChartNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateEditorAdvancedChartNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
-    prepare: str = Field(..., description="Configuration from the Prepare tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
+    prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
 class UpdateEditorSelectorNodeEntryAnnotation(APIModel):
     """Annotation information."""
 
-    description: str = Field(..., description="Description of the entry.")
+    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class UpdateEditorSelectorNodeEntryData(APIModel):
-    meta: str = Field(..., description="Configuration from the Meta tab.")
-    params: str = Field(..., description="Configuration from the Params tab.")
-    sources: str = Field(..., description="Configuration from the Sources tab.")
-    controls: str = Field(..., description="Configuration from the Controls tab.")
+    meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
+    params: str | None = Field(default=None, description="Configuration from the Params tab.")
+    sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
+    controls: str | None = Field(default=None, description="Configuration from the Controls tab.")
     activities: str | None = Field(
         default=None, description="Configuration from the Activities tab."
     )
@@ -579,7 +579,7 @@ class CreateEditorTableNodeEntry(APIModel):
     type: Literal["table_node"] = Field(
         ..., description="For Table Editor charts takes value: table_node"
     )
-    data: CreateEditorTableNodeEntryData
+    data: CreateEditorTableNodeEntryData | None = None
 
 
 class CreateEditorGravityChartsNodeEntry(APIModel):
@@ -589,7 +589,7 @@ class CreateEditorGravityChartsNodeEntry(APIModel):
     links: dict[str, str] | None = Field(default=None, description="Link information.")
     annotation: CreateEditorGravityChartsNodeEntryAnnotation | None = None
     type: Literal["d3_node"] = Field(..., description="For Gravity UI Charts takes value: d3_node")
-    data: CreateEditorGravityChartsNodeEntryData
+    data: CreateEditorGravityChartsNodeEntryData | None = None
 
 
 class CreateEditorMarkdownNodeEntry(APIModel):
@@ -601,7 +601,7 @@ class CreateEditorMarkdownNodeEntry(APIModel):
     type: Literal["markdown_node"] = Field(
         ..., description="For Markdown Editor charts takes value: markdown_node"
     )
-    data: CreateEditorMarkdownNodeEntryData
+    data: CreateEditorMarkdownNodeEntryData | None = None
 
 
 class CreateEditorAdvancedChartNodeEntry(APIModel):
@@ -613,7 +613,7 @@ class CreateEditorAdvancedChartNodeEntry(APIModel):
     type: Literal["advanced-chart_node"] = Field(
         ..., description="For Advanced Editor charts takes value: advanced-chart_node"
     )
-    data: CreateEditorAdvancedChartNodeEntryData
+    data: CreateEditorAdvancedChartNodeEntryData | None = None
 
 
 class CreateEditorSelectorNodeEntry(APIModel):
@@ -625,7 +625,7 @@ class CreateEditorSelectorNodeEntry(APIModel):
     type: Literal["control_node"] = Field(
         ..., description="For Editor JS selectors takes value: control_node"
     )
-    data: CreateEditorSelectorNodeEntryData
+    data: CreateEditorSelectorNodeEntryData | None = None
 
 
 class Entry(CreateEditorTableNodeEntry, EntryLocationIdentifiers):
@@ -668,7 +668,9 @@ class UpdateEditorChartResult(APIModel):
 
 
 class UpdateEditorTableNodeEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
     rev_id: str | None = Field(
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
@@ -680,11 +682,13 @@ class UpdateEditorTableNodeEntry(APIModel):
     type: Literal["table_node"] = Field(
         ..., description="For Table Editor charts takes value: table_node"
     )
-    data: UpdateEditorTableNodeEntryData
+    data: UpdateEditorTableNodeEntryData | None = None
 
 
 class UpdateEditorGravityChartsNodeEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
     rev_id: str | None = Field(
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
@@ -694,11 +698,13 @@ class UpdateEditorGravityChartsNodeEntry(APIModel):
     links: dict[str, str] | None = Field(default=None, description="Link information.")
     annotation: UpdateEditorGravityChartsNodeEntryAnnotation | None = None
     type: Literal["d3_node"] = Field(..., description="For Gravity UI Charts takes value: d3_node")
-    data: UpdateEditorGravityChartsNodeEntryData
+    data: UpdateEditorGravityChartsNodeEntryData | None = None
 
 
 class UpdateEditorMarkdownNodeEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
     rev_id: str | None = Field(
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
@@ -710,11 +716,13 @@ class UpdateEditorMarkdownNodeEntry(APIModel):
     type: Literal["markdown_node"] = Field(
         ..., description="For Markdown Editor charts takes value: markdown_node"
     )
-    data: UpdateEditorMarkdownNodeEntryData
+    data: UpdateEditorMarkdownNodeEntryData | None = None
 
 
 class UpdateEditorAdvancedChartNodeEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
     rev_id: str | None = Field(
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
@@ -726,11 +734,13 @@ class UpdateEditorAdvancedChartNodeEntry(APIModel):
     type: Literal["advanced-chart_node"] = Field(
         ..., description="For Advanced Editor charts takes value: advanced-chart_node"
     )
-    data: UpdateEditorAdvancedChartNodeEntryData
+    data: UpdateEditorAdvancedChartNodeEntryData | None = None
 
 
 class UpdateEditorSelectorNodeEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
     rev_id: str | None = Field(
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
@@ -742,7 +752,7 @@ class UpdateEditorSelectorNodeEntry(APIModel):
     type: Literal["control_node"] = Field(
         ..., description="For Editor JS selectors takes value: control_node"
     )
-    data: UpdateEditorSelectorNodeEntryData
+    data: UpdateEditorSelectorNodeEntryData | None = None
 
 
 class UpdateEditorChartArgs(RequestBody):

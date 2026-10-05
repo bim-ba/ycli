@@ -44,7 +44,9 @@ class WizardSortItemSchema(APIModel):
         default=None,
         description="Date or datetime format, separate from numeric formatting.",
     )
-    direction: Literal["ASC", "DESC"] | str = Field(..., description="Sort direction.")
+    direction: Literal["ASC", "DESC"] | str | None = Field(
+        default=None, description="Sort direction."
+    )
 
 
 class GetWizardChartV1Args(RequestBody):
@@ -86,7 +88,7 @@ class DeleteWizardChartResponse(APIModel):
 class WizardV1FiltersItemSchemaFilterOperation(APIModel):
     """Operation used to compare field values."""
 
-    code: str = Field(..., description="Filter operation code.")
+    code: str | None = Field(default=None, description="Filter operation code.")
 
 
 class WizardFieldSchemaVariant1Formatting(APIModel):
@@ -129,9 +131,9 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThreshol
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -186,7 +188,9 @@ class WizardFieldSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel):
 class WizardFieldSchemaVariant1SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
@@ -239,12 +243,12 @@ class WizardFieldSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
 
 class WizardFieldSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardFieldSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardFieldSchemaVariant1HintSettings(APIModel):
@@ -294,9 +298,9 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settin
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -351,7 +355,9 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings(APIMo
 class WizardFieldSchemaVariant1FieldsItemSubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState(APIModel):
@@ -404,12 +410,12 @@ class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant1(APIModel):
 
 class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardFieldSchemaVariant1FieldsItemHintSettings(APIModel):
@@ -459,9 +465,9 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThreshol
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -516,7 +522,9 @@ class WizardFieldSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel):
 class WizardFieldSchemaVariant2SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
@@ -569,12 +577,12 @@ class WizardFieldSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
 
 class WizardFieldSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardFieldSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardFieldSchemaVariant2HintSettings(APIModel):
@@ -624,9 +632,9 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThreshol
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -681,7 +689,9 @@ class WizardFieldSchemaVariant3BarsSettingsScaleVariant2Settings(APIModel):
 class WizardFieldSchemaVariant3SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardFieldSchemaVariant3BackgroundSettingsSettingsPaletteState(APIModel):
@@ -734,12 +744,12 @@ class WizardFieldSchemaVariant3ColumnSettingsWidthVariant1(APIModel):
 
 class WizardFieldSchemaVariant3ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardFieldSchemaVariant3ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardFieldSchemaVariant3HintSettings(APIModel):
@@ -789,9 +799,9 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThreshol
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -846,7 +856,9 @@ class WizardFieldSchemaVariant4BarsSettingsScaleVariant2Settings(APIModel):
 class WizardFieldSchemaVariant4SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardFieldSchemaVariant4BackgroundSettingsSettingsPaletteState(APIModel):
@@ -899,12 +911,12 @@ class WizardFieldSchemaVariant4ColumnSettingsWidthVariant1(APIModel):
 
 class WizardFieldSchemaVariant4ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardFieldSchemaVariant4ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardFieldSchemaVariant4HintSettings(APIModel):
@@ -954,9 +966,9 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsTh
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -1011,7 +1023,9 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel)
 class WizardPseudoFieldSchemaVariant1SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
@@ -1064,12 +1078,12 @@ class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
 
 class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardPseudoFieldSchemaVariant1HintSettings(APIModel):
@@ -1119,9 +1133,9 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsTh
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
 class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
@@ -1176,7 +1190,9 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel)
 class WizardPseudoFieldSchemaVariant2SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
-    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
 
 
 class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
@@ -1229,12 +1245,12 @@ class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
 
 class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
 
 
 class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
 
 
 class WizardPseudoFieldSchemaVariant2HintSettings(APIModel):
@@ -1254,10 +1270,12 @@ class WizardSortItemSchemaVariant1(APIModel):
         default=None,
         description="Date or datetime format, separate from numeric formatting.",
     )
-    direction: Literal["ASC", "DESC"] | str = Field(..., description="Sort direction.")
-    guid: str = Field(..., description="Identifier of the field used for sorting.")
-    dataset_id: str = Field(
-        ...,
+    direction: Literal["ASC", "DESC"] | str | None = Field(
+        default=None, description="Sort direction."
+    )
+    guid: str | None = Field(default=None, description="Identifier of the field used for sorting.")
+    dataset_id: str | None = Field(
+        default=None,
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
@@ -1266,8 +1284,8 @@ class WizardSortItemSchemaVariant1(APIModel):
 class WizardV1GeolayerLayerSchemaVariant1LayerSettings(APIModel):
     """Geographic layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
     alpha: float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
@@ -1350,8 +1368,8 @@ class WizardV1GeolayerLayerSchemaVariant1TooltipSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant2LayerSettings(APIModel):
     """Geographic layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
     alpha: float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
@@ -1434,8 +1452,8 @@ class WizardV1GeolayerLayerSchemaVariant2TooltipSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant3LayerSettings(APIModel):
     """Geographic layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
     alpha: float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
@@ -1509,8 +1527,8 @@ class WizardV1GeolayerLayerSchemaVariant3ColorsSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant4LayerSettings(APIModel):
     """Geographic layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
     alpha: float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
@@ -1587,8 +1605,8 @@ class WizardV1GeolayerLayerSchemaVariant4TooltipSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant5LayerSettings(APIModel):
     """Geographic layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
     alpha: float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
@@ -1652,8 +1670,8 @@ class WizardV1GeolayerLayerSchemaVariant5ColorsSettings(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1LayerSettings(APIModel):
     """Layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
 
 
 class WizardV1CombinedChartLayerSchemaVariant1XSettingsAxisLabelFormatting(APIModel):
@@ -1828,8 +1846,8 @@ class WizardV1CombinedChartLayerSchemaVariant1LabelsSettings(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant2LayerSettings(APIModel):
     """Layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
 
 
 class WizardV1CombinedChartLayerSchemaVariant2XSettingsAxisLabelFormatting(APIModel):
@@ -1963,8 +1981,8 @@ class WizardV1CombinedChartLayerSchemaVariant2LabelsSettings(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant3LayerSettings(APIModel):
     """Layer configuration."""
 
-    id: str = Field(..., description="Unique layer identifier.")
-    name: str = Field(..., description="Layer display name.")
+    id: str | None = Field(default=None, description="Unique layer identifier.")
+    name: str | None = Field(default=None, description="Layer display name.")
 
 
 class WizardV1CombinedChartLayerSchemaVariant3XSettingsAxisLabelFormatting(APIModel):
@@ -2093,7 +2111,7 @@ class WizardV1CombinedChartLayerSchemaVariant3LabelsSettings(APIModel):
 class WizardV1ConfigSchemaSourcesUpdatesItemField(APIModel):
     """Field properties changed by the operation."""
 
-    guid: str = Field(..., description="Unique field identifier.")
+    guid: str | None = Field(default=None, description="Unique field identifier.")
     dataset_id: str | None = Field(
         default=None,
         alias="datasetId",
@@ -2217,21 +2235,23 @@ class WizardV1ConfigSchemaSourcesUpdatesItemField(APIModel):
 class WizardV1ConfigSchemaSourcesLinksItemFieldsValueField(APIModel):
     """Field participating in the dataset link."""
 
-    title: str = Field(..., description="Linked field title.")
-    guid: str = Field(..., description="Linked field identifier.")
+    title: str | None = Field(default=None, description="Linked field title.")
+    guid: str | None = Field(default=None, description="Linked field identifier.")
 
 
 class WizardV1ConfigSchemaSourcesLinksItemFieldsValueDataset(APIModel):
     """Dataset containing the linked field."""
 
-    id: str = Field(..., description="Linked dataset identifier.")
-    real_name: str = Field(..., alias="realName", description="Linked dataset display name.")
+    id: str | None = Field(default=None, description="Linked dataset identifier.")
+    real_name: str | None = Field(
+        default=None, alias="realName", description="Linked dataset display name."
+    )
 
 
 class WizardV1ConfigSchemaSourcesHierarchiesItemFieldsItem(APIModel):
-    guid: str = Field(..., description="Identifier of a field in the hierarchy.")
-    dataset_id: str = Field(
-        ...,
+    guid: str | None = Field(default=None, description="Identifier of a field in the hierarchy.")
+    dataset_id: str | None = Field(
+        default=None,
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
@@ -2266,10 +2286,11 @@ class WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettingsPer
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Data type of the navigator axis field.")
-    value: str = Field(..., description="Initial navigator window size.")
-    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
-        ..., description="Unit of the navigator window size."
+        | None
+    ) = Field(default=None, description="Data type of the navigator axis field.")
+    value: str | None = Field(default=None, description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str | None = Field(
+        default=None, description="Unit of the navigator window size."
     )
 
 
@@ -2471,10 +2492,11 @@ class WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettingsPer
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Data type of the navigator axis field.")
-    value: str = Field(..., description="Initial navigator window size.")
-    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
-        ..., description="Unit of the navigator window size."
+        | None
+    ) = Field(default=None, description="Data type of the navigator axis field.")
+    value: str | None = Field(default=None, description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str | None = Field(
+        default=None, description="Unit of the navigator window size."
     )
 
 
@@ -2635,10 +2657,11 @@ class WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettingsPer
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Data type of the navigator axis field.")
-    value: str = Field(..., description="Initial navigator window size.")
-    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
-        ..., description="Unit of the navigator window size."
+        | None
+    ) = Field(default=None, description="Data type of the navigator axis field.")
+    value: str | None = Field(default=None, description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str | None = Field(
+        default=None, description="Unit of the navigator window size."
     )
 
 
@@ -2794,10 +2817,11 @@ class WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettingsPer
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Data type of the navigator axis field.")
-    value: str = Field(..., description="Initial navigator window size.")
-    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
-        ..., description="Unit of the navigator window size."
+        | None
+    ) = Field(default=None, description="Data type of the navigator axis field.")
+    value: str | None = Field(default=None, description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str | None = Field(
+        default=None, description="Unit of the navigator window size."
     )
 
 
@@ -3076,10 +3100,11 @@ class WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettingsPer
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Data type of the navigator axis field.")
-    value: str = Field(..., description="Initial navigator window size.")
-    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
-        ..., description="Unit of the navigator window size."
+        | None
+    ) = Field(default=None, description="Data type of the navigator axis field.")
+    value: str | None = Field(default=None, description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str | None = Field(
+        default=None, description="Unit of the navigator window size."
     )
 
 
@@ -4225,7 +4250,7 @@ class GetWizardChartV1ResultPermissions(APIModel):
 class WizardV1FiltersItemSchemaFilter(APIModel):
     """Filter applied to the field."""
 
-    operation: WizardV1FiltersItemSchemaFilterOperation
+    operation: WizardV1FiltersItemSchemaFilterOperation | None = None
     value: str | list[str] | None = Field(
         default=None, description="Value or values used by the filter operation."
     )
@@ -4234,13 +4259,14 @@ class WizardV1FiltersItemSchemaFilter(APIModel):
 class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4249,7 +4275,7 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
@@ -4258,25 +4284,25 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardFieldSchemaVariant1BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardFieldSchemaVariant1BarsSettingsScaleVariant2Settings
+    settings: WizardFieldSchemaVariant1BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsPaletteState | None = Field(
+        default=None, alias="paletteState"
     )
-    gradient_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
+    gradient_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsGradientState | None = Field(
+        default=None, alias="gradientState"
     )
-    is_continuous: bool = Field(
-        ...,
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4289,7 +4315,8 @@ class WizardFieldSchemaVariant1ColumnSettings(APIModel):
         WizardFieldSchemaVariant1ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant1ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant1ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4300,13 +4327,14 @@ class WizardFieldSchemaVariant1ColumnSettings(APIModel):
 class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4315,7 +4343,9 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2(APIMo
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings
+    settings: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings | None
+    ) = None
 
 
 class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3(APIModel):
@@ -4324,25 +4354,27 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3(APIMo
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings
+    settings: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings | None
+    ) = None
 
 
 class WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings
+    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState = (
-        Field(..., alias="paletteState")
-    )
-    gradient_state: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState = (
-        Field(..., alias="gradientState")
-    )
-    is_continuous: bool = Field(
-        ...,
+    palette_state: (
+        WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState | None
+    ) = Field(default=None, alias="paletteState")
+    gradient_state: (
+        WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState | None
+    ) = Field(default=None, alias="gradientState")
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4355,7 +4387,8 @@ class WizardFieldSchemaVariant1FieldsItemColumnSettings(APIModel):
         WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4366,13 +4399,14 @@ class WizardFieldSchemaVariant1FieldsItemColumnSettings(APIModel):
 class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4381,7 +4415,7 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
@@ -4390,25 +4424,25 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardFieldSchemaVariant2BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardFieldSchemaVariant2BarsSettingsScaleVariant2Settings
+    settings: WizardFieldSchemaVariant2BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsPaletteState | None = Field(
+        default=None, alias="paletteState"
     )
-    gradient_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
+    gradient_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsGradientState | None = Field(
+        default=None, alias="gradientState"
     )
-    is_continuous: bool = Field(
-        ...,
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4421,7 +4455,8 @@ class WizardFieldSchemaVariant2ColumnSettings(APIModel):
         WizardFieldSchemaVariant2ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant2ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant2ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4432,13 +4467,14 @@ class WizardFieldSchemaVariant2ColumnSettings(APIModel):
 class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4447,7 +4483,7 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3(APIModel):
@@ -4456,25 +4492,25 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3(APIModel):
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardFieldSchemaVariant3BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardFieldSchemaVariant3BarsSettingsScaleVariant2Settings
+    settings: WizardFieldSchemaVariant3BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant3BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsPaletteState | None = Field(
+        default=None, alias="paletteState"
     )
-    gradient_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
+    gradient_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsGradientState | None = Field(
+        default=None, alias="gradientState"
     )
-    is_continuous: bool = Field(
-        ...,
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4487,7 +4523,8 @@ class WizardFieldSchemaVariant3ColumnSettings(APIModel):
         WizardFieldSchemaVariant3ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant3ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant3ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4498,13 +4535,14 @@ class WizardFieldSchemaVariant3ColumnSettings(APIModel):
 class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4513,7 +4551,7 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3(APIModel):
@@ -4522,25 +4560,25 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3(APIModel):
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardFieldSchemaVariant4BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardFieldSchemaVariant4BarsSettingsScaleVariant2Settings
+    settings: WizardFieldSchemaVariant4BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardFieldSchemaVariant4BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsPaletteState | None = Field(
+        default=None, alias="paletteState"
     )
-    gradient_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
+    gradient_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsGradientState | None = Field(
+        default=None, alias="gradientState"
     )
-    is_continuous: bool = Field(
-        ...,
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4553,7 +4591,8 @@ class WizardFieldSchemaVariant4ColumnSettings(APIModel):
         WizardFieldSchemaVariant4ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant4ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant4ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4564,13 +4603,14 @@ class WizardFieldSchemaVariant4ColumnSettings(APIModel):
 class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4579,7 +4619,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel)
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
@@ -4588,25 +4628,25 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel)
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState | None = (
+        Field(default=None, alias="paletteState")
     )
-    gradient_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
-    )
-    is_continuous: bool = Field(
-        ...,
+    gradient_state: (
+        WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState | None
+    ) = Field(default=None, alias="gradientState")
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4619,7 +4659,8 @@ class WizardPseudoFieldSchemaVariant1ColumnSettings(APIModel):
         WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1
         | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2
         | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -4630,13 +4671,14 @@ class WizardPseudoFieldSchemaVariant1ColumnSettings(APIModel):
 class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
         WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-    ) = Field(..., description="Thresholds that define the gradient color scale.")
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
@@ -4645,7 +4687,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel)
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
@@ -4654,25 +4696,25 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel)
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState = Field(
-        ..., alias="paletteState"
+    palette_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState | None = (
+        Field(default=None, alias="paletteState")
     )
-    gradient_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState = Field(
-        ..., alias="gradientState"
-    )
-    is_continuous: bool = Field(
-        ...,
+    gradient_state: (
+        WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState | None
+    ) = Field(default=None, alias="gradientState")
+    is_continuous: bool | None = Field(
+        default=None,
         alias="isContinuous",
         description="Whether to use continuous instead of discrete coloring.",
     )
@@ -4685,7 +4727,8 @@ class WizardPseudoFieldSchemaVariant2ColumnSettings(APIModel):
         WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1
         | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2
         | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3
-    ) = Field(..., description="Table column width settings.")
+        | None
+    ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
         default=None,
         alias="horizontalAlignment",
@@ -5113,9 +5156,9 @@ class WizardV1CombinedChartLayerSchemaVariant3YSettings(APIModel):
 
 class WizardV1ConfigSchemaSourcesUpdatesItem(APIModel):
     action: (
-        Literal["add_field", "add", "update_field", "update", "delete", "delete_field"] | str
-    ) = Field(..., description="Operation applied to the local field.")
-    field: WizardV1ConfigSchemaSourcesUpdatesItemField
+        Literal["add_field", "add", "update_field", "update", "delete", "delete_field"] | str | None
+    ) = Field(default=None, description="Operation applied to the local field.")
+    field: WizardV1ConfigSchemaSourcesUpdatesItemField | None = None
     debug_info: str | None = Field(
         default=None,
         description="Internal marker describing how the field update was produced.",
@@ -5123,39 +5166,39 @@ class WizardV1ConfigSchemaSourcesUpdatesItem(APIModel):
 
 
 class WizardV1ConfigSchemaSourcesLinksItemFieldsValue(APIModel):
-    field: WizardV1ConfigSchemaSourcesLinksItemFieldsValueField
-    dataset: WizardV1ConfigSchemaSourcesLinksItemFieldsValueDataset
+    field: WizardV1ConfigSchemaSourcesLinksItemFieldsValueField | None = None
+    dataset: WizardV1ConfigSchemaSourcesLinksItemFieldsValueDataset | None = None
 
 
 class WizardV1ConfigSchemaSourcesHierarchiesItem(APIModel):
-    guid: str = Field(..., description="Hierarchy identifier.")
-    title: str = Field(..., description="Hierarchy display title.")
-    fields: list[WizardV1ConfigSchemaSourcesHierarchiesItemFieldsItem] = Field(
-        ..., description="Ordered fields included in the hierarchy."
+    guid: str | None = Field(default=None, description="Hierarchy identifier.")
+    title: str | None = Field(default=None, description="Hierarchy display title.")
+    fields: list[WizardV1ConfigSchemaSourcesHierarchiesItemFieldsItem] | None = Field(
+        default=None, description="Ordered fields included in the hierarchy."
     )
 
 
 class WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettings(APIModel):
     """Chart navigator settings."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
+    navigator_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
         alias="navigatorMode",
         description="Whether the chart navigator is displayed.",
     )
-    selected_lines: list[str] = Field(
-        ...,
+    selected_lines: list[str] | None = Field(
+        default=None,
         alias="selectedLines",
         description="Series names shown in the navigator; values are not field GUIDs.",
     )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
+    lines_mode: Literal["all", "selected"] | str | None = Field(
+        default=None,
         alias="linesMode",
         description="Which chart series are displayed in the navigator.",
     )
-    period_settings: WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettingsPeriodSettings = Field(
-        ..., alias="periodSettings"
-    )
+    period_settings: (
+        WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettingsPeriodSettings | None
+    ) = Field(default=None, alias="periodSettings")
 
 
 class WizardV1ConfigSchemaVisualizationVariant1XSettings(APIModel):
@@ -5353,24 +5396,24 @@ class WizardV1ConfigSchemaVisualizationVariant1ShapesSettings(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettings(APIModel):
     """Chart navigator settings."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
+    navigator_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
         alias="navigatorMode",
         description="Whether the chart navigator is displayed.",
     )
-    selected_lines: list[str] = Field(
-        ...,
+    selected_lines: list[str] | None = Field(
+        default=None,
         alias="selectedLines",
         description="Series names shown in the navigator; values are not field GUIDs.",
     )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
+    lines_mode: Literal["all", "selected"] | str | None = Field(
+        default=None,
         alias="linesMode",
         description="Which chart series are displayed in the navigator.",
     )
-    period_settings: WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettingsPeriodSettings = Field(
-        ..., alias="periodSettings"
-    )
+    period_settings: (
+        WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettingsPeriodSettings | None
+    ) = Field(default=None, alias="periodSettings")
 
 
 class WizardV1ConfigSchemaVisualizationVariant2XSettings(APIModel):
@@ -5489,24 +5532,24 @@ class WizardV1ConfigSchemaVisualizationVariant2YSettings(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettings(APIModel):
     """Chart navigator settings."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
+    navigator_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
         alias="navigatorMode",
         description="Whether the chart navigator is displayed.",
     )
-    selected_lines: list[str] = Field(
-        ...,
+    selected_lines: list[str] | None = Field(
+        default=None,
         alias="selectedLines",
         description="Series names shown in the navigator; values are not field GUIDs.",
     )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
+    lines_mode: Literal["all", "selected"] | str | None = Field(
+        default=None,
         alias="linesMode",
         description="Which chart series are displayed in the navigator.",
     )
-    period_settings: WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettingsPeriodSettings = Field(
-        ..., alias="periodSettings"
-    )
+    period_settings: (
+        WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettingsPeriodSettings | None
+    ) = Field(default=None, alias="periodSettings")
 
 
 class WizardV1ConfigSchemaVisualizationVariant3XSettings(APIModel):
@@ -5625,24 +5668,24 @@ class WizardV1ConfigSchemaVisualizationVariant3YSettings(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettings(APIModel):
     """Chart navigator settings."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
+    navigator_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
         alias="navigatorMode",
         description="Whether the chart navigator is displayed.",
     )
-    selected_lines: list[str] = Field(
-        ...,
+    selected_lines: list[str] | None = Field(
+        default=None,
         alias="selectedLines",
         description="Series names shown in the navigator; values are not field GUIDs.",
     )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
+    lines_mode: Literal["all", "selected"] | str | None = Field(
+        default=None,
         alias="linesMode",
         description="Which chart series are displayed in the navigator.",
     )
-    period_settings: WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettingsPeriodSettings = Field(
-        ..., alias="periodSettings"
-    )
+    period_settings: (
+        WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettingsPeriodSettings | None
+    ) = Field(default=None, alias="periodSettings")
 
 
 class WizardV1ConfigSchemaVisualizationVariant4XSettings(APIModel):
@@ -5874,24 +5917,24 @@ class WizardV1ConfigSchemaVisualizationVariant5YSettings(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettings(APIModel):
     """Chart navigator settings."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
+    navigator_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
         alias="navigatorMode",
         description="Whether the chart navigator is displayed.",
     )
-    selected_lines: list[str] = Field(
-        ...,
+    selected_lines: list[str] | None = Field(
+        default=None,
         alias="selectedLines",
         description="Series names shown in the navigator; values are not field GUIDs.",
     )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
+    lines_mode: Literal["all", "selected"] | str | None = Field(
+        default=None,
         alias="linesMode",
         description="Which chart series are displayed in the navigator.",
     )
-    period_settings: WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettingsPeriodSettings = Field(
-        ..., alias="periodSettings"
-    )
+    period_settings: (
+        WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettingsPeriodSettings | None
+    ) = Field(default=None, alias="periodSettings")
 
 
 class WizardV1ConfigSchemaVisualizationVariant6XSettings(APIModel):
@@ -6250,9 +6293,11 @@ class WizardV1ConfigSchemaVisualizationVariant12Colors(APIModel):
 
 
 class WizardV1FiltersItemSchema(APIModel):
-    guid: str = Field(..., description="Identifier of the field used for filtering.")
-    dataset_id: str = Field(
-        ...,
+    guid: str | None = Field(
+        default=None, description="Identifier of the field used for filtering."
+    )
+    dataset_id: str | None = Field(
+        default=None,
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
@@ -6261,175 +6306,191 @@ class WizardV1FiltersItemSchema(APIModel):
         alias="fakeTitle",
         description="Chart-local display title override for the field.",
     )
-    filter: WizardV1FiltersItemSchemaFilter
+    filter: WizardV1FiltersItemSchemaFilter | None = None
 
 
 class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardFieldSchemaVariant1BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardFieldSchemaVariant1BackgroundSettingsSettings
+    settings: WizardFieldSchemaVariant1BackgroundSettingsSettings | None = None
 
 
 class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings
+    settings: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings | None
+    ) = None
 
 
 class WizardFieldSchemaVariant1FieldsItemBackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettings
+    settings: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettings | None = None
 
 
 class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardFieldSchemaVariant2BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardFieldSchemaVariant2BackgroundSettingsSettings
+    settings: WizardFieldSchemaVariant2BackgroundSettingsSettings | None = None
 
 
 class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardFieldSchemaVariant3BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardFieldSchemaVariant3BackgroundSettingsSettings
+    settings: WizardFieldSchemaVariant3BackgroundSettingsSettings | None = None
 
 
 class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardFieldSchemaVariant4BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardFieldSchemaVariant4BackgroundSettingsSettings
+    settings: WizardFieldSchemaVariant4BackgroundSettingsSettings | None = None
 
 
 class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant1BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings
+    settings: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings | None = None
 
 
 class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings | None = None
 
 
 class WizardPseudoFieldSchemaVariant2BackgroundSettings(APIModel):
     """Conditional background settings."""
 
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
         alias="colorFieldGuid",
         description="Identifier of the field used to color the background.",
     )
-    settings_id: str = Field(
-        ...,
+    settings_id: str | None = Field(
+        default=None,
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings
+    settings: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant1Filters(APIModel):
@@ -6473,9 +6534,10 @@ class WizardV1GeolayerLayerSchemaVariant5Filters(APIModel):
 
 
 class WizardV1ConfigSchemaSourcesLinksItem(APIModel):
-    id: str = Field(..., description="Dataset link identifier.")
-    fields: dict[str, WizardV1ConfigSchemaSourcesLinksItemFieldsValue] = Field(
-        ..., description="Linked field information keyed by dataset identifier."
+    id: str | None = Field(default=None, description="Dataset link identifier.")
+    fields: dict[str, WizardV1ConfigSchemaSourcesLinksItemFieldsValue] | None = Field(
+        default=None,
+        description="Linked field information keyed by dataset identifier.",
     )
 
 
@@ -6625,24 +6687,30 @@ class WizardV1ConfigSchemaVisualizationVariant5ChartSettings(APIModel):
 class WizardFieldSchemaVariant1BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardFieldSchemaVariant1BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant1BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6651,24 +6719,30 @@ class WizardFieldSchemaVariant1BarsSettings(APIModel):
 class WizardFieldSchemaVariant1FieldsItemBarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6677,24 +6751,30 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettings(APIModel):
 class WizardFieldSchemaVariant2BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardFieldSchemaVariant2BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant2BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6703,24 +6783,30 @@ class WizardFieldSchemaVariant2BarsSettings(APIModel):
 class WizardFieldSchemaVariant3BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardFieldSchemaVariant3BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant3BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6729,24 +6815,30 @@ class WizardFieldSchemaVariant3BarsSettings(APIModel):
 class WizardFieldSchemaVariant4BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardFieldSchemaVariant4BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant4BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6755,24 +6847,30 @@ class WizardFieldSchemaVariant4BarsSettings(APIModel):
 class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1
         | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2
         | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant1
         | WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6781,24 +6879,30 @@ class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
 class WizardPseudoFieldSchemaVariant2BarsSettings(APIModel):
     """In-cell bar settings."""
 
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
     color_settings: (
         WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1
         | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2
         | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3
-    ) = Field(..., alias="colorSettings", description="Bar color settings.")
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
     )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
     )
     scale: (
         WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant1
         | WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2
-    ) = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
         alias="showBarsInTotals",
         description="Whether to display bars in total rows.",
     )
@@ -6807,8 +6911,8 @@ class WizardPseudoFieldSchemaVariant2BarsSettings(APIModel):
 class WizardV1ConfigSchemaSources(APIModel):
     """Data sources, chart-local field updates, dataset links, hierarchies, and filters used by the chart."""
 
-    datasets_ids: list[str] = Field(
-        ...,
+    datasets_ids: list[str] | None = Field(
+        default=None,
         alias="datasetsIds",
         description="Datasets used by the chart to retrieve data.",
     )
@@ -6865,9 +6969,9 @@ class WizardFieldSchemaVariant1FieldsItem(APIModel):
     hint_settings: WizardFieldSchemaVariant1FieldsItemHintSettings | None = Field(
         default=None, alias="hintSettings"
     )
-    guid: str = Field(..., description="Field identifier.")
-    dataset_id: str = Field(
-        ...,
+    guid: str | None = Field(default=None, description="Field identifier.")
+    dataset_id: str | None = Field(
+        default=None,
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
@@ -6909,9 +7013,9 @@ class WizardFieldSchemaVariant2(APIModel):
     hint_settings: WizardFieldSchemaVariant2HintSettings | None = Field(
         default=None, alias="hintSettings"
     )
-    guid: str = Field(..., description="Field identifier.")
-    dataset_id: str = Field(
-        ...,
+    guid: str | None = Field(default=None, description="Field identifier.")
+    dataset_id: str | None = Field(
+        default=None,
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
@@ -7169,13 +7273,13 @@ class WizardFieldSchemaVariant1(APIModel):
     hint_settings: WizardFieldSchemaVariant1HintSettings | None = Field(
         default=None, alias="hintSettings"
     )
-    guid: str = Field(..., description="Hierarchy identifier.")
-    title: str = Field(..., description="Hierarchy display title.")
+    guid: str | None = Field(default=None, description="Hierarchy identifier.")
+    title: str | None = Field(default=None, description="Hierarchy display title.")
     data_type: Literal["hierarchy"] = Field(
         ..., description="Data type identifying this field as a hierarchy."
     )
-    fields: list[WizardFieldSchemaVariant1FieldsItem] = Field(
-        ..., description="Fields included in the hierarchy."
+    fields: list[WizardFieldSchemaVariant1FieldsItem] | None = Field(
+        default=None, description="Fields included in the hierarchy."
     )
 
 
@@ -7354,7 +7458,9 @@ class WizardLabelsItemSchemaModel4(
 class WizardV1GeolayerLayerSchemaVariant1Points(APIModel):
     """Point coordinate configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields containing point coordinates.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields containing point coordinates."
+    )
 
 
 class WizardV1GeolayerLayerSchemaVariant1Size(APIModel):
@@ -7386,14 +7492,18 @@ class WizardV1GeolayerLayerSchemaVariant1Labels(APIModel):
 class WizardV1GeolayerLayerSchemaVariant1Tooltip(APIModel):
     """Tooltip configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in point tooltips.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields displayed in point tooltips."
+    )
     settings: WizardV1GeolayerLayerSchemaVariant1TooltipSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant2Points(APIModel):
     """Point coordinate configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields containing point coordinates.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields containing point coordinates."
+    )
 
 
 class WizardV1GeolayerLayerSchemaVariant2Size(APIModel):
@@ -7425,15 +7535,17 @@ class WizardV1GeolayerLayerSchemaVariant2Labels(APIModel):
 class WizardV1GeolayerLayerSchemaVariant2Tooltip(APIModel):
     """Tooltip configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in point tooltips.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields displayed in point tooltips."
+    )
     settings: WizardV1GeolayerLayerSchemaVariant2TooltipSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant3Polylines(APIModel):
     """Polyline configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ..., description="Fields containing polyline coordinates."
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields containing polyline coordinates."
     )
     settings: WizardV1GeolayerLayerSchemaVariant3PolylinesSettings | None = None
 
@@ -7466,7 +7578,9 @@ class WizardV1GeolayerLayerSchemaVariant3Colors(APIModel):
 class WizardV1GeolayerLayerSchemaVariant4Polygons(APIModel):
     """Polygon configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields containing polygon geometry.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields containing polygon geometry."
+    )
 
 
 class WizardV1GeolayerLayerSchemaVariant4Colors(APIModel):
@@ -7481,15 +7595,17 @@ class WizardV1GeolayerLayerSchemaVariant4Colors(APIModel):
 class WizardV1GeolayerLayerSchemaVariant4Tooltip(APIModel):
     """Tooltip configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in polygon tooltips.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields displayed in polygon tooltips."
+    )
     settings: WizardV1GeolayerLayerSchemaVariant4TooltipSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant5Points(APIModel):
     """Point coordinate configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ..., description="Fields containing heatmap point coordinates."
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields containing heatmap point coordinates."
     )
 
 
@@ -7505,15 +7621,17 @@ class WizardV1GeolayerLayerSchemaVariant5Colors(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1CombinedChartLayerSchemaVariant1XSettings | None = None
 
 
 class WizardV1CombinedChartLayerSchemaVariant1Y(APIModel):
     """Primary Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1CombinedChartLayerSchemaVariant1YSettings | None = None
@@ -7522,8 +7640,8 @@ class WizardV1CombinedChartLayerSchemaVariant1Y(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1Y2(APIModel):
     """Secondary Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the secondary Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1CombinedChartLayerSchemaVariant1Y2Settings | None = None
@@ -7559,15 +7677,17 @@ class WizardV1CombinedChartLayerSchemaVariant1Labels(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant2X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1CombinedChartLayerSchemaVariant2XSettings | None = None
 
 
 class WizardV1CombinedChartLayerSchemaVariant2Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1CombinedChartLayerSchemaVariant2YSettings | None = None
@@ -7594,15 +7714,17 @@ class WizardV1CombinedChartLayerSchemaVariant2Labels(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant3X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1CombinedChartLayerSchemaVariant3XSettings | None = None
 
 
 class WizardV1CombinedChartLayerSchemaVariant3Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1CombinedChartLayerSchemaVariant3YSettings | None = None
@@ -7629,15 +7751,17 @@ class WizardV1CombinedChartLayerSchemaVariant3Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant1X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant1XSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant1Y(APIModel):
     """Primary Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant1YSettings | None = None
@@ -7646,8 +7770,8 @@ class WizardV1ConfigSchemaVisualizationVariant1Y(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant1Y2(APIModel):
     """Secondary Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the secondary Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant1Y2Settings | None = None
@@ -7691,15 +7815,17 @@ class WizardV1ConfigSchemaVisualizationVariant1Segments(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant2X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant2XSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant2Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant2YSettings | None = None
@@ -7734,15 +7860,17 @@ class WizardV1ConfigSchemaVisualizationVariant2Segments(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant3X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant3XSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant3Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant3YSettings | None = None
@@ -7777,15 +7905,17 @@ class WizardV1ConfigSchemaVisualizationVariant3Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant4X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant4XSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant4Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant4YSettings | None = None
@@ -7820,15 +7950,17 @@ class WizardV1ConfigSchemaVisualizationVariant4Segments(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant5X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant5XSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant5Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant5YSettings | None = None
@@ -7863,8 +7995,8 @@ class WizardV1ConfigSchemaVisualizationVariant5Segments(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant6X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the X-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant6XSettings | None = None
@@ -7873,7 +8005,9 @@ class WizardV1ConfigSchemaVisualizationVariant6X(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant6Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the Y-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the Y-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant6YSettings | None = None
 
 
@@ -7898,8 +8032,8 @@ class WizardV1ConfigSchemaVisualizationVariant6Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant7X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Fields placed on the X-axis. Measures only: a dimension placed here needs an aggregation.",
     )
     settings: WizardV1ConfigSchemaVisualizationVariant7XSettings | None = None
@@ -7908,7 +8042,9 @@ class WizardV1ConfigSchemaVisualizationVariant7X(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant7Y(APIModel):
     """Y-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the Y-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the Y-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant7YSettings | None = None
 
 
@@ -7933,16 +8069,16 @@ class WizardV1ConfigSchemaVisualizationVariant7Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant8Dimensions(APIModel):
     """Dimension configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ..., description="Dimensions used to create funnel stages."
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions used to create funnel stages."
     )
 
 
 class WizardV1ConfigSchemaVisualizationVariant8Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures used to size funnel stages. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -7950,7 +8086,9 @@ class WizardV1ConfigSchemaVisualizationVariant8Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant8Colors(APIModel):
     """Color configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields used to assign stage colors.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to assign stage colors."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant8ColorsSettings | None = None
 
 
@@ -7966,7 +8104,9 @@ class WizardV1ConfigSchemaVisualizationVariant8Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant9X(APIModel):
     """X-axis configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the X-axis."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant9XSettings | None = None
 
 
@@ -8019,7 +8159,9 @@ class WizardV1ConfigSchemaVisualizationVariant9Shapes(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant10Dimensions(APIModel):
     """Dimension configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Dimensions used to create pie slices.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions used to create pie slices."
+    )
 
 
 class WizardV1ConfigSchemaVisualizationVariant10Colors(APIModel):
@@ -8034,8 +8176,8 @@ class WizardV1ConfigSchemaVisualizationVariant10Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant10Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures used to determine slice sizes. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -8051,7 +8193,9 @@ class WizardV1ConfigSchemaVisualizationVariant10Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant11Dimensions(APIModel):
     """Dimension configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Dimensions used to create pie slices.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions used to create pie slices."
+    )
 
 
 class WizardV1ConfigSchemaVisualizationVariant11Colors(APIModel):
@@ -8066,8 +8210,8 @@ class WizardV1ConfigSchemaVisualizationVariant11Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant11Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures used to determine slice sizes. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -8083,8 +8227,8 @@ class WizardV1ConfigSchemaVisualizationVariant11Labels(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant12Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures displayed by the metric. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -8092,16 +8236,16 @@ class WizardV1ConfigSchemaVisualizationVariant12Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant13Dimensions(APIModel):
     """Dimension configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ..., description="Dimensions used to group treemap nodes."
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions used to group treemap nodes."
     )
 
 
 class WizardV1ConfigSchemaVisualizationVariant13Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures used to size treemap nodes. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -8109,42 +8253,50 @@ class WizardV1ConfigSchemaVisualizationVariant13Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant13Colors(APIModel):
     """Color configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields used to assign node colors.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to assign node colors."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant13ColorsSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant14Columns(APIModel):
     """Column configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields displayed as table columns.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields displayed as table columns."
+    )
 
 
 class WizardV1ConfigSchemaVisualizationVariant14Colors(APIModel):
     """Color configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields used for conditional coloring.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for conditional coloring."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant14ColorsSettings | None = None
 
 
 class WizardV1ConfigSchemaVisualizationVariant15Columns(APIModel):
     """Column configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ..., description="Dimensions displayed as pivot columns."
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions displayed as pivot columns."
     )
 
 
 class WizardV1ConfigSchemaVisualizationVariant15Rows(APIModel):
     """Row configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Dimensions displayed as pivot rows.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Dimensions displayed as pivot rows."
+    )
 
 
 class WizardV1ConfigSchemaVisualizationVariant15Measures(APIModel):
     """Measure configuration."""
 
-    items: list[WizardFieldSchema] = Field(
-        ...,
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
         description="Measures displayed in pivot cells. Measures only: a dimension placed here needs an aggregation.",
     )
 
@@ -8152,16 +8304,18 @@ class WizardV1ConfigSchemaVisualizationVariant15Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant15Colors(APIModel):
     """Color configuration."""
 
-    items: list[WizardFieldSchema] = Field(..., description="Fields used for conditional coloring.")
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for conditional coloring."
+    )
     settings: WizardV1ConfigSchemaVisualizationVariant15ColorsSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant1(APIModel):
     type: Literal["geopoint"] = Field(..., description="Geopoint layer type.")
-    layer_settings: WizardV1GeolayerLayerSchemaVariant1LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1GeolayerLayerSchemaVariant1LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    points: WizardV1GeolayerLayerSchemaVariant1Points
+    points: WizardV1GeolayerLayerSchemaVariant1Points | None = None
     size: WizardV1GeolayerLayerSchemaVariant1Size | None = None
     colors: WizardV1GeolayerLayerSchemaVariant1Colors | None = None
     labels: WizardV1GeolayerLayerSchemaVariant1Labels | None = None
@@ -8170,10 +8324,10 @@ class WizardV1GeolayerLayerSchemaVariant1(APIModel):
 
 
 class WizardV1GeolayerLayerSchemaVariant2(APIModel):
-    layer_settings: WizardV1GeolayerLayerSchemaVariant2LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1GeolayerLayerSchemaVariant2LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    points: WizardV1GeolayerLayerSchemaVariant2Points
+    points: WizardV1GeolayerLayerSchemaVariant2Points | None = None
     size: WizardV1GeolayerLayerSchemaVariant2Size | None = None
     colors: WizardV1GeolayerLayerSchemaVariant2Colors | None = None
     labels: WizardV1GeolayerLayerSchemaVariant2Labels | None = None
@@ -8186,10 +8340,10 @@ class WizardV1GeolayerLayerSchemaVariant2(APIModel):
 
 class WizardV1GeolayerLayerSchemaVariant3(APIModel):
     type: Literal["polyline"] = Field(..., description="Geopolyline layer type.")
-    layer_settings: WizardV1GeolayerLayerSchemaVariant3LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1GeolayerLayerSchemaVariant3LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    polylines: WizardV1GeolayerLayerSchemaVariant3Polylines
+    polylines: WizardV1GeolayerLayerSchemaVariant3Polylines | None = None
     measures: WizardV1GeolayerLayerSchemaVariant3Measures | None = None
     grouping: WizardV1GeolayerLayerSchemaVariant3Grouping | None = None
     colors: WizardV1GeolayerLayerSchemaVariant3Colors | None = None
@@ -8199,10 +8353,10 @@ class WizardV1GeolayerLayerSchemaVariant3(APIModel):
 
 class WizardV1GeolayerLayerSchemaVariant4(APIModel):
     type: Literal["geopolygon"] = Field(..., description="Geopolygon layer type.")
-    layer_settings: WizardV1GeolayerLayerSchemaVariant4LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1GeolayerLayerSchemaVariant4LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    polygons: WizardV1GeolayerLayerSchemaVariant4Polygons
+    polygons: WizardV1GeolayerLayerSchemaVariant4Polygons | None = None
     colors: WizardV1GeolayerLayerSchemaVariant4Colors | None = None
     tooltip: WizardV1GeolayerLayerSchemaVariant4Tooltip | None = None
     filters: WizardV1GeolayerLayerSchemaVariant4Filters | None = None
@@ -8210,20 +8364,20 @@ class WizardV1GeolayerLayerSchemaVariant4(APIModel):
 
 class WizardV1GeolayerLayerSchemaVariant5(APIModel):
     type: Literal["heatmap"] = Field(..., description="Geo heatmap layer type.")
-    layer_settings: WizardV1GeolayerLayerSchemaVariant5LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1GeolayerLayerSchemaVariant5LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    points: WizardV1GeolayerLayerSchemaVariant5Points
+    points: WizardV1GeolayerLayerSchemaVariant5Points | None = None
     colors: WizardV1GeolayerLayerSchemaVariant5Colors | None = None
     filters: WizardV1GeolayerLayerSchemaVariant5Filters | None = None
 
 
 class WizardV1CombinedChartLayerSchemaVariant1(APIModel):
     type: Literal["line"] = Field(..., description="Line layer type.")
-    layer_settings: WizardV1CombinedChartLayerSchemaVariant1LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant1LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    x: WizardV1CombinedChartLayerSchemaVariant1X
+    x: WizardV1CombinedChartLayerSchemaVariant1X | None = None
     y: WizardV1CombinedChartLayerSchemaVariant1Y | None = None
     y2: WizardV1CombinedChartLayerSchemaVariant1Y2 | None = None
     colors: WizardV1CombinedChartLayerSchemaVariant1Colors | None = None
@@ -8234,10 +8388,10 @@ class WizardV1CombinedChartLayerSchemaVariant1(APIModel):
 
 class WizardV1CombinedChartLayerSchemaVariant2(APIModel):
     type: Literal["column"] = Field(..., description="Column layer type.")
-    layer_settings: WizardV1CombinedChartLayerSchemaVariant2LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant2LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    x: WizardV1CombinedChartLayerSchemaVariant2X
+    x: WizardV1CombinedChartLayerSchemaVariant2X | None = None
     y: WizardV1CombinedChartLayerSchemaVariant2Y | None = None
     colors: WizardV1CombinedChartLayerSchemaVariant2Colors | None = None
     labels: WizardV1CombinedChartLayerSchemaVariant2Labels | None = None
@@ -8246,10 +8400,10 @@ class WizardV1CombinedChartLayerSchemaVariant2(APIModel):
 
 class WizardV1CombinedChartLayerSchemaVariant3(APIModel):
     type: Literal["area"] = Field(..., description="Area layer type.")
-    layer_settings: WizardV1CombinedChartLayerSchemaVariant3LayerSettings = Field(
-        ..., alias="layerSettings"
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant3LayerSettings | None = Field(
+        default=None, alias="layerSettings"
     )
-    x: WizardV1CombinedChartLayerSchemaVariant3X
+    x: WizardV1CombinedChartLayerSchemaVariant3X | None = None
     y: WizardV1CombinedChartLayerSchemaVariant3Y | None = None
     colors: WizardV1CombinedChartLayerSchemaVariant3Colors | None = None
     labels: WizardV1CombinedChartLayerSchemaVariant3Labels | None = None
@@ -8261,7 +8415,7 @@ class WizardV1ConfigSchemaVisualizationVariant1(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant1ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    x: WizardV1ConfigSchemaVisualizationVariant1X
+    x: WizardV1ConfigSchemaVisualizationVariant1X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant1Y | None = None
     y2: WizardV1ConfigSchemaVisualizationVariant1Y2 | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant1Colors | None = None
@@ -8276,7 +8430,7 @@ class WizardV1ConfigSchemaVisualizationVariant2(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant2ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    x: WizardV1ConfigSchemaVisualizationVariant2X
+    x: WizardV1ConfigSchemaVisualizationVariant2X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant2Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant2Colors | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant2Labels | None = None
@@ -8288,7 +8442,7 @@ class WizardV1ConfigSchemaVisualizationVariant3(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant3ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    x: WizardV1ConfigSchemaVisualizationVariant3X
+    x: WizardV1ConfigSchemaVisualizationVariant3X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant3Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant3Colors | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant3Sort | None = None
@@ -8302,7 +8456,7 @@ class WizardV1ConfigSchemaVisualizationVariant4(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant4ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    x: WizardV1ConfigSchemaVisualizationVariant4X
+    x: WizardV1ConfigSchemaVisualizationVariant4X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant4Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant4Colors | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant4Labels | None = None
@@ -8311,7 +8465,7 @@ class WizardV1ConfigSchemaVisualizationVariant4(APIModel):
 
 
 class WizardV1ConfigSchemaVisualizationVariant5(APIModel):
-    x: WizardV1ConfigSchemaVisualizationVariant5X
+    x: WizardV1ConfigSchemaVisualizationVariant5X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant5Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant5Colors | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant5Labels | None = None
@@ -8329,7 +8483,7 @@ class WizardV1ConfigSchemaVisualizationVariant6(APIModel):
         default=None, alias="chartSettings"
     )
     x: WizardV1ConfigSchemaVisualizationVariant6X | None = None
-    y: WizardV1ConfigSchemaVisualizationVariant6Y
+    y: WizardV1ConfigSchemaVisualizationVariant6Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant6Colors | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant6Labels | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant6Sort | None = None
@@ -8340,7 +8494,7 @@ class WizardV1ConfigSchemaVisualizationVariant7(APIModel):
         default=None, alias="chartSettings"
     )
     x: WizardV1ConfigSchemaVisualizationVariant7X | None = None
-    y: WizardV1ConfigSchemaVisualizationVariant7Y
+    y: WizardV1ConfigSchemaVisualizationVariant7Y | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant7Colors | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant7Sort | None = None
     type: Literal["bar100p"] = Field(..., description="Normalized bar visualization type.")
@@ -8352,8 +8506,8 @@ class WizardV1ConfigSchemaVisualizationVariant8(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant8ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    dimensions: WizardV1ConfigSchemaVisualizationVariant8Dimensions
-    measures: WizardV1ConfigSchemaVisualizationVariant8Measures
+    dimensions: WizardV1ConfigSchemaVisualizationVariant8Dimensions | None = None
+    measures: WizardV1ConfigSchemaVisualizationVariant8Measures | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant8Colors | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant8Labels | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant8Sort | None = None
@@ -8364,7 +8518,7 @@ class WizardV1ConfigSchemaVisualizationVariant9(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant9ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    x: WizardV1ConfigSchemaVisualizationVariant9X
+    x: WizardV1ConfigSchemaVisualizationVariant9X | None = None
     y: WizardV1ConfigSchemaVisualizationVariant9Y | None = None
     points: WizardV1ConfigSchemaVisualizationVariant9Points | None = None
     size: WizardV1ConfigSchemaVisualizationVariant9Size | None = None
@@ -8380,7 +8534,7 @@ class WizardV1ConfigSchemaVisualizationVariant10(APIModel):
     )
     dimensions: WizardV1ConfigSchemaVisualizationVariant10Dimensions | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant10Colors | None = None
-    measures: WizardV1ConfigSchemaVisualizationVariant10Measures
+    measures: WizardV1ConfigSchemaVisualizationVariant10Measures | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant10Sort | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant10Labels | None = None
 
@@ -8388,7 +8542,7 @@ class WizardV1ConfigSchemaVisualizationVariant10(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant11(APIModel):
     dimensions: WizardV1ConfigSchemaVisualizationVariant11Dimensions | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant11Colors | None = None
-    measures: WizardV1ConfigSchemaVisualizationVariant11Measures
+    measures: WizardV1ConfigSchemaVisualizationVariant11Measures | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant11Sort | None = None
     labels: WizardV1ConfigSchemaVisualizationVariant11Labels | None = None
     type: Literal["donut"] = Field(..., description="Donut visualization type.")
@@ -8407,7 +8561,7 @@ class WizardV1ConfigSchemaVisualizationVariant12(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant12ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    measures: WizardV1ConfigSchemaVisualizationVariant12Measures
+    measures: WizardV1ConfigSchemaVisualizationVariant12Measures | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant12Colors | None = None
 
 
@@ -8416,8 +8570,8 @@ class WizardV1ConfigSchemaVisualizationVariant13(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant13ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    dimensions: WizardV1ConfigSchemaVisualizationVariant13Dimensions
-    measures: WizardV1ConfigSchemaVisualizationVariant13Measures
+    dimensions: WizardV1ConfigSchemaVisualizationVariant13Dimensions | None = None
+    measures: WizardV1ConfigSchemaVisualizationVariant13Measures | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant13Colors | None = None
 
 
@@ -8426,7 +8580,7 @@ class WizardV1ConfigSchemaVisualizationVariant14(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant14ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    columns: WizardV1ConfigSchemaVisualizationVariant14Columns
+    columns: WizardV1ConfigSchemaVisualizationVariant14Columns | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant14Colors | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant14Sort | None = None
 
@@ -8436,9 +8590,9 @@ class WizardV1ConfigSchemaVisualizationVariant15(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant15ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    columns: WizardV1ConfigSchemaVisualizationVariant15Columns
-    rows: WizardV1ConfigSchemaVisualizationVariant15Rows
-    measures: WizardV1ConfigSchemaVisualizationVariant15Measures
+    columns: WizardV1ConfigSchemaVisualizationVariant15Columns | None = None
+    rows: WizardV1ConfigSchemaVisualizationVariant15Rows | None = None
+    measures: WizardV1ConfigSchemaVisualizationVariant15Measures | None = None
     colors: WizardV1ConfigSchemaVisualizationVariant15Colors | None = None
     sort: WizardV1ConfigSchemaVisualizationVariant15Sort | None = None
 
@@ -8480,8 +8634,8 @@ class WizardV1ConfigSchemaVisualizationVariant16(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant16ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    layers: list[WizardV1GeolayerLayerSchema] = Field(
-        ..., description="Layers included in the map."
+    layers: list[WizardV1GeolayerLayerSchema] | None = Field(
+        default=None, description="Layers included in the map."
     )
     selected_layer_id: str | None = Field(
         default=None,
@@ -8495,8 +8649,8 @@ class WizardV1ConfigSchemaVisualizationVariant17(APIModel):
     chart_settings: WizardV1ConfigSchemaVisualizationVariant17ChartSettings | None = Field(
         default=None, alias="chartSettings"
     )
-    layers: list[WizardV1CombinedChartLayerSchema] = Field(
-        ..., description="Layers included in the combined chart."
+    layers: list[WizardV1CombinedChartLayerSchema] | None = Field(
+        default=None, description="Layers included in the combined chart."
     )
     selected_layer_id: str | None = Field(
         default=None,
@@ -8506,7 +8660,7 @@ class WizardV1ConfigSchemaVisualizationVariant17(APIModel):
 
 
 class WizardV1ConfigSchema(APIModel):
-    sources: WizardV1ConfigSchemaSources
+    sources: WizardV1ConfigSchemaSources | None = None
     visualization: (
         WizardV1ConfigSchemaVisualizationVariant1
         | WizardV1ConfigSchemaVisualizationVariant2
@@ -8525,7 +8679,8 @@ class WizardV1ConfigSchema(APIModel):
         | WizardV1ConfigSchemaVisualizationVariant15
         | WizardV1ConfigSchemaVisualizationVariant16
         | WizardV1ConfigSchemaVisualizationVariant17
-    ) = Field(..., description="Chart visualization configuration.")
+        | None
+    ) = Field(default=None, description="Chart visualization configuration.")
 
 
 class WizardV1(APIModel):
@@ -8612,5 +8767,5 @@ class CreateWizardChartV1Result(APIModel):
 
 
 class CreateWizardChartV1Args(EntryLocationIdentifiers):
-    data: WizardV1ConfigSchema
+    data: WizardV1ConfigSchema | None = None
     annotation: shared.EntryAnnotationArg | None = None

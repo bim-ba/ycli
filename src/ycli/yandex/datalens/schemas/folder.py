@@ -12,10 +12,11 @@ from . import shared
 
 
 class DlsInitialPermissionItem(APIModel):
-    comment: str = Field(
-        ..., description="Comment describing the reason for this initial permission."
+    comment: str | None = Field(
+        default=None,
+        description="Comment describing the reason for this initial permission.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class GetPermissionsArgs(RequestBody):
@@ -149,7 +150,7 @@ class ModifyPermissionsArgsBodyDiffAddedAclAdmItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffAddedAclEditItem(APIModel):
@@ -157,7 +158,7 @@ class ModifyPermissionsArgsBodyDiffAddedAclEditItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffAddedAclViewItem(APIModel):
@@ -165,7 +166,7 @@ class ModifyPermissionsArgsBodyDiffAddedAclViewItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffAddedAclExecuteItem(APIModel):
@@ -173,7 +174,7 @@ class ModifyPermissionsArgsBodyDiffAddedAclExecuteItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffRemovedAclAdmItem(APIModel):
@@ -181,7 +182,7 @@ class ModifyPermissionsArgsBodyDiffRemovedAclAdmItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffRemovedAclEditItem(APIModel):
@@ -189,7 +190,7 @@ class ModifyPermissionsArgsBodyDiffRemovedAclEditItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffRemovedAclViewItem(APIModel):
@@ -197,7 +198,7 @@ class ModifyPermissionsArgsBodyDiffRemovedAclViewItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffRemovedAclExecuteItem(APIModel):
@@ -205,35 +206,43 @@ class ModifyPermissionsArgsBodyDiffRemovedAclExecuteItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
+    subject: str | None = Field(default=None, description="Subject identifier.")
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclAdmItemNew(APIModel):
-    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str = Field(
-        ..., alias="grantType", description="New ACL level to assign to the subject."
+    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str | None = Field(
+        default=None, alias="grantType", description="New ACL level to assign to the subject."
     )
-    subject: str = Field(..., description="New subject identifier after modification.")
+    subject: str | None = Field(
+        default=None, description="New subject identifier after modification."
+    )
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclEditItemNew(APIModel):
-    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str = Field(
-        ..., alias="grantType", description="New ACL level to assign to the subject."
+    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str | None = Field(
+        default=None, alias="grantType", description="New ACL level to assign to the subject."
     )
-    subject: str = Field(..., description="New subject identifier after modification.")
+    subject: str | None = Field(
+        default=None, description="New subject identifier after modification."
+    )
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclViewItemNew(APIModel):
-    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str = Field(
-        ..., alias="grantType", description="New ACL level to assign to the subject."
+    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str | None = Field(
+        default=None, alias="grantType", description="New ACL level to assign to the subject."
     )
-    subject: str = Field(..., description="New subject identifier after modification.")
+    subject: str | None = Field(
+        default=None, description="New subject identifier after modification."
+    )
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclExecuteItemNew(APIModel):
-    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str = Field(
-        ..., alias="grantType", description="New ACL level to assign to the subject."
+    grant_type: Literal["acl_view", "acl_edit", "acl_adm", "acl_execute"] | str | None = Field(
+        default=None, alias="grantType", description="New ACL level to assign to the subject."
     )
-    subject: str = Field(..., description="New subject identifier after modification.")
+    subject: str | None = Field(
+        default=None, description="New subject identifier after modification."
+    )
 
 
 class DlsPermissionUnitParent(APIModel):
@@ -574,8 +583,8 @@ class ModifyPermissionsArgsBodyDiffModifiedAclAdmItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
-    new: ModifyPermissionsArgsBodyDiffModifiedAclAdmItemNew
+    subject: str | None = Field(default=None, description="Subject identifier.")
+    new: ModifyPermissionsArgsBodyDiffModifiedAclAdmItemNew | None = None
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclEditItem(APIModel):
@@ -583,8 +592,8 @@ class ModifyPermissionsArgsBodyDiffModifiedAclEditItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
-    new: ModifyPermissionsArgsBodyDiffModifiedAclEditItemNew
+    subject: str | None = Field(default=None, description="Subject identifier.")
+    new: ModifyPermissionsArgsBodyDiffModifiedAclEditItemNew | None = None
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclViewItem(APIModel):
@@ -592,8 +601,8 @@ class ModifyPermissionsArgsBodyDiffModifiedAclViewItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
-    new: ModifyPermissionsArgsBodyDiffModifiedAclViewItemNew
+    subject: str | None = Field(default=None, description="Subject identifier.")
+    new: ModifyPermissionsArgsBodyDiffModifiedAclViewItemNew | None = None
 
 
 class ModifyPermissionsArgsBodyDiffModifiedAclExecuteItem(APIModel):
@@ -601,8 +610,8 @@ class ModifyPermissionsArgsBodyDiffModifiedAclExecuteItem(APIModel):
         default=None,
         description="Comment describing the reason for this permission change.",
     )
-    subject: str = Field(..., description="Subject identifier.")
-    new: ModifyPermissionsArgsBodyDiffModifiedAclExecuteItemNew
+    subject: str | None = Field(default=None, description="Subject identifier.")
+    new: ModifyPermissionsArgsBodyDiffModifiedAclExecuteItemNew | None = None
 
 
 class DlsPermissionPendingParticipant(APIModel):
@@ -711,7 +720,7 @@ class ModifyPermissionsArgsBodyDiff(APIModel):
 class ModifyPermissionsArgsBody(APIModel):
     """Permission changes to apply."""
 
-    diff: ModifyPermissionsArgsBodyDiff
+    diff: ModifyPermissionsArgsBodyDiff | None = None
 
 
 class ModifyPermissionsArgs(RequestBody):
