@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.79.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.78.0
+  ([`67822d6`](https://github.com/bim-ba/ycli/commit/67822d623073d95ccdfcdca6c448ba8fd151dc6b))
+
+### Features
+
+- **datalens**: The models of every DataLens schema are generated from its specification
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`07abea7`](https://github.com/bim-ba/ycli/commit/07abea7418ed2234d17354be092444dbae1b4d6b))
+
+### Refactoring
+
+- **api**: A body field that differs for ycli's own reason says so above itself
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`7db6991`](https://github.com/bim-ba/ycli/commit/7db699186ef087888cc92b62cd186957eed5ced4))
+
+
 ## v0.78.0 (2026-10-05)
 
 ### Build System
