@@ -4,6 +4,7 @@ Run a subcommand directly: ``uv run ycli wiki pages get <slug>`` (or ``python -m
 """
 
 import logging
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -11,7 +12,14 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
-from ycli.cli.typedefs import DryRunOption, FormatOption, ProfileOption, YesOption
+from ycli.cli.typedefs import (
+    BodyFileOption,
+    DryRunOption,
+    FieldOption,
+    FormatOption,
+    ProfileOption,
+    YesOption,
+)
 from ycli.yandex.registry import SERVICES
 
 
@@ -43,6 +51,8 @@ def _render(
     yes: bool,
     dry_run: bool,
     profile: str | None,
+    field: list[str] | None,
+    body_file: Path | None,
     verbose: int,
     version: bool,
 ) -> None:
@@ -82,6 +92,8 @@ def _main(
     yes: YesOption = False,
     dry_run: DryRunOption = False,
     profile: ProfileOption = None,
+    field: FieldOption = None,
+    body_file: BodyFileOption = None,
     verbose: Annotated[
         int,
         typer.Option(

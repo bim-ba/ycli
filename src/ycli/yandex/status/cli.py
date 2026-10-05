@@ -19,7 +19,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from ycli.cli.exit_codes import ExitCode
-from ycli.cli.global_options import refuse_dry_run
+from ycli.cli.global_options import refuse_dry_run, refuse_fields
 from ycli.cli.output import ExitWith
 from ycli.settings import (
     OAUTH_TOKEN_ENV,
@@ -71,6 +71,7 @@ def status(*, context: typer.Context, config: AppConfig) -> AuthReport | ExitWit
     environment's. The owner comes from Yandex ID, the organization name from API 360, and each
     service is probed with its own call. `ycli <service> auth status` probes just one service.
     """
+    refuse_fields(context)
     try:
         credentials = Credentials.load(context.find_root().obj.profile)
     except ValidationError as exc:
@@ -97,6 +98,7 @@ def doctor(*, context: typer.Context, config: AppConfig) -> DoctorReport | ExitW
     out (asked from PyPI, without credentials). A check that cannot run after an earlier failure
     is skipped. Exits 0 unless a check failed.
     """
+    refuse_fields(context)
     credentials, invalid = None, ""
     profile = active_profile(context.find_root().obj.profile)
     try:
@@ -190,6 +192,7 @@ def profiles(*, context: typer.Context) -> ItemList[SavedProfile]:
     A profile is one file in the user's configuration directory (`ycli doctor` prints it),
     written by `ycli auth login --profile NAME`; deleting the file removes the profile.
     """
+    refuse_fields(context)
     active = active_profile(context.find_root().obj.profile)
     return ItemList[SavedProfile]([_saved_profile(name, active) for name in profile_names()])
 

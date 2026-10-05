@@ -46,7 +46,7 @@ class IssueCreate(APIModel):
     """Typed request body for ``POST /issues/`` (create an issue).
 
     Covers the common fields; ``extra="allow"`` lets any custom (global or queue-local) field
-    key=value pair pass through unvalidated, matching the CLI's ``-F key=value`` escape hatch.
+    pass through unvalidated.
     ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are
     valid per the Tracker API); the CLI sends the object form.
 
@@ -76,8 +76,8 @@ class IssueCreate(APIModel):
 class IssueUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}`` (update an issue; only sent fields change).
 
-    ``extra="allow"`` lets any custom field key=value pair pass through, matching the CLI's
-    ``-F key=value`` escape hatch. Status is NOT changed here — use ``transitions_execute``.
+    ``extra="allow"`` lets any custom field pass through unvalidated. Status is NOT changed
+    here — use ``transitions_execute``.
 
     Examples:
         >>> IssueUpdate(summary="New title").model_dump(exclude_none=True)

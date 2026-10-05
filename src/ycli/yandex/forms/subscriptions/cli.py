@@ -8,6 +8,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.body_fields import CallerFields
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
@@ -21,17 +22,6 @@ app = typer.Typer(
 SubscriptionIDArg = Annotated[
     int, typer.Argument(metavar="SUBSCRIPTION_ID", help="Integration id (integer).")
 ]
-SubscriptionFileArg = Annotated[
-    Path,
-    typer.Option(
-        "--body-file",
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        help='JSON file with the integration body; "type" selects it: email, tracker, '
-        "tracker_comment, wiki, jsonrpc, http or function.",
-    ),
-]
 AttachedFilePathArg = Annotated[
     Path,
     typer.Argument(
@@ -44,8 +34,9 @@ AttachedFilePathArg = Annotated[
 ]
 
 
-def _body(body_file: Path) -> Subscription:
-    return SubscriptionAdapter.validate_json(body_file.read_bytes())
+def _body(caller: CallerFields) -> Subscription:
+    # The body is a union that picks its class by ``type``: it comes from --body-file and -F.
+    return SubscriptionAdapter.validate_python(caller.over({}))
 
 
 @app.command("list")
@@ -72,12 +63,12 @@ def get(
 def create(
     survey_id: SurveyIDArg,
     hook_id: HookIDArg,
-    body_file: SubscriptionFileArg,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Subscription:
     """Add an integration to hook HOOK_ID from a JSON body (POST …/subscriptions)."""
-    return forms.subscriptions.create(survey_id, hook_id, _body(body_file))
+    return forms.subscriptions.create(survey_id, hook_id, _body(caller))
 
 
 @app.command()
@@ -85,12 +76,12 @@ def update(
     survey_id: SurveyIDArg,
     hook_id: HookIDArg,
     subscription_id: SubscriptionIDArg,
-    body_file: SubscriptionFileArg,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Subscription:
     """Change integration SUBSCRIPTION_ID: only the fields in the JSON body change (PATCH)."""
-    return forms.subscriptions.update(survey_id, hook_id, subscription_id, _body(body_file))
+    return forms.subscriptions.update(survey_id, hook_id, subscription_id, _body(caller))
 
 
 @app.command()

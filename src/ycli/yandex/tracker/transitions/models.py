@@ -47,7 +47,7 @@ class TransitionExecute(APIModel):
     """Typed request body for ``POST /issues/{key}/transitions/{id}/_execute``.
 
     Open-ended: any issue field can be set on transition (e.g. a resolution when closing), so
-    ``extra="allow"`` lets arbitrary field key=value pairs (from the CLI's ``-F``) pass through
+    ``extra="allow"`` lets arbitrary fields pass through
     unvalidated while the common fields below still document themselves in the MCP schema.
 
     Examples:

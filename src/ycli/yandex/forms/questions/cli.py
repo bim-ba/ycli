@@ -1,10 +1,10 @@
 """`forms questions` commands (reads + writes; writes also ship as MCP tools)."""
 
-from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 import typer
 
+from ycli.cli.body_fields import CallerFields
 from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
@@ -31,7 +31,7 @@ app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=Tru
 FlagQuestionType = Literal["string", "boolean", "integer", "date", "enum"]
 
 
-def _build_from_flags(
+def _from_flags(
     type_: str | None,
     *,
     label: str | None,
@@ -43,14 +43,13 @@ def _build_from_flags(
     multiline: bool | None,
     widget: str | None,
     options: list[str] | None,
-) -> QuestionCreate:
-    """Build a typed question from the common ``--type`` flags (string/boolean/integer/date/enum).
+) -> dict[str, Any]:
+    """The fields of a question that the flags gave (string/boolean/integer/date/enum).
 
-    Raises ``typer.BadParameter`` for the richer types (matrix/series/suggest/payment/…), which
-    are reachable only via ``--body-file``.
+    The richer types (matrix/series/suggest/payment/…) come from ``--body-file``.
 
     Examples:
-        >>> _build_from_flags(
+        >>> _from_flags(
         ...     "string",
         ...     label="Name",
         ...     slug=None,
@@ -61,7 +60,7 @@ def _build_from_flags(
         ...     multiline=True,
         ...     widget=None,
         ...     options=None,
-        ... ).multiline
+        ... )["multiline"]
         True
     """
     # The flags carry only the ``required`` rule, so they set the whole validators list:
@@ -81,10 +80,7 @@ def _build_from_flags(
         "items": [{"label": text} for text in options] if options else None,
         "validators": validators,
     }
-    # The union picks the class by ``type`` and refuses a flag that type does not take.
-    return QuestionCreateAdapter.validate_python(
-        {name: value for name, value in given.items() if value is not None}
-    )
+    return {name: value for name, value in given.items() if value is not None}
 
 
 def _resolve_body(
@@ -98,12 +94,10 @@ def _resolve_body(
     multiline: bool | None,
     widget: str | None,
     options: list[str] | None,
-    body_file: Path | None,
+    caller: CallerFields,
 ) -> QuestionCreate:
-    """Pick the write body: a ``--body-file`` JSON validated through the union, else typed flags."""
-    if body_file is not None:
-        return QuestionCreateAdapter.validate_json(body_file.read_bytes())
-    return _build_from_flags(
+    """The write body: the flags over ``-F`` over ``--body-file``, validated through the union."""
+    flags = _from_flags(
         type_,
         label=label,
         slug=slug,
@@ -115,6 +109,8 @@ def _resolve_body(
         widget=widget,
         options=options,
     )
+    # The union picks the class by ``type`` and refuses a field that type does not take.
+    return QuestionCreateAdapter.validate_python(caller.over(flags))
 
 
 TypeOpt = Annotated[
@@ -143,17 +139,6 @@ WidgetOpt = Annotated[
 ]
 AnswerOptionOpt = Annotated[
     list[str] | None, typer.Option("--option", help="Enum option label (repeatable).")
-]
-QuestionFileOpt = Annotated[
-    Path | None,
-    typer.Option(
-        "--body-file",
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        help="JSON file with the full question body (validated through the typed union); "
-        "use for matrix/series/suggest/payment/daterange.",
-    ),
 ]
 
 
@@ -193,8 +178,8 @@ def create(
     multiline: MultilineOpt = None,
     widget: WidgetOpt = None,
     option: AnswerOptionOpt = None,
-    body_file: QuestionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Question:
     """Create a question (POST …/questions). Use --type + flags, or --body-file for full JSON."""
@@ -209,7 +194,7 @@ def create(
         multiline,
         widget,
         option,
-        body_file,
+        caller,
     )
     return forms.questions.create(survey_id, payload)
 
@@ -228,8 +213,8 @@ def update(
     multiline: MultilineOpt = None,
     widget: WidgetOpt = None,
     option: AnswerOptionOpt = None,
-    body_file: QuestionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Question:
     """Modify a question (PATCH …/questions/{id}) — --type + flags, or --body-file for full JSON."""
@@ -244,7 +229,7 @@ def update(
         multiline,
         widget,
         option,
-        body_file,
+        caller,
     )
     return forms.questions.update(survey_id, question_id, payload)
 

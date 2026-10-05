@@ -1,6 +1,7 @@
 """Shared CLI helper — the ``key=value`` field parser behind ``--field`` and ``ycli api -f/-F``."""
 
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -13,21 +14,28 @@ _BRACKET = re.compile(r"\[([^\[\]]*)\]")
 
 
 def parse_fields(
-    items: list[str] | None = None, *, raw: list[str] | None = None, structured: bool = False
+    items: list[str] | None = None,
+    *,
+    raw: list[str] | None = None,
+    structured: bool = False,
+    nested: bool = False,
 ) -> dict[str, Any]:
     """Parse repeated ``key=value`` strings into a dict (the gh ``-F`` / ``-f`` model).
 
     ``items`` are typed: each value is JSON-coerced (``123`` → int, ``true`` → bool,
-    ``{"id":5}`` → object), falling back to the raw string when it is not valid JSON. ``raw``
+    ``{"id":5}`` → object), falling back to the raw string when it is not valid JSON (``NaN``,
+    ``Infinity`` and ``1e999`` are not: JSON has no such numbers). ``raw``
     values are always strings and are applied first. ``structured`` adds what ``ycli api``
     needs: ``key[sub]=v`` nests, ``key[]=v`` appends to an array, and a typed value ``@file``
-    (``@-`` for stdin) is the file's text. Raises ``typer.BadParameter`` for an item without
+    (``@-`` for stdin) is the file's text; ``nested`` adds the keys alone, without ``@file``.
+    Raises ``typer.BadParameter`` for an item without
     ``=``, a malformed key, a missing file or a key that clashes with an earlier one.
 
     Args:
         items: Typed ``key=value`` strings.
         raw: Always-string ``key=value`` strings, applied first.
         structured: Whether ``key[sub]``, ``key[]`` and ``@file`` values are understood.
+        nested: Whether ``key[sub]`` and ``key[]`` are understood (a value stays as given).
 
     Returns:
         The parsed fields.
@@ -41,10 +49,10 @@ def parse_fields(
     out: dict[str, Any] = {}
     for item in raw or []:
         key, text = _pair(item)
-        _assign(out, key, text, structured=structured)
+        _assign(out, key, text, structured=structured or nested)
     for item in items or []:
         key, text = _pair(item)
-        _assign(out, key, _typed(text, structured=structured), structured=structured)
+        _assign(out, key, _typed(text, structured=structured), structured=structured or nested)
     return out
 
 
@@ -59,9 +67,17 @@ def _typed(text: str, *, structured: bool) -> Any:
     if structured and text.startswith("@"):
         return _read_text(text[1:])
     try:
-        return json.loads(text)
-    except json.JSONDecodeError:
+        return json.loads(text, parse_float=_finite, parse_constant=_finite)
+    except ValueError:  # not JSON, or a number JSON cannot carry: the text as written
         return text
+
+
+def _finite(text: str) -> float:
+    """``text`` as a number; ``NaN``, ``Infinity`` and an overflow like ``1e999`` are not one."""
+    number = float(text)
+    if not math.isfinite(number):
+        raise ValueError(text)
+    return number
 
 
 def _read_text(source: str) -> str:

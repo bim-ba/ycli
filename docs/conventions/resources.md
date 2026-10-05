@@ -392,6 +392,22 @@ check of its own to say it. A reply that does not fit its model is another error
   declares a default it applies by itself, and where the API requires a value the option is
   required. No `x or None` on a value the caller gave: an empty string or a `False` is a value.
   A place that departs from this on purpose is marked `# violation(as-given): <reason>`.
+- Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
+  field that has no flag of its own (#354). They are declared once, beside `--yes` and
+  `--dry-run`, and a command writes no code for them: the CLI lays them under the body the
+  command built, at the first request it sends, object by object. The later the stronger:
+  file, then `-F`, then the command's flags. `-F 'fields[priority]=high'` names a nested field.
+  Only objects merge: a list replaces the one below it, so a file's `{"tags": ["a"]}` and
+  `-F 'tags[]=x'` send `["x"]`. A `-F` given before the subcommand and one after it add up. A
+  command with a `-F` of its own (`ycli api`, the bulk changes) refuses the common one.
+  Such a field does not pass the body model; the API answers for it. A command whose first
+  request carries no JSON object refuses them before sending. A command whose body is a union
+  that picks its class by a field (a question, a subscription, a condition group) cannot wait
+  for the request: it takes `CallerFields` as a parameter, merges in the same order and
+  validates the result. Where that model is closed (`forms questions`, the eight
+  `forms conditions` writes) a field it does not know is refused; where it is open
+  (`forms subscriptions`, `forms filling submit`) the field is sent. A command that sends no
+  body at all (`auth status`, `doctor`, `mcp start`) refuses both options before it does anything.
 - An async trigger (export, clone, bulk change) takes `--wait/--no-wait`, default `--wait`, and
   polls through `ycli.cli.progress.wait_for`; the matching `operations get` read ships on every
   surface so an agent can poll it too.

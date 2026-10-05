@@ -4,7 +4,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.fields import parse_fields
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
@@ -27,16 +26,8 @@ def execute(
     transition_id: Annotated[
         str, typer.Argument(metavar="ID", help="Transition id (from `transitions list`).")
     ],
-    field: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--field", "-F", help="Transition body field key=value (JSON-coerced; repeatable)."
-        ),
-    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Transition]:
-    """Execute transition ID on issue ISSUE_KEY (optional body via --field)."""
-    return tracker.transitions.execute(
-        issue_key, transition_id, body=TransitionExecute(**parse_fields(field))
-    )
+    """Execute transition ID on issue ISSUE_KEY; -F gives the fields its screen asks for."""
+    return tracker.transitions.execute(issue_key, transition_id, body=TransitionExecute())
