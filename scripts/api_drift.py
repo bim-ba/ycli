@@ -82,24 +82,17 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
 # published operation or wherever it occurs in a service. Both are checked in both directions:
 # an unexplained difference fails, and so does an entry that matches no difference. A path is
 # written as the snapshot keys it, with ``{}`` for each parameter (``/pages/{}/comments``).
-# A reason that begins with ``IGNORED`` marks a field or parameter the API accepts and does
-# nothing with: it stays in ycli, its description begins with ``IGNORED_BY_API`` and setting
-# it logs a warning (docs/conventions/resources.md); ``ignored_marks`` ties the two together.
+# A body field the API accepts and does nothing with is not listed here: its description begins
+# with ``IGNORED_BY_API`` (docs/conventions/resources.md), and ``explained`` reads that mark,
+# so the reason is stated once, where a caller reads it. A query parameter has no model to
+# carry the mark, so it is listed with the ``IGNORED`` reason.
 IGNORED = "the API accepts it and ignores it (checked live on 2026-10-04)"
 _RETURNED = "the API returns it (checked live on 2026-10-04), the published schema omits it"
-_SURVEYS = (("POST", "/surveys"), ("PATCH", "/surveys/{}"))
-_QUESTIONS = (("POST", "/surveys/{}/questions"), ("PATCH", "/surveys/{}/questions/{}"))
 _SUBSCRIPTIONS = (
     ("POST", "/surveys/{}/hooks/{}/subscriptions"),
     ("PATCH", "/surveys/{}/hooks/{}/subscriptions/{}"),
 )
 EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, path, kind, name
-    **{
-        ("forms", method, path, "unknown_request", name): IGNORED
-        for method, path in _SURVEYS
-        for name in ("is_public", "is_published", "language")
-    },
-    **{("forms", method, path, "unknown_request", "id"): IGNORED for method, path in _QUESTIONS},
     **{
         (
             "forms",
@@ -111,6 +104,12 @@ EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, pat
         for method, path in _SUBSCRIPTIONS
     },
     ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
+}
+# Body fields marked ``IGNORED_BY_API`` that the published schema does list: the API ignores
+# them all the same (checked live on 2026-10-04), and no difference comes of the mark.
+IGNORED_THOUGH_PUBLISHED = {
+    ("forms", "POST", "/surveys/{}/questions", "items"),
+    ("forms", "PATCH", "/surveys/{}/questions/{}", "items"),
 }
 EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
     ("forms", "unknown_response", "modified"): _RETURNED,
@@ -511,7 +510,7 @@ def unexplained(
 
     Args:
         found: The drift of each service to check.
-        explained: Reasons per operation (``EXPLAINED``).
+        explained: Reasons per operation (``explained()``).
         everywhere: Reasons per name across a service (``EXPLAINED_EVERYWHERE``).
 
     Returns:
@@ -556,7 +555,7 @@ def reasons(service: str, gap: Gap) -> list[str]:
     found = []
     for kind in GAP_KINDS:
         for name in getattr(gap, kind):
-            why = EXPLAINED.get((service, *gap.published.key, kind, name))
+            why = explained().get((service, *gap.published.key, kind, name))
             why = why or EXPLAINED_EVERYWHERE.get((service, kind, name))
             if why and why not in found:
                 found.append(why)
@@ -576,6 +575,20 @@ def ignored_marks() -> set[tuple[str, str, str, str]]:
         for model in _models(typed_body(found)):
             marked |= {(service, *published.key, name) for name, _ in ignored_fields(model)}
     return marked
+
+
+@cache
+def explained() -> Mapping[tuple[str, str, str, str, str], str]:
+    """``EXPLAINED``, plus the ``IGNORED`` reason for every body field that carries the mark.
+
+    A marked field the published schema lists (``IGNORED_THOUGH_PUBLISHED``) makes no difference,
+    so it explains none; any other mark must match one, or the comparison calls it stale.
+    """
+    marked = {
+        (service, method, path, "unknown_request", name): IGNORED
+        for service, method, path, name in ignored_marks() - IGNORED_THOUGH_PUBLISHED
+    }
+    return {**marked, **EXPLAINED}
 
 
 def _unique(found: list[Call]) -> list[Call]:
