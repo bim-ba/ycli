@@ -1,7 +1,5 @@
 """Wiki models that several resources share: one class per shape."""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

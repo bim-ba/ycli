@@ -3,8 +3,6 @@
 ``attach`` uploads a local file (a binary payload), so it is CLI/SDK only.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 

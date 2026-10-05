@@ -4,8 +4,6 @@ The docs call this API legacy and point to the unified entities API for projects
 portfolios (``ycli tracker entities``); these models serve the older endpoints.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field

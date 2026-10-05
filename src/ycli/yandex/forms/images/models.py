@@ -1,7 +1,5 @@
 """Pydantic models for Forms images (an uploaded or cloned image, and the clone request)."""
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field

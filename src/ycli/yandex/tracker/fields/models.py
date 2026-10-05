@@ -4,8 +4,6 @@ The single-record class is named ``CustomField`` (not ``Field``) so it never sha
 ``pydantic.Field``, which every attribute in this module is declared with.
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

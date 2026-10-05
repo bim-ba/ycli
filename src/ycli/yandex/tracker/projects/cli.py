@@ -1,7 +1,5 @@
 """`tracker projects` commands (legacy Projects API v3; see `tracker entities` for the new one)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

@@ -1,7 +1,5 @@
 """Pydantic models for Tracker /issues (Issue + ItemList[Issue] root model)."""
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, RootModel

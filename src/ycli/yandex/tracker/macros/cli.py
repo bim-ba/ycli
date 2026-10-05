@@ -1,7 +1,5 @@
 """`tracker macros` commands."""
 
-from __future__ import annotations
-
 import json
 from typing import Annotated
 

@@ -1,7 +1,5 @@
 """Yandex Wiki CLI — mounts the per-resource sub-apps."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.status.service_cli import service_auth_app

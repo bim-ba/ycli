@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue remote links (links to external-application objects)."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import (

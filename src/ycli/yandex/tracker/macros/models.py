@@ -6,8 +6,6 @@ a canned comment plus field updates on an issue. Note the asymmetry the API expo
 of field→value on the way in (see :class:`MacroCreate`).
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

@@ -1,7 +1,5 @@
 """`forms notifications` commands: the runs of a form's integrations (reads + restart, cancel)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

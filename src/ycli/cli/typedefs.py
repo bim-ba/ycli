@@ -9,8 +9,6 @@ here too, once, and reused by the root callback and every leaf command (see
 :mod:`ycli.cli.global_options`).
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated, Any, Literal, get_args, get_origin
 

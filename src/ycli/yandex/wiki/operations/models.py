@@ -9,8 +9,6 @@ stop predicates for the ``--wait`` CLI path.
 Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

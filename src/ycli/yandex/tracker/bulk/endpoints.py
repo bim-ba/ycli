@@ -8,8 +8,6 @@ Examples:
     'bulkchange/1ab2'
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint, segment

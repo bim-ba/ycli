@@ -1,7 +1,5 @@
 """``OutputFormat`` — the global ``--format`` choices (kept apart so the CLI root stays light)."""
 
-from __future__ import annotations
-
 import enum
 
 

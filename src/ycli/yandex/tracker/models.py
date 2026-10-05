@@ -6,8 +6,6 @@ the account ids of a user. The plain reference is the base class and the other t
 fields to it, whichever resource reads them.
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

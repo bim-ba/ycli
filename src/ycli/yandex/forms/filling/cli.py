@@ -3,8 +3,6 @@
 All three also reach MCP (``filling_get`` / ``filling_submit`` / ``filling_suggest``).
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 

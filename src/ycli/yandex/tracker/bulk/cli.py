@@ -1,7 +1,5 @@
 """`tracker bulk` commands: the status of a bulk change and the issues it failed on."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

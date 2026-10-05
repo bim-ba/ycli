@@ -1,7 +1,5 @@
 """Pydantic models for Tracker users (User and the relative-page envelope)."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel

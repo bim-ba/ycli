@@ -6,8 +6,6 @@ links and attachments are nested sub-apps. Commands return their results; the on
 download (``attachments download``) returns a ``BinaryResult``.
 """
 
-from __future__ import annotations
-
 from typing import Annotated, Any
 
 import typer

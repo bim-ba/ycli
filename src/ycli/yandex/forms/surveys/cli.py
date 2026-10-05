@@ -1,7 +1,5 @@
 """`forms surveys` commands (reads + writes; writes also ship as MCP tools)."""
 
-from __future__ import annotations
-
 from typing import Annotated, Any
 
 import typer

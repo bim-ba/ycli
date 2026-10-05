@@ -1,7 +1,5 @@
 """Pydantic models for Tracker saved filters (Filter + nested permission models)."""
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

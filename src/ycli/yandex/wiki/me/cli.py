@@ -1,7 +1,5 @@
 """`wiki me` commands."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.wiki.client import WikiClient

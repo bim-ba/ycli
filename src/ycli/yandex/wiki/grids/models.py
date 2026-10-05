@@ -14,8 +14,6 @@ you poll through the ``operations`` resource.
 Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field, RootModel

@@ -6,8 +6,6 @@ Examples:
     'issues/DE-1/changelog'
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment

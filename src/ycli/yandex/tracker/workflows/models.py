@@ -11,8 +11,6 @@ write the API's, so the JSON of the docs can be passed to the CLI as is while Py
 snake_case.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import AliasChoices, Field, RootModel

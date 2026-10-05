@@ -1,7 +1,5 @@
 """Forms ``/surveys`` client on the httpx2 core."""
 
-from __future__ import annotations
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.surveys import endpoints
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate

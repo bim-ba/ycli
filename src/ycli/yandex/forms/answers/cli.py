@@ -1,7 +1,5 @@
 """`forms answers` commands (reads, delete and restore, and the async export action)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

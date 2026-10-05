@@ -10,8 +10,6 @@ Every field carries ``Field(description=…)`` — those descriptions surface in
 ``outputSchema`` and in generated docs — and full, unabbreviated names.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import AliasChoices, ConfigDict, Field

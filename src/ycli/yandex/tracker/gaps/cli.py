@@ -1,7 +1,5 @@
 """`tracker gaps` commands: employee absences (admin-only)."""
 
-from __future__ import annotations
-
 import json
 from typing import Annotated
 

@@ -4,8 +4,6 @@ Nested objects (steps, actions, resolutions) come in as JSON in the shape of the
 ``--step '{"status": "open", "actions": [...]}'``; the typed request models validate them.
 """
 
-from __future__ import annotations
-
 import json
 from typing import Annotated, Any
 

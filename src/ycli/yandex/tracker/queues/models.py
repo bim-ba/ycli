@@ -6,8 +6,6 @@ both; the extra ``expand`` blocks (``workflows``, ``issueTypesConfig``, …) are
 so a plain list stays valid.
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

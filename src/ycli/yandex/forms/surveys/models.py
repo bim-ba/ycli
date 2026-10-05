@@ -1,7 +1,5 @@
 """Pydantic models for Forms /surveys (Survey + SurveysResponse envelope + ItemList[Survey])."""
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field
