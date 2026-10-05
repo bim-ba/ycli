@@ -76,7 +76,7 @@ CASES = [
         "wiki.uploadsessions.parts_upload",
         args=(SID,),
         kwargs={"part_number": 1, "data": DATA},
-        cli=["wiki", "uploadsessions", "parts-upload", SID, str(PART)],
+        cli=["wiki", "uploadsessions", "parts-upload", SID, str(PART), "--part-number", "1"],
         mcp=None,
         exchanges=[
             (

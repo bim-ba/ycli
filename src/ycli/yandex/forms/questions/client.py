@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class QuestionsClient(Resource):
     """Get, list, create, update, delete and move the questions of a form."""
 
-    def get(self, survey_id: str, question_id: str, *, with_slugs: bool = False) -> Question:
+    def get(self, survey_id: str, question_id: str, *, with_slugs: bool | None = None) -> Question:
         """``GET /surveys/{id}/questions/{question_id}`` → a single :class:`Question` (settings).
 
         Args:
@@ -98,7 +98,7 @@ class QuestionsClient(Resource):
         """
         return self._session.send(endpoints.update(survey_id, question_id, body))
 
-    def delete(self, survey_id: str, question_id: str, *, force: bool = False) -> Ack:
+    def delete(self, survey_id: str, question_id: str, *, force: bool | None = None) -> Ack:
         """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.
 
         The API refuses to delete a question that another question's display conditions still

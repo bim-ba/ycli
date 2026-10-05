@@ -831,8 +831,8 @@ class ReportSort(RequestBody):
     """
 
     order_by: str = Field(alias="orderBy", description="Issue field to sort the report by.")
-    order_asc: bool = Field(
-        default=True,
+    order_asc: bool | None = Field(
+        default=None,
         alias="orderAsc",
         description="Sort direction: true ascending, false descending.",
     )
@@ -856,14 +856,17 @@ class ReportParameters(RequestBody):
     """The ``parameters`` block of a report — export settings plus the issue filter.
 
     Examples:
-        >>> ReportParameters(filter=ReportFilter(query="Q"), fields=["key"]).format
-        'xlsx'
+        >>> ReportParameters(
+        ...     type="issueFilterExport",
+        ...     format="csv",
+        ...     filter=ReportFilter(query="Q"),
+        ...     fields=["key"],
+        ... ).format
+        'csv'
     """
 
-    type: str = Field(
-        default="issueFilterExport", description="Export type. Value: issueFilterExport."
-    )
-    format: ReportFormat = Field(default="xlsx", description="Export format.")
+    type: str = Field(description="Export type. Value: issueFilterExport.")
+    format: ReportFormat | None = Field(default=None, description="Export format.")
     filter: ReportFilter = Field(description="Issue filtering parameters for the report.")
     fields: list[str] = Field(description="Issue field keys to include as report columns.")
 
@@ -872,7 +875,9 @@ class ReportFieldsInput(RequestBody):
     """The ``fields`` object of a report create body — the report name plus export ``parameters``.
 
     Examples:
-        >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
+        >>> params = ReportParameters(
+        ...     type="issueFilterExport", filter=ReportFilter(query="Q"), fields=["key"]
+        ... )
         >>> ReportFieldsInput(summary="Export", parameters=params).summary
         'Export'
     """
@@ -885,7 +890,9 @@ class ReportCreate(RequestBody):
     """Typed request body for ``POST /entities/report/`` — a ``{fields: {...}}`` envelope.
 
     Examples:
-        >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
+        >>> params = ReportParameters(
+        ...     type="issueFilterExport", filter=ReportFilter(query="Q"), fields=["key"]
+        ... )
         >>> body = ReportFieldsInput(summary="Export", parameters=params)
         >>> list(ReportCreate(fields=body).model_dump())
         ['fields']

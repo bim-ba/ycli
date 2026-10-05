@@ -313,22 +313,17 @@ class NewColumnSchema(RequestBody):
     requires a ``slug`` on every column (400 ``value_error.missing`` without one).
 
     Examples:
-        >>> NewColumnSchema(title="Owner", type="staff", slug="owner", multiple=True).model_dump(
-        ...     exclude_none=True
-        ... )
+        >>> NewColumnSchema(
+        ...     title="Owner", type="staff", slug="owner", required=False, multiple=True
+        ... ).model_dump(exclude_none=True)
         {'title': 'Owner', 'type': 'staff', 'slug': 'owner', 'required': False, 'multiple': True}
     """
 
     title: str = Field(description="Column header (non-empty).")
     type: ColumnType = Field(description="Value type of the new column.")
-    slug: str | None = Field(
-        default=None,
-        description="Machine slug of the column; the API requires it.",
-    )
+    slug: str = Field(description="Machine slug of the column.")
     required: bool = Field(
-        default=False,
-        description="Whether a value is mandatory. The API requires this on every column, so it "
-        "defaults to ``False`` (never ``None``) to survive ``exclude_none`` serialization.",
+        description="Whether a value is mandatory. The API requires this on every column."
     )
     width: int | None = Field(default=None, description="Column width in ``width_units``.")
     width_units: WidthUnits | None = Field(default=None, description="Unit of ``width``.")
@@ -384,7 +379,7 @@ class GridUpdate(RequestBody):
         {'revision': '3', 'default_sort': [{'col': 'asc'}]}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     title: str | None = Field(default=None, description="New grid title.")
     default_sort: list[ColumnSortWrite] | None = Field(
         default=None,
@@ -403,7 +398,7 @@ class RowsAdd(RequestBody):
         {'revision': '3', 'rows': [{'name': 'x'}]}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     rows: list[dict[str, Any]] = Field(
         description="Rows to insert; each maps a column slug to its cell value."
     )
@@ -421,7 +416,7 @@ class RowsRemove(RequestBody):
         {'revision': '3', 'row_ids': ['r1']}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     row_ids: list[str] = Field(description="Ids of the rows to delete (at least one).")
 
 
@@ -433,8 +428,8 @@ class RowsMove(RequestBody):
         {'revision': '3', 'row_id': 'r1', 'position': 0}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
-    row_id: str | None = Field(default=None, description="Id of the first row to move.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
+    row_id: str = Field(description="Id of the first row to move.")
     after_row_id: str | None = Field(
         default=None, description="Move to just after this row id (alternative to ``position``)."
     )
@@ -449,12 +444,13 @@ class ColumnsAdd(RequestBody):
 
     Examples:
         >>> ColumnsAdd(
-        ...     revision="3", columns=[NewColumnSchema(title="C", type="string", slug="c")]
+        ...     revision="3",
+        ...     columns=[NewColumnSchema(title="C", type="string", slug="c", required=False)],
         ... ).model_dump(exclude_none=True)["columns"]
         [{'title': 'C', 'type': 'string', 'slug': 'c', 'required': False}]
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     columns: list[NewColumnSchema] = Field(description="Columns to add (in order).")
     position: int | None = Field(default=None, description="Zero-based index to insert at.")
 
@@ -467,7 +463,7 @@ class ColumnsRemove(RequestBody):
         {'revision': '3', 'column_slugs': ['name']}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     column_slugs: list[str] = Field(description="Slugs of the columns to delete.")
 
 
@@ -479,9 +475,9 @@ class ColumnsMove(RequestBody):
         {'revision': '3', 'column_slug': 'name', 'position': 0}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
-    column_slug: str | None = Field(default=None, description="Slug of the first column to move.")
-    position: int | None = Field(default=None, description="Zero-based destination index.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
+    column_slug: str = Field(description="Slug of the first column to move.")
+    position: int = Field(description="Zero-based destination index.")
     columns_count: int | None = Field(
         default=None, description="How many consecutive columns to move (default 1)."
     )
@@ -497,7 +493,7 @@ class UpdateCellSchema(RequestBody):
 
     row_id: int = Field(description="Numeric id of the row whose cell is updated.")
     column_slug: str = Field(description="Slug of the cell's column.")
-    value: Any = Field(default=None, description="New cell value (scalar, list, or user ref).")
+    value: Any = Field(description="New cell value (scalar, list, or user ref).")
 
 
 class CellsUpdate(RequestBody):
@@ -510,7 +506,7 @@ class CellsUpdate(RequestBody):
         {'revision': '3', 'cells': [{'row_id': 1, 'column_slug': 'name', 'value': 'x'}]}
     """
 
-    revision: str = Field(description="Grid revision the edit is based on.")
+    revision: str | None = Field(default=None, description="Grid revision the edit is based on.")
     cells: list[UpdateCellSchema] = Field(description="The cells to update.")
 
 
@@ -657,4 +653,6 @@ class GridClone(RequestBody):
 
     target: str = Field(description="Slug of the page to copy the grid onto (created if absent).")
     title: str | None = Field(default=None, description="Title of the copy, if renaming.")
-    with_data: bool = Field(default=False, description="Copy the rows too, not just the structure.")
+    with_data: bool | None = Field(
+        default=None, description="Copy the rows too, not just the structure."
+    )

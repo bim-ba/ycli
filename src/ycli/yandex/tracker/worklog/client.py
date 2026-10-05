@@ -111,7 +111,9 @@ class WorklogClient(Resource):
             >>> from ycli.yandex.tracker.worklog.models import WorklogCreate
             >>> tracker.worklog.create(
             ...     "DE-66",
-            ...     WorklogCreate.model_validate({"duration": "PT2H", "comment": "pairing"}),
+            ...     WorklogCreate.model_validate(
+            ...         {"duration": "PT2H", "start": "2021-03-04T10:00:00.000+0300"}
+            ...     ),
             ... ).duration
             'PT2H'
         """

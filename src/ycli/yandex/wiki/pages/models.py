@@ -287,6 +287,7 @@ class PageRedirectUpdate(RequestBody):
         'eng/new'
     """
 
+    # violation(as-given): required, so that None is sent as null and removes the redirect
     page: PageIdentity | None = Field(
         description="The page to redirect to, by id or slug; ``None`` removes the redirect."
     )
@@ -394,10 +395,10 @@ class PageAppendContentAnchor(RequestBody):
     """
 
     name: str | None = Field(default=None, description="Anchor text to append next to.")
-    fallback: bool = Field(
-        default=False, description="Fall back to the body end if the anchor is not found."
+    fallback: bool | None = Field(
+        default=None, description="Fall back to the body end if the anchor is not found."
     )
-    regex: bool = Field(default=False, description="Treat ``name`` as a regular expression.")
+    regex: bool | None = Field(default=None, description="Treat ``name`` as a regular expression.")
 
 
 class PageAppendContent(RequestBody):
@@ -441,8 +442,8 @@ class PageClone(RequestBody):
 
     target: str = Field(description="Slug of the page's new address after the copy.")
     title: str | None = Field(default=None, description="Title of the copy, if renaming.")
-    subscribe_me: bool = Field(
-        default=False, description="Subscribe the caller to changes on the copy."
+    subscribe_me: bool | None = Field(
+        default=None, description="Subscribe the caller to changes on the copy."
     )
 
 
@@ -482,11 +483,10 @@ class PageMove(RequestBody):
     """
 
     operations: list[PageMoveStep] = Field(description="Moves to run, in order (at least one).")
-    copy_inherited_access: bool = Field(
-        default=False,
+    copy_inherited_access: bool | None = Field(
+        default=None,
         description="Copy the accesses a page inherited from its old parent when it moves. The "
-        "API refuses a move that leaves this unset (400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED), "
-        "so it is always sent, ``false`` by default.",
+        "API can refuse a move that leaves this unset (400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED).",
     )
 
 
@@ -520,7 +520,7 @@ class SearchFilters(RequestBody):
 
     Examples:
         >>> SearchFilters(type="page", cluster="docs").model_dump(exclude_none=True)
-        {'type': 'page', 'cluster': 'docs', 'show_obsolete': False}
+        {'type': 'page', 'cluster': 'docs'}
     """
 
     type: SearchDocumentType | None = Field(default=None, description="Only pages or only files.")
@@ -537,8 +537,8 @@ class SearchFilters(RequestBody):
     modified_at: SearchDateRange | None = Field(
         default=None, description="Only documents modified in this window."
     )
-    show_obsolete: bool = Field(
-        default=False, description="Also return obsolete (outdated) documents."
+    show_obsolete: bool | None = Field(
+        default=None, description="Also return obsolete (outdated) documents."
     )
 
 
@@ -547,16 +547,16 @@ class SearchRequest(RequestBody):
 
     Examples:
         >>> SearchRequest(query="roadmap", limit=5).model_dump(exclude_none=True)
-        {'query': 'roadmap', 'cursor': 1, 'limit': 5, 'order_by': 'relevancy', 'highlight': False}
+        {'query': 'roadmap', 'limit': 5}
     """
 
     query: str = Field(description="Text to search for.")
     filters: SearchFilters | None = Field(default=None, description="Narrow the search.")
-    cursor: int = Field(default=1, description="Number of the result page, from 1.")
-    limit: int = Field(default=10, description="Results per page.")
-    order_by: SearchOrder = Field(default="relevancy", description="How to sort the results.")
-    highlight: bool = Field(
-        default=False, description="Wrap the matches in ``<em>`` tags in title and content."
+    cursor: int | None = Field(default=None, description="Number of the result page, from 1.")
+    limit: int | None = Field(default=None, description="Results per page.")
+    order_by: SearchOrder | None = Field(default=None, description="How to sort the results.")
+    highlight: bool | None = Field(
+        default=None, description="Wrap the matches in ``<em>`` tags in title and content."
     )
 
 

@@ -49,7 +49,7 @@ class AnswersClient(Resource):
         *,
         limit: int | None = None,
         questions: str | None = None,
-        use_slugs: bool = False,
+        use_slugs: bool | None = None,
         date_from: str | None = None,
         date_to: str | None = None,
         ordering: str | None = None,

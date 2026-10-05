@@ -47,9 +47,12 @@ def submit(
     survey_id: SurveyIDArg,
     body_file: AnswersFileArg,
     validate_only: Annotated[
-        bool,
-        typer.Option("--validate-only", help="Validate only — save nothing, fire no integrations."),
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--validate-only/--no-validate-only",
+            help="Validate only — save nothing, fire no integrations.",
+        ),
+    ] = None,
     key: Annotated[str | None, _KEY] = None,
     *,
     forms: FormsClient,

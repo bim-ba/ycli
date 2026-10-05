@@ -58,7 +58,7 @@ def update(
         PageAccessUpdate,
         Field(description="The new ``role`` and/or ``inheritance`` (one at least)."),
     ],
-    prevent_selflock: Annotated[bool, _PREVENT_SELFLOCK] = False,
+    prevent_selflock: Annotated[bool | None, _PREVENT_SELFLOCK] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageAccess:
     """Change the role or reach of one access entry on a wiki page.
@@ -80,7 +80,7 @@ def update(
 def delete(
     page_id: Annotated[int, _PAGE_ID],
     access_id: Annotated[str, _ACCESS_ID],
-    prevent_selflock: Annotated[bool, _PREVENT_SELFLOCK] = False,
+    prevent_selflock: Annotated[bool | None, _PREVENT_SELFLOCK] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> Ack:
     """Revoke one access entry on a wiki page — the holder loses that grant at once.
@@ -97,7 +97,7 @@ def delete(
 )
 def clear(
     page_id: Annotated[int, _PAGE_ID],
-    prevent_selflock: Annotated[bool, _PREVENT_SELFLOCK] = False,
+    prevent_selflock: Annotated[bool | None, _PREVENT_SELFLOCK] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> Ack:
     """Revoke every personal access on a wiki page except the owner's.

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -37,20 +35,6 @@ class Worklog(APIModel):
     comment: str | None = Field(default=None, description="Note saved with the record.")
 
 
-def _now() -> str:
-    """The current local time in Tracker's format.
-
-    Returns:
-        The timestamp.
-
-    Examples:
-        >>> len(_now()) == len("2026-10-02T10:00:00.000+0700")
-        True
-    """
-    moment = datetime.now().astimezone()
-    return f"{moment:%Y-%m-%dT%H:%M:%S}.{moment.microsecond // 1000:03d}{moment:%z}"
-
-
 class WorklogCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/worklog`` (log time spent).
 
@@ -64,11 +48,7 @@ class WorklogCreate(RequestBody):
     duration: str = Field(
         description="Time spent as an ISO-8601 duration, e.g. PT2H, PT300M, P1DT3H."
     )
-    # Tracker refuses a time report without a start (422 "start: required").
-    start: str = Field(
-        default_factory=_now,
-        description="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted.",
-    )
+    start: str = Field(description="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     comment: str | None = Field(
         default=None, description="Optional note saved in the time-tracking report."
     )

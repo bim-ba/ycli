@@ -90,3 +90,34 @@ async def test_a_tool_refuses_a_zero_limit(api):
         with pytest.raises(ToolError, match="limit"):
             await client.call_tool("tracker_queues_list", {"limit": 0})
     assert api.calls == []
+
+
+@pytest.mark.parametrize(
+    ("flags", "sent"),
+    [(["--no-show-all"], {"show_all": "false"}), (["--show-all"], {"show_all": "true"}), ([], {})],
+    ids=["an explicit false", "an explicit true", "not given"],
+)
+def test_a_boolean_option_is_sent_as_given_and_left_out_when_absent(api, flags, sent):
+    """#296: ``--x`` and ``--no-x`` both reach the API; neither does when the option is absent."""
+    api.add("GET", f"{FORMS_BASE}/surveys", json={"result": []})
+    res = CliRunner().invoke(cli.app, ["forms", "surveys", "list", *flags])
+    assert res.exit_code == 0, res.output
+    assert {
+        key: value for key, value in api.calls[0].url.params.items() if key == "show_all"
+    } == sent
+
+
+def test_an_explicit_false_reaches_the_body_of_a_bulk_change(api):
+    api.add("POST", f"{TRACKER_BASE}/bulkchange/_update", json={"status": "FAILED"})
+    argv = ["tracker", "issues", "update-bulk", "--issue", "TEST-1", "-F", "priority=minor"]
+    res = CliRunner().invoke(cli.app, [*argv, "--no-notify"])
+    assert res.exit_code == 0, res.output
+    assert api.body()["notify"] is False
+    assert api.calls[0].url.params["notify"] == "false"
+
+
+async def test_a_tool_sends_an_explicit_false(api):
+    api.add("GET", f"{FORMS_BASE}/surveys", json={"result": []})
+    async with Client(mcp) as client:
+        await client.call_tool("forms_surveys_list", {"show_all": False})
+    assert api.calls[0].url.params["show_all"] == "false"

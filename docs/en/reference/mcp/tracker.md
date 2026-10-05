@@ -1820,14 +1820,14 @@ application. This is the *external* link list — for issue-to-issue links use
 
 Link a Tracker issue to an object in an external application; returns the created link.
 
-Get the application id (``origin``) from ``applications_list``. Pass ``backlink="true"``
+Get the application id (``origin``) from ``applications_list``. Pass ``backlink=true``
 to also create the mirror link in the external app.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/remotelinks`` (add an external link). |
-| `backlink` | string or null |  | ``"true"`` to also create the mirror link in the external application. |
+| `backlink` | boolean or null |  | Also create the mirror link in the external application. |
 
 ## `tracker_remotelinks_delete`
 

@@ -16,8 +16,8 @@ from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.wiki.access.models import PageAccess, PageAccessCreate, PageAccessUpdate
 
 
-def _selflock(prevent_selflock: bool) -> dict[str, bool | None]:
-    return {"prevent_selflock": True if prevent_selflock else None}
+def _selflock(prevent_selflock: bool | None) -> dict[str, bool | None]:
+    return {"prevent_selflock": prevent_selflock}
 
 
 def create(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
@@ -25,7 +25,7 @@ def create(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
 
 
 def update(
-    page_id: int, access_id: str, body: PageAccessUpdate, *, prevent_selflock: bool
+    page_id: int, access_id: str, body: PageAccessUpdate, *, prevent_selflock: bool | None
 ) -> Endpoint[PageAccess]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
     # violation(arch-3): POST access sets role; a resend is a no-op
@@ -39,12 +39,12 @@ def update(
     )
 
 
-def delete(page_id: int, access_id: str, *, prevent_selflock: bool) -> Endpoint[None]:
+def delete(page_id: int, access_id: str, *, prevent_selflock: bool | None) -> Endpoint[None]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
     return Endpoint("DELETE", path, params=_selflock(prevent_selflock))
 
 
-def clear(page_id: int, *, prevent_selflock: bool) -> Endpoint[None]:
+def clear(page_id: int, *, prevent_selflock: bool | None) -> Endpoint[None]:
     return Endpoint(
         "DELETE", f"pages/{segment(page_id)}/access", params=_selflock(prevent_selflock)
     )

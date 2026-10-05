@@ -41,7 +41,7 @@ class PagesClient(Resource):
         fields: str | None = None,
         *,
         revision_id: int | None = None,
-        raise_on_redirect: bool = False,
+        raise_on_redirect: bool | None = None,
     ) -> PageDetails:
         """``GET /pages/{id}?fields=`` → a single page by numeric id (raises on non-2xx).
 
@@ -75,7 +75,7 @@ class PagesClient(Resource):
         fields: str | None = None,
         *,
         revision_id: int | None = None,
-        raise_on_redirect: bool = False,
+        raise_on_redirect: bool | None = None,
     ) -> PageDetails:
         """``GET /pages?slug=&fields=`` → a single page (raises on non-2xx).
 
@@ -105,8 +105,8 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
-        include_self: bool = False,
-        show_all: bool = False,
+        include_self: bool | None = None,
+        show_all: bool | None = None,
     ) -> ItemList[PageRef]:
         """All descendant refs under ``slug``, draining ``next_cursor`` internally.
 
@@ -137,8 +137,8 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
-        include_self: bool = False,
-        show_all: bool = False,
+        include_self: bool | None = None,
+        show_all: bool | None = None,
     ) -> ItemList[PageRef]:
         """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
 
@@ -193,7 +193,7 @@ class PagesClient(Resource):
         return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
 
     def create(
-        self, body: PageCreate, *, fields: str | None = None, is_silent: bool = False
+        self, body: PageCreate, *, fields: str | None = None, is_silent: bool | None = None
     ) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
@@ -221,8 +221,8 @@ class PagesClient(Resource):
         body: PageUpdate,
         *,
         fields: str | None = None,
-        is_silent: bool = False,
-        allow_merge: bool = False,
+        is_silent: bool | None = None,
+        allow_merge: bool | None = None,
     ) -> PageDetails:
         """``POST /pages/{id}`` — update (POST not PATCH; PATCH returns 405).
 
@@ -247,7 +247,7 @@ class PagesClient(Resource):
         )
         return self._session.send(endpoint)
 
-    def delete(self, page_id: int, *, recursive: bool = False) -> PageDeleteResult:
+    def delete(self, page_id: int, *, recursive: bool | None = None) -> PageDeleteResult:
         """``DELETE /pages/{id}`` → ``{recovery_token}``; keep the token to restore (undo).
 
         The returned :class:`PageDeleteResult` carries the ``recovery_token`` — the only handle
@@ -272,7 +272,7 @@ class PagesClient(Resource):
         body: PageAppendContent,
         *,
         fields: str | None = None,
-        is_silent: bool = False,
+        is_silent: bool | None = None,
     ) -> PageDetails:
         """``POST /pages/{id}/append-content`` — append YFM without rewriting the whole body.
 
@@ -324,7 +324,7 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.clone(page_id, body))
 
-    def move(self, body: PageMove, *, validate_only: bool = False) -> AsyncOperation:
+    def move(self, body: PageMove, *, validate_only: bool | None = None) -> AsyncOperation:
         """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
 
         The only way to rename or relocate a page: a page update has no ``slug``. Returns a
@@ -388,8 +388,8 @@ class PagesClient(Resource):
         self,
         page_id: int,
         *,
-        for_cluster: bool = False,
-        show_all: bool = False,
+        for_cluster: bool | None = None,
+        show_all: bool | None = None,
         limit: int | None = None,
     ) -> ItemList[PageRef]:
         """``GET /pages/{id}/backlinks`` → refs of the pages that link here, draining the cursor.

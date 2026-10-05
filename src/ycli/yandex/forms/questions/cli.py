@@ -170,8 +170,11 @@ def get(
     survey_id: SurveyIDArg,
     question_id: QuestionIDArg,
     with_slugs: Annotated[
-        bool, typer.Option("--with-slugs", help="Refer to other questions by slug, not id.")
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--with-slugs/--no-with-slugs", help="Refer to other questions by slug, not id."
+        ),
+    ] = None,
     *,
     forms: FormsClient,
 ) -> Question:
@@ -252,7 +255,9 @@ def update(
 def delete(
     survey_id: SurveyIDArg,
     question_id: QuestionIDArg,
-    force: Annotated[bool, typer.Option("--force", help=IGNORED_BY_API + FORCE_IGNORED)] = False,
+    force: Annotated[
+        bool | None, typer.Option("--force/--no-force", help=IGNORED_BY_API + FORCE_IGNORED)
+    ] = None,
     *,
     forms: FormsClient,
 ) -> Ack:
@@ -266,16 +271,14 @@ def move(
     question_id: QuestionIDArg,
     page: Annotated[
         int | None,
-        typer.Option(
-            help="Target page number, 1-based (visibly defaults to 1 when only "
-            "--position is given — the API silently ignores a bare position)."
-        ),
+        typer.Option(help="Target page number, 1-based."),
     ] = None,
     page_id: Annotated[int | None, typer.Option("--page-id", help="Target page id.")] = None,
     position: Annotated[int | None, typer.Option(help="New position on the page, 1-based.")] = None,
     create_page: Annotated[
-        bool, typer.Option("--create-page", help="Create a new page for the question.")
-    ] = False,
+        bool | None,
+        typer.Option("--create-page/--no-create-page", help="Create a new page for the question."),
+    ] = None,
     question: Annotated[
         str | None, typer.Option(help="Question id/slug to move into a question series.")
     ] = None,
@@ -284,27 +287,14 @@ def move(
 ) -> QuestionMoveResult:
     """Move a question (POST …/questions/{id}/move) to another page / position.
 
-    ``--position`` without a page target is silently ignored by the API (200, nothing moves),
-    so ``--page`` defaults to 1 here when only ``--position`` is given.
+    ``--position`` without a page target is ignored by the API (200, nothing moves): give
+    ``--page`` or ``--page-id`` with it.
     """
-    target_page: int | None = page
-    target_page_id = page_id
-    target_position = position
-    target_question = question
-    target_create_page = create_page or None
-    no_target = (
-        target_page is None
-        and target_page_id is None
-        and target_question is None
-        and not target_create_page
-    )
-    if target_position is not None and no_target:
-        target_page = 1  # visible default: a bare --position would otherwise 200-but-no-op live
     payload = QuestionMove(
-        question=target_question,
-        page=target_page,
-        page_id=target_page_id,
-        position=target_position,
-        create_page=target_create_page,
+        question=question,
+        page=page,
+        page_id=page_id,
+        position=position,
+        create_page=create_page,
     )
     return forms.questions.move(survey_id, question_id, payload)

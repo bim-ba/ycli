@@ -2,12 +2,12 @@
 
 Examples:
     >>> submit("686d", {"name": "Ann"}, validate_only=True, key=None).params
-    {'dry_run': 'true', 'key': None}
+    {'dry_run': True, 'key': None}
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.models import ItemList
 
@@ -17,9 +17,9 @@ def get(survey_id: str, *, key: str | None) -> Endpoint[FillableForm]:
 
 
 def submit(
-    survey_id: str, body: SubmitBody, *, validate_only: bool, key: str | None
+    survey_id: str, body: SubmitBody, *, validate_only: bool | None, key: str | None
 ) -> Endpoint[SubmitResult]:
-    params = {"dry_run": flag(validate_only), "key": key}
+    params = {"dry_run": validate_only, "key": key}
     return Endpoint(
         "POST", f"surveys/{segment(survey_id)}/form", SubmitResult, json=body, params=params
     )

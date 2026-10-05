@@ -48,7 +48,7 @@ class AccessClient(Resource):
         access_id: str,
         body: PageAccessUpdate,
         *,
-        prevent_selflock: bool = False,
+        prevent_selflock: bool | None = None,
     ) -> PageAccess:
         """``POST /pages/{id}/access/{access_id}`` — change a grant's role or reach.
 
@@ -76,7 +76,7 @@ class AccessClient(Resource):
         endpoint = endpoints.update(page_id, access_id, body, prevent_selflock=prevent_selflock)
         return self._session.send(endpoint)
 
-    def delete(self, page_id: int, access_id: str, *, prevent_selflock: bool = False) -> None:
+    def delete(self, page_id: int, access_id: str, *, prevent_selflock: bool | None = None) -> None:
         """``DELETE /pages/{id}/access/{access_id}`` — revoke one personal access (``204``).
 
         Args:
@@ -89,7 +89,7 @@ class AccessClient(Resource):
         """
         self._session.send(endpoints.delete(page_id, access_id, prevent_selflock=prevent_selflock))
 
-    def clear(self, page_id: int, *, prevent_selflock: bool = False) -> None:
+    def clear(self, page_id: int, *, prevent_selflock: bool | None = None) -> None:
         """``DELETE /pages/{id}/access`` — revoke every personal access but the owner's (``204``).
 
         Args:

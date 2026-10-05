@@ -89,13 +89,17 @@ def list_for_queue(
 def create(
     name: Annotated[str, typer.Option(help="Name of the workflow.")],
     initial_action: InitialActionOpt,
-    step: StepOpt = None,
+    step: Annotated[
+        list[str],
+        typer.Option("--step", help="Step as a JSON object: status plus actions (repeatable)."),
+    ],
     workflow_id: Annotated[
         str | None, typer.Option("--id", help="Identifier of the workflow (generated if omitted).")
     ] = None,
     queue: Annotated[
         str | None, typer.Option(help="Queue key to bind to (shared if omitted).")
     ] = None,
+    # A flag that names a value, not a boolean of the API: there is no false to send.
     visual: Annotated[
         bool, typer.Option("--visual", help="Send type VISUAL (the only type today).")
     ] = False,
@@ -117,7 +121,7 @@ def create(
             "queue": queue,
             "type": "VISUAL" if visual else None,
             "initialAction": _json(initial_action, "--initial-action"),
-            "steps": _json_list(step, "--step") or [],
+            "steps": _json_list(step, "--step"),
             "issueTypeResolutions": _json_list(issue_type_resolution, "--issue-type-resolution"),
         }
     )
@@ -133,6 +137,7 @@ def update(
         str | None, typer.Option("--initial-action", help="New initial action as a JSON object.")
     ] = None,
     step: StepOpt = None,
+    # A flag that names a value, not a boolean of the API: there is no false to send.
     visual: Annotated[
         bool, typer.Option("--visual", help="Send type VISUAL (the only type today).")
     ] = False,

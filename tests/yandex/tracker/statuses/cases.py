@@ -48,11 +48,20 @@ CASES = [
             )
         ],
     ),
-    # The CLI's --type defaults to "new".
     Case(
         "tracker.statuses.create",
         args=(StatusCreate(key="fresh", name=LocalizedName(ru="Новый"), type="new"),),
-        cli=["tracker", "statuses", "create", "--key", "fresh", "--name-ru", "Новый"],
+        cli=[
+            "tracker",
+            "statuses",
+            "create",
+            "--key",
+            "fresh",
+            "--name-ru",
+            "Новый",
+            "--type",
+            "new",
+        ],
         mcp=None,
         exchanges=[
             (

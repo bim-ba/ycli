@@ -47,14 +47,16 @@ from ycli.yandex.tracker.entities.models import (
     ReportFormat,
     ReportParameters,
 )
-from ycli.yandex.tracker.models import CommentCreate, DeadlineInput
+from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
     AddToFollowersOpt,
+    DeadlineTypeOpt,
     ExpandOpt,
     ItemIDArg,
     NotifyAuthorOpt,
     NotifyOpt,
     ReplyFieldsOpt,
+    deadline_option,
 )
 
 app = typer.Typer(
@@ -100,8 +102,8 @@ def _fields_body(
         start=start,
         end=end,
         parentEntity=ParentEntityInput(primary=parent) if parent is not None else None,
-        teamUsers=team_user or None,
-        tags=tag or None,
+        teamUsers=team_user,
+        tags=tag,
     ).model_dump(exclude_none=True)
     fields |= parse_fields(field)
     return fields
@@ -192,13 +194,14 @@ def delete(
     entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     with_board: Annotated[
-        bool, typer.Option("--with-board", help="Also delete the entity's board.")
-    ] = False,
+        bool | None,
+        typer.Option("--with-board/--no-with-board", help="Also delete the entity's board."),
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Ack:
     """Delete entity ID (DELETE /entities/ENTITY_TYPE/ID)."""
-    tracker.entities.delete(entity_type, entity_id, with_board=with_board or None)
+    tracker.entities.delete(entity_type, entity_id, with_board=with_board)
     return Ack.deleted(entity_type, entity_id)
 
 
@@ -215,10 +218,12 @@ def search(
     order_by: Annotated[
         str | None, typer.Option("--order-by", help="Field key to sort by.")
     ] = None,
-    order_asc: Annotated[bool, typer.Option("--order-asc", help="Sort ascending.")] = False,
+    order_asc: Annotated[
+        bool | None, typer.Option("--order-asc/--no-order-asc", help="Sort ascending.")
+    ] = None,
     root_only: Annotated[
-        bool, typer.Option("--root-only", help="Only top-level entities.")
-    ] = False,
+        bool | None, typer.Option("--root-only/--no-root-only", help="Only top-level entities.")
+    ] = None,
     fields: Annotated[
         str | None, typer.Option(help="Comma-separated extra fields to include.")
     ] = None,
@@ -231,8 +236,8 @@ def search(
             "input": input_text,
             "filter": parse_fields(filter_) or None,
             "orderBy": order_by,
-            "orderAsc": order_asc if order_by is not None or order_asc else None,
-            "rootOnly": root_only or None,
+            "orderAsc": order_asc,
+            "rootOnly": root_only,
         }
     )
     return tracker.entities.search(entity_type, body, fields=fields)
@@ -358,12 +363,13 @@ def bulk_get(
 def reports_create(
     summary: Annotated[str, typer.Option(help="Report name (required).")],
     query: Annotated[str, typer.Option(help="Issue filter in Tracker Query Language (required).")],
-    format_: Annotated[
-        str, values_option(ReportFormat, "--format", help="Export format.")
-    ] = "xlsx",
+    type_: Annotated[str, typer.Option("--type", help="Export type: issueFilterExport.")],
     field: Annotated[
-        list[str] | None,
+        list[str],
         typer.Option("--field", "-F", help="Issue field key to include as a column (repeatable)."),
+    ],
+    format_: Annotated[
+        str | None, values_option(ReportFormat, "--format", help="Export format.")
     ] = None,
     *,
     tracker: TrackerClient,
@@ -373,7 +379,7 @@ def reports_create(
         fields=ReportFieldsInput(
             summary=summary,
             parameters=ReportParameters(
-                format=format_, filter=ReportFilter(query=query), fields=field or []
+                type=type_, format=format_, filter=ReportFilter(query=query), fields=field
             ),
         )
     )
@@ -437,7 +443,7 @@ def comments_create(
     tracker: TrackerClient,
 ) -> Comment:
     """Add a comment to an entity (POST …/comments)."""
-    body = CommentCreate(text=text, summonees=summon or None)
+    body = CommentCreate(text=text, summonees=summon)
     return tracker.entities.comments_create(
         entity_type,
         entity_id,
@@ -506,6 +512,7 @@ def _item_input(
     checked: bool | None,
     assignee: str | None,
     deadline: str | None,
+    deadline_type: str | None,
     item_id: str | None = None,
 ) -> ChecklistItemInput:
     """Build a typed checklist item from CLI options."""
@@ -514,7 +521,7 @@ def _item_input(
         text=text,
         checked=checked,
         assignee=assignee,
-        deadline=DeadlineInput(date=deadline) if deadline is not None else None,
+        deadline=deadline_option(deadline, deadline_type),
     )
 
 
@@ -598,6 +605,7 @@ def checklists_items_update(
     deadline: Annotated[
         str | None, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     ] = None,
+    deadline_type: DeadlineTypeOpt = None,
     expand: ExpandOpt = None,
     fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
@@ -606,7 +614,7 @@ def checklists_items_update(
     tracker: TrackerClient,
 ) -> Entity:
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
-    body = _item_input(text, checked, assignee, deadline)
+    body = _item_input(text, checked, assignee, deadline, deadline_type)
     return tracker.entities.checklists_items_update(
         entity_type,
         entity_id,

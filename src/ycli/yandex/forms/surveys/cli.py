@@ -62,9 +62,11 @@ def list_(
         typer.Option("--favourite/--no-favourite", help="Only favourites (or only the others)."),
     ] = None,
     show_all: Annotated[
-        bool,
-        typer.Option("--show-all", help="As an administrator, every form of the organization."),
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--show-all/--no-show-all", help="As an administrator, every form of the organization."
+        ),
+    ] = None,
     orderby: Annotated[
         str | None, typer.Option("--orderby", help="Sort, e.g. name,-modified,-count.")
     ] = None,

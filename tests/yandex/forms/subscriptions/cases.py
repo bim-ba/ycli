@@ -66,7 +66,9 @@ CASES = [
             "forms_subscriptions_update",
             {"survey_id": SID, "hook_id": 21, "subscription_id": 6, "body": {**HTTP, "id": 6}},
         ),
-        exchanges=[(Sent("PATCH", f"{SUBS}/6", json=HTTP), Reply(json=_read(6, HTTP)))],
+        exchanges=[
+            (Sent("PATCH", f"{SUBS}/6", json={**HTTP, "id": 6}), Reply(json=_read(6, HTTP)))
+        ],
     ),
     Case(
         "forms.subscriptions.update",

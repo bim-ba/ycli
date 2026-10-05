@@ -39,7 +39,7 @@ def test_an_open_ended_search_window_is_sent_as_given(api, flags, window):
     api.add("POST", f"{BASE}/search", json={"results": []})
     res = CliRunner().invoke(cli.app, ["wiki", "pages", "search", "plan", *flags])
     assert res.exit_code == 0, res.output
-    assert api.body()["filters"] == {**window, "show_obsolete": False}
+    assert api.body()["filters"] == window
 
 
 def test_a_group_grant_needs_both_its_directory_and_its_id(api):

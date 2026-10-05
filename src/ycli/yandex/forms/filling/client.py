@@ -39,7 +39,7 @@ class FillingClient(Resource):
         survey_id: str,
         body: SubmitBody,
         *,
-        validate_only: bool = False,
+        validate_only: bool | None = None,
         key: str | None = None,
     ) -> SubmitResult:
         """``POST /surveys/{survey_id}/form`` — submit a response → :class:`SubmitResult`.
@@ -62,7 +62,7 @@ class FillingClient(Resource):
             >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
-        endpoint = endpoints.submit(survey_id, body, validate_only=validate_only, key=key or None)
+        endpoint = endpoints.submit(survey_id, body, validate_only=validate_only, key=key)
         return self._session.send(endpoint)
 
     def suggest(
@@ -97,9 +97,9 @@ class FillingClient(Resource):
             'Berlin'
         """
         params = {
-            "question": question or None,
-            "text": text or None,
-            "id": suggest_id or None,
-            "parent_id": parent_id or None,
+            "question": question,
+            "text": text,
+            "id": suggest_id,
+            "parent_id": parent_id,
         }
         return self._session.send(endpoints.suggest(survey_id, params))

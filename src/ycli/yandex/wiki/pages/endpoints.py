@@ -5,14 +5,14 @@ twice leaves the same page, so that endpoint declares itself an idempotent write
 
 Examples:
     >>> get("data/x", fields=None, revision_id=None, raise_on_redirect=False).params
-    {'slug': 'data/x', 'fields': None, 'revision_id': None, 'raise_on_redirect': None}
+    {'slug': 'data/x', 'fields': None, 'revision_id': None, 'raise_on_redirect': False}
     >>> update(7, {"content": "# X"}, fields=None, is_silent=False, allow_merge=False).effect
     'idempotent_write'
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
@@ -32,37 +32,37 @@ from ycli.yandex.wiki.pages.models import (
 
 
 def get(
-    slug: str, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool
+    slug: str, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool | None
 ) -> Endpoint[PageDetails]:
     params = {
         "slug": slug,
         "fields": fields,
         "revision_id": revision_id,
-        "raise_on_redirect": flag(raise_on_redirect),
+        "raise_on_redirect": raise_on_redirect,
     }
     return Endpoint("GET", "pages", PageDetails, params=params)
 
 
 def get_by_id(
-    page_id: int, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool
+    page_id: int, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool | None
 ) -> Endpoint[PageDetails]:
     params = {
         "fields": fields,
         "revision_id": revision_id,
-        "raise_on_redirect": flag(raise_on_redirect),
+        "raise_on_redirect": raise_on_redirect,
     }
     return Endpoint("GET", f"pages/{segment(page_id)}", PageDetails, params=params)
 
 
 def descendants_list(
-    slug: str, *, actuality: str | None, include_self: bool, show_all: bool
+    slug: str, *, actuality: str | None, include_self: bool | None, show_all: bool | None
 ) -> Paged[CursorPage[PageRef], PageRef]:
     params = {
         "slug": slug,
         "page_size": 100,
         "actuality": actuality,
-        "include_self": flag(include_self),
-        "show_all": flag(show_all),
+        "include_self": include_self,
+        "show_all": show_all,
     }
     return Paged(
         Endpoint("GET", "pages/descendants", CursorPage[PageRef], params=params),
@@ -72,14 +72,14 @@ def descendants_list(
 
 
 def descendants_list_by_id(
-    page_id: int, *, actuality: str | None, include_self: bool, show_all: bool
+    page_id: int, *, actuality: str | None, include_self: bool | None, show_all: bool | None
 ) -> Paged[CursorPage[PageRef], PageRef]:
     path = f"pages/{segment(page_id)}/descendants"
     params = {
         "page_size": 100,
         "actuality": actuality,
-        "include_self": flag(include_self),
-        "show_all": flag(show_all),
+        "include_self": include_self,
+        "show_all": show_all,
     }
     return Paged(
         Endpoint("GET", path, CursorPage[PageRef], params=params),
@@ -99,30 +99,37 @@ def grids_list(
     )
 
 
-def create(body: PageCreate, *, fields: str | None, is_silent: bool) -> Endpoint[PageDetails]:
-    params = {"fields": fields, "is_silent": flag(is_silent)}
+def create(
+    body: PageCreate, *, fields: str | None, is_silent: bool | None
+) -> Endpoint[PageDetails]:
+    params = {"fields": fields, "is_silent": is_silent}
     return Endpoint("POST", "pages", PageDetails, params=params, json=body)
 
 
 def update(
-    page_id: int, body: PageUpdate, *, fields: str | None, is_silent: bool, allow_merge: bool
+    page_id: int,
+    body: PageUpdate,
+    *,
+    fields: str | None,
+    is_silent: bool | None,
+    allow_merge: bool | None,
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}"
-    params = {"fields": fields, "is_silent": flag(is_silent), "allow_merge": flag(allow_merge)}
+    params = {"fields": fields, "is_silent": is_silent, "allow_merge": allow_merge}
     # violation(arch-3): POST /pages/{id} replaces fields; a resend is a no-op
     return Endpoint("POST", path, PageDetails, params=params, json=body, effect="idempotent_write")
 
 
-def delete(page_id: int, *, recursive: bool) -> Endpoint[PageDeleteResult]:
-    params = {"recursive": flag(recursive)}
+def delete(page_id: int, *, recursive: bool | None) -> Endpoint[PageDeleteResult]:
+    params = {"recursive": recursive}
     return Endpoint("DELETE", f"pages/{segment(page_id)}", PageDeleteResult, params=params)
 
 
 def append(
-    page_id: int, body: PageAppendContent, *, fields: str | None, is_silent: bool
+    page_id: int, body: PageAppendContent, *, fields: str | None, is_silent: bool | None
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}/append-content"
-    params = {"fields": fields, "is_silent": flag(is_silent)}
+    params = {"fields": fields, "is_silent": is_silent}
     return Endpoint("POST", path, PageDetails, params=params, json=body)
 
 
@@ -130,9 +137,9 @@ def clone(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
     return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
-def move(body: PageMove, *, validate_only: bool) -> Endpoint[AsyncOperation]:
+def move(body: PageMove, *, validate_only: bool | None) -> Endpoint[AsyncOperation]:
     """``POST /pages/move`` (undocumented): a new address for pages, or only a check of one."""
-    params = {"dry_run": flag(validate_only)}
+    params = {"dry_run": validate_only}
     return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
 
 
@@ -151,13 +158,13 @@ def revisions_list(
 
 
 def backlinks_list(
-    page_id: int, *, for_cluster: bool, show_all: bool
+    page_id: int, *, for_cluster: bool | None, show_all: bool | None
 ) -> Paged[CursorPage[PageRef], PageRef]:
     """``GET /pages/{id}/backlinks`` (undocumented): the pages that link to this one."""
     params = {
         "page_size": 100,
-        "for_cluster": flag(for_cluster),
-        "show_all": flag(show_all),
+        "for_cluster": for_cluster,
+        "show_all": show_all,
     }
     return Paged(
         Endpoint("GET", f"pages/{segment(page_id)}/backlinks", CursorPage[PageRef], params=params),

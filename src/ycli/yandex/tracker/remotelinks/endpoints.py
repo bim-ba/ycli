@@ -1,8 +1,8 @@
 """Tracker issue ``/remotelinks`` operations, declared once (sans-IO).
 
 Examples:
-    >>> create("JUNE-2", {"key": "TEST-17"}, "true").params
-    {'backlink': 'true'}
+    >>> create("JUNE-2", {"key": "TEST-17"}, True).params
+    {'backlink': True}
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ def list_(issue_key: str) -> Endpoint[ItemList[RemoteLink]]:
     return Endpoint("GET", f"issues/{segment(issue_key)}/remotelinks", ItemList[RemoteLink])
 
 
-def create(issue_key: str, body: RemoteLinkCreate, backlink: str | None) -> Endpoint[RemoteLink]:
+def create(issue_key: str, body: RemoteLinkCreate, backlink: bool | None) -> Endpoint[RemoteLink]:
     path = f"issues/{segment(issue_key)}/remotelinks"
     return Endpoint("POST", path, RemoteLink, json=body, params={"backlink": backlink})
 

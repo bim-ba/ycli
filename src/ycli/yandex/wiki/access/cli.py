@@ -37,9 +37,9 @@ InheritanceOption = Annotated[
     ),
 ]
 PreventSelflockOption = Annotated[
-    bool,
+    bool | None,
     typer.Option(
-        "--prevent-selflock",
+        "--prevent-selflock/--no-prevent-selflock",
         help="Refuse the change if it would leave you without read access or the right to "
         "change accesses.",
     ),
@@ -103,7 +103,7 @@ def update(
         values_option(AccessRole, help="New role."),
     ] = None,
     inheritance: InheritanceOption = None,
-    prevent_selflock: PreventSelflockOption = False,
+    prevent_selflock: PreventSelflockOption = None,
     *,
     wiki: WikiClient,
 ) -> PageAccess:
@@ -121,7 +121,7 @@ def update(
 def delete(
     page_id: PageIDArg,
     access_id: AccessIDArg,
-    prevent_selflock: PreventSelflockOption = False,
+    prevent_selflock: PreventSelflockOption = None,
     *,
     wiki: WikiClient,
 ) -> Ack:
@@ -133,7 +133,7 @@ def delete(
 @app.command()
 def clear(
     page_id: PageIDArg,
-    prevent_selflock: PreventSelflockOption = False,
+    prevent_selflock: PreventSelflockOption = None,
     *,
     wiki: WikiClient,
 ) -> Ack:

@@ -76,7 +76,7 @@ def list_(
             hook_id=hook_id,
             subscription_id=subscription_id,
             answer_id=answer_id,
-            status=list(status) if status else None,
+            status=status,
             created_since=created_since,
             created_until=created_until,
             finished_since=finished_since,
