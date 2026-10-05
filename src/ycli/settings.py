@@ -21,9 +21,10 @@ Examples:
 
 from __future__ import annotations
 
+import enum
 import os
 import re
-from typing import TYPE_CHECKING, Annotated, Literal, Self
+from typing import TYPE_CHECKING, Annotated, Self
 
 from dotenv import dotenv_values
 from platformdirs import user_config_path
@@ -46,7 +47,7 @@ from pydantic import (
 from pydantic_core import ErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ycli.log import LogFormat
+from ycli.log import LogFormat, LogLevel
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -68,10 +69,18 @@ _CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
 NOT_SET = "not set"
 # The error type of credentials with no token at all (the OAuth token is the one asked for).
 NO_TOKEN = "no_token"
-type CredentialKind = Literal["oauth", "iam"]
 
-type LogLevel = Annotated[
-    Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+
+class CredentialKind(enum.StrEnum):
+    """Which token the credentials hold."""
+
+    OAUTH = "oauth"
+    IAM = "iam"
+
+
+# `YCLI__LOGGING__LEVEL=debug` is read as DEBUG.
+type AnyCaseLogLevel = Annotated[
+    LogLevel,
     BeforeValidator(lambda value: value.upper() if isinstance(value, str) else value),
 ]
 
@@ -124,8 +133,8 @@ class LoggingConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    level: LogLevel = "WARNING"
-    format: LogFormat = "text"
+    level: AnyCaseLogLevel = LogLevel.WARNING
+    format: LogFormat = LogFormat.TEXT
 
 
 class _EnvSettings(BaseSettings):
@@ -219,7 +228,7 @@ class Credentials(_EnvSettings):
 
     Examples:
         >>> Credentials(oauth_token=None, iam_token="t1.x", organization_id="1").kind
-        'iam'
+        <CredentialKind.IAM: 'iam'>
     """
 
     iam_token: SecretStr | None = Field(default=None, min_length=1, validation_alias=IAM_TOKEN_ENV)
@@ -316,7 +325,7 @@ class Credentials(_EnvSettings):
     @property
     def kind(self) -> CredentialKind:
         """Which token this is: ``oauth`` or ``iam``."""
-        return "oauth" if self.oauth_token is not None else "iam"
+        return CredentialKind.OAUTH if self.oauth_token is not None else CredentialKind.IAM
 
     @property
     def token(self) -> SecretStr:
