@@ -763,8 +763,7 @@ def test_the_compared_services_are_the_registry():
 
 
 def test_every_snapshot_file_is_a_listed_service():
-    # `<service>.json` is a snapshot; `<service>.kinds.json` and `.decisions.json` are step 2.
-    files = {path.stem for path in api_surface.SNAPSHOTS.glob("*.json") if "." not in path.stem}
+    files = {path.stem for path in api_surface.SNAPSHOTS.glob("*.json")}
     assert files == set(api_surface.LISTED)
 
 
