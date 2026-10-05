@@ -135,7 +135,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
-  A prompt and a resource follow their tools (`tests/test_mcp_prompts_resources.py`): a
+  A prompt and a resource follow their tools (`tests/unit/mcp/test_mcp_prompts_resources.py`): a
   prompt lists the tools its text names, all of them exist, and one write among them means
   the `write` tag; a resource template names the read tool it repeats and returns what that
   tool returns; the server offers neither when one of those tools is not served, so `--read-only`
