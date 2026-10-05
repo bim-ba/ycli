@@ -59,6 +59,7 @@ from tests.contract import Case, Sibling, load_cases  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION  # noqa: E402
+from ycli.yandex.core.pagination import BodyCursorPagination  # noqa: E402
 from ycli.yandex.models import ignored_fields  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
@@ -354,8 +355,10 @@ def recorded() -> tuple[Recorded, ...]:
 
 def _call(found: Recorded) -> Call:
     """What ``found`` says ycli can put on the wire and read back."""
-    # A pager's parameters count even when the case's listing fits one page.
-    pager = vars(found.pagination) if found.pagination else {}
+    # A pager's parameters count even when the case's listing fits one page. One that pages
+    # in the body adds no query parameter: its fields are the body model's own.
+    in_query = found.pagination and not isinstance(found.pagination, BodyCursorPagination)
+    pager = vars(found.pagination) if in_query else {}
     paging = [value for name, value in pager.items() if name.endswith("_param")]
     sent_params = [request.url.params for request in found.requests]
     return Call(

@@ -3,6 +3,19 @@ auth login: --body-file:FILE --device-name:TEXT --dry-run:BOOLEAN=False --field:
 auth profiles: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens collections access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections breadcrumbs-list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections content-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter-string:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --mode:TEXT --only-my:BOOLEAN --order-direction:TEXT --order-field:TEXT --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT
+datalens collections create: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent-id:TEXT --profile:TEXT --title:TEXT! --yes:BOOLEAN=False
+datalens collections delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections delete-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_IDS:TEXT!
+datalens collections get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections list-by-ids: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_IDS:TEXT!
+datalens collections move: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent-id:TEXT --profile:TEXT --title:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens collections move-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent-id:TEXT --profile:TEXT --yes:BOOLEAN=False COLLECTION_IDS:TEXT!
+datalens collections permissions-get-root: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens collections update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 doctor: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 forms access grant: --action:TEXT! --body-file:FILE --cloud-uid:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --group-id:TEXT --group-src:TEXT --profile:TEXT --uid:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!

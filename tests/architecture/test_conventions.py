@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import asyncio
 import importlib
+import inspect
 import pkgutil
 import re
 from pathlib import Path
@@ -16,6 +17,7 @@ from scripts import api_drift
 import ycli.yandex
 from tests.architecture.scanners import GENERATED, is_generated, unexplained
 from tests.full_server import tools_with_output_schemas
+from ycli.yandex.core.pagination import BodyCursorPagination
 from ycli.yandex.models import (
     IGNORED_BY_API,
     APIModel,
@@ -24,6 +26,7 @@ from ycli.yandex.models import (
     WarnsOnIgnored,
     ignored_fields,
 )
+from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parents[2] / "src"
 
@@ -245,15 +248,23 @@ BODY_AND_REPLY = {
 
 
 def _model_roles() -> tuple[set[type[BaseModel]], set[type[BaseModel]]]:
-    """The models that request bodies are built from, and the ones replies are read into."""
+    """The models that request bodies are built from, and the ones replies are read into.
 
-    def collect(annotation: Any, found: set[type[BaseModel]]) -> None:
+    Of a generated model only the one a body or a reply is itself counts: inside it the
+    generated layer keeps its own rule (the envelope of a request is closed, the rest is
+    read as it comes; docs/conventions/resources.md, "Generated models").
+    """
+    generated = tuple("ycli." + ".".join(home.parts) + "." for home in GENERATED)
+
+    def collect(annotation: Any, found: set[type[BaseModel]], *, inside: bool = False) -> None:
         for model in api_drift._models(annotation):
+            if inside and model.__module__.startswith(generated):
+                continue
             if model not in found:
                 found.add(model)
                 model.model_rebuild()  # a forward reference is a name until the model is built
                 for field in model.model_fields.values():
-                    collect(field.annotation, found)
+                    collect(field.annotation, found, inside=True)
 
     bodies: set[type[BaseModel]] = set()
     replies: set[type[BaseModel]] = set()
@@ -567,3 +578,65 @@ def test_the_alias_name_check_bites():
     assert {name: places for name, places in names.items() if len(places) > 1} == {
         "ActionOpt": ["a/cli.py", "b/cli.py"]
     }
+
+
+def _rpc_arguments_off(method: Any, body: Any, pagination: Any) -> list[str]:
+    """The names by which a method's arguments and the fields of its request differ.
+
+    Of an RPC operation every argument lies in one object, so the method takes exactly the
+    top-level fields of the request it sends, by their names (#371). The pager's own fields are
+    not arguments, and ``limit`` is ycli's cap on a listing, not a field.
+    """
+    named = vars(pagination) if pagination else {}
+    pager = {value for name, value in named.items() if name.endswith("_param")}
+    arguments = set(inspect.signature(method).parameters) - ({"limit"} if pagination else set())
+    fields = {
+        name
+        for name, field in (type(body).model_fields if body is not None else {}).items()
+        if (field.alias or name) not in pager
+    }
+    return sorted(arguments ^ fields)
+
+
+def test_an_rpc_method_takes_the_fields_of_its_request_as_arguments():
+    """#371: the top level of an RPC request is the method's arguments, on every surface."""
+    clients = {
+        service.name: service.client_class()(
+            oauth_token="t", organization_id="o", cloud_organization_id="c"
+        )
+        for service in SERVICES
+    }
+    offenders = {}
+    seen = 0
+    for found in api_drift.recorded():
+        if not found.endpoint.path.startswith("rpc/"):
+            continue
+        seen += 1
+        domain, resource, operation = found.case.operation.split(".")
+        method = getattr(getattr(clients[domain], resource), operation)
+        body = found.endpoint.json
+        assert body is None or isinstance(body, RequestBody), found.case.operation
+        if off := _rpc_arguments_off(method, body, found.pagination):
+            offenders[found.case.operation] = off
+    assert seen, "no RPC operation was looked at"
+    assert offenders == {}
+
+
+def test_the_rpc_arguments_check_bites():
+    class Request(RequestBody):
+        thing_id: str = Field(alias="thingId")
+        title: str | None = None
+        page_token: str | None = Field(default=None, alias="pageToken")
+
+    def exact(thing_id: str, *, limit: int | None = None, title: str | None = None) -> None: ...
+    def lacking(thing_id: str) -> None: ...
+    def renamed(item_id: str, *, title: str | None = None) -> None: ...
+
+    body = Request(thingId="t")
+    paged = BodyCursorPagination(cursor_of=lambda response: None)
+    assert _rpc_arguments_off(exact, body, paged) == []
+    assert _rpc_arguments_off(lacking, body, paged) == ["title"]
+    assert _rpc_arguments_off(renamed, body, paged) == ["item_id", "thing_id"]
+    # Without a pager ``limit`` and ``pageToken`` are an argument and a field like any other.
+    assert _rpc_arguments_off(exact, body, None) == ["limit", "page_token"]
+    assert _rpc_arguments_off(lambda: None, None, None) == []

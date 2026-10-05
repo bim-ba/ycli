@@ -130,7 +130,10 @@ def test_models_that_share_a_class_name_are_named_by_resource():
     assert {"CommentsComment", "EntitiesComment"} <= names and "Comment" not in names
     for service in api_surface.SERVICES:
         schemas = DOCUMENTS[service]["components"]["schemas"]
-        assert not [name for name in schemas if "__" in name or name[-1].isdigit()]
+        # pydantic numbers a name it meets twice; a generated class may end in a digit of
+        # its own (``…Variant1``), so only a name numbered on top of its class counts.
+        assert not [name for name in schemas if "__" in name]
+        assert not [name for name in schemas if name[-1].isdigit() and name[:-1] in schemas]
     assert gen_openapi._readable("ycli__yandex__tracker__import___models__Link") == "ImportLink"
 
 

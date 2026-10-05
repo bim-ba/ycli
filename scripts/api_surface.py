@@ -83,6 +83,9 @@ class Source:
     address: str = ""
     # The index of the reference pages that add what the specification leaves out (Disk).
     docs: str = ""
+    # The listing of the reference pages of an ``rpc`` API, one page an operation (a GitHub
+    # tree): gives each operation its ``page``.
+    pages: str = ""
 
 
 # Direct publishes no list of its services: the docs index names 25 of these, and
@@ -129,7 +132,12 @@ SOURCES: dict[str, Source] = {
         prefix="/disk",
         docs="https://yandex.ru/dev/disk-api/doc/sitemap.xml",
     ),
-    "datalens": Source("openapi", "https://api.datalens.tech/json/", rpc=True),
+    "datalens": Source(
+        "openapi",
+        "https://api.datalens.tech/json/",
+        rpc=True,
+        pages="https://api.github.com/repos/yandex-cloud/docs/git/trees/master:en/datalens/api-ref?recursive=1",
+    ),
     "market": Source(
         "openapi-files",
         "https://codeload.github.com/yandex-market/yandex-market-partner-api/tar.gz/refs/heads/main",
@@ -798,13 +806,68 @@ def _bytes(client: httpx2.Client, url: str) -> bytes:
     return _response(client, url).content
 
 
+# The reference page of an RPC operation in the docs repository:
+# ``Collection/rpcgetCollection-post.md``.
+_RPC_PAGE = re.compile(r"(?:.+/)?rpc(?P<name>\w+)-post\.md")
+
+
+def rpc_pages(tree: dict[str, Any]) -> dict[str, str]:
+    """The reference page of each RPC operation, from the listing of a docs directory.
+
+    The path of a page is not made from the operation's name and tag: the directory is the
+    documentation's own, and an operation may have no page. So the pages are read from the
+    listing of the files there are.
+
+    Args:
+        tree: A GitHub tree: ``{"tree": [{"path": ...}], "truncated": false}``.
+
+    Returns:
+        The page of each operation that has one, without ``.md``.
+
+    Raises:
+        SystemExit: The listing is cut short or names no page (a snapshot written from it
+            would lose the pages it has), or a directory of pages has no ``index.md``: the
+            coverage tables link a resource to the page of its section.
+
+    Examples:
+        >>> rpc_pages(
+        ...     {
+        ...         "tree": [
+        ...             {"path": "Collection/rpcgetCollection-post.md"},
+        ...             {"path": "Collection/index.md"},
+        ...         ]
+        ...     }
+        ... )
+        {'getCollection': 'Collection/rpcgetCollection-post'}
+    """
+    pages = {
+        found["name"]: entry["path"].removesuffix(".md")
+        for entry in tree.get("tree", [])
+        if (found := _RPC_PAGE.fullmatch(entry["path"]))
+    }
+    if tree.get("truncated") or not pages:
+        raise SystemExit("api_surface: the listing of reference pages is cut short or empty")
+    listed = {entry["path"] for entry in tree["tree"]}
+    sections = {page.rpartition("/")[0] for page in pages.values()}
+    bare = sorted(section for section in sections if f"{section}/index.md" not in listed)
+    if bare:
+        raise SystemExit(f"api_surface: no index.md in the reference sections {bare}")
+    return pages
+
+
 def fetch(service: str) -> list[Operation]:
     """The operations Yandex publishes for ``service`` right now (network)."""
     source = SOURCES[service]
     with _client() as client:
         if source.kind == "openapi":
             # YAML reads JSON too: Telemost publishes YAML, the others JSON.
-            return openapi_operations(yaml.safe_load(_text(client, source.url)), rpc=source.rpc)
+            published = openapi_operations(
+                yaml.safe_load(_text(client, source.url)), rpc=source.rpc
+            )
+            if not source.pages:
+                return published
+            pages = rpc_pages(json.loads(_text(client, source.pages)))
+            return [replace(found, page=pages.get(found.name, "")) for found in published]
         if source.kind == "openapi-files":
             return openapi_operations(
                 joined_files(_yaml_files(_bytes(client, source.url), source.root), source.root)
