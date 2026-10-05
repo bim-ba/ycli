@@ -41,7 +41,7 @@ class OperationsClient(Resource):
         """
         return self._session.send(endpoints.clone_get(task_id))
 
-    def gridclone_get(self, task_id: str) -> GridCloneOperationStatus:
+    def clone_inline_grid_get(self, task_id: str) -> GridCloneOperationStatus:
         """``GET /operations/clone_inline_grid/{task_id}`` → a grid-clone's status (poll to wait).
 
         The ``task_id`` is the ``operation.id`` returned by ``GridsClient.clone``. Poll until
@@ -54,10 +54,10 @@ class OperationsClient(Resource):
             The grid clone's status.
 
         Examples:
-            >>> wiki.operations.gridclone_get("task-5301").is_terminal
+            >>> wiki.operations.clone_inline_grid_get("task-5301").is_terminal
             False
         """
-        return self._session.send(endpoints.gridclone_get(task_id))
+        return self._session.send(endpoints.clone_inline_grid_get(task_id))
 
     def move_get(self, task_id: str) -> MoveOperationStatus:
         """``GET /operations/move/{task_id}`` → a page-move's status (poll this to wait).

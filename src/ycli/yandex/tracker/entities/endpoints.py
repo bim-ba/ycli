@@ -151,34 +151,34 @@ def permissions_get(entity_type: str, entity_id: str) -> Endpoint[ExtendedPermis
     return Endpoint("GET", path, ExtendedPermissions)
 
 
-def set_permissions(
+def permissions_update(
     entity_type: str, entity_id: str, body: PermissionsUpdate
 ) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
     return Endpoint("PATCH", path, ExtendedPermissions, json=body)
 
 
-def direct_permissions_get(entity_type: str, entity_id: str) -> Endpoint[ACL]:
+def permissions_get_direct(entity_type: str, entity_id: str) -> Endpoint[ACL]:
     return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", ACL)
 
 
-def set_direct_permissions(
+def permissions_update_direct(
     entity_type: str, entity_id: str, body: DirectPermissionsUpdate
 ) -> Endpoint[ACL]:
     return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", ACL, json=body)
 
 
-def bulk_update(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChangeOperation]:
+def update_bulk(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChangeOperation]:
     """Each call starts a new async operation: a plain, non-idempotent write."""
     path = f"entities/{segment(entity_type)}/bulkchange/_update"
     return Endpoint("POST", path, BulkChangeOperation, json=body)
 
 
-def bulk_status_get(operation_id: str) -> Endpoint[BulkChangeOperation]:
+def bulk_get(operation_id: str) -> Endpoint[BulkChangeOperation]:
     return Endpoint("GET", f"bulkchange/{segment(operation_id)}", BulkChangeOperation)
 
 
-def create_report(body: ReportCreate) -> Endpoint[Entity]:
+def reports_create(body: ReportCreate) -> Endpoint[Entity]:
     return Endpoint("POST", "entities/report/", Entity, json=body)
 
 
@@ -192,7 +192,7 @@ def comments_list(
     return Endpoint("GET", path, ItemList[Comment], params={"expand": expand})
 
 
-def comments_relative_list(
+def comments_list_relative(
     entity_type: str, entity_id: str, *, per_page: int
 ) -> Paged[CommentsRelativeResponse, Comment]:
     """``GET …/comments/_relative``, each next page from the last comment's ``longId``."""

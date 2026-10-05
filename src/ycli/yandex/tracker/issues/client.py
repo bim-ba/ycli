@@ -5,17 +5,28 @@ Every method sends one declaration from :mod:`ycli.yandex.tracker.issues.endpoin
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues import endpoints
 from ycli.yandex.tracker.issues.models import (
+    ImportTask,
     Issue,
     IssueCreate,
     IssueSearch,
     IssueUpdate,
     ScrollClear,
 )
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.bulk.models import (
+        BulkChange,
+        BulkMove,
+        BulkTransition,
+        BulkUpdate,
+    )
 
 
 class IssuesClient(Resource):
@@ -223,3 +234,106 @@ class IssuesClient(Resource):
             body: The scroll ids mapped to their scroll tokens.
         """
         self._session.send(endpoints.scroll_clear(body))
+
+    def update_bulk(
+        self,
+        body: BulkUpdate,
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
+        """``POST /bulkchange/_update`` — mass-edit issues. Returns the started ``BulkChange``.
+
+        Args:
+            body: The request body: the issues to change and the field values to set.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> from ycli.yandex.tracker.bulk.models import BulkUpdate
+            >>> tracker.issues.update_bulk(
+            ...     BulkUpdate.model_validate(
+            ...         {"issues": ["DE-1", "DE-2"], "values": {"priority": "minor"}}
+            ...     )
+            ... ).status
+            'CREATED'
+        """
+        return self._session.send(endpoints.update_bulk(body, notify=notify))
+
+    def move_bulk(
+        self,
+        body: BulkMove,
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
+        """``POST /bulkchange/_move`` — mass-move issues to another queue. Returns a ``BulkChange``.
+
+        Args:
+            body: The request body: the target queue and the issues to move.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> from ycli.yandex.tracker.bulk.models import BulkMove
+            >>> tracker.issues.move_bulk(
+            ...     BulkMove.model_validate({"queue": "CHECK", "issues": ["DE-3"]})
+            ... ).id
+            '2cd'
+        """
+        return self._session.send(endpoints.move_bulk(body, notify=notify))
+
+    def transition_bulk(
+        self,
+        body: BulkTransition,
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
+        """``POST /bulkchange/_transition`` — mass status transition. Returns a ``BulkChange``.
+
+        Args:
+            body: The request body: the transition to run and the issues to run it on.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> from ycli.yandex.tracker.bulk.models import BulkTransition
+            >>> tracker.issues.transition_bulk(
+            ...     BulkTransition.model_validate({"transition": "close", "issues": ["DE-4"]})
+            ... ).status
+            'CREATED'
+        """
+        return self._session.send(endpoints.transition_bulk(body, notify=notify))
+
+    def import_(self, body: ImportTask) -> Issue:
+        """``POST /issues/_import`` — import an issue preserving its history. Returns the ``Issue``.
+
+        Args:
+            body: The issue fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The imported issue.
+
+        Examples:
+            >>> from ycli.yandex.tracker.issues.models import ImportTask
+            >>> tracker.issues.import_(
+            ...     ImportTask.model_validate(
+            ...         {
+            ...             "queue": "TEST",
+            ...             "summary": "Old task",
+            ...             "createdAt": "2017-08-29T12:34:41.740+0000",
+            ...             "createdBy": "11",
+            ...             "key": "TEST-41",
+            ...         }
+            ...     )
+            ... ).key
+            'TEST-41'
+        """
+        return self._session.send(endpoints.import_(body))

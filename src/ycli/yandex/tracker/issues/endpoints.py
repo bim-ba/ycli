@@ -12,7 +12,9 @@ from __future__ import annotations
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination, ScrollPagination
 from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.issues.models import (
+    ImportTask,
     Issue,
     IssueCreate,
     IssueSearch,
@@ -138,3 +140,33 @@ def suggest(
 def scroll_clear(body: ScrollClear) -> Endpoint[None]:
     """``POST /system/search/scroll/_clear`` — releasing a scroll is safe to repeat."""
     return Endpoint("POST", "system/search/scroll/_clear", json=body, effect="idempotent_write")
+
+
+def update_bulk(
+    body: BulkUpdate,
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint("POST", "bulkchange/_update", BulkChange, json=body, params={"notify": notify})
+
+
+def move_bulk(
+    body: BulkMove,
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint("POST", "bulkchange/_move", BulkChange, json=body, params={"notify": notify})
+
+
+def transition_bulk(
+    body: BulkTransition,
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint(
+        "POST", "bulkchange/_transition", BulkChange, json=body, params={"notify": notify}
+    )
+
+
+def import_(body: ImportTask) -> Endpoint[Issue]:
+    return Endpoint("POST", "issues/_import", Issue, json=body)

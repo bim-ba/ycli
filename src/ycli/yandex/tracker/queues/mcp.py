@@ -91,7 +91,7 @@ def tags_list(
     """Every tag name that has been added to the queue, as a flat string array.
 
     These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
-    everywhere with ``queues_tag_remove``.
+    everywhere with ``queues_tags_delete``.
     """
     return client.queues.tags_list(queue_id)
 
@@ -109,7 +109,7 @@ def versions_list(
     """The queue's versions — release milestones issues can be assigned to.
 
     Each item carries the version's name, date range and released/archived flags. Create one
-    with ``queues_version_create``.
+    with ``queues_versions_create``.
     """
     return client.queues.versions_list(queue_id)
 
@@ -167,10 +167,10 @@ def restore(queue_id: QueueID, client: TrackerClient = Depends(tracker_client)) 
 
 
 @mcp.tool(
-    name="queues_set_permissions",
+    name="queues_permissions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker queue permissions"},
 )
-def set_permissions(
+def permissions_update(
     queue_id: QueueID, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> QueuePermissions:
     """Replace access rules on a Tracker queue (grant/revoke read/write/create/grant rights).
@@ -178,14 +178,14 @@ def set_permissions(
     Each right block takes ``users``/``groups``/``roles`` arrays; omitted blocks stay
     unchanged. Returns the resulting permission set.
     """
-    return client.queues.set_permissions(queue_id, body)
+    return client.queues.permissions_update(queue_id, body)
 
 
 @mcp.tool(
-    name="queues_tag_remove",
+    name="queues_tags_delete",
     annotations={**DESTRUCTIVE, "title": "Remove Tracker queue tag"},
 )
-def tag_remove(
+def tags_delete(
     queue_id: QueueID, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Remove a tag from EVERY issue of a queue (irreversible; the tag disappears queue-wide).
@@ -193,15 +193,15 @@ def tag_remove(
     ``body`` is ``{"tag": "<name>"}`` — pick the name from ``queues_tags_list``. Returns an
     acknowledgement on success.
     """
-    client.queues.tag_remove(queue_id, body)
+    client.queues.tags_delete(queue_id, body)
     return Ack.removed("tag", body.tag, from_=f"queue {queue_id}")
 
 
 @mcp.tool(
-    name="queues_version_create",
+    name="queues_versions_create",
     annotations={**WRITE, "title": "Create Tracker queue version"},
 )
-def version_create(
+def versions_create(
     body: QueueVersionCreate, client: TrackerClient = Depends(tracker_client)
 ) -> QueueVersionInfo:
     """Create a version (release milestone) on a queue.
@@ -209,11 +209,11 @@ def version_create(
     Required: ``queue`` (the queue key) and ``name``; optional ``description``,
     ``start_date`` / ``due_date`` (``YYYY-MM-DD``). Returns the new version.
     """
-    return client.queues.version_create(body)
+    return client.queues.versions_create(body)
 
 
-@mcp.tool(name="queues_version_get", annotations={**RO, "title": "Get Tracker queue version"})
-def version_get(
+@mcp.tool(name="queues_versions_get", annotations={**RO, "title": "Get Tracker queue version"})
+def versions_get(
     version_id: Annotated[
         int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
     ],
@@ -224,14 +224,14 @@ def version_get(
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueVersionInfo:
     """One queue version: name, description, dates and its released/archived flags."""
-    return client.queues.version_get(version_id, fields=fields)
+    return client.queues.versions_get(version_id, fields=fields)
 
 
 @mcp.tool(
-    name="queues_version_update",
+    name="queues_versions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue version"},
 )
-def version_update(
+def versions_update(
     version_id: Annotated[
         int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
     ],
@@ -242,21 +242,21 @@ def version_update(
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueVersionInfo:
     """Edit a queue version; only the fields set in ``body`` change. Returns the version."""
-    return client.queues.version_update(version_id, body, fields=fields)
+    return client.queues.versions_update(version_id, body, fields=fields)
 
 
 @mcp.tool(
-    name="queues_version_delete",
+    name="queues_versions_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue version"},
 )
-def version_delete(
+def versions_delete(
     version_id: Annotated[
         int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
     """Permanently delete a queue version (irreversible). Returns an acknowledgement."""
-    client.queues.version_delete(version_id)
+    client.queues.versions_delete(version_id)
     return Ack.deleted("version", version_id)
 
 
@@ -274,7 +274,7 @@ def user_permissions_get(
     """What one user may do in a queue (create, read, write, grant, deny) and why.
 
     Each right lists who grants it: the user personally, a group or a role. To change rights
-    use ``queues_set_permissions``.
+    use ``queues_permissions_update``.
     """
     return client.queues.user_permissions_get(queue_id, user_id)
 

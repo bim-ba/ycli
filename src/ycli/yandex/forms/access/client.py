@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class AccessClient(Resource):
     """Read and change who may edit and who may fill a form."""
 
-    def get(self, survey_id: str) -> ItemList[Permission]:
+    def list(self, survey_id: str) -> ItemList[Permission]:
         """``GET /surveys/{id}/access`` → one permission per action (change, submit).
 
         Args:
@@ -25,12 +25,12 @@ class AccessClient(Resource):
             One permission per action.
 
         Examples:
-            >>> forms.access.get("686d0a1b2c3d4e5f000000d0").root[0].access
+            >>> forms.access.list("686d0a1b2c3d4e5f000000d0").root[0].access
             'restricted'
         """
-        return self._session.send(endpoints.get(survey_id))
+        return self._session.send(endpoints.list_(survey_id))
 
-    def set(self, survey_id: str, body: AccessUpdate) -> ItemList[Permission]:
+    def update(self, survey_id: str, body: AccessUpdate) -> ItemList[Permission]:
         """``POST /surveys/{id}/access`` — set one action's level from a ``AccessUpdate``.
 
         Args:
@@ -42,13 +42,13 @@ class AccessClient(Resource):
 
         Examples:
             >>> from ycli.yandex.forms.access.models import AccessUpdate
-            >>> forms.access.set(
+            >>> forms.access.update(
             ...     "686d0a1b2c3d4e5f000000d0",
             ...     AccessUpdate.model_validate({"action": "submit", "access": "common"}),
             ... ).root[1].access
             'common'
         """
-        return self._session.send(endpoints.set_(survey_id, body))
+        return self._session.send(endpoints.update(survey_id, body))
 
     def grant(self, survey_id: str, body: AccessGrant) -> ItemList[Permission]:
         """``POST /surveys/{id}/access/grant`` — add a user or group (a ``AccessGrant``).

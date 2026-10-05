@@ -70,7 +70,7 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.get(page_id, file_id))
 
-    def preview(self, page_id: int, file_id: int) -> bytes:
+    def preview_download(self, page_id: int, file_id: int) -> bytes:
         r"""``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
 
         Undocumented by Yandex (live OpenAPI only), may change. The bytes are returned as sent.
@@ -86,10 +86,10 @@ class AttachmentsClient(Resource):
             The preview image's bytes.
 
         Examples:
-            >>> wiki.attachments.preview(5608, 5622)
+            >>> wiki.attachments.preview_download(5608, 5622)
             b'\x89PNG preview bytes'
         """
-        return self._session.send(endpoints.preview(page_id, file_id))
+        return self._session.send(endpoints.preview_download(page_id, file_id))
 
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.

@@ -537,7 +537,7 @@ $ ycli forms conditions question [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a condition group on the question...
 * `update`: Replace condition group CONDITION_ID...
 * `delete`: Delete condition group CONDITION_ID...
-* `set-operator`: Set the operator BETWEEN the question's...
+* `update-operator`: Set the operator BETWEEN the question's...
 
 #### `ycli forms conditions question list`
 
@@ -663,14 +663,14 @@ $ ycli forms conditions question delete [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions question set-operator`
+#### `ycli forms conditions question update-operator`
 
 Set the operator BETWEEN the question's condition groups (collection PATCH).
 
 **Usage**:
 
 ```console
-$ ycli forms conditions question set-operator [OPTIONS] SURVEY_ID QUESTION_ID
+$ ycli forms conditions question update-operator [OPTIONS] SURVEY_ID QUESTION_ID
 ```
 
 **Arguments**:
@@ -708,7 +708,7 @@ $ ycli forms conditions page [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a condition group on the page (POST...
 * `update`: Replace condition group CONDITION_ID...
 * `delete`: Delete condition group CONDITION_ID...
-* `set-operator`: Set the operator BETWEEN the page's...
+* `update-operator`: Set the operator BETWEEN the page's...
 
 #### `ycli forms conditions page list`
 
@@ -834,14 +834,14 @@ $ ycli forms conditions page delete [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions page set-operator`
+#### `ycli forms conditions page update-operator`
 
 Set the operator BETWEEN the page's condition groups (collection PATCH).
 
 **Usage**:
 
 ```console
-$ ycli forms conditions page set-operator [OPTIONS] SURVEY_ID PAGE_ID
+$ ycli forms conditions page update-operator [OPTIONS] SURVEY_ID PAGE_ID
 ```
 
 **Arguments**:
@@ -879,7 +879,7 @@ $ ycli forms conditions submit [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a condition group on the submit...
 * `update`: Replace condition group CONDITION_ID...
 * `delete`: Delete condition group CONDITION_ID...
-* `set-operator`: Set the operator BETWEEN the submit...
+* `update-operator`: Set the operator BETWEEN the submit...
 
 #### `ycli forms conditions submit list`
 
@@ -1000,14 +1000,14 @@ $ ycli forms conditions submit delete [OPTIONS] SURVEY_ID CONDITION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions submit set-operator`
+#### `ycli forms conditions submit update-operator`
 
 Set the operator BETWEEN the submit button's condition groups (collection PATCH).
 
 **Usage**:
 
 ```console
-$ ycli forms conditions submit set-operator [OPTIONS] SURVEY_ID
+$ ycli forms conditions submit update-operator [OPTIONS] SURVEY_ID
 ```
 
 **Arguments**:
@@ -1044,7 +1044,7 @@ $ ycli forms conditions hook [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a condition group on the...
 * `update`: Replace condition group CONDITION_ID...
 * `delete`: Delete condition group CONDITION_ID...
-* `set-operator`: Set the operator BETWEEN the integration...
+* `update-operator`: Set the operator BETWEEN the integration...
 
 #### `ycli forms conditions hook list`
 
@@ -1170,14 +1170,14 @@ $ ycli forms conditions hook delete [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions hook set-operator`
+#### `ycli forms conditions hook update-operator`
 
 Set the operator BETWEEN the integration group's condition groups (collection PATCH).
 
 **Usage**:
 
 ```console
-$ ycli forms conditions hook set-operator [OPTIONS] SURVEY_ID HOOK_ID
+$ ycli forms conditions hook update-operator [OPTIONS] SURVEY_ID HOOK_ID
 ```
 
 **Arguments**:
@@ -1210,19 +1210,19 @@ $ ycli forms access [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `get`: Print who may edit and who may fill form...
-* `set`: Set the access level of one action on form...
+* `list`: Print who may edit and who may fill form...
+* `update`: Set the access level of one action on form...
 * `grant`: Let a user (--uid / --cloud-uid) or a...
 * `revoke`: Stop a user (--uid / --cloud-uid) or a...
 
-### `ycli forms access get`
+### `ycli forms access list`
 
 Print who may edit and who may fill form SURVEY_ID (one entry per action).
 
 **Usage**:
 
 ```console
-$ ycli forms access get [OPTIONS] SURVEY_ID
+$ ycli forms access list [OPTIONS] SURVEY_ID
 ```
 
 **Arguments**:
@@ -1237,14 +1237,14 @@ $ ycli forms access get [OPTIONS] SURVEY_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli forms access set`
+### `ycli forms access update`
 
 Set the access level of one action on form SURVEY_ID (POST …/access).
 
 **Usage**:
 
 ```console
-$ ycli forms access set [OPTIONS] SURVEY_ID
+$ ycli forms access update [OPTIONS] SURVEY_ID
 ```
 
 **Arguments**:

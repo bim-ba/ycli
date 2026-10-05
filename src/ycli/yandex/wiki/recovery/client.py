@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class RecoveryClient(Resource):
     """Restore a deleted page by its recovery token."""
 
-    def restore(self, token: str) -> RecoveredPage:
+    def recover(self, token: str) -> RecoveredPage:
         """``POST /recovery_tokens/{token}/recover`` → the restored page and how many came back.
 
         Redeems a ``recovery_token`` returned by ``PagesClient.delete`` to undo the delete.
@@ -27,7 +27,7 @@ class RecoveryClient(Resource):
             The restored page's ``id`` and ``slug``, and how many pages were restored.
 
         Examples:
-            >>> wiki.recovery.restore("recovery-token-1").slug
+            >>> wiki.recovery.recover("recovery-token-1").slug
             'eng/restored'
         """
-        return self._session.send(endpoints.restore(token))
+        return self._session.send(endpoints.recover(token))

@@ -49,7 +49,7 @@ def test_export_results_reports_a_redirect_to_the_file_as_ready_without_followin
     file_url = "https://forms.s3.test/uploads/answers.csv"
     api.add("GET", f"{ANSWERS}/export-results", status=302, headers={"Location": file_url})
     with FormsClient(oauth_token="t", organization_id="o") as client:
-        assert client.answers.export_results(SID, "op-1").is_ready
+        assert client.answers.export_results_get(SID, "op-1").is_ready
     assert len(api.calls) == 1
 
 

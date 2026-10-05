@@ -48,7 +48,7 @@ class WorkflowsClient(Resource):
         """
         return self._session.send(endpoints.get(workflow_id))
 
-    def for_queue(self, queue_id: str) -> QueueWorkflows:
+    def list_for_queue(self, queue_id: str) -> QueueWorkflows:
         """``GET /queues/{queue_id}/workflows`` → workflow id → the issue types that use it.
 
         Args:
@@ -58,10 +58,10 @@ class WorkflowsClient(Resource):
             The queue's workflows, each with the issue types that use it.
 
         Examples:
-            >>> tracker.workflows.for_queue("WFQ").root["dev"][0].key
+            >>> tracker.workflows.list_for_queue("WFQ").root["dev"][0].key
             'task'
         """
-        return self._session.send(endpoints.for_queue(queue_id))
+        return self._session.send(endpoints.list_for_queue(queue_id))
 
     def create(self, body: WorkflowCreate) -> Workflow:
         """``POST /workflows`` → create a workflow from a typed ``WorkflowCreate`` body.
@@ -115,7 +115,7 @@ class WorkflowsClient(Resource):
         """
         return self._session.send(endpoints.update(workflow_id, body, version=version))
 
-    def update_action(
+    def actions_update(
         self,
         workflow_id: str,
         status: str,
@@ -144,12 +144,12 @@ class WorkflowsClient(Resource):
             >>> action = WorkflowActionUpdate(
             ...     name=LocalizedName(ru="Завершить", en="Complete"), target="closed"
             ... )
-            >>> tracker.workflows.update_action(
+            >>> tracker.workflows.actions_update(
             ...     "W23", "inProgress", "close", action, version=2
             ... ).version
             3
         """
-        endpoint = endpoints.update_action(workflow_id, status, action_id, body, version=version)
+        endpoint = endpoints.actions_update(workflow_id, status, action_id, body, version=version)
         return self._session.send(endpoint)
 
     def delete(self, workflow_id: str) -> None:

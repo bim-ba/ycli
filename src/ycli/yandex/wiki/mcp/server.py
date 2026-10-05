@@ -13,20 +13,19 @@ from ycli.yandex.wiki.operations.mcp import mcp as operations_mcp
 from ycli.yandex.wiki.pages.mcp import mcp as pages_mcp
 from ycli.yandex.wiki.recovery.mcp import mcp as recovery_mcp
 from ycli.yandex.wiki.resources.mcp import mcp as resources_mcp
-from ycli.yandex.wiki.search.mcp import mcp as search_mcp
 from ycli.yandex.wiki.uploadsessions.mcp import mcp as uploadsessions_mcp
 
 mcp = FastMCP(
     "wiki",
     instructions=(
         "Yandex Wiki, reads and writes. Pages are addressed by their permanent slug: "
-        "pages_get fetches content, pages_meta the metadata, pages_descendants the child "
-        "tree, search_query finds pages by text; writes (pages_create/pages_update/…, grids_*, "
+        "pages_get fetches content, pages_get_meta the metadata, pages_descendants_list the child "
+        "tree, pages_search finds pages by text; writes (pages_create/pages_update/…, grids_*, "
         "comments_*, access_*, attachments_*) "
         "carry honest readOnly/destructive/idempotent hints and the 'write' tag. Treat slugs as "
         "permanent: pages_move can rename a page but the old address then answers 404, and "
         "pages_clone copies content to a new one; pages_delete returns the "
-        "recovery_token that recovery_restore redeems."
+        "recovery_token that recovery_recover redeems."
     ),
 )
 mcp.mount(me_mcp)
@@ -36,7 +35,6 @@ mcp.mount(comments_mcp)
 mcp.mount(attachments_mcp)
 mcp.mount(resources_mcp)
 mcp.mount(recovery_mcp)
-mcp.mount(search_mcp)
 mcp.mount(grids_mcp)
 mcp.mount(operations_mcp)
 mcp.mount(uploadsessions_mcp)

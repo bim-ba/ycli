@@ -83,10 +83,10 @@ CASES = [
         exchanges=[(Sent("GET", "workflows/W21"), Reply(json=WORKFLOW))],
     ),
     Case(
-        "tracker.workflows.for_queue",
+        "tracker.workflows.list_for_queue",
         args=("WFQ",),
-        cli=["tracker", "workflows", "for-queue", "WFQ"],
-        mcp=("tracker_workflows_for_queue", {"queue_id": "WFQ"}),
+        cli=["tracker", "workflows", "list-for-queue", "WFQ"],
+        mcp=("tracker_workflows_list_for_queue", {"queue_id": "WFQ"}),
         exchanges=[
             (
                 Sent("GET", "queues/WFQ/workflows"),
@@ -322,7 +322,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.workflows.update_action",
+        "tracker.workflows.actions_update",
         args=(
             "W23",
             "inProgress",
@@ -341,7 +341,7 @@ CASES = [
         cli=[
             "tracker",
             "workflows",
-            "update-action",
+            "actions-update",
             "W23",
             "inProgress",
             "close",
@@ -361,7 +361,7 @@ CASES = [
             ),
         ],
         mcp=(
-            "tracker_workflows_update_action",
+            "tracker_workflows_actions_update",
             {
                 "workflow_id": "W23",
                 "status": "inProgress",

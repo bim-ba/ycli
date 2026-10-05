@@ -8,6 +8,7 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
@@ -23,6 +24,7 @@ from ycli.yandex.tracker.dependencies import (
     tracker_client,
 )
 from ycli.yandex.tracker.issues.models import (
+    ImportTask,
     Issue,
     IssueCreate,
     IssueSearch,
@@ -226,3 +228,52 @@ def scroll_clear(body: ScrollClear, client: TrackerClient = Depends(tracker_clie
     """
     client.issues.scroll_clear(body)
     return Ack.cleared("search scroll resources")
+
+
+@mcp.tool(
+    name="issues_update_bulk",
+    annotations={**WRITE, "title": "Bulk-update Tracker issues"},
+)
+def update_bulk(
+    body: BulkUpdate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
+    """Start an async bulk field update over many Tracker issues; returns the operation.
+
+    Poll the returned operation id with ``bulk_get`` and inspect failures with
+    ``bulk_issues_list``.
+    """
+    return client.issues.update_bulk(body, notify=notify)
+
+
+@mcp.tool(name="issues_move_bulk", annotations={**WRITE, "title": "Bulk-move Tracker issues"})
+def move_bulk(
+    body: BulkMove, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
+    """Start an async bulk move of many Tracker issues to another queue; returns the operation.
+
+    Poll with ``bulk_get``.
+    """
+    return client.issues.move_bulk(body, notify=notify)
+
+
+@mcp.tool(
+    name="issues_transition_bulk",
+    annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
+)
+def transition_bulk(
+    body: BulkTransition, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
+    """Start an async bulk status transition over many Tracker issues; returns the operation.
+
+    Poll with ``bulk_get``.
+    """
+    return client.issues.transition_bulk(body, notify=notify)
+
+
+@mcp.tool(name="issues_import", annotations={**WRITE, "title": "Import Tracker issue"})
+def import_(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """Import an issue preserving its original history (admin-only back-fill).
+
+    Returns the imported issue.
+    """
+    return client.issues.import_(body=body)

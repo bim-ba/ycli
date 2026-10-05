@@ -35,7 +35,7 @@ class FakeOrganization(Driver):
                 {"key": "Q-3", "summary": f"{FRESH} lifecycle", "status": "open"},
                 {"key": "Q-4", "summary": "a human's issue", "status": "open"},
             ],
-            "wiki pages descendants": [
+            "wiki pages descendants-list": [
                 {"id": 11, "slug": OLD},
                 {"id": 12, "slug": "e2e-handmade"},
                 {"id": 13, "slug": "users/someone"},

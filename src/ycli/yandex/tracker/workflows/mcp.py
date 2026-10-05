@@ -37,7 +37,7 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Workflow]
     """Every workflow of the organization (deleted ones excluded) with its steps and actions.
 
     A workflow is the status graph an issue type follows. Use ``workflows_get`` for one by id
-    and ``workflows_for_queue`` to see which workflow each issue type of a queue uses.
+    and ``workflows_list_for_queue`` to see which workflow each issue type of a queue uses.
     """
     return client.workflows.list()
 
@@ -52,17 +52,17 @@ def get(workflow_id: WorkflowID, client: TrackerClient = Depends(tracker_client)
 
 
 @mcp.tool(
-    name="workflows_for_queue",
+    name="workflows_list_for_queue",
     annotations={**RO, "title": "List workflows of a Tracker queue"},
 )
-def for_queue(
+def list_for_queue(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueWorkflows:
     """The workflows a queue uses: a map from workflow id to the issue types that follow it."""
-    return client.workflows.for_queue(queue_id)
+    return client.workflows.list_for_queue(queue_id)
 
 
 @mcp.tool(
@@ -98,10 +98,10 @@ def update(
 
 
 @mcp.tool(
-    name="workflows_update_action",
+    name="workflows_actions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow action"},
 )
-def update_action(
+def actions_update(
     workflow_id: WorkflowID,
     status: Annotated[str, Field(description="Key of the step (status) the action leaves.")],
     action_id: Annotated[str, Field(description="Id of the action within that step.")],
@@ -113,7 +113,7 @@ def update_action(
 
     Returns the whole workflow with its incremented version.
     """
-    return client.workflows.update_action(workflow_id, status, action_id, body, version=version)
+    return client.workflows.actions_update(workflow_id, status, action_id, body, version=version)
 
 
 @mcp.tool(

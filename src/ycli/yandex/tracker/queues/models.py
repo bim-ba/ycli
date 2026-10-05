@@ -258,7 +258,7 @@ class QueueCreate(RequestBody):
 
 
 class QueueTagRemove(RequestBody):
-    """Typed request body for ``queues.tag_remove`` (``POST /queues/{id}/tags/_remove``).
+    """Typed request body for ``queues.tags_delete`` (``POST /queues/{id}/tags/_remove``).
 
     Examples:
         >>> QueueTagRemove(tag="obsolete").tag
@@ -269,7 +269,7 @@ class QueueTagRemove(RequestBody):
 
 
 class QueueVersionCreate(RequestBody):
-    """Typed request body for ``queues.version_create`` (``POST /versions/``).
+    """Typed request body for ``queues.versions_create`` (``POST /versions/``).
 
     Examples:
         >>> QueueVersionCreate(queue="TEST", name="v0.1").name
@@ -334,7 +334,7 @@ class QueuePermissionScope(RequestBody):
 
 
 class QueuePermissionsUpdate(RequestBody):
-    """Typed request body for ``queues.set_permissions`` (``PATCH /queues/{id}/permissions``).
+    """Typed request body for ``queues.permissions_update`` (``PATCH /queues/{id}/permissions``).
 
     Set at least one category. Each names the users/groups/roles the permission applies to.
 

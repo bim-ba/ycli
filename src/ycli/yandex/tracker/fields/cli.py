@@ -104,8 +104,8 @@ def update(
     return tracker.fields.update(field_id, body, version=version)
 
 
-@app.command("category-create")
-def category_create(
+@app.command("categories-create")
+def categories_create(
     order: Annotated[int, typer.Option(help="Display-order weight of the category.")],
     name_ru: Annotated[
         str | None, typer.Option("--name-ru", help="Category name in Russian.")
@@ -123,11 +123,11 @@ def category_create(
         order=order,
         description=description,
     )
-    return tracker.fields.category_create(body)
+    return tracker.fields.categories_create(body)
 
 
-@app.command("category-update")
-def category_update(
+@app.command("categories-update")
+def categories_update(
     category_id: Annotated[
         str, typer.Argument(metavar="CATEGORY_ID", help="Identifier of the field category.")
     ],
@@ -154,4 +154,4 @@ def category_update(
         order=order,
         description=description,
     )
-    return tracker.fields.category_update(category_id, body, version=version)
+    return tracker.fields.categories_update(category_id, body, version=version)

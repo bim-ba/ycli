@@ -40,7 +40,7 @@ class DashboardsClient(Resource):
         """
         return self._session.send(endpoints.create(body))
 
-    def add_cycle_time_widget(self, dashboard_id: str, body: CycleTimeWidget) -> Widget:
+    def widgets_create_cycle_time(self, dashboard_id: str, body: CycleTimeWidget) -> Widget:
         """``POST /dashboards/{dashboard_id}/widgets/cycleTime`` — add a cycle-time widget.
 
         Returns the created ``Widget``.
@@ -54,7 +54,7 @@ class DashboardsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.dashboards.models import CycleTimeWidget
-            >>> tracker.dashboards.add_cycle_time_widget(
+            >>> tracker.dashboards.widgets_create_cycle_time(
             ...     "11",
             ...     CycleTimeWidget.model_validate(
             ...         {"description": "Cycle time", "query": "Queue: DE"}
@@ -62,4 +62,4 @@ class DashboardsClient(Resource):
             ... ).id
             123456
         """
-        return self._session.send(endpoints.add_cycle_time_widget(dashboard_id, body))
+        return self._session.send(endpoints.widgets_create_cycle_time(dashboard_id, body))

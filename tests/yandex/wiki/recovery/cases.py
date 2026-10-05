@@ -6,10 +6,10 @@ TOKEN = "recovery-token-1"
 
 CASES = [
     Case(
-        "wiki.recovery.restore",
+        "wiki.recovery.recover",
         args=(TOKEN,),
-        cli=["wiki", "recovery", "restore", TOKEN],
-        mcp=("wiki_recovery_restore", {"token": TOKEN}),
+        cli=["wiki", "recovery", "recover", TOKEN],
+        mcp=("wiki_recovery_recover", {"token": TOKEN}),
         exchanges=[
             (
                 Sent("POST", f"recovery_tokens/{TOKEN}/recover"),

@@ -7,7 +7,7 @@ published operation, named like the client method that sends it.
 Examples:
     >>> question_list("686d", "17").path
     'surveys/686d/questions/17/conditions'
-    >>> submit_set_operator("686d", "or").json
+    >>> submit_update_operator("686d", "or").json
     {'operator': 'or'}
 """
 
@@ -65,7 +65,7 @@ def question_delete(survey_id: str, question_id: str, condition_id: int) -> Endp
     )
 
 
-def question_set_operator(
+def question_update_operator(
     survey_id: str, question_id: str, operator: str
 ) -> Endpoint[ConditionsResponse]:
     """``PATCH`` on the collection sets the operator BETWEEN the groups."""
@@ -120,7 +120,9 @@ def page_delete(survey_id: str, page_id: int, condition_id: int) -> Endpoint[Non
     )
 
 
-def page_set_operator(survey_id: str, page_id: int, operator: str) -> Endpoint[ConditionsResponse]:
+def page_update_operator(
+    survey_id: str, page_id: int, operator: str
+) -> Endpoint[ConditionsResponse]:
     """``PATCH`` on the collection sets the operator BETWEEN the groups."""
     return Endpoint(
         "PATCH",
@@ -157,7 +159,7 @@ def submit_delete(survey_id: str, condition_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"surveys/{segment(survey_id)}/conditions/{segment(condition_id)}")
 
 
-def submit_set_operator(survey_id: str, operator: str) -> Endpoint[ConditionsResponse]:
+def submit_update_operator(survey_id: str, operator: str) -> Endpoint[ConditionsResponse]:
     """``PATCH`` on the collection sets the operator BETWEEN the groups."""
     return Endpoint(
         "PATCH",
@@ -210,7 +212,9 @@ def hook_delete(survey_id: str, hook_id: int, condition_id: int) -> Endpoint[Non
     )
 
 
-def hook_set_operator(survey_id: str, hook_id: int, operator: str) -> Endpoint[ConditionsResponse]:
+def hook_update_operator(
+    survey_id: str, hook_id: int, operator: str
+) -> Endpoint[ConditionsResponse]:
     """``PATCH`` on the collection sets the operator BETWEEN the groups."""
     return Endpoint(
         "PATCH",

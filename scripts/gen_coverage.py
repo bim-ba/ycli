@@ -103,11 +103,11 @@ TRACKER_CATEGORIES: list[tuple[str, list[str]]] = [
         "Fields, queues & structure",
         ["fields", "localfields", "components", "queues", "workflows", "projects"],
     ),
-    ("Automation & bulk", ["macros", "triggers", "autoactions", "dashboards", "bulk", "import_"]),
+    ("Automation & bulk", ["macros", "triggers", "autoactions", "dashboards", "bulk"]),
     ("Entities, users & search", ["entities", "users", "applications", "filters", "gaps", "me"]),
 ]
 WIKI_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("Pages", ["pages", "resources", "recovery", "search"]),
+    ("Pages", ["pages", "resources", "recovery"]),
     ("Collaboration", ["comments", "attachments", "access"]),
     ("Grids (dynamic tables)", ["grids"]),
     ("Async & uploads", ["operations", "uploadsessions"]),

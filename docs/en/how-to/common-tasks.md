@@ -33,7 +33,7 @@ The CLI and the tool take the common filters as options; for anything else pass 
 
 ## Comment on an issue
 
---8<-- "docs/examples/operations/tracker.comments.add.md"
+--8<-- "docs/examples/operations/tracker.comments.create.md"
 
 ## Move an issue along its workflow
 

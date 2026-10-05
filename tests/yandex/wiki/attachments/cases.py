@@ -63,9 +63,9 @@ CASES = [
         exchanges=[(Sent("GET", "pages/5607/attachments/5621"), Reply(json=DETAILS))],
     ),
     Case(
-        "wiki.attachments.preview",
+        "wiki.attachments.preview_download",
         args=(5608, 5622),
-        cli=["wiki", "attachments", "preview", "5608", "5622"],
+        cli=["wiki", "attachments", "preview-download", "5608", "5622"],
         mcp=None,
         exchanges=[
             (

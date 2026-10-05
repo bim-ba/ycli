@@ -164,7 +164,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 
 | Field | Where it lives | Requirement |
 |---|---|---|
-| `name` | `@mcp.tool(name=…)` | `snake_case`, `<resource>[_<subresource>]_<verb>`, usually verb last (a few keep the API's own phrase, e.g. `tracker_queues_set_permissions`); `edit`/`modify` are `update`. Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`, ARCH-1 `test_arch1_cli_path_equals_mcp_name`) |
+| `name` | `@mcp.tool(name=…)` | the operation's name with its resource in front (`boards_update`), see [Naming an operation](#7-naming-an-operation). Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`) |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
 | parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueID`, `Version`, `SurveyID`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
@@ -223,12 +223,12 @@ the HTTP call:
 
 ```python
 @mcp.tool(
-    name="bulk_update",
+    name="issues_update_bulk",
     annotations={**WRITE, "title": "Bulk-update issues"},
 )
-def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def update_bulk(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation."""
-    return client.bulk.update(body)
+    return client.issues.update_bulk(body)
 ```
 
 A `None` is an absence and is not sent, except where the caller could only have meant it: in a
@@ -355,7 +355,54 @@ check of its own to say it. A reply that does not fit its model is another error
 
 ---
 
-## 7. Names
+## 7. Naming an operation
+
+An operation has one name on every surface. The SDK method is `tracker.issues.update_bulk`, the
+MCP tool `tracker_issues_update_bulk`, the CLI command `ycli tracker issues update-bulk` (hyphens
+between the words of a command), and the function in `endpoints.py` is `update_bulk`. One
+operation Yandex publishes gets one name: no method stands for several addresses.
+
+The name is `[parts_]verb[_qualifier]`.
+
+| | Rule | Example |
+|---|---|---|
+| Verb | One standard word for what the operation does: `get` one object, `list` many, `search` or `suggest` where the API calls it that, `count`, `create`, `update` some fields, `set` a whole value, `delete`; for files `upload`, `download`, `attach`, `import`, `export`; `clear` for all at once. | `POST /issues/{id}/comments` creates a comment: `comments.create`, though the API's page says "add" |
+| | A synonym is never a verb: `add`, `remove`, `edit`, `modify`, `patch`, `query`. | `rows_create`, not `rows_add` |
+| | Any other verb is the API's own, where its address or the operation's name states an action that none of the standard words covers. | `surveys.publish`, `transitions.execute`, `recovery.recover` |
+| Parts | The nouns of the address between the resource and the action, in the order of the address. The one the operation acts on is plural; a noun that only says whose it is may stay singular. | `queues.versions_create`, `operations.clone_get`, `conditions.question_list` |
+| Qualifier | Every other word follows the verb: `bulk`, a way to pick the object, a word the API does not say. | `issues.update_bulk`, `pages.get_by_id`, `components.list_for_queue`, `worklog.list_global` |
+
+A Python keyword or builtin cannot name a function: the method is `issues.import_`, and the
+functions in `endpoints.py`, `cli.py` and `mcp.py` are `import_` and `list_`.
+
+Two tools have no command of their own name, because one command serves both
+(`ARCH1_NAME_EXCEPTIONS`: `wiki_pages_get_meta` beside `wiki pages get --fields`,
+`tracker_entities_comments_list_relative` beside `tracker entities comments list --relative`),
+and two tools share one operation: `tracker_issues_list` and `tracker_issues_search` both call
+`issues.search`.
+
+**Who holds this.** The tests hold what a machine reads without judgment: one name on every
+surface, no synonym in a name, and a method named exactly `get` that does not return a list.
+Everything else in this section is a convention held by review: `/arch-review` compares the names
+of new operations with it. That includes "a `get` returns one object" for a name with parts:
+`autoactions.logs_get` and `comments.thread_get` return the records of one run and of one thread,
+and are marked in the code. A renamed operation stops answering to its old name in the same
+release, and the changelog lists both.
+
+### A deliberate departure
+
+Code that departs from a rule on purpose says so where it does, in one line:
+
+```python
+# violation(naming): the log of one run is one object, its entries are the list
+def logs_get(...) -> ItemList[AutoactionRunEntry]:
+```
+
+The form is `# violation(<rule>): <reason>`; the rule is the name of a section here (`naming`) or
+an invariant (`arch-9`). A reviewer who meets the code sees that the departure was chosen, and a
+search for `violation(` lists every one.
+
+## 8. Names in code
 
 - **An acronym keeps its capitals inside a CapWords name** (PEP 8): `QueueID`, `HTTPSubscription`,
   `JSONRPCSubscription`, `SurveyAPIKey`, `ACL`; a plural adds a lower-case `s` (`UserIDs`). The
@@ -372,7 +419,7 @@ check of its own to say it. A reply that does not fit its model is another error
 
 ---
 
-## 8. Where these rules are enforced
+## 9. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
@@ -384,6 +431,8 @@ check of its own to say it. A reply that does not fit its model is another error
 | Discriminated MCP output unions | `tests/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
 | Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
+| One name on every surface, no synonym, `get` returns one object | `tests/test_architecture.py`: `test_arch1_cli_path_equals_mcp_name`, `test_arch1_sdk_method_equals_tool_name`, `test_arch1_a_get_returns_one_object` |
+| The verb, the parts and their order | review: `/arch-review` against [Naming an operation](#7-naming-an-operation) |
 | An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/test_conventions.py::test_an_alias_name_means_one_thing` |

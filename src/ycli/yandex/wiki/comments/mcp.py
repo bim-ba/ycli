@@ -48,7 +48,7 @@ def list_(
     """Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
     Capped at the configured item cap unless ``limit`` is given. Pair with
-    ``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
+    ``pages_get_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
     cap = config.http.cap(limit)
     return client.comments.list(

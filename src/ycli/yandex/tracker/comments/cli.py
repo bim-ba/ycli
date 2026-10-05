@@ -10,10 +10,12 @@ from ycli.cli.typedefs import AllOption, LimitOption, values_argument
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, Reaction
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment, Reaction
 from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
     ExpandOpt,
+    ImportCreatedAtOpt,
+    ImportCreatedByOpt,
     KeyArg,
 )
 
@@ -54,7 +56,7 @@ def get(
 
 
 @app.command()
-def add(
+def create(
     key: KeyArg,
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
     *,
@@ -62,7 +64,7 @@ def add(
 ) -> Comment:
     """Add a comment to issue KEY."""
     body = CommentCreate(text=text)
-    return tracker.comments.add(key, body=body)
+    return tracker.comments.create(key, body=body)
 
 
 @app.command()
@@ -86,7 +88,7 @@ def delete(key: KeyArg, comment_id: IssueCommentIDArg, *, tracker: TrackerClient
 
 
 @app.command()
-def react(
+def reactions_create(
     key: KeyArg,
     comment_id: IssueCommentIDArg,
     name: Annotated[str, values_argument(Reaction, help="Reaction name.")],
@@ -94,4 +96,18 @@ def react(
     tracker: TrackerClient,
 ) -> Comment:
     """Add reaction NAME to comment COMMENT_ID on issue KEY."""
-    return tracker.comments.react(key, comment_id, name)
+    return tracker.comments.reactions_create(key, comment_id, name)
+
+
+@app.command("import")
+def import_(
+    key: KeyArg,
+    text: Annotated[str, typer.Option(help="Comment text.")],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    *,
+    tracker: TrackerClient,
+) -> Comment:
+    """Import a comment onto issue KEY (POST /issues/{key}/comments/_import)."""
+    body = ImportComment(text=text, createdAt=created_at, createdBy=created_by)
+    return tracker.comments.import_(key, body=body)

@@ -135,8 +135,8 @@ def question_delete(
     return Ack.deleted("condition", condition_id, from_=f"question {question_id}")
 
 
-@question_app.command("set-operator")
-def question_set_operator(
+@question_app.command("update-operator")
+def question_update_operator(
     survey_id: SurveyIDArg,
     question_id: QuestionIDArg,
     operator: JoinOperatorOpt,
@@ -144,7 +144,7 @@ def question_set_operator(
     forms: FormsClient,
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the question's condition groups (collection PATCH)."""
-    return forms.conditions.question_set_operator(survey_id, question_id, operator)
+    return forms.conditions.question_update_operator(survey_id, question_id, operator)
 
 
 # --- page ---
@@ -214,12 +214,12 @@ def page_delete(
     return Ack.deleted("condition", condition_id, from_=f"page {page_id}")
 
 
-@page_app.command("set-operator")
-def page_set_operator(
+@page_app.command("update-operator")
+def page_update_operator(
     survey_id: SurveyIDArg, page_id: FormPageIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the page's condition groups (collection PATCH)."""
-    return forms.conditions.page_set_operator(survey_id, page_id, operator)
+    return forms.conditions.page_update_operator(survey_id, page_id, operator)
 
 
 # --- submit ---
@@ -277,12 +277,12 @@ def submit_delete(
     return Ack.deleted("condition", condition_id, from_=f"survey {survey_id}")
 
 
-@submit_app.command("set-operator")
-def submit_set_operator(
+@submit_app.command("update-operator")
+def submit_update_operator(
     survey_id: SurveyIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the submit button's condition groups (collection PATCH)."""
-    return forms.conditions.submit_set_operator(survey_id, operator)
+    return forms.conditions.submit_update_operator(survey_id, operator)
 
 
 # --- hook ---
@@ -344,9 +344,9 @@ def hook_delete(
     return Ack.deleted("condition", condition_id, from_=f"hook {hook_id}")
 
 
-@hook_app.command("set-operator")
-def hook_set_operator(
+@hook_app.command("update-operator")
+def hook_update_operator(
     survey_id: SurveyIDArg, hook_id: HookIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the integration group's condition groups (collection PATCH)."""
-    return forms.conditions.hook_set_operator(survey_id, hook_id, operator)
+    return forms.conditions.hook_update_operator(survey_id, hook_id, operator)

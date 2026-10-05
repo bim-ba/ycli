@@ -27,8 +27,8 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-checklists")
 
 
-@mcp.tool(name="checklists_get", annotations={**RO, "title": "Get Tracker issue checklist"})
-def get(
+@mcp.tool(name="checklists_list", annotations={**RO, "title": "Get Tracker issue checklist"})
+def list_(
     key: Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[ChecklistItem]:
@@ -37,7 +37,7 @@ def get(
     Returns a flat array; an issue with no checklist yields an empty list. Item ids from here
     feed ``checklists_update`` / ``checklists_delete``.
     """
-    return client.checklists.get(key)
+    return client.checklists.list(key)
 
 
 @mcp.tool(
@@ -66,7 +66,7 @@ def update(
 ) -> Checklist:
     """Edit one checklist item on a Tracker issue (text, checked state, assignee, deadline).
 
-    Get ``item_id`` from ``checklists_get``. Returns the issue with its updated checklist.
+    Get ``item_id`` from ``checklists_list``. Returns the issue with its updated checklist.
     """
     return client.checklists.update(key, item_id, body)
 
@@ -80,7 +80,7 @@ def delete(
 ) -> Checklist:
     """Permanently remove one item from a Tracker issue's checklist (irreversible).
 
-    Get ``item_id`` from ``checklists_get``. Returns the issue with its remaining checklist.
+    Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining checklist.
     """
     return client.checklists.delete(key, item_id)
 

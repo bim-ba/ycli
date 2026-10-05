@@ -101,7 +101,7 @@ class FieldsClient(Resource):
         """
         return self._session.send(endpoints.update(field_id, body, version=version))
 
-    def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
+    def categories_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
 
         Args:
@@ -113,14 +113,14 @@ class FieldsClient(Resource):
         Examples:
             >>> from ycli.yandex.tracker.models import LocalizedName
             >>> from ycli.yandex.tracker.fields.models import FieldCategoryCreate
-            >>> tracker.fields.category_create(
+            >>> tracker.fields.categories_create(
             ...     FieldCategoryCreate(name=LocalizedName(ru="Своя"), order=400)
             ... ).id
             '604f99'
         """
-        return self._session.send(endpoints.category_create(body))
+        return self._session.send(endpoints.categories_create(body))
 
-    def category_update(
+    def categories_update(
         self, category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
     ) -> FieldCategoryRecord:
         """Edit field category ``category_id`` from a typed ``FieldCategoryUpdate`` body.
@@ -138,9 +138,9 @@ class FieldsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.fields.models import FieldCategoryUpdate
-            >>> tracker.fields.category_update(
+            >>> tracker.fields.categories_update(
             ...     "604f99", FieldCategoryUpdate(order=500), version=1
             ... ).version
             2
         """
-        return self._session.send(endpoints.category_update(category_id, body, version=version))
+        return self._session.send(endpoints.categories_update(category_id, body, version=version))

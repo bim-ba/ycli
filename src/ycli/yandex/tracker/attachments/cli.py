@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -11,6 +12,7 @@ from ycli.cli.typedefs import FilePathArg
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.typedefs import ImportCreatedAtOpt, ImportCreatedByOpt, KeyArg
 
 app = typer.Typer(name="attachments", help="Tracker issue attachments.", no_args_is_help=True)
 
@@ -41,8 +43,8 @@ def download(
     return BinaryResult(tracker.attachments.download(issue_key, file_id, filename), output)
 
 
-@app.command("download-thumbnail")
-def download_thumbnail(
+@app.command("thumbnails-download")
+def thumbnails_download(
     issue_key: Annotated[str, _ISSUE],
     file_id: Annotated[str, _FILE_ID],
     output: Annotated[str | None, _OUTPUT] = None,
@@ -50,7 +52,7 @@ def download_thumbnail(
     tracker: TrackerClient,
 ) -> BinaryResult:
     """Download a graphic attachment's preview thumbnail to --output (or stdout)."""
-    return BinaryResult(tracker.attachments.download_thumbnail(issue_key, file_id), output)
+    return BinaryResult(tracker.attachments.thumbnails_download(issue_key, file_id), output)
 
 
 @app.command()
@@ -103,4 +105,56 @@ def upload_temp(
     """Upload a temporary file (POST /attachments); its id attaches once to an issue or comment."""
     return tracker.attachments.upload_temp(
         filename=file_path.name, data=file_path.read_bytes(), rename_to=rename_to
+    )
+
+
+@app.command("import")
+def import_(
+    key: KeyArg,
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True, help="Local file to attach."),
+    ],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    filename: Annotated[
+        str | None, typer.Option(help="Override the attachment name (default: basename).")
+    ] = None,
+    *,
+    tracker: TrackerClient,
+) -> Attachment:
+    """Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import)."""
+    return tracker.attachments.import_(
+        key,
+        filename=path.name if filename is None else filename,
+        created_at=created_at,
+        created_by=created_by,
+        data=path.read_bytes(),
+    )
+
+
+@app.command("import-for-comment")
+def import_for_comment(
+    key: KeyArg,
+    comment_id: Annotated[str, typer.Argument(metavar="COMMENT_ID", help="Id of the comment.")],
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True, help="Local file to attach."),
+    ],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    filename: Annotated[
+        str | None, typer.Option(help="Override the attachment name (default: basename).")
+    ] = None,
+    *,
+    tracker: TrackerClient,
+) -> Attachment:
+    """Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import)."""
+    return tracker.attachments.import_for_comment(
+        key,
+        comment_id,
+        filename=path.name if filename is None else filename,
+        created_at=created_at,
+        created_by=created_by,
+        data=path.read_bytes(),
     )

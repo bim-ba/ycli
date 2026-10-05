@@ -71,8 +71,8 @@ def get(workflow_id: WorkflowIDArg, *, tracker: TrackerClient) -> Workflow:
     return tracker.workflows.get(workflow_id)
 
 
-@app.command("for-queue")
-def for_queue(
+@app.command("list-for-queue")
+def list_for_queue(
     queue_id: Annotated[
         str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
     ],
@@ -80,7 +80,7 @@ def for_queue(
     tracker: TrackerClient,
 ) -> QueueWorkflows:
     """Show which workflow each issue type of QUEUE_ID uses."""
-    return tracker.workflows.for_queue(queue_id)
+    return tracker.workflows.list_for_queue(queue_id)
 
 
 @app.command()
@@ -156,8 +156,8 @@ def update(
     return tracker.workflows.update(workflow_id, body, version=version)
 
 
-@app.command("update-action")
-def update_action(
+@app.command("actions-update")
+def actions_update(
     workflow_id: WorkflowIDArg,
     status: Annotated[
         str, typer.Argument(metavar="STATUS", help="Key of the step the action leaves.")
@@ -177,7 +177,7 @@ def update_action(
 ) -> Workflow:
     """Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action})."""
     body = WorkflowActionUpdate.model_validate(_json(action, "--action"))
-    return tracker.workflows.update_action(workflow_id, status, action_id, body, version=version)
+    return tracker.workflows.actions_update(workflow_id, status, action_id, body, version=version)
 
 
 @app.command()

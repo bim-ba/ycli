@@ -17,6 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
     WRITE,
+    IssueKey,
     tracker_client,
 )
 
@@ -113,3 +114,36 @@ def upload_temp(
     once. The file travels as base64 in the request, so keep it small.
     """
     return client.attachments.upload_temp(filename=file_name, data=data, rename_to=rename_to)
+
+
+@mcp.tool(
+    name="attachments_import",
+    annotations={**WRITE, "title": "Import Tracker issue attachment"},
+)
+def import_(
+    issue_key: IssueKey,
+    filename: Annotated[str, Field(description="Name the imported file gets on the issue.")],
+    created_at: Annotated[
+        str, Field(description="Original creation time, ``YYYY-MM-DDThh:mm:ss.sss±hhmm``.")
+    ],
+    created_by: Annotated[
+        str, Field(description="Login or id of the user to record as the file's author.")
+    ],
+    data: Annotated[
+        str, Field(description="File content as UTF-8 text (binary files: use the CLI).")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> Attachment:
+    """Import a text-file attachment onto an issue preserving its original metadata (admin-only).
+
+    ``data`` is the file content as text (UTF-8-encoded on upload) — for binary files use the
+    CLI (``ycli tracker attachments import``), which reads raw bytes from disk. ``created_at`` uses
+    ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. Returns the imported attachment.
+    """
+    return client.attachments.import_(
+        issue_key,
+        filename=filename,
+        created_at=created_at,
+        created_by=created_by,
+        data=data.encode("utf-8"),
+    )

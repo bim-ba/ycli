@@ -33,7 +33,7 @@ CLI и инструмент принимают частые фильтры ка�
 
 ## Оставить комментарий
 
---8<-- "docs/examples/operations/tracker.comments.add.md"
+--8<-- "docs/examples/operations/tracker.comments.create.md"
 
 ## Перевести задачу по воркфлоу
 

@@ -24,8 +24,8 @@ READS_A_FILE = [
     ["tracker", "attachments", "upload-temp", "{file}"],
     [
         "tracker",
+        "attachments",
         "import",
-        "file",
         "DE-1",
         "{file}",
         "--created-at",
@@ -35,8 +35,8 @@ READS_A_FILE = [
     ],
     [
         "tracker",
-        "import",
-        "comment-file",
+        "attachments",
+        "import-for-comment",
         "DE-1",
         "2",
         "{file}",

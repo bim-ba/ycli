@@ -127,10 +127,6 @@ Examples use a client built as `tracker = TrackerClient(oauth_token="…", organ
 
 ::: ycli.yandex.tracker.remotelinks.client.RemoteLinksClient
 
-## import
-
-::: ycli.yandex.tracker.import_.client.ImportClient
-
 ## dashboards
 
 ::: ycli.yandex.tracker.dashboards.client.DashboardsClient

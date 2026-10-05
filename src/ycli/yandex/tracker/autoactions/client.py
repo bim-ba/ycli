@@ -77,6 +77,7 @@ class AutoactionsClient(Resource):
         """
         return self._session.send(endpoints.logs_list(queue_id, action_id))
 
+    # violation(naming): the log of one run is one object, its entries are the list
     def logs_get(self, queue_id: str, action_id: int, run_id: str) -> ItemList[AutoactionRunEntry]:
         """``GET .../autoactions/{action_id}/logs/{run_id}`` → per-issue outcomes of one run.
 

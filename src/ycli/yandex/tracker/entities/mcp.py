@@ -166,16 +166,16 @@ def permissions_get(
 
     ``acl`` lists the users, groups and roles granted each level; ``permissionSources`` names the
     parent entities this one inherits permissions from. Change them with
-    ``entities_set_permissions``.
+    ``entities_permissions_update``.
     """
     return client.entities.permissions_get(entity_type, entity_id)
 
 
 @mcp.tool(
-    name="entities_direct_permissions_get",
+    name="entities_permissions_get_direct",
     annotations={**RO, "title": "Get Tracker entity direct permissions"},
 )
-def direct_permissions_get(
+def permissions_get_direct(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     client: TrackerClient = Depends(tracker_client),
@@ -183,9 +183,9 @@ def direct_permissions_get(
     """An entity's direct READ / WRITE / GRANT rights — the users, groups and roles holding each.
 
     Unlike ``entities_permissions_get`` this leaves out inheritance (``permissionSources``).
-    Change the rights with ``entities_set_direct_permissions``.
+    Change the rights with ``entities_permissions_update_direct``.
     """
-    return client.entities.direct_permissions_get(entity_type, entity_id)
+    return client.entities.permissions_get_direct(entity_type, entity_id)
 
 
 @mcp.tool(
@@ -261,27 +261,27 @@ def attachments_get(
 
 
 @mcp.tool(
-    name="entities_bulk_status_get",
+    name="entities_bulk_get",
     annotations={**RO, "title": "Get Tracker entity bulk-change status"},
 )
-def bulk_status_get(
+def bulk_get(
     operation_id: Annotated[
-        str, Field(description="Operation id returned by entities_bulk_update.")
+        str, Field(description="Operation id returned by entities_update_bulk.")
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> BulkChangeOperation:
-    """Current status of an async entity bulk-change operation started by ``entities_bulk_update``.
+    """Current status of an async entity bulk-change operation started by ``entities_update_bulk``.
 
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; poll until it settles.
     """
-    return client.entities.bulk_status_get(operation_id)
+    return client.entities.bulk_get(operation_id)
 
 
 @mcp.tool(
-    name="entities_comments_relative_list",
+    name="entities_comments_list_relative",
     annotations={**RO, "title": "List Tracker entity comments (relative)"},
 )
-def comments_relative_list(
+def comments_list_relative(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     limit: Annotated[
@@ -296,7 +296,7 @@ def comments_relative_list(
     pages up to ``limit`` (the configured item cap by default).
     """
     cap = config.http.cap(limit)
-    return client.entities.comments_relative_list(entity_type, entity_id, limit=cap)
+    return client.entities.comments_list_relative(entity_type, entity_id, limit=cap)
 
 
 @mcp.tool(name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"})
@@ -357,10 +357,10 @@ def delete(
 
 
 @mcp.tool(
-    name="entities_set_permissions",
+    name="entities_permissions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity permissions"},
 )
-def set_permissions(
+def permissions_update(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     body: PermissionsUpdate,
@@ -373,14 +373,14 @@ def set_permissions(
     e.g. ``{"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}``. Read the current
     ACL first with ``entities_permissions_get``.
     """
-    return client.entities.set_permissions(entity_type, entity_id, body)
+    return client.entities.permissions_update(entity_type, entity_id, body)
 
 
 @mcp.tool(
-    name="entities_set_direct_permissions",
+    name="entities_permissions_update_direct",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity direct permissions"},
 )
-def set_direct_permissions(
+def permissions_update_direct(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     body: DirectPermissionsUpdate,
@@ -390,37 +390,37 @@ def set_direct_permissions(
 
     ``grant`` and ``revoke`` each map READ / WRITE / GRANT to ``users`` (logins or ids),
     ``groups`` (ids) and ``roles`` (AUTHOR, OWNER, CLIENT, FOLLOWER, MEMBER). Returns the
-    resulting rights. Read them first with ``entities_direct_permissions_get``.
+    resulting rights. Read them first with ``entities_permissions_get_direct``.
     """
-    return client.entities.set_direct_permissions(entity_type, entity_id, body)
+    return client.entities.permissions_update_direct(entity_type, entity_id, body)
 
 
 @mcp.tool(
-    name="entities_bulk_update",
+    name="entities_update_bulk",
     annotations={**WRITE, "title": "Bulk-update Tracker entities"},
 )
-def bulk_update(
+def update_bulk(
     entity_type: EntityTypeName,
     body: BulkChangeUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> BulkChangeOperation:
     """Start an async bulk field update over many entities; returns the operation.
 
-    Poll the returned operation id with ``entities_bulk_status_get``.
+    Poll the returned operation id with ``entities_bulk_get``.
     """
-    return client.entities.bulk_update(entity_type, body)
+    return client.entities.update_bulk(entity_type, body)
 
 
 @mcp.tool(
-    name="entities_create_report",
+    name="entities_reports_create",
     annotations={**WRITE, "title": "Create Tracker entity report"},
 )
-def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_client)) -> Entity:
+def reports_create(body: ReportCreate, client: TrackerClient = Depends(tracker_client)) -> Entity:
     """Request a report over Tracker entities (``POST /entities/report/``).
 
     Returns the report entity.
     """
-    return client.entities.create_report(body)
+    return client.entities.reports_create(body)
 
 
 @mcp.tool(

@@ -16,10 +16,10 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.operations.gridclone_get",
+        "wiki.operations.clone_inline_grid_get",
         args=("task-5301",),
-        cli=["wiki", "operations", "gridclone-get", "task-5301"],
-        mcp=("wiki_operations_gridclone_get", {"task_id": "task-5301"}),
+        cli=["wiki", "operations", "clone-inline-grid-get", "task-5301"],
+        mcp=("wiki_operations_clone_inline_grid_get", {"task_id": "task-5301"}),
         exchanges=[
             (
                 Sent("GET", "operations/clone_inline_grid/task-5301"),

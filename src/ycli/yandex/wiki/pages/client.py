@@ -20,7 +20,12 @@ from ycli.yandex.wiki.pages.models import (
 
 if TYPE_CHECKING:
     from ycli.yandex.wiki.models import AsyncOperation
-    from ycli.yandex.wiki.pages.models import PageDeleteResult, PageDetails
+    from ycli.yandex.wiki.pages.models import (
+        PageDeleteResult,
+        PageDetails,
+        SearchPage,
+        SearchRequest,
+    )
 
 
 class PagesClient(Resource):
@@ -94,7 +99,7 @@ class PagesClient(Resource):
         )
         return self._session.send(endpoint)
 
-    def descendants(
+    def descendants_list(
         self,
         slug: str,
         *,
@@ -118,15 +123,15 @@ class PagesClient(Resource):
             The descendants' refs.
 
         Examples:
-            >>> [ref.slug for ref in wiki.pages.descendants("eng", limit=40).root]
+            >>> [ref.slug for ref in wiki.pages.descendants_list("eng", limit=40).root]
             ['eng/a', 'eng/b']
         """
-        paged = endpoints.descendants(
+        paged = endpoints.descendants_list(
             slug, actuality=actuality, include_self=include_self, show_all=show_all
         )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
-    def descendants_by_id(
+    def descendants_list_by_id(
         self,
         page_id: int,
         *,
@@ -137,7 +142,7 @@ class PagesClient(Resource):
     ) -> ItemList[PageRef]:
         """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
 
-        The numeric-id twin of :meth:`descendants`; capped at ``limit`` (``None`` = every ref).
+        The numeric-id twin of :meth:`descendants_list`; capped at ``limit`` (``None`` = every ref).
 
         Args:
             page_id: The ancestor page's numeric id.
@@ -150,10 +155,10 @@ class PagesClient(Resource):
             The descendants' refs.
 
         Examples:
-            >>> [ref.slug for ref in wiki.pages.descendants_by_id(4210, limit=35).root]
+            >>> [ref.slug for ref in wiki.pages.descendants_list_by_id(4210, limit=35).root]
             ['sales/a', 'sales/b']
         """
-        paged = endpoints.descendants_by_id(
+        paged = endpoints.descendants_list_by_id(
             page_id, actuality=actuality, include_self=include_self, show_all=show_all
         )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
@@ -410,3 +415,28 @@ class PagesClient(Resource):
         """
         paged = endpoints.backlinks_list(page_id, for_cluster=for_cluster, show_all=show_all)
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
+
+    def search(self, body: SearchRequest) -> SearchPage:
+        """``POST /search`` → one :class:`SearchPage` of hits for the query.
+
+        ``body`` is a :class:`SearchRequest` (``query``, optional ``filters``, ``cursor``,
+        ``limit``, ``order_by``, ``highlight``). Pages are walked by hand: ``next_cursor`` is the
+        next page's number as text, but the API also sets it after an empty page and repeats
+        hits for a page past the last one, so there is no reliable end to drain to. Stop at the
+        first page with no results or when ``next_cursor`` is ``None``.
+
+        Args:
+            body: The search request: ``query`` and optional ``filters``, ``cursor``, ``limit``,
+                ``order_by``, ``highlight``.
+
+        Returns:
+            The page of hits.
+
+        Examples:
+            >>> from ycli.yandex.wiki.pages.models import SearchRequest
+            >>> body = SearchRequest(query="quarterly roadmap", cursor=3, limit=25)
+            >>> page = wiki.pages.search(body)
+            >>> page.results[0].slug, page.next_cursor
+            ('team/roadmap', '4')
+        """
+        return self._session.send(endpoints.search(body))

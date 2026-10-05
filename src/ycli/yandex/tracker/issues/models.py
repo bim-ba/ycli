@@ -10,6 +10,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
     KeyStr,
+    RequestBody,
 )
 
 #: How a scrolled search orders its results.
@@ -192,3 +193,43 @@ def filter_body(
     """
     fields = {"queue": queue, "status": status, "assignee": assignee, "epic": epic, "type": type_}
     return IssueSearch(filter={name: value for name, value in fields.items() if value is not None})
+
+
+class ImportTask(RequestBody):
+    """Typed body for ``POST /issues/_import`` — import one issue, preserving its history.
+
+    Examples:
+        >>> ImportTask(
+        ...     queue="TEST",
+        ...     summary="Test",
+        ...     created_at="2017-08-29T12:34:41.740+0000",
+        ...     created_by="11",
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        {'queue': 'TEST', 'summary': 'Test', 'createdAt': '2017-08-29T12:34:41.740+0000',
+         'createdBy': '11'}
+    """
+
+    queue: str = Field(description="Key of the queue to import the issue into.")
+    summary: str = Field(description="Issue title (max 255 characters).")
+    created_at: str = Field(
+        alias="createdAt",
+        description="Original creation time (``YYYY-MM-DDThh:mm:ss.sss±hhmm``); not in the future.",
+    )
+    created_by: str = Field(
+        alias="createdBy", description="Login or id of the original issue author."
+    )
+    key: str | None = Field(
+        default=None, description="Explicit issue key (must belong to the queue)."
+    )
+    description: str | None = Field(default=None, description="Issue description (YFM markdown).")
+    assignee: str | None = Field(default=None, description="Login or id of the assignee.")
+    updated_at: str | None = Field(
+        default=None,
+        alias="updatedAt",
+        description="Original last-edit time (only together with ``updated_by``).",
+    )
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="Login or id of the last editor (only together with ``updated_at``).",
+    )

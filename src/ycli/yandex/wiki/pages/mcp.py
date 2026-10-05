@@ -32,6 +32,10 @@ from ycli.yandex.wiki.pages.models import (
     PageRef,
     PageRevision,
     PageUpdate,
+    SearchFilters,
+    SearchOrder,
+    SearchPage,
+    SearchRequest,
 )
 
 mcp = FastMCP("wiki-pages")
@@ -69,14 +73,14 @@ def get(
     return page.content or ""
 
 
-@mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"})
-def meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
+@mcp.tool(name="pages_get_meta", annotations={**RO, "title": "Get Wiki page metadata"})
+def get_meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     """Page metadata for SLUG (attributes + owner)."""
     return client.pages.get(slug=slug, fields="attributes,owner")
 
 
-@mcp.tool(name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"})
-def descendants(
+@mcp.tool(name="pages_descendants_list", annotations={**RO, "title": "List Wiki page descendants"})
+def descendants_list(
     slug: Slug,
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max descendant refs to return; {LIMIT_CAP}")
@@ -91,7 +95,7 @@ def descendants(
     Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
     """
     cap = config.http.cap(limit)
-    return client.pages.descendants(
+    return client.pages.descendants_list(
         slug=slug, limit=cap, include_self=include_self, show_all=show_all
     )
 
@@ -111,7 +115,7 @@ def grids_list(
 
     Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
     unless ``limit`` is given. Reads a page's numeric id — pair with
-    ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
+    ``pages_get_meta`` / ``pages_descendants_list`` (whose refs carry the ids) to find one.
     """
     cap = config.http.cap(limit)
     return client.pages.grids_list(
@@ -136,7 +140,7 @@ def get_by_id(
     raise_on_redirect: RaiseOnRedirect = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
-    """A single page by its numeric id — the id-based twin of ``pages_get``/``pages_meta``.
+    """A single page by its numeric id — the id-based twin of ``pages_get``/``pages_get_meta``.
 
     Use it when you hold a numeric page id (e.g. from a descendants listing or a write's
     response) instead of the slug. ``fields`` follows the standard Wiki selector rules:
@@ -152,10 +156,10 @@ def get_by_id(
 
 
 @mcp.tool(
-    name="pages_descendants_by_id",
+    name="pages_descendants_list_by_id",
     annotations={**RO, "title": "List Wiki page descendants by id"},
 )
-def descendants_by_id(
+def descendants_list_by_id(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
     limit: Annotated[
         int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
@@ -167,12 +171,12 @@ def descendants_by_id(
 ) -> ItemList[PageRef]:
     """All descendant page refs under a numeric page id, auto-paginated.
 
-    The id-based twin of ``pages_descendants``. Capped at the configured item cap
+    The id-based twin of ``pages_descendants_list``. Capped at the configured item cap
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
     """
     cap = config.http.cap(limit)
-    return client.pages.descendants_by_id(
+    return client.pages.descendants_list_by_id(
         page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
     )
 
@@ -244,7 +248,7 @@ def delete(
     """Delete a wiki page by numeric id (``DELETE /pages/{id}``).
 
     KEEP the returned ``recovery_token`` — it is the only handle to undo the delete
-    (redeem it with ``recovery_restore``). Deleting removes the page's descendants'
+    (redeem it with ``recovery_recover``). Deleting removes the page's descendants'
     anchor too, so double-check the id (``pages_get_by_id``) before calling.
     """
     return client.pages.delete(page_id=page_id, recursive=recursive)
@@ -379,3 +383,40 @@ def backlinks_list(
     return client.pages.backlinks_list(
         page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
     )
+
+
+@mcp.tool(name="pages_search", annotations={**RO, "title": "Search Wiki"})
+def search(
+    text: Annotated[str, Field(description="Text to search for.")],
+    filters: Annotated[
+        SearchFilters | None,
+        Field(
+            description="Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), "
+            "``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and "
+            "``show_obsolete``."
+        ),
+    ] = None,
+    order_by: Annotated[SearchOrder, Field(description="How to sort the hits.")] = "relevancy",
+    highlight: Annotated[
+        bool, Field(description="Wrap the matches in ``<em>`` tags in title and content.")
+    ] = False,
+    limit: Annotated[int, Field(description="Hits per page.")] = 10,
+    cursor: Annotated[int, Field(description="Number of the result page to fetch, from 1.")] = 1,
+    client: WikiClient = Depends(wiki_client),
+) -> SearchPage:
+    """Full-text search over wiki pages and files; returns one page of hits.
+
+    Each hit has the page ``slug`` (read it with ``pages_get``), ``title``, a ``content``
+    snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
+    ``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
+    empty page. A new page can take seconds to appear in the index.
+    """
+    request = SearchRequest(
+        query=text,
+        filters=filters,
+        cursor=cursor,
+        limit=limit,
+        order_by=order_by,
+        highlight=highlight,
+    )
+    return client.pages.search(request)

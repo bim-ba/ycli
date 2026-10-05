@@ -37,7 +37,7 @@ def _refused(argv: list[str]) -> list[tuple[str, str]]:
 )
 def test_an_open_ended_search_window_is_sent_as_given(api, flags, window):
     api.add("POST", f"{BASE}/search", json={"results": []})
-    res = CliRunner().invoke(cli.app, ["wiki", "search", "query", "plan", *flags])
+    res = CliRunner().invoke(cli.app, ["wiki", "pages", "search", "plan", *flags])
     assert res.exit_code == 0, res.output
     assert api.body()["filters"] == {**window, "show_obsolete": False}
 

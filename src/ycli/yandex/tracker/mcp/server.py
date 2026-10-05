@@ -17,7 +17,6 @@ from ycli.yandex.tracker.entities.mcp import mcp as entities_mcp
 from ycli.yandex.tracker.fields.mcp import mcp as fields_mcp
 from ycli.yandex.tracker.filters.mcp import mcp as filters_mcp
 from ycli.yandex.tracker.gaps.mcp import mcp as gaps_mcp
-from ycli.yandex.tracker.import_.mcp import mcp as import_mcp
 from ycli.yandex.tracker.issues.mcp import mcp as issues_mcp
 from ycli.yandex.tracker.issuetypes.mcp import mcp as issuetypes_mcp
 from ycli.yandex.tracker.links.mcp import mcp as links_mcp
@@ -79,7 +78,6 @@ mcp.mount(triggers_mcp)
 mcp.mount(autoactions_mcp)
 mcp.mount(bulk_mcp)
 mcp.mount(remotelinks_mcp)
-mcp.mount(import_mcp)
 mcp.mount(dashboards_mcp)
 mcp.mount(entities_mcp)
 mcp.mount(workflows_mcp)

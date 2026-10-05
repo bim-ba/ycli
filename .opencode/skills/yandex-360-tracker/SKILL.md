@@ -41,7 +41,7 @@ permission.
 
 - Reading or editing Yandex Wiki pages → use the `yandex-360-wiki` skill.
 - Yandex Forms → use the `yandex-360-forms` skill.
-- Redesigning a workflow casually: `workflows create|update|update-action|delete` can change the
+- Redesigning a workflow casually: `workflows create|update|actions-update|delete` can change the
   status graph of every queue that uses it. Read it first (`workflows get`), pass the current
   `--version`, and confirm with the user before writing — the Tracker admin UI is the safer place
   for exploratory changes.
@@ -75,7 +75,7 @@ MCP tool (annotated `readOnlyHint=True`).
 | `uv run ycli tracker comments list KEY` | `tracker_comments_list` | List comments |
 | `uv run ycli tracker comments get KEY ID [--expand all]` | `tracker_comments_get` | One comment (by `id` or `longId`), optionally with HTML and attachments |
 | `uv run ycli tracker links list KEY` | `tracker_links_list` | List links between issues |
-| `uv run ycli tracker links search KEY [--type 'is subtask for'] [--field …]` | `tracker_links_search` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links add`, not link type ids |
+| `uv run ycli tracker links list-filtered KEY [--type 'is subtask for'] [--field …]` | `tracker_links_list_filtered` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links create`, not link type ids |
 | `uv run ycli tracker attachments list KEY` / `get KEY FILE_ID` | `tracker_attachments_list` / `tracker_attachments_get` | Attachment metadata |
 | `uv run ycli tracker changelog list KEY` | `tracker_changelog_list` | Changelog: who changed what, when |
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
@@ -83,10 +83,10 @@ MCP tool (annotated `readOnlyHint=True`).
 
 Every Tracker MCP tool follows the `tracker_<resource>_<action>`
 naming (the rows above cover the reads you reach for most; every write below is a tool
-too — `tracker_issues_create`, `tracker_comments_add`, `tracker_transitions_execute`, …).
+too — `tracker_issues_create`, `tracker_comments_create`, `tracker_transitions_execute`, …).
 To see the exact list for your build, start the server (`ycli mcp start`) and enumerate
 its tools. The Tracker operations **not** on MCP are the binary downloads
-(`attachments download` / `thumbnail`) and `import comment-file` — CLI/SDK-only. File uploads
+(`attachments download` / `thumbnails-download`) and `attachments import-for-comment` — CLI/SDK-only. File uploads
 (`attachments upload` / `upload-temp`) are on MCP as base64, for small files.
 
 ### Search — Tracker Query Language
@@ -134,8 +134,8 @@ from `transitions list` output and present the inference as fact. See
 ## Writing
 
 Writes ship on all three surfaces — CLI, MCP write tools, and the SDK. The CLI examples
-below each have a matching `tracker_*` MCP tool (issue create/update, comments add,
-transitions execute, links add, plus queue/board/sprint/dictionary/entity admin).
+below each have a matching `tracker_*` MCP tool (issue create/update, comments create,
+transitions execute, links create, plus queue/board/sprint/dictionary/entity admin).
 Target any queue where you have permission. On MCP, treat `destructiveHint=true` tools
 (deletes, clears) with care — prefer confirming with the user before calling them.
 
@@ -208,7 +208,7 @@ uv run ycli tracker transitions execute MYQUEUE-123 closed -F 'resolution={"key"
 ### Add a comment
 
 ```bash
-uv run ycli tracker comments add MYQUEUE-123 --text "$(cat comment.md)"
+uv run ycli tracker comments create MYQUEUE-123 --text "$(cat comment.md)"
 ```
 
 ### Attach files
@@ -223,7 +223,7 @@ uv run ycli tracker attachments delete MYQUEUE-123 <file-id>
 
 ```bash
 uv run ycli tracker linktypes list                               # discover valid phrases first
-uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
+uv run ycli tracker links create MYQUEUE-130 'depends on' MYQUEUE-129
 ```
 
 ---
@@ -235,13 +235,13 @@ below is irreversible or changes shared configuration, so confirm with the user.
 
 | Area | Reads | Writes |
 |------|-------|--------|
-| Workflows | `workflows list` / `get ID` / `for-queue QUEUE` (`tracker_workflows_*`) | `workflows create` / `update` / `update-action` (need `--version`) / `delete`; steps and actions are JSON as in the API docs |
+| Workflows | `workflows list` / `get ID` / `list-for-queue QUEUE` (`tracker_workflows_*`) | `workflows create` / `update` / `actions-update` (need `--version`) / `delete`; steps and actions are JSON as in the API docs |
 | Components | `components list-for-queue QUEUE` / `get ID`, `user-permissions-get ID USER`, `group-permissions-get ID GROUP` | `components delete ID` |
-| Queue versions and access | `queues version-get ID`, `user-permissions-get QUEUE USER`, `group-permissions-get QUEUE GROUP` | `queues version-update ID`, `version-delete ID` |
+| Queue versions and access | `queues versions-get ID`, `user-permissions-get QUEUE USER`, `group-permissions-get QUEUE GROUP` | `queues versions-update ID`, `versions-delete ID` |
 | Triggers | `triggers list QUEUE` | — |
 | Projects (legacy API) | `projects list` / `get ID` / `queues ID` | `projects create` / `update` (needs `--version` and `--queues`) / `delete` |
 | Gaps (absences, admin) | `gaps search USER… [--from … --to …]` | `gaps create` (flags or `--gap` JSON) / `delete GAP_ID…` |
-| Entity rights | `entities direct-permissions-get TYPE ID` (no inheritance), `entities search report` | `entities set-direct-permissions TYPE ID --grant … --revoke …` |
+| Entity rights | `entities permissions-get-direct TYPE ID` (no inheritance), `entities search report` | `entities permissions-update-direct TYPE ID --grant … --revoke …` |
 | Filters | `filters get ID` | `filters delete ID` |
 
 ---
@@ -279,13 +279,13 @@ below is irreversible or changes shared configuration, so confirm with the user.
 
 ### Admin-surface quirks (live-verified 2026-10-02)
 
-- **`links search --type` takes relationship phrases** (`relates`, `depends on`,
-  `is subtask for`, …), the same words as `links add`; link type ids such as `subtask` or `epic`
+- **`links list-filtered --type` takes relationship phrases** (`relates`, `depends on`,
+  `is subtask for`, …), the same words as `links create`; link type ids such as `subtask` or `epic`
   answer 400.
 - **`filters delete` uses the `/v3/` route** although the docs print `/v2/`.
-- **Workflow ids of the presets look like `quickStartV2PresetWorkflow`**; `workflows for-queue`
+- **Workflow ids of the presets look like `quickStartV2PresetWorkflow`**; `workflows list-for-queue`
   shows which one each issue type of a queue uses.
-- **`entities direct-permissions-get` leaves out a level nobody holds** (no `READ` key), where the
+- **`entities permissions-get-direct` leaves out a level nobody holds** (no `READ` key), where the
   docs show empty lists.
 
 ### Admin-surface quirks (live-verified 2026-07-12)
@@ -299,13 +299,13 @@ below is irreversible or changes shared configuration, so confirm with the user.
 - **Sprint update/start/archive need optimistic locking.** The API demands `?version=` or
   `If-Match` (HTTP 428 otherwise) on `sprints update|start|archive` — pass `--version` (read
   the current version from `sprints get`).
-- **`entities set-permissions` takes `grant=` / `revoke=` syntax.** e.g.
+- **`entities permissions-update` takes `grant=` / `revoke=` syntax.** e.g.
   `--acl 'grant={"READ":{"users":["<uid>"]}}'` then `--acl 'revoke=…'` — a bare
   `READ={…}` top-level key is rejected (422: only `grant` / `revoke` are known).
 - **Deleted queues 403-but-listed.** `queues delete` moves the queue to a trash state:
   `queues get` returns **403** (not 404) and the queue keeps appearing in `queues list`
   until Tracker purges it; `queues restore` works against that state.
-- **`queues tag-remove` 422s while the tag is still on any issue** («Тег ещё
+- **`queues tags-delete` 422s while the tag is still on any issue** («Тег ещё
   используется») — clear issue tags first and allow ~1 min of search-index lag.
 
 ---

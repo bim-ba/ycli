@@ -24,7 +24,6 @@ from ycli.yandex.tracker.entities.client import EntitiesClient
 from ycli.yandex.tracker.fields.client import FieldsClient
 from ycli.yandex.tracker.filters.client import FiltersClient
 from ycli.yandex.tracker.gaps.client import GapsClient
-from ycli.yandex.tracker.import_.client import ImportClient
 from ycli.yandex.tracker.issues.client import IssuesClient
 from ycli.yandex.tracker.issuetypes.client import IssueTypesClient
 from ycli.yandex.tracker.links.client import LinksClient
@@ -90,7 +89,6 @@ class TrackerClient(DomainClient):
         self.autoactions = AutoactionsClient(session=session)
         self.bulk = BulkClient(session=session)
         self.remotelinks = RemoteLinksClient(session=session)
-        self.import_ = ImportClient(session=session)
         self.dashboards = DashboardsClient(session=session)
         self.entities = EntitiesClient(session=session)
         self.workflows = WorkflowsClient(session=session)

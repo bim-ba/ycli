@@ -103,7 +103,7 @@ class AnswersClient(Resource):
     def export(self, survey_id: str, body: AnswerExport) -> OperationResult:
         """``POST /surveys/{id}/answers/export`` — start an export → ``202`` with its operation.
 
-        Build ``body`` from an ``AnswerExport``; poll :meth:`export_results` (or
+        Build ``body`` from an ``AnswerExport``; poll :meth:`export_results_get` (or
         ``operations.get``) on the returned ``id`` until ready, then :meth:`download_export`.
 
         Args:
@@ -123,7 +123,7 @@ class AnswersClient(Resource):
         """
         return self._session.send(endpoints.export(survey_id, body))
 
-    def export_results(self, survey_id: str, task_id: str) -> OperationResult:
+    def export_results_get(self, survey_id: str, task_id: str) -> OperationResult:
         """``GET /surveys/{id}/answers/export-results?task_id=`` → the export's status.
 
         While running or failed it answers ``{id, status, message}``; once ready it redirects to
@@ -137,13 +137,13 @@ class AnswersClient(Resource):
             The export's status.
 
         Examples:
-            >>> forms.answers.export_results("686d0a1b2c3d4e5f00000030", "op-77").status
+            >>> forms.answers.export_results_get("686d0a1b2c3d4e5f00000030", "op-77").status
             'running'
         """
-        return self._session.send(endpoints.export_results(survey_id, task_id))
+        return self._session.send(endpoints.export_results_get(survey_id, task_id))
 
     def download_export(self, survey_id: str, task_id: str) -> bytes:
-        """The exported file's raw bytes, once :meth:`export_results` reports it ready.
+        """The exported file's raw bytes, once :meth:`export_results_get` reports it ready.
 
         Binary payload — SDK and CLI only, never an MCP result.
 
@@ -155,7 +155,7 @@ class AnswersClient(Resource):
             The exported file's raw bytes.
 
         Examples:
-            >>> forms.answers.export_results("686d0a1b2c3d4e5f00000030", "op-77").status  # poll
+            >>> forms.answers.export_results_get("686d0a1b2c3d4e5f00000030", "op-77").status  # poll
             'running'
             >>> # ...until it is no longer running, then:
             >>> forms.answers.download_export("686d0a1b2c3d4e5f00000030", "op-77").splitlines()[0]

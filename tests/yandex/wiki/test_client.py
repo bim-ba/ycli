@@ -9,7 +9,7 @@ from ycli.yandex.wiki.dependencies import wiki_client
 def test_every_resource_shares_one_core_session():
     with WikiClient(oauth_token="t", organization_id="o") as client:
         resources = [value for value in vars(client).values() if isinstance(value, Resource)]
-        assert len(resources) == 11
+        assert len(resources) == 10
         assert len({id(resource._session) for resource in resources}) == 1
 
 

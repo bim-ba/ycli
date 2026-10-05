@@ -109,7 +109,7 @@ async def test_core_serves_exactly_the_profile():
 async def test_core_has_write_tools_for_everyday_edits():
     tools = await every_tool()
     writes = {name for name in CORE_TOOLS if WRITE_TAG in tools[name]}
-    assert {"tracker_issues_create", "tracker_comments_add", "wiki_pages_update"} <= writes
+    assert {"tracker_issues_create", "tracker_comments_create", "wiki_pages_update"} <= writes
     # Nothing destructive or administrative in the everyday profile.
     assert not {n for n in CORE_TOOLS if n.endswith(("_delete", "_clear"))}
 
@@ -227,7 +227,9 @@ async def test_tool_search_lists_a_search_interface_and_status():
         names = {tool.name for tool in await client.list_tools()}
         assert names == {"search_tools", "call_tool", STATUS_TOOL}
         found = await client.call_tool("search_tools", {"query": "tracker issue comments add"})
-    assert "tracker_comments_add" in {item["name"] for item in found.structured_content["result"]}
+    assert "tracker_comments_create" in {
+        item["name"] for item in found.structured_content["result"]
+    }
 
 
 async def test_tool_search_respects_the_selection(api):
@@ -237,7 +239,7 @@ async def test_tool_search_respects_the_selection(api):
         found = await client.call_tool("search_tools", {"query": "create issue comment"})
         hits = {item["name"] for item in found.structured_content["result"]}
         assert hits
-        assert not hits & {"tracker_issues_create", "tracker_comments_add"}
+        assert not hits & {"tracker_issues_create", "tracker_comments_create"}
         assert hits <= CORE_TOOLS
         with pytest.raises(ToolError, match="Unknown tool"):
             await client.call_tool("call_tool", {"name": "tracker_issues_create"})

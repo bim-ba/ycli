@@ -28,7 +28,7 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli==0.68.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.68.0 tracker comments create TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
 `uvx yandex-cli==<version>` runs that version without installing anything else. Pin the version: a pipeline should not change behaviour when a new release comes out.
@@ -45,7 +45,7 @@ comment:
     name: ghcr.io/bim-ba/ycli:0.68.0
     entrypoint: [""]
   script:
-    - ycli tracker comments add TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
+    - ycli tracker comments create TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
 ```
 
 Set the two variables in **Settings → CI/CD → Variables**, masked.
@@ -56,7 +56,7 @@ With Docker, pass the variables by name so their values stay out of the command 
 
 ```bash
 docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
-  ghcr.io/bim-ba/ycli:0.68.0 tracker comments add TRACKER-1 --text "Deployed"
+  ghcr.io/bim-ba/ycli:0.68.0 tracker comments create TRACKER-1 --text "Deployed"
 ```
 
 ## Commands that do not wait
@@ -70,7 +70,7 @@ docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
 Each kind of failure has its own [exit code](../reference/configuration.md#exit-codes). A pipeline usually retries a transient failure and stops on the rest:
 
 ```bash
-ycli tracker comments add TRACKER-1 --text "Deployed" || status=$?
+ycli tracker comments create TRACKER-1 --text "Deployed" || status=$?
 case "${status:-0}" in
   0) ;;
   5|6) echo "Tracker is busy or down, retry later"; exit 75 ;;

@@ -5,10 +5,10 @@ from ycli.yandex.tracker.checklists.models import ChecklistItemCreate, Checklist
 
 CASES = [
     Case(
-        "tracker.checklists.get",
+        "tracker.checklists.list",
         args=("DE-31",),
-        cli=["tracker", "checklists", "get", "DE-31"],
-        mcp=("tracker_checklists_get", {"key": "DE-31"}),
+        cli=["tracker", "checklists", "list", "DE-31"],
+        mcp=("tracker_checklists_list", {"key": "DE-31"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-31/checklistItems"),

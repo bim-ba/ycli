@@ -115,7 +115,7 @@ def _finish_export(
         return op
     task_id = op.id  # narrowed to str — the poll re-reads this operation's status
     final = wait_for(
-        lambda: forms.answers.export_results(survey_id, task_id),
+        lambda: forms.answers.export_results_get(survey_id, task_id),
         lambda result: result.is_terminal,
         message="Waiting for answers export…",
         max_wait_seconds=config.http.max_wait_seconds,

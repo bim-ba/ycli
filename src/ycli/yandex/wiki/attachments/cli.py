@@ -55,7 +55,7 @@ def get(
 
 
 @app.command()
-def preview(
+def preview_download(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
     output: OutputOption = None,
@@ -67,7 +67,7 @@ def preview(
     A file with no preview (``attachments get`` says ``has_preview: false``) comes back as the
     base64 text of a 1-pixel PNG, not an image.
     """
-    return BinaryResult(wiki.attachments.preview(page_id=page_id, file_id=file_id), output)
+    return BinaryResult(wiki.attachments.preview_download(page_id=page_id, file_id=file_id), output)
 
 
 @app.command()

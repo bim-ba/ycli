@@ -29,7 +29,6 @@ $ ycli wiki [OPTIONS] COMMAND [ARGS]...
 * `attachments`: Wiki page attachments.
 * `resources`: Wiki page resources (attachments + grids).
 * `recovery`: Wiki page recovery (restore by token).
-* `search`: Wiki full-text search.
 * `grids`: Wiki dynamic tables (grids).
 * `operations`: Wiki async operation status (clone and...
 * `uploadsessions`: Wiki file upload sessions (the binary...
@@ -123,9 +122,9 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `get`: Print the page body (default...
-* `descendants`: Print descendant slugs under SLUG...
+* `descendants-list`: Print descendant slugs under SLUG...
 * `get-by-id`: Fetch a page by numeric id (GET...
-* `descendants-by-id`: Print descendant slugs under a numeric...
+* `descendants-list-by-id`: Print descendant slugs under a numeric...
 * `grids-list`: List dynamic tables (grids) attached to a...
 * `create`: Create a wiki page (POST /pages).
 * `update`: Update a wiki page by id (POST /pages/{id}).
@@ -135,6 +134,7 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 * `move`: Move or rename a page (POST /pages/move;...
 * `revisions-list`: List a page's saved revisions (GET...
 * `backlinks-list`: List the pages that link to PAGE_ID (GET...
+* `search`: Search pages and files by text (POST...
 
 ### `ycli wiki pages get`
 
@@ -161,14 +161,14 @@ $ ycli wiki pages get [OPTIONS] SLUG
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli wiki pages descendants`
+### `ycli wiki pages descendants-list`
 
 Print descendant slugs under SLUG (auto-paginated; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli wiki pages descendants [OPTIONS] SLUG
+$ ycli wiki pages descendants-list [OPTIONS] SLUG
 ```
 
 **Arguments**:
@@ -212,14 +212,14 @@ $ ycli wiki pages get-by-id [OPTIONS] PAGE_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli wiki pages descendants-by-id`
+### `ycli wiki pages descendants-list-by-id`
 
 Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli wiki pages descendants-by-id [OPTIONS] PAGE_ID
+$ ycli wiki pages descendants-list-by-id [OPTIONS] PAGE_ID
 ```
 
 **Arguments**:
@@ -466,6 +466,43 @@ $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
 * `--show-all`: The API's show_all flag (no effect seen live).
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli wiki pages search`
+
+Search pages and files by text (POST /search); prints one page, --cursor picks which.
+
+The API has refused a date window with one end (400), so give both.
+
+**Usage**:
+
+```console
+$ ycli wiki pages search [OPTIONS] QUERY
+```
+
+**Arguments**:
+
+* `QUERY`: Text to search for.  [required]
+
+**Options**:
+
+* `--type TEXT`: Only pages or only files. Known values: page, file.
+* `--cluster TEXT`: Only documents under this page slug, e.g. team/handbook.
+* `--author-uid TEXT`: Only documents by this passport uid (repeatable).
+* `--author-cloud-uid TEXT`: Only documents by this cloud uid (repeatable).
+* `--created-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Created from (with --created-to).
+* `--created-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Created until (with --created-from).
+* `--modified-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified from (with --modified-to).
+* `--modified-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified until (with --modified-from).
+* `--show-obsolete`: Also return obsolete documents.
+* `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.  [default: relevancy]
+* `--highlight`: Wrap matches in <em> tags.
+* `--limit INTEGER`: Results per page.  [default: 10]
+* `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).  [default: 1]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -769,7 +806,7 @@ $ ycli wiki attachments [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List attachments on a page id (GET...
 * `get`: Show one attachment's metadata (GET...
-* `preview`: Save an attachment's preview image to...
+* `preview-download`: Save an attachment's preview image to...
 * `download`: Download an attachment by id to --output...
 * `download-by-url`: Download an attachment by page-slug URL to...
 * `delete`: Delete an attachment by id (DELETE...
@@ -825,7 +862,7 @@ $ ycli wiki attachments get [OPTIONS] PAGE_ID FILE_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli wiki attachments preview`
+### `ycli wiki attachments preview-download`
 
 Save an attachment's preview image to --output (or stdout); undocumented API.
 
@@ -835,7 +872,7 @@ base64 text of a 1-pixel PNG, not an image.
 **Usage**:
 
 ```console
-$ ycli wiki attachments preview [OPTIONS] PAGE_ID FILE_ID
+$ ycli wiki attachments preview-download [OPTIONS] PAGE_ID FILE_ID
 ```
 
 **Arguments**:
@@ -1030,16 +1067,16 @@ $ ycli wiki recovery [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `restore`: Restore a deleted page by its recovery...
+* `recover`: Restore a deleted page by its recovery...
 
-### `ycli wiki recovery restore`
+### `ycli wiki recovery recover`
 
 Restore a deleted page by its recovery TOKEN (POST /recovery_tokens/{token}/recover).
 
 **Usage**:
 
 ```console
-$ ycli wiki recovery restore [OPTIONS] TOKEN
+$ ycli wiki recovery recover [OPTIONS] TOKEN
 ```
 
 **Arguments**:
@@ -1048,61 +1085,6 @@ $ ycli wiki recovery restore [OPTIONS] TOKEN
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-## `ycli wiki search`
-
-Wiki full-text search.
-
-**Usage**:
-
-```console
-$ ycli wiki search [OPTIONS] COMMAND [ARGS]...
-```
-
-**Options**:
-
-* `--help`: Show this message and exit.
-
-**Commands**:
-
-* `query`: Search pages and files by text (POST...
-
-### `ycli wiki search query`
-
-Search pages and files by text (POST /search); prints one page, --cursor picks which.
-
-The API has refused a date window with one end (400), so give both.
-
-**Usage**:
-
-```console
-$ ycli wiki search query [OPTIONS] QUERY
-```
-
-**Arguments**:
-
-* `QUERY`: Text to search for.  [required]
-
-**Options**:
-
-* `--type TEXT`: Only pages or only files. Known values: page, file.
-* `--cluster TEXT`: Only documents under this page slug, e.g. team/handbook.
-* `--author-uid TEXT`: Only documents by this passport uid (repeatable).
-* `--author-cloud-uid TEXT`: Only documents by this cloud uid (repeatable).
-* `--created-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Created from (with --created-to).
-* `--created-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Created until (with --created-from).
-* `--modified-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified from (with --modified-to).
-* `--modified-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified until (with --modified-from).
-* `--show-obsolete`: Also return obsolete documents.
-* `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.  [default: relevancy]
-* `--highlight`: Wrap matches in <em> tags.
-* `--limit INTEGER`: Results per page.  [default: 10]
-* `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).  [default: 1]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1275,19 +1257,19 @@ $ ycli wiki grids rows [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `add`: Insert rows into a grid (POST...
-* `remove`: Delete rows from a grid by id (DELETE...
+* `create`: Insert rows into a grid (POST...
+* `delete`: Delete rows from a grid by id (DELETE...
 * `move`: Reorder rows in a grid (POST...
 * `update`: Pin or colour a row (POST...
 
-#### `ycli wiki grids rows add`
+#### `ycli wiki grids rows create`
 
 Insert rows into a grid (POST /grids/{id}/rows).
 
 **Usage**:
 
 ```console
-$ ycli wiki grids rows add [OPTIONS] GRID_ID
+$ ycli wiki grids rows create [OPTIONS] GRID_ID
 ```
 
 **Arguments**:
@@ -1306,14 +1288,14 @@ $ ycli wiki grids rows add [OPTIONS] GRID_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli wiki grids rows remove`
+#### `ycli wiki grids rows delete`
 
 Delete rows from a grid by id (DELETE /grids/{id}/rows).
 
 **Usage**:
 
 ```console
-$ ycli wiki grids rows remove [OPTIONS] GRID_ID
+$ ycli wiki grids rows delete [OPTIONS] GRID_ID
 ```
 
 **Arguments**:
@@ -1399,13 +1381,13 @@ $ ycli wiki grids columns [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `add`: Add columns to a grid (POST...
-* `remove`: Delete columns from a grid by slug (DELETE...
+* `create`: Add columns to a grid (POST...
+* `delete`: Delete columns from a grid by slug (DELETE...
 * `move`: Reorder columns in a grid (POST...
 * `suggest`: Check a column slug (POST...
 * `update`: Edit a column in place (POST...
 
-#### `ycli wiki grids columns add`
+#### `ycli wiki grids columns create`
 
 Add columns to a grid (POST /grids/{id}/columns).
 
@@ -1414,7 +1396,7 @@ The API requires a ``slug`` on every column.
 **Usage**:
 
 ```console
-$ ycli wiki grids columns add [OPTIONS] GRID_ID
+$ ycli wiki grids columns create [OPTIONS] GRID_ID
 ```
 
 **Arguments**:
@@ -1432,14 +1414,14 @@ $ ycli wiki grids columns add [OPTIONS] GRID_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli wiki grids columns remove`
+#### `ycli wiki grids columns delete`
 
 Delete columns from a grid by slug (DELETE /grids/{id}/columns).
 
 **Usage**:
 
 ```console
-$ ycli wiki grids columns remove [OPTIONS] GRID_ID
+$ ycli wiki grids columns delete [OPTIONS] GRID_ID
 ```
 
 **Arguments**:
@@ -1599,7 +1581,7 @@ $ ycli wiki operations [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `clone-get`: Print a page-clone operation's status (GET...
-* `gridclone-get`: Print a grid-clone operation's status (GET...
+* `clone-inline-grid-get`: Print a grid-clone operation's status (GET...
 * `move-get`: Print a page-move operation's status (GET...
 
 ### `ycli wiki operations clone-get`
@@ -1624,14 +1606,14 @@ $ ycli wiki operations clone-get [OPTIONS] TASK_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli wiki operations gridclone-get`
+### `ycli wiki operations clone-inline-grid-get`
 
 Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id}).
 
 **Usage**:
 
 ```console
-$ ycli wiki operations gridclone-get [OPTIONS] TASK_ID
+$ ycli wiki operations clone-inline-grid-get [OPTIONS] TASK_ID
 ```
 
 **Arguments**:

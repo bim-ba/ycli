@@ -1,6 +1,7 @@
 """Contract cases for Tracker worklog (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from tests.yandex.tracker.worklog.import_cases import IMPORT_CASES
 from ycli.yandex.tracker.worklog.models import WorklogCreate, WorklogSearch, WorklogUpdate
 
 CASES = [
@@ -110,12 +111,12 @@ CASES = [
     ),
     # The CLI repeats createdAt for each end of the range.
     Case(
-        "tracker.worklog.global_list",
+        "tracker.worklog.list_global",
         kwargs={"created_by": "alice", "created_at": ["from:2019-01-01", "to:2019-02-01"]},
         cli=[
             "tracker",
             "worklog",
-            "global-list",
+            "list-global",
             "--created-by",
             "alice",
             "--from",
@@ -136,11 +137,11 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.worklog.global_list",
+        "tracker.worklog.list_global",
         kwargs={"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
         cli=None,
         mcp=(
-            "tracker_worklog_global_list",
+            "tracker_worklog_list_global",
             {"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
         ),
         exchanges=[
@@ -151,9 +152,9 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.worklog.global_list",
-        cli=["tracker", "worklog", "global-list"],
-        mcp=("tracker_worklog_global_list", {}),
+        "tracker.worklog.list_global",
+        cli=["tracker", "worklog", "list-global"],
+        mcp=("tracker_worklog_list_global", {}),
         exchanges=[(Sent("GET", "worklog"), Reply(json=[]))],
     ),
     Case(
@@ -247,3 +248,4 @@ CASES = [
         exchanges=[(Sent("DELETE", "issues/DE-68/worklog/681"), Reply(status=204))],
     ),
 ]
+CASES += IMPORT_CASES

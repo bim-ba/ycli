@@ -51,11 +51,11 @@ CASES = [
         exchanges=[(Sent("GET", "projects/22"), Reply(json={"id": "22", "name": "Plain"}))],
     ),
     Case(
-        "tracker.projects.queues",
+        "tracker.projects.queues_list",
         args=(23,),
         kwargs={"expand": "components,versions"},
-        cli=["tracker", "projects", "queues", "23", "--expand", "components,versions"],
-        mcp=("tracker_projects_queues", {"project_id": 23, "expand": "components,versions"}),
+        cli=["tracker", "projects", "queues-list", "23", "--expand", "components,versions"],
+        mcp=("tracker_projects_queues_list", {"project_id": 23, "expand": "components,versions"}),
         exchanges=[
             (
                 Sent("GET", "projects/23/queues", {"expand": "components,versions"}),
@@ -64,9 +64,9 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.projects.queues",
+        "tracker.projects.queues_list",
         args=(24,),
-        cli=["tracker", "projects", "queues", "24"],
+        cli=["tracker", "projects", "queues-list", "24"],
         mcp=None,
         exchanges=[(Sent("GET", "projects/24/queues"), Reply(json=[{"key": "ONE"}]))],
     ),

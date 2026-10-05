@@ -164,9 +164,9 @@ All of this ships on the CLI, MCP and SDK; `--help` on any group lists its comma
 | Actions of a group (Tracker issue, Wiki page, email, HTTP, JSON-RPC, cloud function) | `forms subscriptions list\|get\|create\|update\|delete <form_id> <hook_id> …` (`create`/`update` take `--body-file`; `type` picks the action) | `forms_subscriptions_*` |
 | Upload a fixed attachment for an action | `forms subscriptions attach …` | CLI/SDK only (binary) |
 | Variables an action can reference | `forms variables list <form_id>` | `forms_variables_list` |
-| Show conditions of a question, page, submit button | `forms conditions question\|page\|submit list\|get\|create\|update\|delete\|set-operator …` | `forms_conditions_question_*`, `_page_*`, `_submit_*` |
-| Conditions gating an integration group | `forms conditions hook list\|get\|create\|update\|delete\|set-operator <form_id> <hook_id> …` | `forms_conditions_hook_*` |
-| Who may edit (`change`) or fill (`submit`) | `forms access get\|set\|grant\|revoke <form_id> …` | `forms_access_*` |
+| Show conditions of a question, page, submit button | `forms conditions question\|page\|submit list\|get\|create\|update\|delete\|update-operator …` | `forms_conditions_question_*`, `_page_*`, `_submit_*` |
+| Conditions gating an integration group | `forms conditions hook list\|get\|create\|update\|delete\|update-operator <form_id> <hook_id> …` | `forms_conditions_hook_*` |
+| Who may edit (`change`) or fill (`submit`) | `forms access list\|set\|grant\|revoke <form_id> …` | `forms_access_*` |
 | A form's change log | `forms history list <form_id> [--ordering asc\|desc] [--all]` | `forms_history_list` |
 | Integration runs (filter by form, group, action, answer, status, time) | `forms notifications list [--survey-id …] [--status error]` | `forms_notifications_list` |
 | One run in full / its state | `forms notifications get\|status-get <notification_id>` | `forms_notifications_get` / `_status_get` |
@@ -178,7 +178,7 @@ uv run ycli forms hooks create <form_id> --name CRM --active          # → hook
 uv run ycli forms subscriptions create <form_id> <hook_id> --body-file action.json
 uv run ycli forms conditions hook create <form_id> <hook_id> --operator and \
   --item '{"type": "question", "condition": "eq", "question": "q1", "value": "yes"}'
-uv run ycli forms access set <form_id> --action submit --access restricted
+uv run ycli forms access update <form_id> --action submit --access restricted
 uv run ycli forms access grant <form_id> --action submit --uid <uid>
 ```
 
@@ -193,7 +193,7 @@ After an integration change, submit a test response, then check `forms notificat
 - **Publish state matters.** Unpublished forms reject submits; check `is_published` via `surveys get`.
 - **Question IDs are server-assigned.** Read them back from the create/list response; never hardcode.
 - **Suggest questions:** valid `data_source` names are `city` / `country`; suggest text matching is language-sensitive (Cyrillic input matches Russian city names).
-- **Access.** `access set` changes the level of one action (`owner`, `restricted`, `common`, `public`); `grant` and `revoke` take `--uid`/`--cloud-uid` or `--group-src` + `--group-id`. The owner cannot be revoked (`400 cannot revoke access from owner`); revoking someone who has no access changes nothing.
+- **Access.** `access update` changes the level of one action (`owner`, `restricted`, `common`, `public`); `grant` and `revoke` take `--uid`/`--cloud-uid` or `--group-src` + `--group-id`. The owner cannot be revoked (`400 cannot revoke access from owner`); revoking someone who has no access changes nothing.
 - **Notifications.** A run stays `pending` while the API retries it; `cancel` of a pending run answers `ok` and sets `canceled`, of a stopped one `skip`. `restart` of a pending run is skipped; of a canceled one it answers `operation` with `operation_id: "not-supported"` (nothing to poll) and the run returns to `pending`. `notifications list` pages by a `links.next` link; `errors` was still empty while the test runs were `pending`.
 - **Images.** Forms answers `504` to an upload that is not a real image; use a PNG/JPEG.
 - **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`.

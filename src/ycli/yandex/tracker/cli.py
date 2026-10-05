@@ -21,7 +21,6 @@ from ycli.yandex.tracker.entities.cli import app as entities_app
 from ycli.yandex.tracker.fields.cli import app as fields_app
 from ycli.yandex.tracker.filters.cli import app as filters_app
 from ycli.yandex.tracker.gaps.cli import app as gaps_app
-from ycli.yandex.tracker.import_.cli import app as import_app
 from ycli.yandex.tracker.issues.cli import app as issues_app
 from ycli.yandex.tracker.issuetypes.cli import app as issuetypes_app
 from ycli.yandex.tracker.links.cli import app as links_app
@@ -75,7 +74,6 @@ app.add_typer(triggers_app)
 app.add_typer(autoactions_app)
 app.add_typer(bulk_app)
 app.add_typer(remotelinks_app)
-app.add_typer(import_app)
 app.add_typer(dashboards_app)
 app.add_typer(entities_app)
 app.add_typer(workflows_app)

@@ -3,7 +3,7 @@
 Examples:
     >>> search({"createdBy": "alice"}).effect
     'read'
-    >>> global_list("alice", ["from:2018-06-06", "to:2018-06-07"]).params["createdAt"]
+    >>> list_global("alice", ["from:2018-06-06", "to:2018-06-07"]).params["createdAt"]
     ['from:2018-06-06', 'to:2018-06-07']
 """
 
@@ -14,7 +14,13 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogSearch, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import (
+    ImportWorklog,
+    Worklog,
+    WorklogCreate,
+    WorklogSearch,
+    WorklogUpdate,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -45,7 +51,7 @@ def search(body: WorklogSearch) -> Endpoint[ItemList[Worklog]]:
     return Endpoint("POST", "worklog/_search", ItemList[Worklog], json=body, effect="read")
 
 
-def global_list(
+def list_global(
     created_by: str | None, created_at: Sequence[str] | str | None
 ) -> Endpoint[ItemList[Worklog]]:
     """``GET /worklog``; a list ``created_at`` repeats ``createdAt`` (``from:…``, ``to:…``)."""
@@ -64,3 +70,9 @@ def update(key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Work
 
 def delete(key: str, record_id: int | str) -> Endpoint[None]:
     return Endpoint("DELETE", f"issues/{segment(key)}/worklog/{segment(record_id)}")
+
+
+def import_(issue_key: str, body: ImportWorklog) -> Endpoint[ItemList[Worklog]]:
+    """The live endpoint answers with a JSON array of the created record(s)."""
+    path = f"issues/{segment(issue_key)}/worklogs/_import"
+    return Endpoint("POST", path, ItemList[Worklog], json=body)

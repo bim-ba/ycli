@@ -270,7 +270,7 @@ Delete one condition group from a question; the other groups stay untouched.
 | `question_id` | string | yes | Question id (integer) from questions_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 
-## `forms_conditions_question_set_operator`
+## `forms_conditions_question_update_operator`
 
 *Set Forms question conditions operator* · idempotent write
 
@@ -350,7 +350,7 @@ Delete one condition group from a page; the other groups stay untouched.
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 
-## `forms_conditions_page_set_operator`
+## `forms_conditions_page_update_operator`
 
 *Set Forms page conditions operator* · idempotent write
 
@@ -419,7 +419,7 @@ Delete one condition group from the submit button; the other groups stay untouch
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 
-## `forms_conditions_submit_set_operator`
+## `forms_conditions_submit_update_operator`
 
 *Set Forms submit-button conditions operator* · idempotent write
 
@@ -492,7 +492,7 @@ Delete one condition group from an integration group; the others stay untouched.
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 
-## `forms_conditions_hook_set_operator`
+## `forms_conditions_hook_update_operator`
 
 *Set Forms integration-group conditions operator* · idempotent write
 
@@ -504,7 +504,7 @@ Set the boolean operator BETWEEN an integration group's condition groups.
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
 
-## `forms_access_get`
+## `forms_access_list`
 
 *Get Forms survey access* · read-only
 
@@ -517,7 +517,7 @@ organization) or public (anyone with the link).
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 
-## `forms_access_set`
+## `forms_access_update`
 
 *Set Forms survey access level* · idempotent write
 

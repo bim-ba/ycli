@@ -3,7 +3,7 @@
 Examples:
     >>> get("TEST", expand="all").params
     {'expand': 'all'}
-    >>> tag_remove("TEST", {"tag": "old"}).effect
+    >>> tags_delete("TEST", {"tag": "old"}).effect
     'destructive'
 """
 
@@ -74,26 +74,26 @@ def restore(queue_id: str) -> Endpoint[Queue]:
     return Endpoint("POST", f"{_queue(queue_id)}/_restore", Queue)
 
 
-def set_permissions(queue_id: str, body: QueuePermissionsUpdate) -> Endpoint[QueuePermissions]:
+def permissions_update(queue_id: str, body: QueuePermissionsUpdate) -> Endpoint[QueuePermissions]:
     return Endpoint("PATCH", f"{_queue(queue_id)}/permissions", QueuePermissions, json=body)
 
 
-def tag_remove(queue_id: str, body: QueueTagRemove) -> Endpoint[None]:
+def tags_delete(queue_id: str, body: QueueTagRemove) -> Endpoint[None]:
     """``POST /queues/{id}/tags/_remove`` — strips the tag from every issue of the queue."""
     return Endpoint("POST", f"{_queue(queue_id)}/tags/_remove", json=body, effect="destructive")
 
 
-def version_create(body: QueueVersionCreate) -> Endpoint[QueueVersionInfo]:
+def versions_create(body: QueueVersionCreate) -> Endpoint[QueueVersionInfo]:
     return Endpoint("POST", "versions/", QueueVersionInfo, json=body)
 
 
-def version_get(version_id: int, *, fields: str | None = None) -> Endpoint[QueueVersionInfo]:
+def versions_get(version_id: int, *, fields: str | None = None) -> Endpoint[QueueVersionInfo]:
     return Endpoint(
         "GET", f"versions/{segment(version_id)}", QueueVersionInfo, params={"fields": fields}
     )
 
 
-def version_update(
+def versions_update(
     version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
 ) -> Endpoint[QueueVersionInfo]:
     """``PATCH /versions/{id}``: unlike a component, a version takes no ``?version=`` lock."""
@@ -106,7 +106,7 @@ def version_update(
     )
 
 
-def version_delete(version_id: int) -> Endpoint[None]:
+def versions_delete(version_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"versions/{segment(version_id)}")
 
 

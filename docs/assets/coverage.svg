@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="220" viewBox="0 0 760 220" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" role="img" aria-labelledby="title">
-<title id="title">ycli wraps 333 operations across 62 resources</title>
+<title id="title">ycli wraps 333 operations across 60 resources</title>
 <style>.value{fill:#768390}.label{fill:#768390}.bar{fill:#3987e5}</style>
 <text class="value" x="0" y="40" font-size="36" font-weight="600">333</text>
 <text class="label" x="0" y="66" font-size="15">operations</text>
-<text class="value" x="253.333" y="40" font-size="36" font-weight="600">62</text>
+<text class="value" x="253.333" y="40" font-size="36" font-weight="600">60</text>
 <text class="label" x="253.333" y="66" font-size="15">resources</text>
 <text class="value" x="506.667" y="40" font-size="36" font-weight="600">322</text>
 <text class="label" x="506.667" y="66" font-size="15">MCP tools</text>

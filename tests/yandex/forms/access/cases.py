@@ -26,18 +26,18 @@ GROUP = {"src": "staff", "id": "42"}
 
 CASES = [
     Case(
-        "forms.access.get",
+        "forms.access.list",
         args=(SID,),
-        cli=["forms", "access", "get", SID],
-        mcp=("forms_access_get", {"survey_id": SID}),
+        cli=["forms", "access", "list", SID],
+        mcp=("forms_access_list", {"survey_id": SID}),
         exchanges=[(Sent("GET", ACCESS), Reply(json=PERMISSIONS))],
     ),
     Case(
-        "forms.access.set",
+        "forms.access.update",
         args=(SID, AccessUpdate.model_validate({"action": "submit", "access": "public"})),
-        cli=["forms", "access", "set", SID, "--action", "submit", "--access", "public"],
+        cli=["forms", "access", "update", SID, "--action", "submit", "--access", "public"],
         mcp=(
-            "forms_access_set",
+            "forms_access_update",
             {"survey_id": SID, "body": {"action": "submit", "access": "public"}},
         ),
         exchanges=[

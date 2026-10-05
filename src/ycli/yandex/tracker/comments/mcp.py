@@ -9,7 +9,7 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
@@ -64,14 +64,14 @@ def get(
 
 
 @mcp.tool(
-    name="comments_add",
+    name="comments_create",
     annotations={**WRITE, "title": "Add Tracker issue comment"},
 )
-def add(
+def create(
     key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Comment:
     """Add a comment to a Tracker issue; returns the created comment."""
-    return client.comments.add(key, body)
+    return client.comments.create(key, body)
 
 
 @mcp.tool(
@@ -107,10 +107,10 @@ def delete(
 
 
 @mcp.tool(
-    name="comments_react",
+    name="comments_reactions_create",
     annotations={**WRITE, "title": "React to Tracker issue comment"},
 )
-def react(
+def reactions_create(
     key: IssueKey,
     comment_id: CommentID,
     name: Annotated[
@@ -123,4 +123,18 @@ def react(
     ``name`` is the reaction name (e.g. ``like``, ``dislike``, ``fire``). Returns the comment
     with its updated reactions.
     """
-    return client.comments.react(key, comment_id, name)
+    return client.comments.reactions_create(key, comment_id, name)
+
+
+@mcp.tool(
+    name="comments_import",
+    annotations={**WRITE, "title": "Import Tracker issue comment"},
+)
+def import_(
+    issue_key: IssueKey, body: ImportComment, client: TrackerClient = Depends(tracker_client)
+) -> Comment:
+    """Import a comment onto an issue preserving its original author and timestamp (admin-only).
+
+    Returns the imported comment.
+    """
+    return client.comments.import_(issue_key, body=body)

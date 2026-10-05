@@ -15,7 +15,7 @@ app = typer.Typer(
 
 
 @app.command()
-def restore(
+def recover(
     token: Annotated[
         str, typer.Argument(metavar="TOKEN", help="recovery_token from `wiki pages delete`.")
     ],
@@ -23,4 +23,4 @@ def restore(
     wiki: WikiClient,
 ) -> RecoveredPage:
     """Restore a deleted page by its recovery TOKEN (POST /recovery_tokens/{token}/recover)."""
-    return wiki.recovery.restore(token=token)
+    return wiki.recovery.recover(token=token)

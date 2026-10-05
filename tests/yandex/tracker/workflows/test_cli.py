@@ -17,7 +17,7 @@ import ycli.cli.app as cli
             ["create", "--name", "X", "--initial-action", "{}", "--issue-type-resolution", "x"],
             "--issue-type-resolution",
         ),
-        (["update-action", "W1", "open", "go", "--version", "1", "--action", "{"], "--action"),
+        (["actions-update", "W1", "open", "go", "--version", "1", "--action", "{"], "--action"),
     ],
 )
 def test_malformed_json_is_a_usage_error_before_any_request(api, argv, option):

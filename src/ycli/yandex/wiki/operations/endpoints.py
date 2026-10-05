@@ -19,7 +19,7 @@ def clone_get(task_id: str) -> Endpoint[CloneOperationStatus]:
     return Endpoint("GET", f"operations/clone/{segment(task_id)}", CloneOperationStatus)
 
 
-def gridclone_get(task_id: str) -> Endpoint[GridCloneOperationStatus]:
+def clone_inline_grid_get(task_id: str) -> Endpoint[GridCloneOperationStatus]:
     path = f"operations/clone_inline_grid/{segment(task_id)}"
     return Endpoint("GET", path, GridCloneOperationStatus)
 

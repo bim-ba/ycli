@@ -34,7 +34,7 @@ MacroID = Annotated[
 CommentID = Annotated[
     str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
 ]
-ChecklistItemID = Annotated[str, Field(description="Checklist item id, from ``checklists_get``.")]
+ChecklistItemID = Annotated[str, Field(description="Checklist item id, from ``checklists_list``.")]
 WorklogRecordID = Annotated[str, Field(description="Worklog record id, from ``worklog_list``.")]
 # The parameters most write operations share: what the reply carries and who is notified.
 Expand = Annotated[str | None, Field(description="Extra blocks to include in the reply.")]

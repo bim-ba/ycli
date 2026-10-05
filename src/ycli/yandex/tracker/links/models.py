@@ -113,3 +113,35 @@ class LinkCreate(RequestBody):
         description="Link type from linktypes_list, e.g. relates, depends on, is subtask for."
     )
     issue: str = Field(description="Key of the issue to link to.")
+
+
+class ImportLink(RequestBody):
+    """Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history.
+
+    Examples:
+        >>> ImportLink(
+        ...     relationship="relates",
+        ...     issue="TEST-2",
+        ...     created_at="2017-08-29T12:34:41.740+0000",
+        ...     created_by="11",
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        {'relationship': 'relates', 'issue': 'TEST-2',
+         'createdAt': '2017-08-29T12:34:41.740+0000', 'createdBy': '11'}
+    """
+
+    relationship: str = Field(
+        description="Link type, e.g. ``relates``, ``depends on``, ``subtask``."
+    )
+    issue: str = Field(description="Key or id of the issue to link to.")
+    created_at: str = Field(alias="createdAt", description="Original link creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the link creator.")
+    updated_at: str | None = Field(
+        default=None,
+        alias="updatedAt",
+        description="Original last-edit time (only together with ``updated_by``).",
+    )
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="Login or id of the last editor (only together with ``updated_at``).",
+    )

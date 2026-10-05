@@ -546,7 +546,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.set_permissions",
+        "tracker.entities.permissions_update",
         args=(
             "portfolio",
             "pf16",
@@ -562,7 +562,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "set-permissions",
+            "permissions-update",
             "portfolio",
             "pf16",
             "--acl",
@@ -571,7 +571,7 @@ CASES = [
             'revoke={"WRITE":{"groups":["42"]}}',
         ],
         mcp=(
-            "tracker_entities_set_permissions",
+            "tracker_entities_permissions_update",
             {
                 "entity_type": "portfolio",
                 "entity_id": "pf16",
@@ -600,7 +600,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.bulk_update",
+        "tracker.entities.update_bulk",
         args=(
             "project",
             BulkChangeUpdate.model_validate(
@@ -613,7 +613,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "bulk-update",
+            "update-bulk",
             "project",
             "--entity",
             "655f17",
@@ -625,7 +625,7 @@ CASES = [
             "lead=lead-17",
         ],
         mcp=(
-            "tracker_entities_bulk_update",
+            "tracker_entities_update_bulk",
             {
                 "entity_type": "project",
                 "body": {
@@ -649,9 +649,9 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.bulk_update",
+        "tracker.entities.update_bulk",
         args=("goal", BulkChangeUpdate.model_validate({"metaEntities": ["g19"], "values": {}})),
-        cli=["tracker", "entities", "bulk-update", "goal", "--entity", "g19"],
+        cli=["tracker", "entities", "update-bulk", "goal", "--entity", "g19"],
         mcp=None,
         exchanges=[
             (
@@ -665,16 +665,16 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.bulk_status_get",
+        "tracker.entities.bulk_get",
         args=("658",),
-        cli=["tracker", "entities", "bulk-status-get", "658"],
-        mcp=("tracker_entities_bulk_status_get", {"operation_id": "658"}),
+        cli=["tracker", "entities", "bulk-get", "658"],
+        mcp=("tracker_entities_bulk_get", {"operation_id": "658"}),
         exchanges=[
             (Sent("GET", "bulkchange/658"), Reply(json={"id": "658", "status": "COMPLETE"})),
         ],
     ),
     Case(
-        "tracker.entities.create_report",
+        "tracker.entities.reports_create",
         args=(
             ReportCreate.model_validate(
                 {
@@ -693,7 +693,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "create-report",
+            "reports-create",
             "--summary",
             "Support export",
             "--query",
@@ -708,7 +708,7 @@ CASES = [
             "assignee",
         ],
         mcp=(
-            "tracker_entities_create_report",
+            "tracker_entities_reports_create",
             {
                 "body": {
                     "fields": {
@@ -745,7 +745,7 @@ CASES = [
     ),
     # Defaults: xlsx and no columns.
     Case(
-        "tracker.entities.create_report",
+        "tracker.entities.reports_create",
         args=(
             ReportCreate.model_validate(
                 {
@@ -764,7 +764,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "create-report",
+            "reports-create",
             "--summary",
             "Default export",
             "--query",
@@ -811,7 +811,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.comments_relative_list",
+        "tracker.entities.comments_list_relative",
         args=("portfolio", "pf22"),
         kwargs={"limit": 10},
         cli=[
@@ -826,7 +826,7 @@ CASES = [
             "10",
         ],
         mcp=(
-            "tracker_entities_comments_relative_list",
+            "tracker_entities_comments_list_relative",
             {"entity_type": "portfolio", "entity_id": "pf22", "limit": 10},
         ),
         exchanges=[
@@ -1448,11 +1448,11 @@ CASES = [
         effect="read",
     ),
     Case(
-        "tracker.entities.direct_permissions_get",
+        "tracker.entities.permissions_get_direct",
         args=("project", "655f17"),
-        cli=["tracker", "entities", "direct-permissions-get", "project", "655f17"],
+        cli=["tracker", "entities", "permissions-get-direct", "project", "655f17"],
         mcp=(
-            "tracker_entities_direct_permissions_get",
+            "tracker_entities_permissions_get_direct",
             {"entity_type": "project", "entity_id": "655f17"},
         ),
         exchanges=[
@@ -1477,7 +1477,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.set_direct_permissions",
+        "tracker.entities.permissions_update_direct",
         args=(
             "goal",
             "g18",
@@ -1492,7 +1492,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "set-direct-permissions",
+            "permissions-update-direct",
             "goal",
             "g18",
             "--grant",
@@ -1501,7 +1501,7 @@ CASES = [
             '{"GRANT": {"users": ["bob"], "roles": ["OWNER"]}}',
         ],
         mcp=(
-            "tracker_entities_set_direct_permissions",
+            "tracker_entities_permissions_update_direct",
             {
                 "entity_type": "goal",
                 "entity_id": "g18",
@@ -1543,7 +1543,7 @@ CASES = [
     ),
     # One side only: the other is left out of the body.
     Case(
-        "tracker.entities.set_direct_permissions",
+        "tracker.entities.permissions_update_direct",
         args=(
             "portfolio",
             "pf19",
@@ -1552,7 +1552,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "set-direct-permissions",
+            "permissions-update-direct",
             "portfolio",
             "pf19",
             "--revoke",

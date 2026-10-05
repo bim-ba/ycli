@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from tests.contract import Case, Reply, Sent
+from tests.yandex.tracker.attachments.import_cases import IMPORT_CASES
 
 UPLOAD = Path(__file__).with_name("upload.txt")
 TEMP_UPLOAD = Path(__file__).with_name("temp-upload.txt")
@@ -47,9 +48,9 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.attachments.download_thumbnail",
+        "tracker.attachments.thumbnails_download",
         args=("JUNE-4", "4160"),
-        cli=["tracker", "attachments", "download-thumbnail", "JUNE-4", "4160"],
+        cli=["tracker", "attachments", "thumbnails-download", "JUNE-4", "4160"],
         mcp=None,
         exchanges=[
             (Sent("GET", "issues/JUNE-4/thumbnails/4160"), Reply(content=b"\x89PNGthumb")),
@@ -171,3 +172,4 @@ CASES = [
         ],
     ),
 ]
+CASES += IMPORT_CASES

@@ -1,7 +1,7 @@
-"""Contract cases for Wiki ``/search`` (see tests/contract.py)."""
+"""Contract cases for Wiki ``/search``, sent by ``pages.search`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.wiki.search.models import SearchRequest
+from ycli.yandex.wiki.pages.models import SearchRequest
 
 HIT = {
     "url": "/team/roadmap",
@@ -30,14 +30,14 @@ FULL_BODY = {
     "highlight": True,
 }
 
-CASES = [
+SEARCH_CASES = [
     Case(
-        "wiki.search.query",
+        "wiki.pages.search",
         args=(SearchRequest.model_validate(FULL_BODY),),
         cli=[
             "wiki",
+            "pages",
             "search",
-            "query",
             "quarterly roadmap",
             "--type",
             "page",
@@ -65,7 +65,7 @@ CASES = [
             "3",
         ],
         mcp=(
-            "wiki_search_query",
+            "wiki_pages_search",
             {
                 "text": "quarterly roadmap",
                 "filters": FILTERS,
@@ -84,7 +84,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.search.query",
+        "wiki.pages.search",
         args=(
             SearchRequest.model_validate(
                 {
@@ -96,7 +96,7 @@ CASES = [
                 }
             ),
         ),
-        cli=["wiki", "search", "query", "budget"],
+        cli=["wiki", "pages", "search", "budget"],
         mcp=None,
         effect="read",
         exchanges=[
@@ -117,7 +117,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.search.query",
+        "wiki.pages.search",
         args=(
             SearchRequest.model_validate(
                 {
@@ -130,7 +130,7 @@ CASES = [
             ),
         ),
         cli=None,
-        mcp=("wiki_search_query", {"text": "onboarding"}),
+        mcp=("wiki_pages_search", {"text": "onboarding"}),
         effect="read",
         exchanges=[
             (

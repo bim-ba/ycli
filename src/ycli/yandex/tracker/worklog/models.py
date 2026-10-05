@@ -125,3 +125,24 @@ class WorklogSearch(RequestBody):
     created_at: WorklogPeriod | None = Field(
         default=None, alias="createdAt", description="When the records were created."
     )
+
+
+class ImportWorklog(RequestBody):
+    """Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history.
+
+    Examples:
+        >>> ImportWorklog(
+        ...     duration="PT1H",
+        ...     created_at="2025-02-18T16:35:41.740+0000",
+        ...     created_by="username",
+        ...     start="2025-02-18T16:35:41.740+0000",
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        {'duration': 'PT1H', 'createdAt': '2025-02-18T16:35:41.740+0000',
+         'createdBy': 'username', 'start': '2025-02-18T16:35:41.740+0000'}
+    """
+
+    duration: str = Field(description="Time spent as an ISO-8601 duration, e.g. ``PT1H``.")
+    created_at: str = Field(alias="createdAt", description="Original record creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the record author.")
+    start: str = Field(description="Work start time (``YYYY-MM-DDThh:mm:ss.sss±hhmm``).")
+    comment: str | None = Field(default=None, description="Optional note saved in the time report.")

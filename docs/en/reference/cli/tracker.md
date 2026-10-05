@@ -51,7 +51,6 @@ $ ycli tracker [OPTIONS] COMMAND [ARGS]...
 * `autoactions`: Tracker queue autoactions.
 * `bulk`: Tracker async bulk changes.
 * `remotelinks`: Tracker issue external-app links.
-* `import`: Tracker data import (admin).
 * `dashboards`: Tracker dashboards.
 * `entities`: Tracker projects, portfolios and goals.
 * `workflows`: Tracker workflows.
@@ -155,6 +154,10 @@ $ ycli tracker issues [OPTIONS] COMMAND [ARGS]...
 * `move`: Move issue KEY to another QUEUE (POST...
 * `suggest`: Suggest issues whose summary contains...
 * `scroll-clear`: Release search-scroll resources (POST...
+* `update-bulk`: Mass-edit issues (POST /bulkchange/_update).
+* `move-bulk`: Mass-move issues to another QUEUE (POST...
+* `transition-bulk`: Mass status transition (POST...
+* `import`: Import an issue preserving its history...
 
 ### `ycli tracker issues get`
 
@@ -389,6 +392,110 @@ $ ycli tracker issues scroll-clear [OPTIONS]
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
+### `ycli tracker issues update-bulk`
+
+Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value.
+
+**Usage**:
+
+```console
+$ ycli tracker issues update-bulk [OPTIONS]
+```
+
+**Options**:
+
+* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
+* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
+* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
+* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker issues move-bulk`
+
+Mass-move issues to another QUEUE (POST /bulkchange/_move).
+
+**Usage**:
+
+```console
+$ ycli tracker issues move-bulk [OPTIONS] QUEUE
+```
+
+**Arguments**:
+
+* `QUEUE`: Target queue key, e.g. CHECK.  [required]
+
+**Options**:
+
+* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
+* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
+* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
+* `--move-all-fields`: Carry versions/components/projects across.
+* `--initial-status`: Reset each issue's status to the initial one.
+* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker issues transition-bulk`
+
+Mass status transition (POST /bulkchange/_transition). -F resolution=fixed for close.
+
+**Usage**:
+
+```console
+$ ycli tracker issues transition-bulk [OPTIONS] TRANSITION
+```
+
+**Arguments**:
+
+* `TRANSITION`: Transition id, e.g. close.  [required]
+
+**Options**:
+
+* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
+* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
+* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
+* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker issues import`
+
+Import an issue preserving its history (POST /issues/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker issues import [OPTIONS]
+```
+
+**Options**:
+
+* `--queue TEXT`: Target queue key.  [required]
+* `--summary TEXT`: Issue title.  [required]
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
+* `--key TEXT`: Explicit issue key (must belong to the queue).
+* `--description TEXT`: Issue description (YFM).
+* `--assignee TEXT`: Assignee login or id.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
 ## `ycli tracker comments`
 
 Tracker issue comments.
@@ -407,10 +514,11 @@ $ ycli tracker comments [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List all comments on issue KEY...
 * `get`: Print comment COMMENT_ID of issue KEY.
-* `add`: Add a comment to issue KEY.
+* `create`: Add a comment to issue KEY.
 * `update`: Edit comment COMMENT_ID on issue KEY.
 * `delete`: Delete comment COMMENT_ID from issue KEY.
-* `react`: Add reaction NAME to comment COMMENT_ID on...
+* `reactions-create`: Add reaction NAME to comment COMMENT_ID on...
+* `import`: Import a comment onto issue KEY (POST...
 
 ### `ycli tracker comments list`
 
@@ -461,14 +569,14 @@ $ ycli tracker comments get [OPTIONS] KEY COMMENT_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker comments add`
+### `ycli tracker comments create`
 
 Add a comment to issue KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments add [OPTIONS] KEY
+$ ycli tracker comments create [OPTIONS] KEY
 ```
 
 **Arguments**:
@@ -531,14 +639,14 @@ $ ycli tracker comments delete [OPTIONS] KEY COMMENT_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker comments react`
+### `ycli tracker comments reactions-create`
 
 Add reaction NAME to comment COMMENT_ID on issue KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker comments react [OPTIONS] KEY COMMENT_ID NAME
+$ ycli tracker comments reactions-create [OPTIONS] KEY COMMENT_ID NAME
 ```
 
 **Arguments**:
@@ -549,6 +657,31 @@ $ ycli tracker comments react [OPTIONS] KEY COMMENT_ID NAME
 
 **Options**:
 
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker comments import`
+
+Import a comment onto issue KEY (POST /issues/{key}/comments/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker comments import [OPTIONS] KEY
+```
+
+**Arguments**:
+
+* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+
+**Options**:
+
+* `--text TEXT`: Comment text.  [required]
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -572,9 +705,10 @@ $ ycli tracker links [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `list`: List links for issue KEY.
-* `search`: List links of issue KEY, filtered and...
-* `add`: Link issue KEY to TARGET with RELATIONSHIP.
+* `list-filtered`: List links of issue KEY, filtered and...
+* `create`: Link issue KEY to TARGET with RELATIONSHIP.
 * `delete`: Delete link LINK_ID from issue KEY.
+* `import`: Import a link on issue KEY (POST...
 
 ### `ycli tracker links list`
 
@@ -598,14 +732,14 @@ $ ycli tracker links list [OPTIONS] KEY
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker links search`
+### `ycli tracker links list-filtered`
 
 List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything).
 
 **Usage**:
 
 ```console
-$ ycli tracker links search [OPTIONS] KEY
+$ ycli tracker links list-filtered [OPTIONS] KEY
 ```
 
 **Arguments**:
@@ -624,14 +758,14 @@ $ ycli tracker links search [OPTIONS] KEY
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker links add`
+### `ycli tracker links create`
 
 Link issue KEY to TARGET with RELATIONSHIP.
 
 **Usage**:
 
 ```console
-$ ycli tracker links add [OPTIONS] KEY RELATIONSHIP TARGET
+$ ycli tracker links create [OPTIONS] KEY RELATIONSHIP TARGET
 ```
 
 **Arguments**:
@@ -665,6 +799,32 @@ $ ycli tracker links delete [OPTIONS] KEY LINK_ID
 
 **Options**:
 
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker links import`
+
+Import a link on issue KEY (POST /issues/{key}/links/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker links import [OPTIONS] KEY
+```
+
+**Arguments**:
+
+* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+
+**Options**:
+
+* `--relationship TEXT`: Link type, e.g. relates.  [required]
+* `--issue TEXT`: Key or id of the issue to link to.  [required]
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -754,10 +914,11 @@ $ ycli tracker worklog [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List all worklog entries for issue KEY...
 * `search`: Search org-wide worklog by author and/or...
-* `global-list`: List org-wide worklog via GET /worklog...
+* `list-global`: List org-wide worklog via GET /worklog...
 * `create`: Log time spent on issue KEY (POST...
 * `update`: Edit worklog RECORD_ID on issue KEY — only...
 * `delete`: Delete worklog RECORD_ID from issue KEY.
+* `import`: Import a worklog onto issue KEY (POST...
 
 ### `ycli tracker worklog list`
 
@@ -804,14 +965,14 @@ $ ycli tracker worklog search [OPTIONS]
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker worklog global-list`
+### `ycli tracker worklog list-global`
 
 List org-wide worklog via GET /worklog (createdAt filters need --created-by).
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog global-list [OPTIONS]
+$ ycli tracker worklog list-global [OPTIONS]
 ```
 
 **Options**:
@@ -898,6 +1059,33 @@ $ ycli tracker worklog delete [OPTIONS] KEY RECORD_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
+### `ycli tracker worklog import`
+
+Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker worklog import [OPTIONS] KEY
+```
+
+**Arguments**:
+
+* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+
+**Options**:
+
+* `--duration TEXT`: Time spent, ISO-8601 duration (e.g. PT1H).  [required]
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
+* `--start TEXT`: Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--comment TEXT`: Optional note saved in the time report.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
 ## `ycli tracker changelog`
 
 Tracker issue changelog.
@@ -959,20 +1147,20 @@ $ ycli tracker checklists [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `get`: List the checklist items on issue KEY.
+* `list`: List the checklist items on issue KEY.
 * `create`: Add a checklist item to issue KEY (creates...
 * `update`: Edit checklist item ITEM_ID on issue KEY —...
 * `delete`: Delete checklist item ITEM_ID from issue KEY.
 * `clear`: Delete the entire checklist from issue KEY.
 
-### `ycli tracker checklists get`
+### `ycli tracker checklists list`
 
 List the checklist items on issue KEY.
 
 **Usage**:
 
 ```console
-$ ycli tracker checklists get [OPTIONS] KEY
+$ ycli tracker checklists list [OPTIONS] KEY
 ```
 
 **Arguments**:
@@ -1693,12 +1881,12 @@ $ ycli tracker queues [OPTIONS] COMMAND [ARGS]...
 * `create`: Create a queue (POST /queues/).
 * `delete`: Delete QUEUE_ID (DELETE /queues/{queue_id}).
 * `restore`: Restore a deleted QUEUE_ID (POST...
-* `set-permissions`: Manage access to QUEUE_ID (PATCH...
-* `tag-remove`: Remove TAG from QUEUE_ID (POST...
-* `version-create`: Create a queue version (POST /versions/).
-* `version-get`: Print queue version VERSION_ID (GET...
-* `version-update`: Edit queue version VERSION_ID (PATCH...
-* `version-delete`: Delete queue version VERSION_ID (DELETE...
+* `permissions-update`: Manage access to QUEUE_ID (PATCH...
+* `tags-delete`: Remove TAG from QUEUE_ID (POST...
+* `versions-create`: Create a queue version (POST /versions/).
+* `versions-get`: Print queue version VERSION_ID (GET...
+* `versions-update`: Edit queue version VERSION_ID (PATCH...
+* `versions-delete`: Delete queue version VERSION_ID (DELETE...
 * `user-permissions-get`: Show what USER may do in QUEUE_ID (GET...
 * `group-permissions-get`: Show what GROUP_ID may do in QUEUE_ID (GET...
 
@@ -1880,7 +2068,7 @@ $ ycli tracker queues restore [OPTIONS] QUEUE_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues set-permissions`
+### `ycli tracker queues permissions-update`
 
 Manage access to QUEUE_ID (PATCH /queues/{queue_id}/permissions).
 
@@ -1890,7 +2078,7 @@ Each scope is a JSON object of users/groups/roles, e.g.
 **Usage**:
 
 ```console
-$ ycli tracker queues set-permissions [OPTIONS] QUEUE_ID
+$ ycli tracker queues permissions-update [OPTIONS] QUEUE_ID
 ```
 
 **Arguments**:
@@ -1909,14 +2097,14 @@ $ ycli tracker queues set-permissions [OPTIONS] QUEUE_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues tag-remove`
+### `ycli tracker queues tags-delete`
 
 Remove TAG from QUEUE_ID (POST /queues/{queue_id}/tags/_remove; admin only).
 
 **Usage**:
 
 ```console
-$ ycli tracker queues tag-remove [OPTIONS] QUEUE_ID TAG
+$ ycli tracker queues tags-delete [OPTIONS] QUEUE_ID TAG
 ```
 
 **Arguments**:
@@ -1932,14 +2120,14 @@ $ ycli tracker queues tag-remove [OPTIONS] QUEUE_ID TAG
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues version-create`
+### `ycli tracker queues versions-create`
 
 Create a queue version (POST /versions/).
 
 **Usage**:
 
 ```console
-$ ycli tracker queues version-create [OPTIONS]
+$ ycli tracker queues versions-create [OPTIONS]
 ```
 
 **Options**:
@@ -1955,14 +2143,14 @@ $ ycli tracker queues version-create [OPTIONS]
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues version-get`
+### `ycli tracker queues versions-get`
 
 Print queue version VERSION_ID (GET /versions/{id}).
 
 **Usage**:
 
 ```console
-$ ycli tracker queues version-get [OPTIONS] VERSION_ID
+$ ycli tracker queues versions-get [OPTIONS] VERSION_ID
 ```
 
 **Arguments**:
@@ -1978,14 +2166,14 @@ $ ycli tracker queues version-get [OPTIONS] VERSION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues version-update`
+### `ycli tracker queues versions-update`
 
 Edit queue version VERSION_ID (PATCH /versions/{id}); only the given options change.
 
 **Usage**:
 
 ```console
-$ ycli tracker queues version-update [OPTIONS] VERSION_ID
+$ ycli tracker queues versions-update [OPTIONS] VERSION_ID
 ```
 
 **Arguments**:
@@ -2005,14 +2193,14 @@ $ ycli tracker queues version-update [OPTIONS] VERSION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues version-delete`
+### `ycli tracker queues versions-delete`
 
 Delete queue version VERSION_ID (DELETE /versions/{id}).
 
 **Usage**:
 
 ```console
-$ ycli tracker queues version-delete [OPTIONS] VERSION_ID
+$ ycli tracker queues versions-delete [OPTIONS] VERSION_ID
 ```
 
 **Arguments**:
@@ -2224,8 +2412,8 @@ $ ycli tracker fields [OPTIONS] COMMAND [ARGS]...
 * `get`: Get parameters of one issue field by...
 * `create`: Create a global field (POST /fields).
 * `update`: Edit a global field FIELD_ID — rename...
-* `category-create`: Create a field category (POST...
-* `category-update`: Edit a field category CATEGORY_ID (PATCH...
+* `categories-create`: Create a field category (POST...
+* `categories-update`: Edit a field category CATEGORY_ID (PATCH...
 
 ### `ycli tracker fields list`
 
@@ -2322,14 +2510,14 @@ $ ycli tracker fields update [OPTIONS] FIELD_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker fields category-create`
+### `ycli tracker fields categories-create`
 
 Create a field category (POST /fields/categories).
 
 **Usage**:
 
 ```console
-$ ycli tracker fields category-create [OPTIONS]
+$ ycli tracker fields categories-create [OPTIONS]
 ```
 
 **Options**:
@@ -2344,14 +2532,14 @@ $ ycli tracker fields category-create [OPTIONS]
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker fields category-update`
+### `ycli tracker fields categories-update`
 
 Edit a field category CATEGORY_ID (PATCH /fields/categories/{id}?version=).
 
 **Usage**:
 
 ```console
-$ ycli tracker fields category-update [OPTIONS] CATEGORY_ID
+$ ycli tracker fields categories-update [OPTIONS] CATEGORY_ID
 ```
 
 **Arguments**:
@@ -3062,11 +3250,13 @@ $ ycli tracker attachments [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List files attached to an issue (GET...
 * `download`: Download an attachment's raw bytes to...
-* `download-thumbnail`: Download a graphic attachment's preview...
+* `thumbnails-download`: Download a graphic attachment's preview...
 * `get`: Print an attachment's metadata (GET...
 * `delete`: Delete an attachment from an issue (DELETE...
 * `upload`: Attach a local file to an issue (POST...
 * `upload-temp`: Upload a temporary file (POST...
+* `import`: Import a file attachment onto issue KEY...
+* `import-for-comment`: Import a file onto comment COMMENT_ID of...
 
 ### `ycli tracker attachments list`
 
@@ -3115,14 +3305,14 @@ $ ycli tracker attachments download [OPTIONS] ISSUE FILE_ID FILENAME
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker attachments download-thumbnail`
+### `ycli tracker attachments thumbnails-download`
 
 Download a graphic attachment's preview thumbnail to --output (or stdout).
 
 **Usage**:
 
 ```console
-$ ycli tracker attachments download-thumbnail [OPTIONS] ISSUE FILE_ID
+$ ycli tracker attachments thumbnails-download [OPTIONS] ISSUE FILE_ID
 ```
 
 **Arguments**:
@@ -3226,6 +3416,59 @@ $ ycli tracker attachments upload-temp [OPTIONS] FILE_PATH
 **Options**:
 
 * `--rename-to TEXT`: Store the file under this name instead of its own.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker attachments import`
+
+Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker attachments import [OPTIONS] KEY PATH
+```
+
+**Arguments**:
+
+* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `PATH`: Local file to attach.  [required]
+
+**Options**:
+
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
+* `--filename TEXT`: Override the attachment name (default: basename).
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+### `ycli tracker attachments import-for-comment`
+
+Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import).
+
+**Usage**:
+
+```console
+$ ycli tracker attachments import-for-comment [OPTIONS] KEY COMMENT_ID PATH
+```
+
+**Arguments**:
+
+* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `COMMENT_ID`: Id of the comment.  [required]
+* `PATH`: Local file to attach.  [required]
+
+**Options**:
+
+* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
+* `--created-by TEXT`: Login or id of the original author.  [required]
+* `--filename TEXT`: Override the attachment name (default: basename).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -3666,90 +3909,8 @@ $ ycli tracker bulk [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `update`: Mass-edit issues (POST /bulkchange/_update).
-* `move`: Mass-move issues to another QUEUE (POST...
-* `transition`: Mass status transition (POST...
 * `get`: Print the current status of bulk-change...
 * `issues-list`: List issues that a bulk change failed on...
-
-### `ycli tracker bulk update`
-
-Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value.
-
-**Usage**:
-
-```console
-$ ycli tracker bulk update [OPTIONS]
-```
-
-**Options**:
-
-* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
-* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
-* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
-* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker bulk move`
-
-Mass-move issues to another QUEUE (POST /bulkchange/_move).
-
-**Usage**:
-
-```console
-$ ycli tracker bulk move [OPTIONS] QUEUE
-```
-
-**Arguments**:
-
-* `QUEUE`: Target queue key, e.g. CHECK.  [required]
-
-**Options**:
-
-* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
-* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
-* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--move-all-fields`: Carry versions/components/projects across.
-* `--initial-status`: Reset each issue's status to the initial one.
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
-* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker bulk transition`
-
-Mass status transition (POST /bulkchange/_transition). -F resolution=fixed for close.
-
-**Usage**:
-
-```console
-$ ycli tracker bulk transition [OPTIONS] TRANSITION
-```
-
-**Arguments**:
-
-* `TRANSITION`: Transition id, e.g. close.  [required]
-
-**Options**:
-
-* `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
-* `--query TEXT`: Query-language filter selecting issues (instead of --issue).
-* `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
-* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
 
 ### `ycli tracker bulk get`
 
@@ -3886,185 +4047,6 @@ $ ycli tracker remotelinks delete [OPTIONS] KEY LINK_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-## `ycli tracker import`
-
-Tracker data import (admin).
-
-**Usage**:
-
-```console
-$ ycli tracker import [OPTIONS] COMMAND [ARGS]...
-```
-
-**Options**:
-
-* `--help`: Show this message and exit.
-
-**Commands**:
-
-* `task`: Import an issue preserving its history...
-* `comment`: Import a comment onto issue KEY (POST...
-* `link`: Import a link on issue KEY (POST...
-* `worklog`: Import a worklog onto issue KEY (POST...
-* `file`: Import a file attachment onto issue KEY...
-* `comment-file`: Import a file onto comment COMMENT_ID of...
-
-### `ycli tracker import task`
-
-Import an issue preserving its history (POST /issues/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import task [OPTIONS]
-```
-
-**Options**:
-
-* `--queue TEXT`: Target queue key.  [required]
-* `--summary TEXT`: Issue title.  [required]
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `--key TEXT`: Explicit issue key (must belong to the queue).
-* `--description TEXT`: Issue description (YFM).
-* `--assignee TEXT`: Assignee login or id.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker import comment`
-
-Import a comment onto issue KEY (POST /issues/{key}/comments/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import comment [OPTIONS] KEY
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-
-**Options**:
-
-* `--text TEXT`: Comment text.  [required]
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker import link`
-
-Import a link on issue KEY (POST /issues/{key}/links/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import link [OPTIONS] KEY
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-
-**Options**:
-
-* `--relationship TEXT`: Link type, e.g. relates.  [required]
-* `--issue TEXT`: Key or id of the issue to link to.  [required]
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker import worklog`
-
-Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import worklog [OPTIONS] KEY
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-
-**Options**:
-
-* `--duration TEXT`: Time spent, ISO-8601 duration (e.g. PT1H).  [required]
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `--start TEXT`: Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--comment TEXT`: Optional note saved in the time report.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker import file`
-
-Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import file [OPTIONS] KEY PATH
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `PATH`: Local file to attach.  [required]
-
-**Options**:
-
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `--filename TEXT`: Override the attachment name (default: basename).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
-### `ycli tracker import comment-file`
-
-Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import).
-
-**Usage**:
-
-```console
-$ ycli tracker import comment-file [OPTIONS] KEY COMMENT_ID PATH
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `COMMENT_ID`: Id of the comment.  [required]
-* `PATH`: Local file to attach.  [required]
-
-**Options**:
-
-* `--created-at TEXT`: Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
-* `--created-by TEXT`: Login or id of the original author.  [required]
-* `--filename TEXT`: Override the attachment name (default: basename).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker dashboards`
 
 Tracker dashboards.
@@ -4082,7 +4064,7 @@ $ ycli tracker dashboards [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `create`: Create a dashboard (POST /dashboards/).
-* `add-cycle-time-widget`: Add a cycle-time widget to DASHBOARD_ID...
+* `widgets-create-cycle-time`: Add a cycle-time widget to DASHBOARD_ID...
 
 ### `ycli tracker dashboards create`
 
@@ -4105,14 +4087,14 @@ $ ycli tracker dashboards create [OPTIONS]
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker dashboards add-cycle-time-widget`
+### `ycli tracker dashboards widgets-create-cycle-time`
 
 Add a cycle-time widget to DASHBOARD_ID (POST /dashboards/{id}/widgets/cycleTime).
 
 **Usage**:
 
 ```console
-$ ycli tracker dashboards add-cycle-time-widget [OPTIONS] DASHBOARD_ID
+$ ycli tracker dashboards widgets-create-cycle-time [OPTIONS] DASHBOARD_ID
 ```
 
 **Arguments**:
@@ -4155,12 +4137,12 @@ $ ycli tracker entities [OPTIONS] COMMAND [ARGS]...
 * `search`: Search entities of TYPE (POST...
 * `events-list`: Print an entity's event history (GET...
 * `permissions-get`: Print an entity's access settings (GET...
-* `set-permissions`: Set an entity's access settings (PATCH...
-* `direct-permissions-get`: Print an entity's direct READ/WRITE/GRANT...
-* `set-direct-permissions`: Grant and revoke an entity's direct rights...
-* `bulk-update`: Mass-edit entities (POST...
-* `bulk-status-get`: Print a bulk-change operation's status...
-* `create-report`: Build an issue report (POST...
+* `permissions-update`: Set an entity's access settings (PATCH...
+* `permissions-get-direct`: Print an entity's direct READ/WRITE/GRANT...
+* `permissions-update-direct`: Grant and revoke an entity's direct rights...
+* `update-bulk`: Mass-edit entities (POST...
+* `bulk-get`: Print a bulk-change operation's status...
+* `reports-create`: Build an issue report (POST...
 * `comments`: Entity comments.
 * `checklists`: Entity checklists.
 * `links`: Entity links.
@@ -4364,7 +4346,7 @@ $ ycli tracker entities permissions-get [OPTIONS] TYPE ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities set-permissions`
+### `ycli tracker entities permissions-update`
 
 Set an entity's access settings (PATCH …/extendedPermissions).
 
@@ -4375,7 +4357,7 @@ The API accepts only ``grant`` / ``revoke`` actions, each mapping an access leve
 **Usage**:
 
 ```console
-$ ycli tracker entities set-permissions [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-update [OPTIONS] TYPE ID
 ```
 
 **Arguments**:
@@ -4392,14 +4374,14 @@ $ ycli tracker entities set-permissions [OPTIONS] TYPE ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities direct-permissions-get`
+### `ycli tracker entities permissions-get-direct`
 
 Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities direct-permissions-get [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-get-direct [OPTIONS] TYPE ID
 ```
 
 **Arguments**:
@@ -4415,14 +4397,14 @@ $ ycli tracker entities direct-permissions-get [OPTIONS] TYPE ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities set-direct-permissions`
+### `ycli tracker entities permissions-update-direct`
 
 Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke.
 
 **Usage**:
 
 ```console
-$ ycli tracker entities set-direct-permissions [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-update-direct [OPTIONS] TYPE ID
 ```
 
 **Arguments**:
@@ -4440,14 +4422,14 @@ $ ycli tracker entities set-direct-permissions [OPTIONS] TYPE ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities bulk-update`
+### `ycli tracker entities update-bulk`
 
 Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle.
 
 **Usage**:
 
 ```console
-$ ycli tracker entities bulk-update [OPTIONS] TYPE
+$ ycli tracker entities update-bulk [OPTIONS] TYPE
 ```
 
 **Arguments**:
@@ -4465,14 +4447,14 @@ $ ycli tracker entities bulk-update [OPTIONS] TYPE
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities bulk-status-get`
+### `ycli tracker entities bulk-get`
 
 Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities bulk-status-get [OPTIONS] OPERATION_ID
+$ ycli tracker entities bulk-get [OPTIONS] OPERATION_ID
 ```
 
 **Arguments**:
@@ -4487,14 +4469,14 @@ $ ycli tracker entities bulk-status-get [OPTIONS] OPERATION_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities create-report`
+### `ycli tracker entities reports-create`
 
 Build an issue report (POST /entities/report/) from a TQL query and column fields.
 
 **Usage**:
 
 ```console
-$ ycli tracker entities create-report [OPTIONS]
+$ ycli tracker entities reports-create [OPTIONS]
 ```
 
 **Options**:
@@ -5116,10 +5098,10 @@ $ ycli tracker workflows [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List the organization's workflows (deleted...
 * `get`: Print workflow WORKFLOW_ID with its steps...
-* `for-queue`: Show which workflow each issue type of...
+* `list-for-queue`: Show which workflow each issue type of...
 * `create`: Create a workflow (POST /workflows).
 * `update`: Edit workflow WORKFLOW_ID (PATCH...
-* `update-action`: Edit one action of a workflow step (PATCH...
+* `actions-update`: Edit one action of a workflow step (PATCH...
 * `delete`: Delete workflow WORKFLOW_ID (DELETE...
 
 ### `ycli tracker workflows list`
@@ -5162,14 +5144,14 @@ $ ycli tracker workflows get [OPTIONS] WORKFLOW_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker workflows for-queue`
+### `ycli tracker workflows list-for-queue`
 
 Show which workflow each issue type of QUEUE_ID uses.
 
 **Usage**:
 
 ```console
-$ ycli tracker workflows for-queue [OPTIONS] QUEUE_ID
+$ ycli tracker workflows list-for-queue [OPTIONS] QUEUE_ID
 ```
 
 **Arguments**:
@@ -5244,14 +5226,14 @@ $ ycli tracker workflows update [OPTIONS] WORKFLOW_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker workflows update-action`
+### `ycli tracker workflows actions-update`
 
 Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action}).
 
 **Usage**:
 
 ```console
-$ ycli tracker workflows update-action [OPTIONS] WORKFLOW_ID STATUS ACTION_ID
+$ ycli tracker workflows actions-update [OPTIONS] WORKFLOW_ID STATUS ACTION_ID
 ```
 
 **Arguments**:
@@ -5310,7 +5292,7 @@ $ ycli tracker projects [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List the organization's projects (GET...
 * `get`: Print project PROJECT_ID (GET...
-* `queues`: List the queues of project PROJECT_ID (GET...
+* `queues-list`: List the queues of project PROJECT_ID (GET...
 * `create`: Create a project (POST /projects).
 * `update`: Edit project PROJECT_ID (PUT...
 * `delete`: Delete project PROJECT_ID (DELETE...
@@ -5357,14 +5339,14 @@ $ ycli tracker projects get [OPTIONS] PROJECT_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-### `ycli tracker projects queues`
+### `ycli tracker projects queues-list`
 
 List the queues of project PROJECT_ID (GET /projects/{id}/queues).
 
 **Usage**:
 
 ```console
-$ ycli tracker projects queues [OPTIONS] PROJECT_ID
+$ ycli tracker projects queues-list [OPTIONS] PROJECT_ID
 ```
 
 **Arguments**:

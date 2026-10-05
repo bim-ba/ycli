@@ -1,7 +1,7 @@
 """Tracker ``/dashboards`` operations, each declared once (sans-IO).
 
 Examples:
-    >>> add_cycle_time_widget("10", {"description": "Cycle"}).path
+    >>> widgets_create_cycle_time("10", {"description": "Cycle"}).path
     'dashboards/10/widgets/cycleTime'
 """
 
@@ -20,6 +20,6 @@ def create(body: DashboardCreate) -> Endpoint[Dashboard]:
     return Endpoint("POST", "dashboards/", Dashboard, json=body)
 
 
-def add_cycle_time_widget(dashboard_id: str, body: CycleTimeWidget) -> Endpoint[Widget]:
+def widgets_create_cycle_time(dashboard_id: str, body: CycleTimeWidget) -> Endpoint[Widget]:
     path = f"dashboards/{segment(dashboard_id)}/widgets/cycleTime"
     return Endpoint("POST", path, Widget, json=body)

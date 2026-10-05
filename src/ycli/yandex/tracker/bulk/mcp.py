@@ -1,7 +1,7 @@
-"""Tracker bulk-change FastMCP tools (reads + writes, ARCH-3 honest annotations).
+"""Tracker bulk-change FastMCP tools: the status of a bulk change and what it failed on.
 
-The bulk *triggers* (update/move/transition) start an async operation and return its id;
-the two reads observe it: fetch its status and list the issues it failed on.
+``issues_update_bulk``, ``issues_move_bulk`` and ``issues_transition_bulk`` start the
+operation these two reads observe.
 """
 
 from typing import Annotated
@@ -14,15 +14,10 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import (
     BulkChange,
     BulkIssueResult,
-    BulkMove,
-    BulkTransition,
-    BulkUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    WRITE,
-    Notify,
     tracker_client,
 )
 
@@ -36,7 +31,7 @@ def get(
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> BulkChange:
-    """Current status of an async bulk-change operation (update/move/transition).
+    """Current status of an async bulk-change operation (``issues_update_bulk`` and its kin).
 
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; ``totalIssues`` /
     ``totalCompletedIssues`` show progress. Poll this after a bulk trigger returns an id;
@@ -60,43 +55,3 @@ def issues_list(
     listed here.
     """
     return client.bulk.issues_list(bulk_id)
-
-
-@mcp.tool(
-    name="bulk_update",
-    annotations={**WRITE, "title": "Bulk-update Tracker issues"},
-)
-def update(
-    body: BulkUpdate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
-) -> BulkChange:
-    """Start an async bulk field update over many Tracker issues; returns the operation.
-
-    Poll the returned operation id with ``bulk_get`` and inspect failures with
-    ``bulk_issues_list``.
-    """
-    return client.bulk.update(body, notify=notify)
-
-
-@mcp.tool(name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"})
-def move(
-    body: BulkMove, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
-) -> BulkChange:
-    """Start an async bulk move of many Tracker issues to another queue; returns the operation.
-
-    Poll with ``bulk_get``.
-    """
-    return client.bulk.move(body, notify=notify)
-
-
-@mcp.tool(
-    name="bulk_transition",
-    annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
-)
-def transition(
-    body: BulkTransition, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
-) -> BulkChange:
-    """Start an async bulk status transition over many Tracker issues; returns the operation.
-
-    Poll with ``bulk_get``.
-    """
-    return client.bulk.transition(body, notify=notify)

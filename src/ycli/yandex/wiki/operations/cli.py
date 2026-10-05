@@ -31,9 +31,9 @@ def clone_get(task_id: TaskIDArg, *, wiki: WikiClient) -> CloneOperationStatus:
 
 
 @app.command()
-def gridclone_get(task_id: TaskIDArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
+def clone_inline_grid_get(task_id: TaskIDArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
     """Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id})."""
-    return wiki.operations.gridclone_get(task_id)
+    return wiki.operations.clone_inline_grid_get(task_id)
 
 
 @app.command("move-get")
