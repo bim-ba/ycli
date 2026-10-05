@@ -9,6 +9,42 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.69.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.68.0
+  ([`5f05b76`](https://github.com/bim-ba/ycli/commit/5f05b76e7df0f330c2331b95b20aebeff464dde2))
+
+### Documentation
+
+- How to call the API asynchronously through the endpoints
+  ([#321](https://github.com/bim-ba/ycli/pull/321),
+  [`4a0d36f`](https://github.com/bim-ba/ycli/commit/4a0d36fcd188383b784fc52ddbeaf8a8d4fc2ced))
+
+### Refactoring
+
+- A set of ycli's own is a StrEnum: LogLevel, LogFormat, CredentialKind
+  ([#312](https://github.com/bim-ba/ycli/pull/312),
+  [`c28e42e`](https://github.com/bim-ba/ycli/commit/c28e42e07de1bceeff4d041f423c7fd12d832a86))
+
+- An operation has one name, formed by one convention
+  ([#268](https://github.com/bim-ba/ycli/pull/268),
+  [`c4f904f`](https://github.com/bim-ba/ycli/commit/c4f904f3252ef10f48fbc2ea740baee166cf39fe))
+
+- Core clean-up from the code audit, no behaviour change
+  ([`0130ea6`](https://github.com/bim-ba/ycli/commit/0130ea6c087428567fbe84af13d8faa7114667dc))
+
+- Reading the environment outside settings.py is caught by ruff
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`9dd1838`](https://github.com/bim-ba/ycli/commit/9dd1838980ecd1065b05f8f4c385af083f9db5e3))
+
+### Breaking Changes
+
+- These names changed; the old ones no longer answer. Each line is the SDK method, then the new CLI
+  command and MCP tool.
+
+
 ## v0.68.0 (2026-10-05)
 
 ### Bug Fixes
