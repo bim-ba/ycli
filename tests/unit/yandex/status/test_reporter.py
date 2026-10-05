@@ -7,7 +7,7 @@ import pytest
 from pydantic import SecretStr
 
 from ycli.settings import AppConfig, Credentials
-from ycli.yandex.status.reporter import build_report
+from ycli.yandex.status.reporter import CLOUD_ORGANIZATION, build_report
 
 ID_URL = "https://login.yandex.ru/info"
 ORG_URL = "https://api360.yandex.net/directory/v1/org"
@@ -60,10 +60,11 @@ def test_the_report_dumps_with_the_agreed_shape(api):
         "profile",
         "identity",
         "organization",
+        "cloud_organization",
         "services",
     }
     assert dumped["credential"] == "oauth"
-    assert dumped["organization"] == {"id": "42", "name": "Acme", "detail": ""}
+    assert dumped["organization"] == {"id": "42", "kind": "360", "name": "Acme", "detail": ""}
     assert dumped["services"][0] == {"service": "tracker", "valid": True, "detail": ""}
 
 
@@ -124,3 +125,54 @@ def test_an_iam_token_is_reported_without_asking_yandex_id_or_api_360(api):
     assert all(service.valid for service in report.services)
     assert {call.headers["Authorization"] for call in api.calls} == {"Bearer t1.x"}
     assert not any(call.url.host in {"login.yandex.ru", "api360.yandex.net"} for call in api.calls)
+
+
+def _probes(api):
+    for name in ("tracker", "wiki", "forms"):
+        url, answer = _ANSWERS[name]
+        api.add("GET", url, **answer)
+
+
+def test_a_cloud_organization_alone_is_reported_as_such(api):
+    """API 360 names Yandex 360 organizations only: the Cloud one keeps its id and says why."""
+    _probes(api)
+    iam = Credentials(
+        oauth_token=None,
+        iam_token=SecretStr("t1.x"),
+        organization_id=None,
+        cloud_organization_id="b1g",
+    )
+    report = build_report(iam, AppConfig())
+    assert report.organization is not None
+    assert report.organization.model_dump(mode="json") == {
+        "id": "b1g",
+        "kind": "cloud",
+        "name": None,
+        "detail": CLOUD_ORGANIZATION,
+    }
+    assert report.cloud_organization is None
+
+
+def test_an_oauth_token_with_a_cloud_organization_still_names_its_owner(api):
+    api.add("GET", ID_URL, json={"id": "7", "login": "ivan"})
+    _probes(api)
+    credentials = Credentials(
+        oauth_token=SecretStr("tok"), organization_id=None, cloud_organization_id="b1g"
+    )
+    report = build_report(credentials, AppConfig())
+    assert report.identity is not None and report.identity.login == "ivan"
+    assert report.organization is not None
+    assert (report.organization.kind, report.organization.detail) == ("cloud", CLOUD_ORGANIZATION)
+
+
+def test_both_organizations_are_reported_the_yandex_360_one_first(api):
+    for url, answer in _ANSWERS.values():
+        api.add("GET", url, **answer)
+    both = Credentials(
+        oauth_token=SecretStr("tok"), organization_id="42", cloud_organization_id="b1g"
+    )
+    report = build_report(both, AppConfig())
+    assert report.organization is not None and report.cloud_organization is not None
+    assert (report.organization.id, report.organization.kind) == ("42", "360")
+    assert (report.cloud_organization.id, report.cloud_organization.kind) == ("b1g", "cloud")
+    assert all("X-Cloud-Org-Id" not in call.headers for call in api.calls)

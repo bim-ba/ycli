@@ -340,6 +340,7 @@ def connect(
     *,
     auth: httpx2.Auth,
     organization_id: str | None = None,
+    cloud_organization_id: str | None = None,
     http: HTTPConfig | None = None,
     transport: httpx2.BaseTransport | None = None,
     before_send: BeforeSend | None = None,
@@ -352,7 +353,7 @@ def connect(
     http = http or HTTPConfig()
     client = httpx2.Client(
         base_url=profile.base_url.rstrip("/") + "/",
-        headers=profile.headers_for(organization_id),
+        headers=profile.headers_for(organization_id, cloud_organization_id),
         auth=auth,
         timeout=http.timeout_seconds,
         # Tracker answers an old key of a moved issue with a redirect to the new one.
@@ -367,6 +368,7 @@ def connect_async(
     *,
     auth: httpx2.Auth,
     organization_id: str | None = None,
+    cloud_organization_id: str | None = None,
     http: HTTPConfig | None = None,
     transport: httpx2.AsyncBaseTransport | None = None,
     before_send: BeforeSend | None = None,
@@ -375,7 +377,7 @@ def connect_async(
     http = http or HTTPConfig()
     client = httpx2.AsyncClient(
         base_url=profile.base_url.rstrip("/") + "/",
-        headers=profile.headers_for(organization_id),
+        headers=profile.headers_for(organization_id, cloud_organization_id),
         auth=auth,
         timeout=http.timeout_seconds,
         # Tracker answers an old key of a moved issue with a redirect to the new one.

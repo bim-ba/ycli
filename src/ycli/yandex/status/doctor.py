@@ -14,13 +14,18 @@ from typing import TYPE_CHECKING
 
 from ycli.cli.errors import exit_code_for
 from ycli.cli.exit_codes import ExitCode
-from ycli.settings import ORGANIZATION_ID_ENV, CredentialKind
+from ycli.settings import ORGANIZATION_ID_ENV, CredentialKind, OrganizationKind
 from ycli.yandex.errors import YandexAuthError, YandexConnectionError, YandexError
 from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import Check, DoctorReport
 from ycli.yandex.status.release_client import DISTRIBUTION, is_newer, latest_release
-from ycli.yandex.status.reporter import IAM_ORGANIZATION, organization_status, probe_error
+from ycli.yandex.status.reporter import (
+    CLOUD_ORGANIZATION,
+    IAM_ORGANIZATION,
+    organization_status,
+    probe_error,
+)
 from ycli.yandex.status.token_client import TokenClient
 
 if TYPE_CHECKING:
@@ -139,10 +144,18 @@ def _check_owner(
     diagnosis: _Diagnosis, credentials: Credentials, proxies: Sequence[str], config: AppConfig
 ) -> None:
     """Whether Yandex ID accepts the token, then whether the organization is one it can see."""
+    organization_id, kind = credentials.organization
+    cloud = kind is OrganizationKind.CLOUD
     if credentials.oauth_token is None:
-        # Yandex ID and API 360 take an OAuth token only; the service probes test an IAM token.
-        diagnosis.passed("token", "an IAM token (it lives up to 12 hours)")
-        diagnosis.passed("organization", f"{credentials.organization_id}, {IAM_ORGANIZATION}")
+        # Yandex ID and API 360 take an OAuth token only; the service probes test the others.
+        diagnosis.passed(
+            "token",
+            "an IAM token (it lives up to 12 hours)"
+            if credentials.kind is CredentialKind.IAM
+            else "a service account's key (exchanged for IAM tokens as they expire)",
+        )
+        note = CLOUD_ORGANIZATION if cloud else IAM_ORGANIZATION
+        diagnosis.passed("organization", f"{organization_id}, {note}")
         return
     token = credentials.oauth_token.get_secret_value()
     with TokenClient(oauth_token=token, http=config.http) as token_client:
@@ -160,7 +173,10 @@ def _check_owner(
         if diagnosis.blocked:
             diagnosis.skipped("organization")
             return
-        organization = organization_status(token_client, credentials.organization_id)
+        if cloud:
+            diagnosis.passed("organization", f"{organization_id}, {CLOUD_ORGANIZATION}")
+            return
+        organization = organization_status(token_client, organization_id)
     if organization.name:
         diagnosis.passed("organization", f"{organization.name} ({organization.id})")
     else:

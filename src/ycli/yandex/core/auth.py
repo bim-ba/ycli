@@ -144,7 +144,12 @@ class ServiceAccountAuth(httpx2.Auth):
     @classmethod
     def from_key_file(cls, path: str | Path) -> ServiceAccountAuth:
         """Load the JSON key ``yc iam key create --output key.json`` writes."""
-        key = json.loads(Path(path).read_text(encoding="utf-8"))
+        return cls.from_key(Path(path).read_text(encoding="utf-8"))
+
+    @classmethod
+    def from_key(cls, text: str) -> ServiceAccountAuth:
+        """The same key from its JSON text, for a key kept in a variable or a secret store."""
+        key = json.loads(text)
         return cls(
             service_account_id=key["service_account_id"],
             key_id=key["id"],

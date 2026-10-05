@@ -17,7 +17,9 @@ from ycli.yandex.wiki.cursor import WIKI_CURSOR
 
 
 def test_an_empty_organization_is_refused_before_any_request():
-    with pytest.raises(ValueError, match="an organization id is required"):
+    with pytest.raises(
+        ValueError, match="TrackerClient needs an organization: set YANDEX_ID_ORGANIZATION_ID or "
+    ):
         TrackerClient(oauth_token="t", organization_id="")
 
 

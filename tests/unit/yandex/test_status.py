@@ -68,6 +68,7 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
         "profile": None,
         "identity": None,
         "organization": None,
+        "cloud_organization": None,
         "services": [],
     }
 
@@ -85,7 +86,7 @@ def test_status_reports_the_owner_the_organization_and_every_service(stubbed):
         "real_name": None,
         "default_email": None,
     }
-    assert report["organization"] == {"id": "42", "name": "Acme", "detail": ""}
+    assert report["organization"] == {"id": "42", "kind": "360", "name": "Acme", "detail": ""}
     assert [(s["service"], s["valid"]) for s in report["services"]] == [
         ("tracker", True),
         ("wiki", True),

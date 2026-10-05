@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from ycli.settings import CredentialKind
+from ycli.settings import CredentialKind, OrganizationKind
 from ycli.yandex.models import APIModel
 
 
@@ -43,6 +43,10 @@ class OrganizationStatus(APIModel):
     """
 
     id: str = Field(description="Id of the organization.")
+    kind: OrganizationKind = Field(
+        default=OrganizationKind.YANDEX_360,
+        description="Where the organization lives: Yandex 360 or Yandex Cloud.",
+    )
     name: str | None = Field(
         default=None, description="Name of the organization; `null` when it could not be read."
     )
@@ -73,6 +77,10 @@ class AuthReport(APIModel):
     organization: OrganizationStatus | None = Field(
         default=None, description="The configured organization."
     )
+    cloud_organization: OrganizationStatus | None = Field(
+        default=None,
+        description="The Yandex Cloud organization, when configured beside a Yandex 360 one.",
+    )
     services: list[ServiceAuthStatus] = Field(
         default_factory=list, description="One probe per service, in the order they ran."
     )
@@ -89,6 +97,9 @@ class SavedProfile(APIModel):
     name: str = Field(description="Name of the profile.")
     organization_id: str | None = Field(
         default=None, description="`null` when the profile's file cannot be used."
+    )
+    organization_kind: OrganizationKind | None = Field(
+        default=None, description="Where that organization lives: Yandex 360 or Yandex Cloud."
     )
     credential: CredentialKind | None = Field(
         default=None, description="Which token the profile holds; never its value."

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from ycli.settings import OrganizationKind
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
@@ -26,6 +27,7 @@ ORGANIZATION_SCOPE = "directory:read_organization"
 # The detail of a probe whose service rejected the token (401/403), as opposed to any other failure.
 TOKEN_REJECTED = "token invalid or expired"
 IAM_ORGANIZATION = "name unknown: API 360 names an organization for an OAuth token only"
+CLOUD_ORGANIZATION = "name unknown: API 360 names Yandex 360 organizations only"
 
 
 def probe_service(name: str, client: DomainClient) -> ServiceAuthStatus:
@@ -67,6 +69,7 @@ def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
         profile=credentials.profile,
         identity=identity,
         organization=organization,
+        cloud_organization=_cloud_beside(credentials),
         services=services,
     )
 
@@ -79,13 +82,29 @@ def owner_and_organization(
     Yandex ID and API 360 take an OAuth token only (measured: both answer an IAM token with
     401), so with an IAM token neither is asked and the organization keeps its id alone.
     """
+    organization_id, kind = credentials.organization
     if credentials.oauth_token is None:
-        return None, OrganizationStatus(id=credentials.organization_id, detail=IAM_ORGANIZATION)
+        detail = IAM_ORGANIZATION if kind is OrganizationKind.YANDEX_360 else CLOUD_ORGANIZATION
+        return None, OrganizationStatus(id=organization_id, kind=kind, detail=detail)
     token = credentials.oauth_token.get_secret_value()
     with TokenClient(oauth_token=token, http=config.http) as token_client:
-        return _identity(token_client), organization_status(
-            token_client, credentials.organization_id
-        )
+        identity = _identity(token_client)
+        if kind is OrganizationKind.CLOUD:
+            return identity, OrganizationStatus(
+                id=organization_id, kind=kind, detail=CLOUD_ORGANIZATION
+            )
+        return identity, organization_status(token_client, organization_id)
+
+
+def _cloud_beside(credentials: Credentials) -> OrganizationStatus | None:
+    """The Cloud organization as a second row, when a Yandex 360 one is the first."""
+    if credentials.organization_id is None or credentials.cloud_organization_id is None:
+        return None
+    return OrganizationStatus(
+        id=credentials.cloud_organization_id,
+        kind=OrganizationKind.CLOUD,
+        detail=CLOUD_ORGANIZATION,
+    )
 
 
 def _identity(token_client: TokenClient) -> Identity | None:
