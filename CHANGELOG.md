@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.83.1 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A validation error names the field DataLens refused
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`cd60db4`](https://github.com/bim-ba/ycli/commit/cd60db471257cb59e3245b1eb69b40b84576b589))
+
+### Build System
+
+- Re-lock uv.lock for 0.83.0
+  ([`e6ab973`](https://github.com/bim-ba/ycli/commit/e6ab97393462d5e4064c82855d2083ce9979b12d))
+
+
 ## v0.83.0 (2026-10-05)
 
 ### Build System
