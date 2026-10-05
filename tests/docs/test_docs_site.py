@@ -17,7 +17,7 @@ from typing import Any
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 SITES = {"en": ROOT / "zensical.toml", "ru": ROOT / "zensical.ru.toml"}
 # The Diátaxis folder → the `type` its pages declare.
 TYPES = {

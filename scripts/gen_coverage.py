@@ -24,7 +24,7 @@ Usage::
     python scripts/gen_coverage.py --write    # splice it into both READMEs, write the SVG
     python scripts/gen_coverage.py --check     # exit 1 if a README block or the SVG is stale
 
-``--check`` powers ``tests/test_coverage_readme.py`` so the tables can never silently drift
+``--check`` powers ``tests/docs/test_coverage_readme.py`` so the tables can never silently drift
 from the code.
 """
 
