@@ -201,7 +201,7 @@ def main() -> None:
         f"     self.{resource} = {cls}Client(session=session)\n"
         f"  3. mount the sub-app into {args.domain}/cli.py (app.add_typer) and the subserver into\n"
         f"     {args.domain}/mcp/server.py (mcp.mount), mirroring a sibling resource\n"
-        "  4. add contract cases in tests/yandex/<domain>/<resource>/cases.py "
+        "  4. add contract cases in tests/unit/yandex/<domain>/<resource>/cases.py "
         "(docs/conventions/testing.md)\n"
         "  5. run: uv run pytest && "
         "uv run python -m tests.snapshots --update"

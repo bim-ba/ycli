@@ -95,7 +95,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_endpoint_function_is_named_like_its_method` holds each function of
   `endpoints.py` to the name of the one client method that sends it (`search` and
   `search_scroll` where a method sends two), so nothing is shared between operations.
-  `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/test_contract.py`)
+  `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/contract/test_contract.py`)
   replays every contract case with an empty object for a reply: the command and the tool
   return the same data or both fail, so neither judges a reply the other shows as it is.
 - **Exceptions:** `# violation(arch-1): <reason>` above a tool — it has no CLI command of its own
@@ -128,13 +128,13 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `write` from `readOnlyHint`.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
-- **Check:** the contract test (`tests/test_contract.py`, one case per way of reaching an
+- **Check:** the contract test (`tests/contract/test_contract.py`, one case per way of reaching an
   operation, fail-closed both ways) runs every tool and compares its hints with the strongest
   effect of the endpoints it sends; `test_arch3_effect_overrides_are_marked` keeps
   `# violation(arch-3): <reason>` above every `effect=`, and every such marker above one;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
-  tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
+  tool outside a resource, is checked on its own (`tests/unit/yandex/status/test_mcp.py`).
   A prompt and a resource follow their tools (`tests/unit/mcp/test_mcp_prompts_resources.py`): a
   prompt lists the tools its text names, all of them exist, and one write among them means
   the `write` tag; a resource template names the read tool it repeats and returns what that
