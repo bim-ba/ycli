@@ -28,7 +28,7 @@
 
     Workbooks, connections, datasets, charts, dashboards.
 
-    `40 of 141 operations`
+    `47 of 141 operations`
 
     CLI · MCP · Python
 

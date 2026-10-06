@@ -3,6 +3,7 @@ auth login: --body-file:FILE --device-name:TEXT --dry-run:BOOLEAN=False --field:
 auth profiles: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens charts data-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
 datalens collections access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens collections access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens collections breadcrumbs-list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
@@ -20,6 +21,12 @@ datalens connections create: --body-file:FILE --dry-run:BOOLEAN=False --field:TE
 datalens connections delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
 datalens connections get: --binded-dataset-id:TEXT --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --rev-id:TEXT --workbook-id:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
 datalens connections update: --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
+datalens datasets create: --body-file:FILE --collection-id:TEXT --created-via:TEXT --dataset:TEXT --dir-path:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --options:TEXT --preview:BOOLEAN --profile:TEXT --published-id:TEXT --rev-id:TEXT --saved-id:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
+datalens datasets data-get: --body-file:FILE --columns:TEXT! --dry-run:BOOLEAN=False --field:TEXT --filters:TEXT --format:CHOICE --limit:INTEGER --offset:INTEGER --params:TEXT --profile:TEXT --sort:TEXT --workbook-id:TEXT --yes:BOOLEAN=False DATASET_ID:TEXT!
+datalens datasets delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False DATASET_ID:TEXT!
+datalens datasets get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --rev-id:TEXT --workbook-id:TEXT --yes:BOOLEAN=False DATASET_ID:TEXT!
+datalens datasets update: --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False DATASET_ID:TEXT!
+datalens datasets validate: --binded-dataset-id:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False DATASET_ID:TEXT!
 datalens entries list: --all:BOOLEAN=False --body-file:FILE --created-by:TEXT --dry-run:BOOLEAN=False --exclude-locked:BOOLEAN --field:TEXT --filters:TEXT --format:CHOICE --id:TEXT --ignore-shared-entries:BOOLEAN --ignore-workbook-entries:BOOLEAN --include-data:BOOLEAN --include-links:BOOLEAN --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --order-by:TEXT --profile:TEXT --scope:TEXT --scopes:TEXT --type:TEXT --yes:BOOLEAN=False
 datalens entries permissions-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!
 datalens entries relations-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --link-direction:TEXT --profile:TEXT --scope:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!
