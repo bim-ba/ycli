@@ -6,7 +6,10 @@ import typer
 
 PermissionsOption = Annotated[
     bool | None,
-    typer.Option("--include-permissions-info", help="Also say what you may do with it."),
+    typer.Option(
+        "--include-permissions-info/--no-include-permissions-info",
+        help="Also say what you may do with it.",
+    ),
 ]
 DeltaOption = Annotated[
     list[str],
