@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.113.2 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A field with one value is required only where it tells kinds apart
+  ([`386118b`](https://github.com/bim-ba/ycli/commit/386118b274c9a1c48313959ff8bb8be2cf0b3c5a))
+
+### Build System
+
+- Re-lock uv.lock for 0.113.1
+  ([`8ebf496`](https://github.com/bim-ba/ycli/commit/8ebf496e91443b425cceb4cf17b851f954f66a4e))
+
+
 ## v0.113.1 (2026-10-06)
 
 ### Bug Fixes
