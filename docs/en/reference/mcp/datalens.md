@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-77 tools.
+81 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -914,7 +914,9 @@ workbook with a dashboard) and holds no password or token of a connection.
 
 *Cancel DataLens workbook export* · idempotent write
 
-Stop an export; cancelling one that is over, or twice, answers the same.
+Stop an export: its status becomes ``error``, with ``WORKBOOK_EXPORT_CANCELLED``.
+
+An export that is over stays as it ended, and the call answers the same.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1053,3 +1055,55 @@ Delete a key for embedding. Deleting again answers 404.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `embedding_secret_id` | string | yes | Id of the key for embedding. |
+
+## `datalens_sharedentries_access_bindings_list`
+
+*List the roles on a DataLens shared entry* · read-only
+
+Who has which role on a shared entry, auto-paginated.
+
+An entry that lies in a workbook, or an id nothing knows, answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
+| `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
+
+## `datalens_sharedentries_access_bindings_update`
+
+*Change the roles on a DataLens shared entry* · write
+
+Give or take away roles on a shared entry; the roles not named stay as they are.
+
+The roles are ``datalens.sharedEntries.*`` (``viewer``, ``admin``, …).
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
+| `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+
+## `datalens_audit_entries_updates_list`
+
+*List DataLens entries changed in a period* · read-only
+
+The entries changed in a period, auto-paginated: what, when and by whom.
+
+A deleted entry is listed too, with ``isDeleted``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `from_` | string | yes | The start of the period: an ISO-8601 time with its zone. |
+| `to` | string or null |  | The end of the period. |
+| `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_audit_entry_permissions_get`
+
+*Get a user's permissions on DataLens entries* · read-only
+
+What one user may do with each entry: execute, read, edit, admin, by entry id.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_ids` | array of string | yes | The ids of the entries to ask about. |
+| `user_id` | string | yes | The user's id, as ``createdBy`` of an entry gives it. |

@@ -80,7 +80,9 @@ class WorkbookExportsClient(Resource):
     def cancel(self, export_id: str) -> WorkbookExportCancelled:
         """``cancelWorkbookExport`` — stop an export → its id.
 
-        Cancelling an export that is over, or cancelling twice, answers the same.
+        A cancelled export ends with the status ``error`` and the notification
+        ``WORKBOOK_EXPORT_CANCELLED``. An export that is over stays as it ended, and the call
+        answers the same.
 
         Args:
             export_id: The export's id.

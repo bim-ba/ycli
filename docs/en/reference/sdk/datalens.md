@@ -70,3 +70,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## embeddingsecrets
 
 ::: ycli.yandex.datalens.embeddingsecrets.client.EmbeddingSecretsClient
+
+## sharedentries
+
+::: ycli.yandex.datalens.sharedentries.client.SharedEntriesClient
+
+## audit
+
+::: ycli.yandex.datalens.audit.client.AuditClient

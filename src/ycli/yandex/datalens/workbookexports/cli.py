@@ -65,5 +65,8 @@ def result_get(export_id: ExportIDArg, *, datalens: DataLensClient) -> WorkbookE
 
 @app.command()
 def cancel(export_id: ExportIDArg, *, datalens: DataLensClient) -> WorkbookExportCancelled:
-    """Stop an export; one that is over answers the same."""
+    """Stop an export: its status becomes error, with WORKBOOK_EXPORT_CANCELLED.
+
+    An export that is over stays as it ended, and the command answers the same.
+    """
     return datalens.workbookexports.cancel(export_id)
