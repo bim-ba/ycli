@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-73 tools.
+77 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -804,6 +804,72 @@ Delete a chart; the dashboards that show it lose it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
+
+## `datalens_reports_get`
+
+*Get DataLens report* · read-only
+
+One report: its slides and the charts and texts on them.
+
+``entry.data`` and ``entry.meta`` are what ``reports_update`` takes back.
+``entries_list`` with the scope ``report`` finds reports.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Report id. |
+| `rev_id` | string or null |  | The revision of the report to read; the current when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_favorite` | boolean or null |  | Also say whether the report is a favourite. |
+
+## `datalens_reports_create`
+
+*Create DataLens report* · write
+
+Create a report in a workbook; the API keeps no ``layout`` of slide elements.
+
+Measured (2026-10-06): a report made through the API loses the ``layout`` of the
+elements of its slides and part of its ``settings``, so a copy of a report read with
+``reports_get`` loses where its elements stood. Say so before making one. DataLens
+refuses a report with no slide: ``data.slides`` holds at least one.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `data` | object | yes | What the report holds: its slides and its settings; it replaces the whole of it. Its schema is not listed here: read `ReportData` with schema_get(service="datalens", name="ReportData"), then the definitions it refers to. |
+| `meta` | object or null or null | yes | Metadata of the entry; null for none. Required. |
+| `annotation` | object or null |  | A description of the report. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with the new report. |
+| `key` | string or null |  | The report's key, in a folder. |
+| `workbook_id` | string or null |  | The workbook to create the report in. |
+| `name` | string or null |  | The report's name. |
+
+## `datalens_reports_update`
+
+*Update DataLens report* · idempotent write
+
+Save a report; it LOSES the ``layout`` of its slide elements and some ``settings``.
+
+Measured (2026-10-06): DataLens drops them on a save through the API, without a word,
+though every value is sent. Ask the person before saving an existing report. Otherwise:
+read it, change ``data``, send it back whole.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Report id. |
+| `data` | object | yes | What the report holds: its slides and its settings; it replaces the whole of it. Its schema is not listed here: read `ReportData` with schema_get(service="datalens", name="ReportData"), then the definitions it refers to. |
+| `mode` | `save` · `publish` or string | yes | `save` keeps the report as a draft; `publish` shows it to all. |
+| `meta` | object or null or null | yes | Metadata of the entry; null for none. Required. |
+| `rev_id` | string or null |  | The revision of the report the change is made on. |
+| `annotation` | object or null |  | A description of the report. |
+
+## `datalens_reports_delete`
+
+*Delete DataLens report* · destructive write
+
+Delete a report.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Report id. |
 
 ## `datalens_workbookexports_start`
 

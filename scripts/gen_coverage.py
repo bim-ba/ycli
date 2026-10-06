@@ -156,7 +156,7 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ),
     ("Entries", ["entries", "entrylocks", "permissions"]),
     ("Data", ["connections", "datasets"]),
-    ("Charts", ["charts"]),
+    ("Charts & reports", ["charts", "reports"]),
     ("Embedding", ["embeds", "embeddingsecrets"]),
 ]
 
