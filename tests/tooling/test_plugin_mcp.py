@@ -5,8 +5,6 @@ JSON. This locks the command form and guarantees credentials are passed by env-v
 reference, never as literal values.
 """
 
-from __future__ import annotations
-
 import json
 import re
 from pathlib import Path

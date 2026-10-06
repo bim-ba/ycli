@@ -1,7 +1,5 @@
 """Docstring examples render as code on the documentation site."""
 
-from __future__ import annotations
-
 import re
 from pathlib import Path
 

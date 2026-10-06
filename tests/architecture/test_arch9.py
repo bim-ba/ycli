@@ -1,7 +1,5 @@
 """ARCH-9 — The API answers for its own rules (see ARCHITECTURE.md)."""
 
-from __future__ import annotations
-
 import ast
 
 from tests.architecture.scanners import DOMAINS, SRC, YANDEX, unexplained

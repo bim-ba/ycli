@@ -1,7 +1,5 @@
 """The form of a ``# violation(<rule>): <reason>`` marker (docs/conventions/resources.md §7)."""
 
-from __future__ import annotations
-
 from tests.architecture.scanners import SRC, malformed_markers
 
 

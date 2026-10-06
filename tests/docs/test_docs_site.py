@@ -6,8 +6,6 @@ exists; the generated reference matches the code. The site build (`zensical buil
 the docs workflow) additionally checks the anchors.
 """
 
-from __future__ import annotations
-
 import importlib.util
 import re
 import sys

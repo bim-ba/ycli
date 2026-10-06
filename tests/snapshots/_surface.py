@@ -1,7 +1,5 @@
 """Deterministic enumerators of ycli's public surface: the CLI and what the MCP server offers."""
 
-from __future__ import annotations
-
 import asyncio
 import hashlib
 import json
