@@ -1009,14 +1009,14 @@ class DashboardV2(APIModel):
     saved_id: str | None = Field(
         default=None, alias="savedId", description="ID of the saved dashboard revision."
     )
-    scope: Literal["dash"] = Field(..., description="Scope of the dashboard entry.")
+    scope: Literal["dash"] | None = Field(default=None, description="Scope of the dashboard entry.")
     tenant_id: str | None = Field(
         default=None,
         alias="tenantId",
         description="ID of the tenant that owns the dashboard.",
     )
-    type: Literal[""] = Field(
-        ..., description="Type of the dashboard entry. Always an empty string."
+    type: Literal[""] | None = Field(
+        default=None, description="Type of the dashboard entry. Always an empty string."
     )
     updated_at: str | None = Field(
         default=None,
@@ -1038,7 +1038,7 @@ class DashboardV2(APIModel):
         alias="revUpdatedBy",
         description="ID of the user who last updated the current revision.",
     )
-    version: Literal[2] = Field(..., description="Schema version of the dashboard.")
+    version: Literal[2] | None = Field(default=None, description="Schema version of the dashboard.")
     workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",

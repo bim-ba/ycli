@@ -724,6 +724,20 @@ def _mark_nulls_to_keep(spec: dict[str, Any]) -> int:
     return marked
 
 
+def _union_members(spec: dict[str, Any]) -> set[int]:
+    """The objects that are members of a union of objects, by ``id``."""
+    members: set[int] = set()
+    for union in list(_every_schema(spec)):
+        aimed = [
+            target
+            for member in union.get("anyOf", union.get("oneOf", []))
+            if (target := _target(spec, member)) and "properties" in target
+        ]
+        if len(aimed) > 1:
+            members.update(id(member) for member in aimed)
+    return members
+
+
 def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
     """Require only what tells a kind and the arguments of an operation; return how many went.
 
@@ -732,11 +746,16 @@ def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
     refuse every such reply. Most objects are both read and sent back (read, change, write), so
     one class serves both ways and requires nothing: what a request lacks DataLens says itself.
     Two things stay required. A field that tells which member of a union a value is: a
-    discriminator, and a field with one value only (``entity`` of an item of a collection, where
-    the document names no discriminator). And the top level of a request, whose fields are the
-    arguments of the operation.
+    discriminator, and a field with one value only in a member of a union (``entity`` of an
+    item of a collection, where the document names no discriminator). And the top level of a
+    request, whose fields are the arguments of the operation.
+
+    A field with one value in an object that is no member of a union tells nothing apart, so
+    it is as optional as the rest of a reply: ``updateHtmlPage`` answers ``version: null``
+    where the document has the one value ``1`` (measured).
     """
     envelopes = {id(envelope) for envelope in _request_envelopes(spec)}
+    kinds = _union_members(spec)
     changed = 0
     for schema in list(_every_schema(spec)):
         required = schema.get("required")
@@ -746,7 +765,8 @@ def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
         tags = [
             name
             for name in required
-            if id(properties.get(name)) in keep or _one_value(properties.get(name))
+            if id(properties.get(name)) in keep
+            or (id(schema) in kinds and _one_value(properties.get(name)))
         ]
         changed += len(required) - len(tags)
         schema["required"] = tags

@@ -213,8 +213,12 @@ class GetHtmlPageResult(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the HTML page."
     )
-    scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
-    type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
+    scope: Literal["artifact"] | None = Field(
+        default=None, description="Scope of the HTML page entry."
+    )
+    type: Literal["html-page"] | None = Field(
+        default=None, description="Type of the HTML page entry."
+    )
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
@@ -278,7 +282,7 @@ class GetHtmlPageResult(APIModel):
         description="ID of the tenant that owns the HTML page.",
     )
     hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
-    version: Literal[1] = Field(..., description="Schema version of the HTML page.")
+    version: Literal[1] | None = Field(default=None, description="Schema version of the HTML page.")
     public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."
@@ -297,8 +301,12 @@ class CreateHtmlPageResultEntry(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the HTML page."
     )
-    scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
-    type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
+    scope: Literal["artifact"] | None = Field(
+        default=None, description="Scope of the HTML page entry."
+    )
+    type: Literal["html-page"] | None = Field(
+        default=None, description="Type of the HTML page entry."
+    )
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
@@ -362,7 +370,7 @@ class CreateHtmlPageResultEntry(APIModel):
         description="ID of the tenant that owns the HTML page.",
     )
     hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
-    version: Literal[1] = Field(..., description="Schema version of the HTML page.")
+    version: Literal[1] | None = Field(default=None, description="Schema version of the HTML page.")
     public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."
@@ -381,8 +389,12 @@ class UpdateHtmlPageResultEntry(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the HTML page."
     )
-    scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
-    type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
+    scope: Literal["artifact"] | None = Field(
+        default=None, description="Scope of the HTML page entry."
+    )
+    type: Literal["html-page"] | None = Field(
+        default=None, description="Type of the HTML page entry."
+    )
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
     workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
@@ -446,7 +458,7 @@ class UpdateHtmlPageResultEntry(APIModel):
         description="ID of the tenant that owns the HTML page.",
     )
     hidden: bool | None = Field(default=None, description="Whether the HTML page is hidden.")
-    version: Literal[1] = Field(..., description="Schema version of the HTML page.")
+    version: Literal[1] | None = Field(default=None, description="Schema version of the HTML page.")
     public: bool | None = Field(default=None, description="Whether the HTML page is public.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the HTML page."

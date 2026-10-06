@@ -24,7 +24,7 @@ class GetPermissionsArgs(RequestBody):
 
 
 class ModifyPermissionsResult(APIModel):
-    result: Literal["ok"]
+    result: Literal["ok"] | None = None
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -256,8 +256,8 @@ class CreateFolderResult(APIModel):
         alias="entryId",
         description="Unique identifier of the created folder.",
     )
-    scope: Literal["folder"] = Field(..., description="Scope of the created entry.")
-    type: Literal[""] = Field(..., description="Type of the created folder entry.")
+    scope: Literal["folder"] | None = Field(default=None, description="Scope of the created entry.")
+    type: Literal[""] | None = Field(default=None, description="Type of the created folder entry.")
     key: str | None = Field(default=None, description="Key of the created folder.")
     unversioned_data: CreateFolderResultUnversionedData | None = Field(
         default=None, alias="unversionedData"

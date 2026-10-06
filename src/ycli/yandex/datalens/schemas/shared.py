@@ -72,7 +72,7 @@ class DashLayoutItemV2(APIModel):
 class DashConnectionV2(APIModel):
     from_: str | None = Field(default=None, alias="from", description="Source widget identifier.")
     to: str | None = Field(default=None, description="Target widget identifier.")
-    kind: Literal["ignore"] = Field(..., description="Connection type.")
+    kind: Literal["ignore"] | None = Field(default=None, description="Connection type.")
 
 
 class EntryPermissions(APIModel):

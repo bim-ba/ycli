@@ -200,7 +200,7 @@ class TrinoClusterConfigWorkerConfigScalePolicy(APIModel):
     auto_scale: TrinoClusterConfigWorkerConfigScalePolicyAutoScale | None = Field(
         default=None, alias="autoScale"
     )
-    scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
+    scale_type: Literal["autoScale"] | None = Field(default=None, alias="scaleType")
 
 
 class CreateTrinoClusterArgsWorkerConfigScalePolicy(APIModel):
