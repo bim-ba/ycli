@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -311,7 +311,9 @@ class EditorTableNode(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -328,13 +330,13 @@ class EditorTableNode(APIModel):
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
@@ -342,7 +344,7 @@ class EditorTableNode(APIModel):
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
@@ -358,7 +360,9 @@ class EditorGravityChartsNode(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -375,13 +379,13 @@ class EditorGravityChartsNode(APIModel):
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
@@ -389,7 +393,7 @@ class EditorGravityChartsNode(APIModel):
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
@@ -403,7 +407,9 @@ class EditorMarkdownNode(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -420,13 +426,13 @@ class EditorMarkdownNode(APIModel):
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
@@ -434,7 +440,7 @@ class EditorMarkdownNode(APIModel):
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
@@ -450,7 +456,9 @@ class EditorAdvancedChartNode(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -467,13 +475,13 @@ class EditorAdvancedChartNode(APIModel):
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
@@ -481,7 +489,7 @@ class EditorAdvancedChartNode(APIModel):
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
@@ -497,7 +505,9 @@ class EditorSelectorNode(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -514,13 +524,13 @@ class EditorSelectorNode(APIModel):
         default=None, alias="revId", description="Version ID for the Editor chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Editor chart belongs to.",
@@ -528,7 +538,7 @@ class EditorSelectorNode(APIModel):
     scope: Literal["widget"] = Field(
         ..., description="Type of the entry. For charts takes value: widget"
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")

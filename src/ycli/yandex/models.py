@@ -11,6 +11,7 @@ about its output is that it keeps the API's field names.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from functools import cache
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal, get_args
 
@@ -31,6 +32,8 @@ GroupSource = Literal["dir", "cloud", "com", "staff"] | str
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from pydantic.fields import FieldInfo
 
 
 logger = logging.getLogger("ycli.models")
@@ -109,7 +112,8 @@ class APIModel(BaseModel):
         A secret (``SecretStr``) is dumped masked, as pydantic dumps it, and as its own value
         in a request body only.
 
-        A ``None`` is an absence and is dropped, except where the caller could only have meant
+        A ``None`` is an absence and is dropped, except in a field the API requires and lets be
+        ``null`` (:class:`NoDropNull`), and except where the caller could only have meant
         it: in a field with no default (``page`` of a redirect: ``null`` removes the redirect)
         and in a key the model does not declare (Tracker clears a field given as
         ``assignee=null``).
@@ -208,10 +212,26 @@ def _optional_keys(model: type[BaseModel]) -> frozenset[str]:
     return frozenset(
         key
         for name, field in model.model_fields.items()
-        if not field.is_required()
+        if not field.is_required() and not _keeps_null(field)
         for key in (name, field.alias, field.serialization_alias)
         if key
     )
+
+
+@dataclass(frozen=True)
+class NoDropNull:
+    """Marks a field whose ``None`` goes out as ``null`` in a request body, not left out.
+
+    ``interval: Annotated[int | None, NoDropNull()] = None``: the API requires the key and lets
+    it be ``null`` (a dashboard is saved only with ``autoupdateInterval: null``). The field
+    stays optional to give and to read; a generated model carries the mark from its
+    specification.
+    """
+
+
+def _keeps_null(field: FieldInfo) -> bool:
+    """Whether ``field`` is marked :class:`NoDropNull`."""
+    return any(isinstance(mark, NoDropNull) for mark in field.metadata)
 
 
 class RequestBody(APIModel):

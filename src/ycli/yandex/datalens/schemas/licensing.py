@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 
 class LicenseWithLastLogin(APIModel):
@@ -26,7 +26,7 @@ class LicenseWithLastLogin(APIModel):
     is_active: bool | None = Field(
         default=None, alias="isActive", description="Whether the license is active."
     )
-    expires_at: str | None = Field(
+    expires_at: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="expiresAt",
         description="Date and time when the license expires.",
@@ -51,7 +51,7 @@ class LicenseWithLastLogin(APIModel):
         alias="updatedAt",
         description="Date and time when the license was last updated.",
     )
-    last_login_at: str | None = Field(
+    last_login_at: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="lastLoginAt",
         description="Date and time when the licensed user last logged in.",
@@ -119,7 +119,7 @@ class License(APIModel):
     is_active: bool | None = Field(
         default=None, alias="isActive", description="Whether the license is active."
     )
-    expires_at: str | None = Field(
+    expires_at: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="expiresAt",
         description="Date and time when the license expires.",
@@ -172,7 +172,7 @@ class LicenseLimitsCurrent(APIModel):
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
-    active_licenses_count: int | float | None = Field(
+    active_licenses_count: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",
@@ -193,7 +193,7 @@ class LicenseLimitsNext(APIModel):
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
-    active_licenses_count: int | float | None = Field(
+    active_licenses_count: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",

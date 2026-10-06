@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -551,12 +551,12 @@ class DashTabItemV2Variant5Data(APIModel):
 class DashboardV2DataSettings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: int | float | None = Field(
+    autoupdate_interval: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: int | float | None = Field(
+    max_concurrent_requests: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -626,12 +626,12 @@ class DashboardV2DataSettings(APIModel):
 class DashDataV2Settings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: int | float | None = Field(
+    autoupdate_interval: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: int | float | None = Field(
+    max_concurrent_requests: Annotated[int | float | None, NoDropNull()] = Field(
         default=None,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -966,7 +966,7 @@ class CreateDashboardV2ArgsEntry(EntryLocationIdentifiers):
 class UpdateDashboardV2ArgsEntry(APIModel):
     entry_id: str | None = Field(default=None, alias="entryId")
     data: DashDataV2 | None = None
-    meta: DashMetaV2 | None = None
+    meta: Annotated[DashMetaV2 | None, NoDropNull()] = None
     rev_id: str | None = Field(default=None, alias="revId")
     annotation: shared.EntryAnnotationArg | None = None
 
@@ -988,13 +988,17 @@ class DashboardV2(APIModel):
         default=None, alias="entryId", description="Unique identifier of the dashboard."
     )
     hidden: bool | None = Field(default=None, description="Whether the dashboard is hidden.")
-    key: str | None = Field(default=None, description="Key of the dashboard entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key of the dashboard entry."
+    )
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the dashboard."
     )
-    meta: dict[str, Any] | None = Field(default=None, description="Metadata of the dashboard.")
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
+        default=None, description="Metadata of the dashboard."
+    )
     public: bool | None = Field(default=None, description="Whether the dashboard is public.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published dashboard revision.",
@@ -1035,7 +1039,7 @@ class DashboardV2(APIModel):
         description="ID of the user who last updated the current revision.",
     )
     version: Literal[2] = Field(..., description="Schema version of the dashboard.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook containing the dashboard.",

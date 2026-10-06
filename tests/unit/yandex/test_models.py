@@ -190,3 +190,44 @@ def test_the_secrets_of_forms_reach_the_request_and_nothing_else():
         assert SECRET not in model.model_dump_json() and SECRET not in repr(model)
     assert secret_keys(SurveyAPIKey) == {"value"}
     assert secret_keys(SubscriptionVariable) == {"secret"}
+
+
+def test_a_field_the_api_requires_as_null_goes_out_as_null():
+    """Measured: a dashboard read and sent back was refused, two keys being left out.
+
+    The document requires ``autoupdateInterval`` and ``maxConcurrentRequests`` and lets them
+    be ``null``; three of four real dashboards hold ``null`` there. Both sides: such a key goes
+    out as ``null``, any other field without a value is left out as before.
+    """
+    from ycli.yandex.datalens.schemas.dashboard import DashDataV2Settings
+
+    settings = DashDataV2Settings.model_validate({"hideTabs": True})
+    assert settings.model_dump(mode="json", context=WIRE) == {
+        "hideTabs": True,
+        "autoupdateInterval": None,
+        "maxConcurrentRequests": None,
+    }
+    given = DashDataV2Settings.model_validate({"autoupdateInterval": 600})
+    assert given.model_dump(mode="json", context=WIRE)["autoupdateInterval"] == 600
+    # The field is not required to read or to give: a reply without it is read.
+    assert DashDataV2Settings.model_validate({}).autoupdate_interval is None
+
+
+def test_only_a_marked_field_keeps_its_null():
+    """A hand-written model has no mark: what it lacks is left out, as ever."""
+    from typing import Annotated
+
+    from ycli.yandex.models import NoDropNull
+
+    class Plain(RequestBody):
+        title: str | None = None
+        note: Annotated[str | None, NoDropNull()] = None
+
+    assert Plain().model_dump(mode="json", context=WIRE) == {"note": None}
+    assert Plain().model_dump(mode="json") == {"title": None, "note": None}
+    # The mark is a typed object in the field's metadata: no key of it reaches a schema.
+    assert Plain.model_json_schema()["properties"]["note"] == {
+        "anyOf": [{"type": "string"}, {"type": "null"}],
+        "default": None,
+        "title": "Note",
+    }

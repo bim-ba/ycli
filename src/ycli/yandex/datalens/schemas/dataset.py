@@ -1,11 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
 from datetime import date
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -495,7 +495,7 @@ class Where(APIModel):
         | str
         | None
     ) = None
-    values: list[Any] | None = None
+    values: Annotated[list[Any] | None, NoDropNull()] = None
 
 
 class AddSourceAvatar(APIModel):

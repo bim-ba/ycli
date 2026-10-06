@@ -58,6 +58,11 @@ that a reply is read openly, a union of objects in a reply that nothing tells ap
 and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
 
+A field the document both requires and lets be `null` is `Annotated[..., NoDropNull()]`
+(`ycli.yandex.models`) and goes out as `null` when it has no value: a dashboard is saved only
+with `autoupdateInterval: null`. A field that is only optional is left out, DataLens refusing
+`null` there.
+
 A generated file is never edited by hand and carries no `# violation` marker; the checks of this
 page skip the directory (`GENERATED` in `tests/architecture/scanners.py`), and
 `tests/tooling/test_gen_datalens_models.py` holds what stands in for them:
@@ -437,6 +442,8 @@ check of its own to say it. A reply that does not fit its model is another error
   MCP tool and the SDK alike (#448). `SecretStr` is for a secret in a request. The command,
   the tool and the method say that the value is given once, and the tool says that it enters
   the agent's context.
+- A trait of a field or a parameter is a typed object in its `Annotated` metadata
+  (`NoDropNull()`, `OverBudget(…)`), not a string key, a list of names or an edit of text.
 - Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
   field that has no flag of its own (#354). They are declared once, beside `--yes` and
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the

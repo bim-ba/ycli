@@ -78,8 +78,8 @@ _CLOSED_MODEL = re.compile(
 # What a generated module may import, inherit from and call (``foreign``).
 _MODULES = {"typing", "datetime", "pydantic", "ycli.yandex.models"}
 _BASES = {"APIModel", "RequestBody", "RootModel"}
-_CALLS = {"Field", "ConfigDict"}
-_MODELS_IMPORT = "from ycli.yandex.models import APIModel\n"
+_CALLS = {"Field", "ConfigDict", "NoDropNull"}
+_MODELS_IMPORT = "from ycli.yandex.models import "
 
 
 def _snake(name: str) -> str:
@@ -665,6 +665,48 @@ def _one_value(schema: object) -> bool:
     return "const" in schema or (isinstance(values, list) and len(values) == 1)
 
 
+# How ``prepare`` says which fields keep their ``null`` (``_mark_nulls_to_keep``): a key of
+# the prepared document that ``generate`` takes out and hands to the template of the model.
+_KEEPS_NULL = "x-ycli-no-drop-null"
+TEMPLATES = ROOT / "scripts" / "datalens_templates"
+
+
+def _nullable(spec: dict[str, Any], schema: dict[str, Any]) -> bool:
+    """Whether ``schema`` takes ``null``: in its list of types, or as a member of its union."""
+    aimed = _target(spec, schema) or {}
+    kinds = aimed.get("type")
+    members = [*aimed.get("anyOf", []), *aimed.get("oneOf", [])]
+    return (isinstance(kinds, list) and "null" in kinds) or any(
+        isinstance(member, dict) and member.get("type") == "null" for member in members
+    )
+
+
+def _mark_nulls_to_keep(spec: dict[str, Any]) -> int:
+    """Mark each field the document both requires and lets be ``null``; return how many.
+
+    DataLens wants such a key in a request even with nothing in it: a dashboard is saved only
+    with ``autoupdateInterval: null``, and refused without the key (measured). Nothing is
+    required below the top of a request (:func:`_require_only_kinds`), and what has no value
+    is left out of a body, so the key would be dropped. The mark becomes
+    ``Annotated[..., NoDropNull()]`` in the generated class (``ycli.yandex.models``); the field
+    stays optional to give and to read.
+
+    A field that only allows ``null`` is not marked: DataLens refuses ``null`` there, and
+    leaving the key out is right.
+    """
+    marked = 0
+    for schema in list(_every_schema(spec)):
+        required, properties = schema.get("required"), schema.get("properties")
+        if not isinstance(required, list) or not isinstance(properties, dict):
+            continue
+        for name in required:
+            field = properties.get(name)
+            if isinstance(field, dict) and _nullable(spec, field):
+                field[_KEEPS_NULL] = True
+                marked += 1
+    return marked
+
+
 def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
     """Require only what tells a kind and the arguments of an operation; return how many went.
 
@@ -827,6 +869,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     tags = _require_discriminators(spec)
     _spare_members(spec, tags)
     _open_value_sets(spec, keep=tags)
+    _mark_nulls_to_keep(spec)
     _require_only_kinds(spec, keep=tags)
     _close_only_requests(spec)
     _name_every_object(spec)
@@ -913,7 +956,7 @@ def finish(text: str) -> str:
         ... '''
         >>> print(finish(module).split("by hand.")[1])
         <BLANKLINE>
-        from ycli.yandex.models import APIModel, RequestBody
+        from ycli.yandex.models import RequestBody, APIModel
         class GetArgs(RequestBody):
             dashboard_id: str
         <BLANKLINE>
@@ -925,9 +968,8 @@ def finish(text: str) -> str:
         text = HEADER + text
     text, closed = _CLOSED_MODEL.subn(r"class \1(RequestBody):\n\2", text)
     if closed:
-        text = text.replace(
-            _MODELS_IMPORT, "from ycli.yandex.models import APIModel, RequestBody\n"
-        )
+        # Whatever else the module imports from there; ruff sorts the names it finds.
+        text = text.replace(_MODELS_IMPORT, _MODELS_IMPORT + "RequestBody, ", 1)
     return _quiet_root_models(text)
 
 
@@ -1004,6 +1046,18 @@ def foreign(text: str) -> list[str]:
     return found
 
 
+def _taken_marks(schema: dict[str, Any]) -> list[str]:
+    """The fields of ``schema`` marked to keep their null, with the mark taken off them."""
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return []
+    return [
+        name
+        for name, field in properties.items()
+        if isinstance(field, dict) and field.pop(_KEEPS_NULL, False)
+    ]
+
+
 def generate(spec: dict[str, Any]) -> dict[str, str]:
     """Every module of the generated layer for ``spec``, by its file name.
 
@@ -1012,8 +1066,21 @@ def generate(spec: dict[str, Any]) -> dict[str, str]:
             a plain model (see :func:`foreign`).
     """
     with tempfile.TemporaryDirectory() as scratch:
+        prepared = prepare(spec)
+        # What keeps its null is told to the template of each model, by the names of its
+        # fields: the generator's own way to pass data a schema keyword cannot carry.
+        marked: dict[str, dict[str, list[str]]] = {}
+        for name, schema in prepared["components"]["schemas"].items():
+            if kept := _taken_marks(schema):
+                # The generator looks a model up by the name of its schema or of its class:
+                # ``connection.ydb`` is the class ``connection.Ydb``.
+                section, _, own = name.partition(".")
+                for key in {name, f"{section}.{_pascal(own)}"}:
+                    marked[key] = {"no_drop_null": kept}
         source = Path(scratch) / "spec.json"
-        source.write_text(json.dumps(prepare(spec)), encoding="utf-8")
+        source.write_text(json.dumps(prepared), encoding="utf-8")
+        extra = Path(scratch) / "template_data.json"
+        extra.write_text(json.dumps(marked), encoding="utf-8")
         output = Path(scratch) / "schemas"
         subprocess.run(
             [
@@ -1023,6 +1090,8 @@ def generate(spec: dict[str, Any]) -> dict[str, str]:
                 *("--input", str(source), "--input-file-type", "openapi"),
                 *("--output", str(output), "--output-model-type", "pydantic_v2.BaseModel"),
                 *("--target-python-version", "3.12", "--formatters", "builtin"),
+                *("--custom-template-dir", str(TEMPLATES), "--extra-template-data", str(extra)),
+                *("--additional-imports", "typing.Annotated,ycli.yandex.models.NoDropNull"),
                 *("--base-class", "ycli.yandex.models.APIModel", "--openapi-scopes", "schemas"),
                 *("--enum-field-as-literal", "all", "--treat-dot-as-module"),
                 "--use-union-operator",

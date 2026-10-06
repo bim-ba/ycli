@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -13,25 +13,27 @@ class AuditEntry(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry"
     )
-    key: str | None = Field(default=None, description="Entry key identifier")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Entry key identifier"
+    )
     is_deleted: bool | None = Field(
         default=None,
         alias="isDeleted",
         description="Flag indicating if the entry is deleted",
     )
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="workbookId", description="ID of the associated workbook"
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the associated collection",
     )
-    parent_folder_id: str | None = Field(
+    parent_folder_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentFolderId", description="ID of the associated folder"
     )
     scope: shared.EntryScope | None = None
-    type: str | None = Field(default=None, description="Type of the entry")
+    type: Annotated[str | None, NoDropNull()] = Field(default=None, description="Type of the entry")
     updated_at: str | None = Field(
         default=None, alias="updatedAt", description="Timestamp of the last update"
     )

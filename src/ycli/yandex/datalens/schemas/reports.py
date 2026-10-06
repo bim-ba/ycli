@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -678,14 +678,14 @@ class ReportV2(APIModel):
     key: str | None = None
     scope: Literal["report"]
     hidden: bool | None = None
-    meta: ReportMetaV2 | None = None
-    published_id: str | None = Field(default=None, alias="publishedId")
+    meta: Annotated[ReportMetaV2 | None, NoDropNull()] = None
+    published_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="publishedId")
     saved_id: str | None = Field(default=None, alias="savedId")
     rev_id: str | None = Field(default=None, alias="revId")
     tenant_id: str | None = Field(default=None, alias="tenantId")
     type: Literal[""]
-    workbook_id: str | None = Field(default=None, alias="workbookId")
-    collection_id: str | None = Field(default=None, alias="collectionId")
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="workbookId")
+    collection_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="collectionId")
     version: Literal[2]
     public: Literal[False]
     links: dict[str, Any] | None = None
@@ -704,7 +704,7 @@ class CreateReportV2Result(APIModel):
 
 class CreateReportV2Args(RequestBody):
     data: ReportDataV2
-    meta: ReportMetaV2 | None
+    meta: Annotated[ReportMetaV2 | None, NoDropNull()]
     annotation: shared.EntryAnnotationArg | None = None
     include_permissions: bool | None = Field(default=None, alias="includePermissions")
     key: str | None = Field(
@@ -729,5 +729,5 @@ class UpdateReportV2Args(RequestBody):
     data: ReportDataV2
     mode: Literal["save", "publish"] | str
     rev_id: str | None = Field(default=None, alias="revId")
-    meta: ReportMetaV2 | None
+    meta: Annotated[ReportMetaV2 | None, NoDropNull()]
     annotation: shared.EntryAnnotationArg | None = None

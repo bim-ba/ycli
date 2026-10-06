@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -77,7 +77,7 @@ class GetWorkbooksByIdsArgs(RequestBody):
 
 class MoveWorkbookArgs(RequestBody):
     workbook_id: str = Field(..., alias="workbookId", description="ID of the workbook to move.")
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="collectionId",
         description="ID of the collection to move the workbook to.",
@@ -89,7 +89,7 @@ class MoveWorkbooksArgs(RequestBody):
     workbook_ids: list[str] = Field(
         ..., alias="workbookIds", description="IDs of the workbooks to move."
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="collectionId",
         description="ID of the collection to move the workbooks to.",
@@ -287,13 +287,15 @@ class CreateWorkbookResult(APIModel):
         alias="workbookId",
         description="Unique identifier of the workbook.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
     title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the workbook."
+    )
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
@@ -326,13 +328,15 @@ class Workbook(APIModel):
         alias="workbookId",
         description="Unique identifier of the workbook.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
     title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the workbook."
+    )
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
@@ -364,13 +368,15 @@ class GetWorkbookResult(APIModel):
         alias="workbookId",
         description="Unique identifier of the workbook.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
     title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the workbook."
+    )
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
@@ -403,8 +409,10 @@ class GetWorkbookEntriesEntry(APIModel):
     )
     scope: shared.EntryScope | None = None
     type: str | None = Field(default=None, description="Entity type of the entry.")
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
-    display_key: str | None = Field(
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
+    display_key: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="displayKey", description="Display key of the entry."
     )
     created_by: str | None = Field(
@@ -423,26 +431,30 @@ class GetWorkbookEntriesEntry(APIModel):
     updated_at: str | None = Field(
         default=None, alias="updatedAt", description="Last update timestamp."
     )
-    saved_id: str | None = Field(default=None, alias="savedId", description="Saved revision ID.")
-    published_id: str | None = Field(
+    saved_id: Annotated[str | None, NoDropNull()] = Field(
+        default=None, alias="savedId", description="Saved revision ID."
+    )
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published revision ID."
     )
     rev_id: str | None = Field(default=None, alias="revId", description="Current revision ID.")
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
-    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
-    workbook_id: str | None = Field(
+    hidden: Annotated[bool | None, NoDropNull()] = Field(
+        default=None, description="Indicates if the entry is hidden."
+    )
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the entry belongs to.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",
     )
-    tenant_id: str | None = Field(
+    tenant_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
     is_favorite: bool | None = Field(
@@ -454,7 +466,9 @@ class GetWorkbookEntriesEntry(APIModel):
         default=None, alias="isLocked", description="Indicates if the entry is locked."
     )
     permissions: GetWorkbookEntriesEntryPermissions | None = None
-    mirrored: bool | None = Field(default=None, description="Indicates if the entry is mirrored.")
+    mirrored: Annotated[bool | None, NoDropNull()] = Field(
+        default=None, description="Indicates if the entry is mirrored."
+    )
 
 
 class GetWorkbookEntriesResult(APIModel):
@@ -516,13 +530,15 @@ class GetWorkbooksListResultWorkbooksItem(APIModel):
         alias="workbookId",
         description="Unique identifier of the workbook.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
     title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the workbook."
+    )
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )

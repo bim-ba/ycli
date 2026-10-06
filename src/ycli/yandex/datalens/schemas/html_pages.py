@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 
 class GetHtmlPageArgs(RequestBody):
@@ -220,12 +220,12 @@ class GetHtmlPageResult(APIModel):
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
@@ -236,7 +236,7 @@ class GetHtmlPageResult(APIModel):
     saved_id: str | None = Field(
         default=None, alias="savedId", description="ID of the saved HTML page revision."
     )
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published HTML page revision.",
@@ -304,12 +304,12 @@ class CreateHtmlPageResultEntry(APIModel):
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
@@ -320,7 +320,7 @@ class CreateHtmlPageResultEntry(APIModel):
     saved_id: str | None = Field(
         default=None, alias="savedId", description="ID of the saved HTML page revision."
     )
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published HTML page revision.",
@@ -388,12 +388,12 @@ class UpdateHtmlPageResultEntry(APIModel):
     scope: Literal["artifact"] = Field(..., description="Scope of the HTML page entry.")
     type: Literal["html-page"] = Field(..., description="Type of the HTML page entry.")
     key: str | None = Field(default=None, description="Key of the HTML page entry.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook containing the HTML page.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection containing the HTML page.",
@@ -404,7 +404,7 @@ class UpdateHtmlPageResultEntry(APIModel):
     saved_id: str | None = Field(
         default=None, alias="savedId", description="ID of the saved HTML page revision."
     )
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published HTML page revision.",

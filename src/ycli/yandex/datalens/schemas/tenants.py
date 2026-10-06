@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import ConfigDict, Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, NoDropNull
 
 
 class CurrentTenantDetailsSettings(APIModel):
@@ -80,7 +80,7 @@ class CurrentTenantDetails(APIModel):
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the current DataLens tenant."
     )
-    org_id: str | None = Field(
+    org_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="orgId",
         description="ID of the organization. Null when the tenant has no organization.",

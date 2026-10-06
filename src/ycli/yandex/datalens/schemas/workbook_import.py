@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -26,7 +26,7 @@ class StartWorkbookImportArgs(RequestBody):
     description: str | None = Field(
         default=None, description="Description of the imported workbook."
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="collectionId",
         description="ID of the collection in which to create the imported workbook.",
@@ -44,8 +44,11 @@ class GetWorkbookImportStatusResult(APIModel):
     progress: int | float | None = Field(
         default=None, description="Workbook import progress percentage."
     )
-    notifications: list[shared.WorkbookTransferNotification] | None = Field(
-        default=None, description="Notifications generated during the workbook import."
+    notifications: Annotated[list[shared.WorkbookTransferNotification] | None, NoDropNull()] = (
+        Field(
+            default=None,
+            description="Notifications generated during the workbook import.",
+        )
     )
 
 
