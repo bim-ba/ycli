@@ -24,6 +24,13 @@ OPENAPI_URLS = frozenset(
 # The resources and operations with no public API-reference page. Pinned so a *new* gap
 # (e.g. a resource added without a doc link) fails loudly instead of slipping in silently.
 EXPECTED_LINK_GAPS = (
+    # The published reference has no page for the saved SQL queries (experimental, 2026-10-06).
+    "datalens.sqlqueries",
+    "datalens.sqlqueries.create",
+    "datalens.sqlqueries.delete",
+    "datalens.sqlqueries.get",
+    "datalens.sqlqueries.run",
+    "datalens.sqlqueries.update",
     "datalens.tenant",
     "datalens.tenant.details_get",
     "tracker.linktypes",
@@ -112,7 +119,7 @@ def test_link_stats_totals_are_consistent():
     assert stats.linked_resources <= stats.resources
     # The vast majority of operations deep-link to their own endpoint page.
     assert stats.specific_ops > stats.fallback_ops + stats.plain_ops
-    assert stats.plain_ops == 2 and stats.linked_resources == stats.resources - 2
+    assert stats.plain_ops == 7 and stats.linked_resources == stats.resources - 3
 
 
 def test_link_map_keys_reference_real_resources_and_operations():
@@ -140,7 +147,7 @@ def test_check_mode_surfaces_link_gaps_on_stderr(capsys):
     assert gen.main(["--check"]) == 0
     err = capsys.readouterr().err
     assert "operations → their own page" in err
-    assert "Gaps (no public link): datalens.tenant" in err
+    assert "Gaps (no public link): datalens.sqlqueries" in err
 
 
 def test_the_russian_readme_carries_the_same_totals():

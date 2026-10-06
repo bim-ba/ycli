@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-81 tools.
+86 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1107,3 +1107,79 @@ What one user may do with each entry: execute, read, edit, admin, by entry id.
 |---|---|:---:|---|
 | `entry_ids` | array of string | yes | The ids of the entries to ask about. |
 | `user_id` | string | yes | The user's id, as ``createdBy`` of an entry gives it. |
+
+## `datalens_sqlqueries_get`
+
+*Get DataLens saved SQL query* · read-only
+
+One saved SQL query: its text, its connection and its parameters.
+
+Experimental in the DataLens API and written from its document: not measured. An
+organization whose SQL editor is off answers 403 ``SQL_EDITOR_NOT_ALLOWED``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_favorite` | boolean or null |  | Also say whether it is a favourite. |
+
+## `datalens_sqlqueries_create`
+
+*Create DataLens saved SQL query* · write
+
+Save a SQL query in a workbook and return it.
+
+Experimental in the DataLens API and written from its document: not measured. An
+organization whose SQL editor is off answers 403 ``SQL_EDITOR_NOT_ALLOWED``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | The workbook to keep it in. |
+| `name` | string | yes | The query's name in the workbook. |
+| `connection_id` | string | yes | The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino. |
+| `query` | string | yes | The text of the query. |
+| `description` | string or null |  | A description. |
+| `params` | array of object or object or object or null |  | The parameters the text takes: a name, a type and a default each. |
+
+## `datalens_sqlqueries_update`
+
+*Update DataLens saved SQL query* · idempotent write
+
+Save a SQL query anew and return it; the connection and the text go every time.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `connection_id` | string | yes | The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino. |
+| `query` | string | yes | The text of the query. |
+| `description` | string or null |  | A description. |
+| `params` | array of object or object or object or null |  | The parameters the text takes. |
+
+## `datalens_sqlqueries_delete`
+
+*Delete DataLens saved SQL query* · destructive write
+
+Delete a saved SQL query.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+
+## `datalens_sqlqueries_run`
+
+*Run DataLens saved SQL query* · write
+
+Run a saved SQL query on its connection and return the result of each statement.
+
+The text runs as it is saved: one that changes data changes it. Experimental in the DataLens
+API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `params` | object or null |  | The values of the parameters, by name; one left out takes its default. |

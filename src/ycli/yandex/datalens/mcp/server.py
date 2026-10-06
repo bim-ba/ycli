@@ -16,6 +16,7 @@ from ycli.yandex.datalens.members.mcp import mcp as members_mcp
 from ycli.yandex.datalens.permissions.mcp import mcp as permissions_mcp
 from ycli.yandex.datalens.reports.mcp import mcp as reports_mcp
 from ycli.yandex.datalens.sharedentries.mcp import mcp as sharedentries_mcp
+from ycli.yandex.datalens.sqlqueries.mcp import mcp as sqlqueries_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
 from ycli.yandex.datalens.workbookexports.mcp import mcp as workbookexports_mcp
 from ycli.yandex.datalens.workbookimports.mcp import mcp as workbookimports_mcp
@@ -45,4 +46,5 @@ mcp.mount(embeds_mcp)
 mcp.mount(embeddingsecrets_mcp)
 mcp.mount(sharedentries_mcp)
 mcp.mount(audit_mcp)
+mcp.mount(sqlqueries_mcp)
 mcp.mount(mcp_resources_mcp)
