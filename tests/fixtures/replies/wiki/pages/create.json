@@ -1,6 +1,15 @@
 {
   "body": {
     "active_revision": null,
+    "breadcrumbs": [
+      {
+        "id": 1,
+        "page_exists": true,
+        "slug": "<slug>",
+        "title": "<title>"
+      }
+    ],
+    "content": "<content>",
     "id": 1,
     "page_type": "<page_type>",
     "slug": "<slug>",

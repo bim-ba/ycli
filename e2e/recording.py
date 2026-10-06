@@ -9,7 +9,7 @@ what the binary hides:
 - the core's network seam (``core.session.default_transport``) is replaced by
   :class:`RecordingTransport`, which lets a request through to the real API and hands the
   reply to the :class:`Recorder`;
-- the recorder keeps the first good reply of each operation, scrubbed (:mod:`e2e.scrub`), as
+- the recorder keeps the fullest good reply of each operation, scrubbed (:mod:`e2e.scrub`), as
   ``<service>/<resource>/<method>.json``. A fixture is never edited by hand: record again.
 
 While the reads of a scenario run (its ``reads:`` list), the transport refuses any request
@@ -125,6 +125,13 @@ def _named(operation: str, method: Callable[..., Any]) -> Callable[..., Any]:
     return call
 
 
+def _keys(value: Any) -> int:
+    """How many keys ``value`` holds at every depth: ``{"a": {"b": 1}, "c": [{"d": 2}]}`` -> 4."""
+    if isinstance(value, dict):
+        return len(value) + sum(map(_keys, value.values()))
+    return sum(map(_keys, value)) if isinstance(value, list) else 0
+
+
 @dataclass
 class Recorder:
     """Keeps the first good reply of each operation under ``directory``, and what it saw."""
@@ -133,26 +140,37 @@ class Recorder:
     public: frozenset[str] = field(default_factory=public_names)
     reads_only: bool = False
     recorded: dict[str, Path] = field(default_factory=dict)
+    # How many keys the kept reply of each operation has: a fuller one replaces it.
+    _keys_kept: dict[str, int] = field(default_factory=dict)
     unknown_keys: dict[str, list[str]] = field(default_factory=dict)
     # Requests sent outside any operation (the probes of ``auth status``): seen, never kept.
     unnamed: int = 0
     failed_reads: list[str] = field(default_factory=list)
 
     def note(self, endpoint: Endpoint[Any] | None, response: httpx2.Response) -> None:
-        """Keep ``response`` when it is the first good reply of the operation that is running."""
+        """Keep ``response`` when it is the fullest good reply so far of the running operation.
+
+        The fullest, not the first: an issue read again once it is closed carries its
+        resolution, and a fixture should show every key the scenarios make the API send.
+        """
         operation = _OPERATION.get()
         if operation is None or endpoint is None:
             self.unnamed += 1
             return
-        if operation in self.recorded or not response.is_success:
+        if not response.is_success:
             return
         fixture: dict[str, Any] = {"status": response.status_code}
+        keys = 0
         if "json" in response.headers.get("content-type", "") and response.content:
             reply = scrub(response.json(), endpoint.response_type or Any, self.public)
+            keys = _keys(reply.body)
+            if operation in self.recorded and keys <= self._keys_kept[operation]:
+                return
             fixture["body"] = reply.body
             # How many keys the model does not know: the number may only go down (the check
             # in tests/contract/test_recorded_replies.py), the names stay with whoever records.
             fixture["unknown_keys"] = len(set(reply.unknown_keys))
+            self.unknown_keys.pop(operation, None)
             if reply.unknown_keys:
                 self.unknown_keys[operation] = sorted(set(reply.unknown_keys))
             if endpoint.parser is None and endpoint.response_type not in (None, bytes):
@@ -164,10 +182,13 @@ class Recorder:
                         f"the scrubbed reply of {operation} no longer fits its model: "
                         f"{scrub_excerpt(str(error))}"
                     ) from None
+        elif operation in self.recorded:
+            return
         path = self.directory.joinpath(*operation.split(".")).with_suffix(".json")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(dumped(fixture), encoding="utf-8")
         self.recorded[operation] = path
+        self._keys_kept[operation] = keys
 
     def read(self, driver: Driver, commands: Sequence[Sequence[str]]) -> None:
         """Run the reads of a scenario; nothing that is not a read leaves this process."""
