@@ -20,6 +20,7 @@ from ycli.yandex.datalens.schemas.spark_applications import (
 )
 from ycli.yandex.datalens.sparkapplications.models import (
     SparkApplication,
+    SparkApplicationCreate,
     SparkApplicationLog,
     SparkApplicationsPage,
 )
@@ -43,6 +44,12 @@ def list_(
 def get(cluster_id: str, *, application_id: str) -> Endpoint[SparkApplication]:
     body = GetSparkApplicationArgs(clusterId=cluster_id, applicationId=application_id)
     return RPC("getSparkApplication", SparkApplication, json=body, effect=Effect.READ)
+
+
+def create(body: SparkApplicationCreate) -> Endpoint[LakehouseOperation]:
+    # The request is a union of three kinds of application, told apart by the field that
+    # holds the application: there is no envelope to build from arguments.
+    return RPC("createSparkApplication", LakehouseOperation, json=body, effect=Effect.WRITE)
 
 
 def cancel(cluster_id: str, *, application_id: str) -> Endpoint[LakehouseOperation]:

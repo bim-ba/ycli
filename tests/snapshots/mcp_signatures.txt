@@ -77,6 +77,7 @@ datalens_restcatalogs_list(cloud_environment_id:string|null=None, filter:array|n
 datalens_sharedentries_access_bindings_list(entry_id:string!, get_inherited_bindings:boolean|null=None, limit:integer|null=None)
 datalens_sharedentries_access_bindings_update(deltas:array!, entry_id:string!)
 datalens_sparkapplications_cancel(application_id:string!, cluster_id:string!)
+datalens_sparkapplications_create(body:object|object|object!)
 datalens_sparkapplications_get(application_id:string!, cluster_id:string!)
 datalens_sparkapplications_list(cluster_id:string!, filter:array|null=None, limit:integer|null=None)
 datalens_sparkapplications_log_list(application_id:string!, cluster_id:string!, page_size:integer|null=None, page_token:string|null=None)

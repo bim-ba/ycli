@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-116 tools.
+117 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1585,6 +1585,19 @@ nothing knows answers 403 Permission denied, not 404.
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Spark cluster. |
 | `application_id` | string | yes | Id of the Spark application. |
+
+## `datalens_sparkapplications_create`
+
+*Create DataLens Spark application* · write
+
+Make a Spark application on a cluster and return the operation that makes it.
+
+Experimental in the DataLens API, written from its document and never called: not
+measured. Ask the person before calling.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object or object or object | yes | The application to make: ``clusterId``, a ``name``, the ``catalogs`` to attach, and exactly one of ``sparkApplication`` (a JAR), ``pysparkApplication`` (a Python file) or ``sparkConnectApplication``. |
 
 ## `datalens_sparkapplications_cancel`
 

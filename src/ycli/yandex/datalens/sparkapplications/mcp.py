@@ -10,7 +10,11 @@ from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, WRITE, app_config, datalens_client
 from ycli.yandex.datalens.models import LakehouseOperation
-from ycli.yandex.datalens.sparkapplications.models import SparkApplication, SparkApplicationLog
+from ycli.yandex.datalens.sparkapplications.models import (
+    SparkApplication,
+    SparkApplicationCreate,
+    SparkApplicationLog,
+)
 from ycli.yandex.models import ItemList
 
 mcp = FastMCP("datalens-sparkapplications")
@@ -59,6 +63,29 @@ def get(
     nothing knows answers 403 Permission denied, not 404.
     """
     return client.sparkapplications.get(cluster_id, application_id=application_id)
+
+
+@mcp.tool(
+    name="sparkapplications_create",
+    annotations={**WRITE, "title": "Create DataLens Spark application"},
+)
+def create(
+    body: Annotated[
+        SparkApplicationCreate,
+        Field(
+            description="The application to make: ``clusterId``, a ``name``, the ``catalogs`` "
+            "to attach, and exactly one of ``sparkApplication`` (a JAR), "
+            "``pysparkApplication`` (a Python file) or ``sparkConnectApplication``."
+        ),
+    ],
+    client: DataLensClient = Depends(datalens_client),
+) -> LakehouseOperation:
+    """Make a Spark application on a cluster and return the operation that makes it.
+
+    Experimental in the DataLens API, written from its document and never called: not
+    measured. Ask the person before calling.
+    """
+    return client.sparkapplications.create(body)
 
 
 @mcp.tool(
