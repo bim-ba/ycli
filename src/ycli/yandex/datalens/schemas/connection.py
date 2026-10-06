@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import AwareDatetime, Field, RootModel
+from pydantic import AwareDatetime, Field, RootModel, SecretStr
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -56,7 +56,7 @@ class AppmetricaApi(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["appmetrica_api"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -68,7 +68,7 @@ class AppmetricaApi2(APIModel):
     counter_id: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class Bigquery(APIModel):
@@ -77,7 +77,7 @@ class Bigquery(APIModel):
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    credentials: str | None = None
+    credentials: SecretStr | None = None
     description: str | None = None
     dir_path: str | None = None
     id: str | None = None
@@ -97,7 +97,7 @@ class Bigquery2(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    credentials: str | None = None
+    credentials: SecretStr | None = None
     description: str | None = None
     project_id: str | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
@@ -119,7 +119,7 @@ class Bitrix24(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     portal: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["bitrix24"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -132,7 +132,7 @@ class Bitrix242(APIModel):
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
     portal: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class ChBillingAnalytics(APIModel):
@@ -165,7 +165,7 @@ class ChYaMusicPodcastStats(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["ch_ya_music_podcast_stats"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -174,7 +174,7 @@ class ChYaMusicPodcastStats(APIModel):
 class ChYaMusicPodcastStats2(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     description: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class Chyt(APIModel):
@@ -197,7 +197,7 @@ class Chyt(APIModel):
         None
     )
     secure: bool | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["chyt"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -216,7 +216,7 @@ class Chyt2(APIModel):
         None
     )
     secure: bool | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class Clickhouse(APIModel):
@@ -248,7 +248,7 @@ class Clickhouse(APIModel):
     meta: dict[str, Any] | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -285,7 +285,7 @@ class Clickhouse2(APIModel):
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -299,7 +299,7 @@ class Clickhouse2(APIModel):
 
 
 class Equeo(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -320,7 +320,7 @@ class Equeo2(APIModel):
 
 
 class Extractor1c(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -358,7 +358,7 @@ class Greenplum(APIModel):
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -382,7 +382,7 @@ class Greenplum2(APIModel):
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -435,7 +435,7 @@ class JsonApi(APIModel):
     path: str | None = None
     plain_headers: dict[str, Any] | None = None
     port: int | None = None
-    secret_headers: dict[str, Any] | None = None
+    secret_headers: dict[str, SecretStr] | None = None
     secure: bool | None = None
     type: Literal["json_api"]
     updated_at: str | None = None
@@ -450,12 +450,12 @@ class JsonApi2(APIModel):
     path: str | None = None
     plain_headers: dict[str, Any] | None = None
     port: int | None = None
-    secret_headers: dict[str, Any] | None = None
+    secret_headers: dict[str, SecretStr] | None = None
     secure: bool | None = None
 
 
 class KonturMarket(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -488,7 +488,7 @@ class MetrikaApi(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["metrika_api"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -500,7 +500,7 @@ class MetrikaApi2(APIModel):
     counter_id: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class Monitoring(APIModel):
@@ -536,7 +536,7 @@ class Monitoring2(APIModel):
 
 
 class Moysklad(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -571,7 +571,7 @@ class Mssql(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -590,7 +590,7 @@ class Mssql2(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -627,7 +627,7 @@ class Mysql(APIModel):
     meta: dict[str, Any] | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -662,7 +662,7 @@ class Mysql2(APIModel):
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -689,7 +689,7 @@ class Oracle(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -711,7 +711,7 @@ class Oracle2(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -750,7 +750,7 @@ class Postgres(APIModel):
     meta: dict[str, Any] | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -785,7 +785,7 @@ class Postgres2(APIModel):
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     mode: Literal["onpremise", "managed"] | str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -798,7 +798,7 @@ class Postgres2(APIModel):
 
 class Promql(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
-    auth_header: str | None = None
+    auth_header: SecretStr | None = None
     auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
@@ -813,7 +813,7 @@ class Promql(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     path: str | None = None
     port: int | None = None
     secure: bool | None = None
@@ -825,7 +825,7 @@ class Promql(APIModel):
 
 class Promql2(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
-    auth_header: str | None = None
+    auth_header: SecretStr | None = None
     auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
@@ -833,7 +833,7 @@ class Promql2(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     path: str | None = None
     port: int | None = None
     secure: bool | None = None
@@ -850,7 +850,7 @@ class SmbHeatmaps(APIModel):
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["smb_heatmaps"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -859,14 +859,14 @@ class SmbHeatmaps(APIModel):
 class SmbHeatmaps2(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     description: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
 
 
 class Snowflake(APIModel):
     account_name: str | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str | None = None
-    client_secret: str | None = None
+    client_secret: SecretStr | None = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -880,7 +880,7 @@ class Snowflake(APIModel):
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
     )
-    refresh_token: str | None = None
+    refresh_token: SecretStr | None = None
     refresh_token_expire_time: AwareDatetime | None = None
     schema_: str | None = Field(default=None, alias="schema")
     type: Literal["snowflake"]
@@ -895,14 +895,14 @@ class Snowflake2(APIModel):
     account_name: str | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str | None = None
-    client_secret: str | None = None
+    client_secret: SecretStr | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     description: str | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
     )
-    refresh_token: str | None = None
+    refresh_token: SecretStr | None = None
     refresh_token_expire_time: AwareDatetime | None = None
     schema_: str | None = Field(default=None, alias="schema")
     user_name: str | None = None
@@ -962,18 +962,18 @@ class Trino(APIModel):
     delegation_is_set: bool | None = None
     description: str | None = None
     dir_path: str | None = None
-    extra_credentials: dict[str, Any] | None = None
+    extra_credentials: dict[str, SecretStr] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
     host: str | None = None
     id: str | None = None
-    jwt: str | None = None
+    jwt: SecretStr | None = None
     key: str | None = None
     listing_sources: Literal["off", "on"] | str | None = None
     mdb_cluster_id: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1002,14 +1002,14 @@ class Trino2(APIModel):
     db_name: str | None = None
     delegation_is_set: bool | None = None
     description: str | None = None
-    extra_credentials: dict[str, Any] | None = None
+    extra_credentials: dict[str, SecretStr] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
     host: str | None = None
-    jwt: str | None = None
+    jwt: SecretStr | None = None
     listing_sources: Literal["off", "on"] | str | None = None
     mdb_cluster_id: str | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1088,7 +1088,7 @@ class Ydb(APIModel):
     service_account_id: str | None = None
     ssl_ca: str | None = None
     ssl_enable: Literal["on", "off"] | str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["ydb"]
     updated_at: str | None = None
     username: str | None = None
@@ -1116,7 +1116,7 @@ class Ydb2(APIModel):
     service_account_id: str | None = None
     ssl_ca: str | None = None
     ssl_enable: Literal["on", "off"] | str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     username: str | None = None
 
 
@@ -1202,7 +1202,8 @@ class ConnectionCreate(
         | UsageAnalyticsLight
         | Ydb
         | Yq
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         AppmetricaApi
@@ -1268,7 +1269,8 @@ class ConnectionUpdate(
         | UsageAnalyticsLight2
         | Ydb2
         | Yq2
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         AppmetricaApi2
@@ -1346,7 +1348,7 @@ class AppmetricaApi1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["appmetrica_api"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1358,7 +1360,7 @@ class Bigquery1(APIModel):
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    credentials: str | None = None
+    credentials: SecretStr | None = None
     description: str | None = None
     id: str | None = None
     key: str | None = None
@@ -1388,7 +1390,7 @@ class Bitrix241(APIModel):
     name: str | None = None
     options: ConnectionOptions | None = None
     portal: str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["bitrix24"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1419,7 +1421,7 @@ class ChYaMusicPodcastStats1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["ch_ya_music_podcast_stats"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1445,7 +1447,7 @@ class Chyt1(APIModel):
         None
     )
     secure: bool | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["chyt"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1480,7 +1482,7 @@ class Clickhouse1(APIModel):
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1497,7 +1499,7 @@ class Clickhouse1(APIModel):
 
 
 class Equeo1(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -1513,7 +1515,7 @@ class Equeo1(APIModel):
 
 
 class Extractor1c1(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -1546,7 +1548,7 @@ class Greenplum1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1593,7 +1595,7 @@ class JsonApi1(APIModel):
     path: str | None = None
     plain_headers: dict[str, Any] | None = None
     port: int | None = None
-    secret_headers: dict[str, Any] | None = None
+    secret_headers: dict[str, SecretStr] | None = None
     secure: bool | None = None
     type: Literal["json_api"]
     updated_at: str | None = None
@@ -1601,7 +1603,7 @@ class JsonApi1(APIModel):
 
 
 class KonturMarket1(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -1629,7 +1631,7 @@ class MetrikaApi1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["metrika_api"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1657,7 +1659,7 @@ class Monitoring1(APIModel):
 
 
 class Moysklad1(APIModel):
-    access_token: str | None = None
+    access_token: SecretStr | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
@@ -1687,7 +1689,7 @@ class Mssql1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1727,7 +1729,7 @@ class Mysql1(APIModel):
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1757,7 +1759,7 @@ class Oracle1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1799,7 +1801,7 @@ class Postgres1(APIModel):
     mode: Literal["onpremise", "managed"] | str | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -1815,7 +1817,7 @@ class Postgres1(APIModel):
 
 class Promql1(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
-    auth_header: str | None = None
+    auth_header: SecretStr | None = None
     auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
@@ -1830,7 +1832,7 @@ class Promql1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     path: str | None = None
     port: int | None = None
     secure: bool | None = None
@@ -1850,7 +1852,7 @@ class SmbHeatmaps1(APIModel):
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["smb_heatmaps"]
     updated_at: str | None = None
     workbook_id: str | None = None
@@ -1860,7 +1862,7 @@ class Snowflake1(APIModel):
     account_name: str | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str | None = None
-    client_secret: str | None = None
+    client_secret: SecretStr | None = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -1874,7 +1876,7 @@ class Snowflake1(APIModel):
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
     )
-    refresh_token: str | None = None
+    refresh_token: SecretStr | None = None
     refresh_token_expire_time: AwareDatetime | None = None
     schema_: str | None = Field(default=None, alias="schema")
     type: Literal["snowflake"]
@@ -1924,19 +1926,19 @@ class Trino1(APIModel):
     db_name: str | None = None
     delegation_is_set: bool | None = None
     description: str | None = None
-    extra_credentials: dict[str, Any] | None = None
+    extra_credentials: dict[str, SecretStr] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
     host: str | None = None
     id: str | None = None
-    jwt: str | None = None
+    jwt: SecretStr | None = None
     key: str | None = None
     listing_sources: Literal["off", "on"] | str | None = None
     mdb_cluster_id: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
     options: ConnectionOptions | None = None
-    password: str | None = None
+    password: SecretStr | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
         None
@@ -2008,7 +2010,7 @@ class Ydb1(APIModel):
     service_account_id: str | None = None
     ssl_ca: str | None = None
     ssl_enable: Literal["on", "off"] | str | None = None
-    token: str | None = None
+    token: SecretStr | None = None
     type: Literal["ydb"]
     updated_at: str | None = None
     username: str | None = None
@@ -2072,7 +2074,8 @@ class ConnectionRead(
         | Ydb1
         | Yq1
         | shared.OtherKindByType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         AppmetricaApi1

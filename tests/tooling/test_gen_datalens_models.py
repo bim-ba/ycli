@@ -677,3 +677,68 @@ def test_the_measured_kinds_the_document_does_not_know_are_read():
         "GetStructureItemsResultItemsItemVariant2",
         "OtherKindByEntity",
     ]
+
+
+def _connection_document(fields: dict) -> dict:
+    """A document whose ``createThing`` takes an object with ``fields``."""
+    taken = {"type": "object", "properties": fields}
+    return {
+        "paths": {"/rpc/createThing": _operation(taken, {"type": "object"})},
+        "components": {"schemas": {}},
+    }
+
+
+def test_a_secret_of_the_document_gets_the_type_of_a_secret():
+    """#388: ``writeOnly`` strings and two maps are secrets; a path and a certificate are not."""
+    fields = {
+        "password": {"type": ["string", "null"], "writeOnly": True},
+        "dir_path": {"type": "string", "writeOnly": True},
+        "ssl_ca": {"type": ["string", "null"], "writeOnly": True},
+        "secret_headers": {
+            "type": ["object", "null"],
+            "additionalProperties": {"type": ["string", "null"]},
+        },
+        "host": {"type": "string"},
+    }
+    document = _connection_document(fields)
+    typed = gen.prepare(document)["components"]["schemas"]["things.CreateThingRequest"]
+    assert typed["properties"] == {
+        "password": {"type": ["string", "null"], "format": "password"},
+        "dir_path": {"type": "string"},
+        "ssl_ca": {"type": ["string", "null"]},
+        "secret_headers": {
+            "type": "object",
+            "additionalProperties": {"type": "string", "format": "password"},
+        },
+        "host": {"type": "string"},
+    }
+    module = gen.generate(document)["things.py"]
+    assert "password: SecretStr | None = None" in module
+    assert "secret_headers: dict[str, SecretStr] | None = None" in module
+    assert "dir_path: str | None = None" in module and "writeOnly" not in module
+
+
+def test_a_secret_that_is_no_string_stops_the_run():
+    """The rule types strings; a new shape of a secret is looked at by a person."""
+    document = _connection_document({"key": {"type": "object", "writeOnly": True}})
+    with pytest.raises(SystemExit, match="the secret 'key' is no string"):
+        gen.prepare(document)
+
+
+def test_a_generated_root_model_does_not_quote_its_input_in_an_error():
+    """Both sides: every ``RootModel`` of the layer has the setting, and it bites."""
+    from pydantic import ValidationError
+
+    from ycli.yandex.datalens.schemas.connection import ConnectionCreate
+
+    roots = [
+        line
+        for home in GENERATED
+        for module in sorted((SRC / home).glob("*.py"))
+        for line in module.read_text(encoding="utf-8").split("\n\n\n")
+        if line.startswith("class ") and "RootModel[" in line.split("):")[0]
+    ]
+    assert roots and all("hide_input_in_errors=True" in root for root in roots)
+    with pytest.raises(ValidationError) as refused:
+        ConnectionCreate.model_validate({"type": "nope", "password": "S3cret-value"})
+    assert "S3cret-value" not in str(refused.value)

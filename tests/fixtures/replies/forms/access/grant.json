@@ -1,0 +1,24 @@
+{
+  "body": [
+    {
+      "access": "restricted",
+      "action": "<action>",
+      "users": [
+        {
+          "display_name": "<display_name>",
+          "identity": {
+            "cloud_uid": "<cloud_uid>",
+            "uid": "<uid>"
+          },
+          "username": "<username>"
+        }
+      ]
+    },
+    {
+      "access": "public",
+      "action": "<action>"
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}

@@ -1,10 +1,9 @@
 {
   "body": {
-    "progress": {
-      "details": "<details>",
-      "percentage": 0.5
+    "result": {
+      "page_count": 1
     },
-    "status": "in_progress"
+    "status": "success"
   },
   "status": 200,
   "unknown_keys": 0

@@ -1039,7 +1039,9 @@ class ComponentErrorList(APIModel):
     items: list[ComponentErrorPack] | None = None
 
 
-class ConditionPartGeneric(RootModel[Direct | Formula | ResultField | OtherKindByCalcModeSnake]):
+class ConditionPartGeneric(
+    RootModel[Direct | Formula | ResultField | OtherKindByCalcModeSnake], hide_input_in_errors=True
+):
     root: Direct | Formula | ResultField | OtherKindByCalcModeSnake
 
 
@@ -1072,7 +1074,8 @@ class OneOfNativeType(
         | ClickhouseDatetime64NativeType
         | ClickhouseDatetime64withtzNativeType
         | OtherKindByNativeTypeClassNameSnake
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         GenericNativeType
@@ -1086,7 +1089,9 @@ class OneOfNativeType(
     )
 
 
-class ParameterValueConstraint(RootModel[Regex | Default | shared.OtherKindByType]):
+class ParameterValueConstraint(
+    RootModel[Regex | Default | shared.OtherKindByType], hide_input_in_errors=True
+):
     root: Regex | Default | shared.OtherKindByType
 
 
@@ -1270,7 +1275,8 @@ class Value(
         | ArrayInt
         | ArrayFloat
         | TreeStr
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         String
@@ -2539,7 +2545,7 @@ class PROMQL1(APIModel):
 
 
 class ResultSchemaSchemaGeneric(
-    RootModel[Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake]
+    RootModel[Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake], hide_input_in_errors=True
 ):
     root: Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake
 
@@ -2662,7 +2668,8 @@ class DataSource(
         | YDBSUBSELECT1
         | YQTABLE1
         | YQSUBSELECT1
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         APPMETRICAAPI1
@@ -2755,7 +2762,8 @@ class DataSourceStrict(
         | YQTABLE
         | YQSUBSELECT
         | OtherKindBySourceTypeSnake
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         APPMETRICAAPI
@@ -2907,7 +2915,8 @@ class Action(
         | UpdateSetting
         | UpdateDescription
         | UpdateCacheInvalidationSource
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         AddFieldModel

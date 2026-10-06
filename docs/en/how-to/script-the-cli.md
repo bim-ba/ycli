@@ -38,7 +38,7 @@ ycli tracker boards delete 7 --yes
 
 ## Preview a write
 
-`--dry-run` sends no write and prints the request instead (method, URL, body, never the token), through the same `-o`, and exits 0. Reads still run, so a command that reads and then writes shows only its first write.
+`--dry-run` sends no write and prints the request instead (method, URL, body, never the token), through the same `-o`, and exits 0. A secret in the body, such as the password of a DataLens connection, is printed as `***`, so the output is safe in a CI log. Give such a value in `--body-file` (a file outside the repository, mode 600), not in `-F`: a command line stays in the shell history. Reads still run, so a command that reads and then writes shows only its first write.
 
 ```bash
 ycli tracker boards delete 7 --dry-run

@@ -54,19 +54,19 @@ class DeleteQLChartResponse(APIModel):
     pass
 
 
-class UpdateQLChartResponse(RootModel[dict[str, Any]]):
+class UpdateQLChartResponse(RootModel[dict[str, Any]], hide_input_in_errors=True):
     root: dict[str, Any]
 
 
-class CreateQLChartResponse(RootModel[dict[str, Any]]):
+class CreateQLChartResponse(RootModel[dict[str, Any]], hide_input_in_errors=True):
     root: dict[str, Any]
 
 
-class UpdateQLChartArgsData(RootModel[dict[str, Any]]):
+class UpdateQLChartArgsData(RootModel[dict[str, Any]], hide_input_in_errors=True):
     root: dict[str, Any]
 
 
-class CreateQLChartArgsData(RootModel[dict[str, Any]]):
+class CreateQLChartArgsData(RootModel[dict[str, Any]], hide_input_in_errors=True):
     root: dict[str, Any]
 
 

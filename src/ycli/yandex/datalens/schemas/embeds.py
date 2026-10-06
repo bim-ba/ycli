@@ -143,7 +143,7 @@ class UpdateEmbedArgs(RequestBody):
     settings: EmbedSettings
 
 
-class ListEmbedsResponse(RootModel[list[Embed]]):
+class ListEmbedsResponse(RootModel[list[Embed]], hide_input_in_errors=True):
     """Array of embeddings."""
 
     root: list[Embed] = Field(..., description="Array of embeddings.")
