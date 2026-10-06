@@ -86,12 +86,9 @@ def list_global(
 
     A lighter sibling of ``worklog_search``; every filter is optional.
     """
-    created_at = [
-        f"{prefix}:{value}"
-        for prefix, value in (("from", created_from), ("to", created_to))
-        if value is not None
-    ]
-    return client.worklog.list_global(created_by=created_by, created_at=created_at or None)
+    return client.worklog.list_global(
+        created_by=created_by, created_from=created_from, created_to=created_to
+    )
 
 
 @mcp.tool(

@@ -50,6 +50,8 @@ def get(
     return client.issues.get(issue_key, expand=expand, fields=fields)
 
 
+# violation(naming): a second tool on issues.search, the short way to the most common request;
+# the full search is tracker_issues_search
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"})
 def list_(
     queue: Annotated[str | None, Field(description="Queue key, e.g. QUEUE.")] = None,
