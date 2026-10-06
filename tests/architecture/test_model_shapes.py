@@ -8,7 +8,10 @@ share a shape must be one class, or a group in ``SAME_SHAPE`` with the reason th
 import importlib
 import json
 import pkgutil
+import subprocess
+import sys
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
@@ -16,6 +19,7 @@ from pydantic import BaseModel
 from ycli.yandex.registry import SERVICES
 
 PROSE = frozenset({"title", "description", "examples"})
+REPOSITORY = Path(__file__).parents[2]
 
 # Groups of same-shaped models that stay separate classes, each with its reason. A group is
 # named by its members, ``<resource>.<Class>``, and belongs to one service.
@@ -110,3 +114,31 @@ def test_models_of_one_shape_are_one_class_or_explained():
     assert not unexplained, f"same shape, no reason in SAME_SHAPE: {unexplained}"
     stale = sorted((service, sorted(group)) for service, group in set(SAME_SHAPE) - found)
     assert not stale, f"SAME_SHAPE names groups that no longer share a shape: {stale}"
+
+
+INCOMPLETE = """
+import importlib, pkgutil
+from pydantic import BaseModel
+import ycli.yandex
+
+found = set()
+for info in pkgutil.walk_packages(ycli.yandex.__path__, "ycli.yandex."):
+    for name, value in vars(importlib.import_module(info.name)).items():
+        defined_here = isinstance(value, type) and value.__module__ == info.name
+        if defined_here and issubclass(value, BaseModel) and not value.__pydantic_complete__:
+            found.add(f"{info.name}.{name}")
+print(*sorted(found))
+"""
+
+
+def test_every_model_is_complete_once_its_module_is_imported():
+    """A model left waiting for a name defined below it cannot be serialized by an MCP tool.
+
+    Asked in an interpreter of its own: pydantic finishes such a model the first time it
+    validates with it, so any test that ran before would hide the answer.
+    """
+    proc = subprocess.run(
+        [sys.executable, "-c", INCOMPLETE], capture_output=True, text=True, cwd=REPOSITORY
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert not proc.stdout.split(), f"not complete after import: {proc.stdout.split()}"
