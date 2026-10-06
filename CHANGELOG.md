@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.110.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.109.0
+  ([`d9226cc`](https://github.com/bim-ba/ycli/commit/d9226cc8e792ee2cf5538703d35181bdddf2a6f6))
+
+### Features
+
+- **datalens**: Trino clusters, their catalogs and resource presets
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`2d99562`](https://github.com/bim-ba/ycli/commit/2d99562375f047ada1a699f375a8f3f2312f00ae))
+
+
 ## v0.109.0 (2026-10-06)
 
 ### Build System
