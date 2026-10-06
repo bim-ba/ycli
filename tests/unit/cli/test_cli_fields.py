@@ -62,3 +62,17 @@ def test_structured_fields_reject_a_clash(items):
 def test_structured_fields_reject_a_missing_file(tmp_path):
     with pytest.raises(typer.BadParameter, match="cannot read"):
         parse_fields([f"x=@{tmp_path / 'nope'}"], structured=True)
+
+
+def test_structured_fields_reject_a_file_that_is_not_text(tmp_path):
+    held = tmp_path / "held.bin"
+    held.write_bytes(b"\xff\xfe")
+    with pytest.raises(typer.BadParameter, match=r"cannot read .* not UTF-8"):
+        parse_fields([f"x=@{held}"], structured=True)
+
+
+def test_a_file_is_taken_as_it_is_and_stays_text(tmp_path):
+    """#412: as ``gh api -F`` does; a line break at the end goes out, and ``42`` is no number."""
+    held = tmp_path / "held.txt"
+    held.write_text("42\n")
+    assert parse_fields([f"x=@{held}"], structured=True) == {"x": "42\n"}

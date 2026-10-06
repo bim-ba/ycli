@@ -36,6 +36,15 @@ def test_a_field_flag_lies_over_the_file_and_its_secret_is_masked_too(api):
     assert planned == {**NEW, "password": "***", "port": 9440}
 
 
+def test_a_secret_read_from_a_file_is_masked_in_a_dry_run_too(api, tmp_path):
+    """#412: ``-F password=@file`` keeps the password off the command line and out of the plan."""
+    held = tmp_path / "password.txt"
+    held.write_text("from-a-file")
+    planned = _planned("create", "--body-file", NEW_FILE, "-F", f"password=@{held}")
+    assert planned == {**NEW, "password": "***"}
+    assert api.calls == []
+
+
 @pytest.mark.parametrize(
     "argv",
     [

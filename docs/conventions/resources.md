@@ -449,6 +449,8 @@ check of its own to say it. A reply that does not fit its model is another error
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the
   command built, at the first request it sends, object by object. The later the stronger:
   file, then `-F`, then the command's flags. `-F 'fields[priority]=high'` names a nested field.
+  `-F key=@file` (`@-` for stdin) gives the file's text as it is, always a string (#412); a
+  string that starts with `@` goes in JSON quotes (`-F 'text="@ivan"'`).
   Only objects merge: a list replaces the one below it, so a file's `{"tags": ["a"]}` and
   `-F 'tags[]=x'` send `["x"]`. A `-F` given before the subcommand and one after it add up. A
   command with a `-F` of its own (`ycli api`, the bulk changes) refuses the common one.
