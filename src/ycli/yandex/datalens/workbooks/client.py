@@ -272,6 +272,9 @@ class WorkbooksClient(Resource):
     def delete(self, workbook_id: str) -> Workbook:
         """``deleteWorkbook`` — delete a workbook with everything it holds.
 
+        Deleting a workbook that is already deleted answers ``500``, not ``404`` (measured):
+        a server error after a delete may mean the workbook is gone.
+
         Args:
             workbook_id: The workbook's id.
 
