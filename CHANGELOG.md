@@ -9,6 +9,29 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.104.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.103.1
+  ([`bbced15`](https://github.com/bim-ba/ycli/commit/bbced15ac985d21d1221c63693cc660d8f331e7a))
+
+### Documentation
+
+- **tracker**: Removing a user from a queue's read takes away its write too, and the operation says
+  so ([`3ebf364`](https://github.com/bim-ba/ycli/commit/3ebf3642a19f74691b4ed296f3db320ca9529bd6))
+
+### Features
+
+- **datalens**: Reports are read and written ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`7a3d641`](https://github.com/bim-ba/ycli/commit/7a3d641acc0e395be8d3d15f0df4dbe88fe1b10e))
+
+### Testing
+
+- **e2e**: The permissions of a queue are changed by a call that changes nothing
+  ([`d62bedd`](https://github.com/bim-ba/ycli/commit/d62bedd3efe95ec9cec1aa14bf738c5f648dd9a7))
+
+
 ## v0.103.1 (2026-10-06)
 
 ### Bug Fixes
