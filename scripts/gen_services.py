@@ -69,6 +69,21 @@ OPERATIONS = {
     "en": ("{count} operations", "{wrapped} of {published} operations"),
     "ru": ("операций: {count}", "операций: {wrapped} из {published}"),
 }
+# The comparison page: ycli's own row of the table of projects, and the sentence under it.
+COMPARISON_ROW = {
+    "en": "| ycli | {services} | {total}: {tools}, and {shared} | yes "
+    "| `ycli mcp start --read-only` | all |",
+    "ru": "| ycli | {services} | {total}: {tools} и {shared} | да "
+    "| `ycli mcp start --read-only` | все |",
+}
+COMPARISON_OPERATIONS = {
+    "en": "A tool count is not an operation count: one tool can cover several API operations, "
+    "and one operation can be split across tools. ycli wraps {operations} operations of the "
+    "four APIs, and each is also a command and a Python method.",
+    "ru": "Число инструментов — не число операций: один инструмент может покрывать несколько "
+    "операций API, а одна операция — делиться между инструментами. ycli оборачивает "
+    "{operations} операций четырёх API, и каждая из них — ещё и команда, и метод Python.",
+}
 PROGRESS_NOTE = {
     "en": "ycli wraps {title} section by section: {wrapped} of the {published} operations "
     "Yandex publishes so far.",
@@ -86,6 +101,7 @@ class Facts:
     summaries: dict[str, str]
     emoji: str
     operations: int
+    tools: int
     wrapped: int
     published: int
     in_progress: bool
@@ -128,6 +144,7 @@ def facts() -> list[Facts]:
                 },
                 emoji=gen_coverage.EMOJI[service.name],
                 operations=reports[service.name].operation_count,
+                tools=reports[service.name].mcp_tool_count,
                 wrapped=drift.wrapped,
                 published=len(drift.published),
                 in_progress=in_progress(drift),
@@ -266,6 +283,31 @@ def links(name: str, language: str) -> str:
     return "\n".join([*lines, f"- [{labels[3]}]({guides}): {guide}", ""])
 
 
+def comparison_row(found: list[Facts], language: str) -> str:
+    """The row of ycli in the comparison page's table: its services and its MCP tools.
+
+    The fragment ends without a newline: the page includes it between two rows of a table, and
+    an empty line after it would end the table there (seen in the built page).
+    """
+    done = ", ".join(fact.titles[language] for fact in found if not fact.in_progress)
+    unfinished = [
+        f"{fact.titles[language]} {IN_PROGRESS[language]}" for fact in found if fact.in_progress
+    ]
+    totals = gen_coverage._totals(gen_coverage._reports())
+    return COMPARISON_ROW[language].format(
+        services="; ".join([done, *unfinished]),
+        total=totals.mcp_tools,
+        tools=", ".join(f"{fact.titles[language]} {fact.tools}" for fact in found),
+        shared=", ".join(f"`{name}`" for name in sorted(totals.cross_cutting_tools)),
+    )
+
+
+def comparison_operations(found: list[Facts], language: str) -> str:
+    """The comparison page's sentence that says how many operations ycli wraps."""
+    wrapped = sum(fact.operations for fact in found)
+    return COMPARISON_OPERATIONS[language].format(operations=wrapped) + "\n"
+
+
 def build() -> dict[Path, str]:
     """Every fragment to write, keyed by its path."""
     found = facts()
@@ -274,6 +316,10 @@ def build() -> dict[Path, str]:
     for language in LANGUAGES:
         fragments[FRAGMENTS / f"cards.{language}.md"] = cards(found, language)
         fragments[FRAGMENTS / f"slogan.{language}.md"] = slogan(found, language)
+        fragments[FRAGMENTS / f"comparison.row.{language}.md"] = comparison_row(found, language)
+        fragments[FRAGMENTS / f"comparison.operations.{language}.md"] = comparison_operations(
+            found, language
+        )
         for fact in found:
             stem = f"{fact.name}.{{}}.{language}.md"
             fragments[FRAGMENTS / stem.format("header")] = header(fact, language)
