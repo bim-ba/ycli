@@ -62,7 +62,7 @@ def list_(
         str | None, values_option(SortDirection, "--order-direction", help="Sort direction.")
     ] = None,
     only_my: Annotated[
-        bool | None, typer.Option("--only-my", help="Keep only what you created.")
+        bool | None, typer.Option("--only-my/--no-only-my", help="Keep only what you created.")
     ] = None,
     include_permissions_info: PermissionsOption = None,
     *,
@@ -101,7 +101,10 @@ def access_bindings_list(
     all_: AllOption = False,
     get_inherited_bindings: Annotated[
         bool | None,
-        typer.Option("--get-inherited-bindings", help="Also list the inherited roles."),
+        typer.Option(
+            "--get-inherited-bindings/--no-get-inherited-bindings",
+            help="Also list the inherited roles.",
+        ),
     ] = None,
     *,
     config: AppConfig,
@@ -130,7 +133,7 @@ def entries_list(
     all_: AllOption = False,
     include_permissions_info: PermissionsOption = None,
     only_my: Annotated[
-        bool | None, typer.Option("--only-my", help="Keep only what you created.")
+        bool | None, typer.Option("--only-my/--no-only-my", help="Keep only what you created.")
     ] = None,
     created_by: Annotated[
         str | None, typer.Option("--created-by", help="Keep only what this user created.")

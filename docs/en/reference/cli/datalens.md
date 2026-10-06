@@ -150,7 +150,7 @@ $ ycli datalens collections get [OPTIONS] COLLECTION_ID
 
 **Options**:
 
-* `--include-permissions-info`: Also say what you may do with it.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -204,9 +204,9 @@ $ ycli datalens collections content-list [OPTIONS] [COLLECTION_ID]
 * `--filter-string TEXT`: Keep the items whose title has this.
 * `--order-field TEXT`: What to sort by. Known values: title, createdAt, updatedAt.
 * `--order-direction TEXT`: Sort direction. Known values: asc, desc.
-* `--only-my`: Keep only what you created.
+* `--only-my / --no-only-my`: Keep only what you created.
 * `--mode TEXT`: Which kinds of items to list. Known values: all, onlyCollections, onlyWorkbooks, onlyEntries.
-* `--include-permissions-info`: Also say what you may do with it.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -231,7 +231,7 @@ $ ycli datalens collections breadcrumbs-list [OPTIONS] COLLECTION_ID
 
 **Options**:
 
-* `--include-permissions-info`: Also say what you may do with it.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -278,7 +278,7 @@ $ ycli datalens collections access-bindings-list [OPTIONS] COLLECTION_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--get-inherited-bindings`: Also list the inherited roles.
+* `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -505,7 +505,7 @@ $ ycli datalens workbooks get [OPTIONS] WORKBOOK_ID
 
 **Options**:
 
-* `--include-permissions-info`: Also say what you may do with it.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -532,8 +532,8 @@ $ ycli datalens workbooks list [OPTIONS]
 * `--filter-string TEXT`: Keep the titles that have this.
 * `--order-field TEXT`: What to sort by. Known values: title, createdAt, updatedAt.
 * `--order-direction TEXT`: Sort direction. Known values: asc, desc.
-* `--only-my`: Keep only what you created.
-* `--include-permissions-info`: Also say what you may do with it.
+* `--only-my / --no-only-my`: Keep only what you created.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -584,7 +584,7 @@ $ ycli datalens workbooks access-bindings-list [OPTIONS] WORKBOOK_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--get-inherited-bindings`: Also list the inherited roles.
+* `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -611,8 +611,8 @@ $ ycli datalens workbooks entries-list [OPTIONS] WORKBOOK_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--include-permissions-info`: Also say what you may do with it.
-* `--only-my`: Keep only what you created.
+* `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
+* `--only-my / --no-only-my`: Keep only what you created.
 * `--created-by TEXT`: Keep only what this user created.
 * `--scope TEXT`: Keep only this kind of entry (repeatable). Known values: dash, report, widget, dataset, folder, connection, compute, artifact, sql_query.
 * `--order-by TEXT`: What to sort by, as a JSON object: {"field": "name", "direction": "asc"}.

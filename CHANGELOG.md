@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.89.2 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A boolean option says yes, no or nothing
+  ([`7f8f2d7`](https://github.com/bim-ba/ycli/commit/7f8f2d7f1865c95ec9707c27274ead1e7811e33a))
+
+### Build System
+
+- Re-lock uv.lock for 0.89.1
+  ([`954072b`](https://github.com/bim-ba/ycli/commit/954072be7bba1932b3b763355be215db97125894))
+
+
 ## v0.89.1 (2026-10-06)
 
 ### Bug Fixes
