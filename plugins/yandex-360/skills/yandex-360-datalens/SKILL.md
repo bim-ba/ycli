@@ -2,14 +2,14 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, and the details of the DataLens instance. Connections, datasets, charts and dashboards are listed as the entries of a workbook but not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes; entries as such (finding them, their relations, revisions and permissions, renaming, locks); the members of the organization; and the details of the DataLens instance. Connections, datasets, charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
@@ -17,6 +17,10 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Listing what a workbook holds: its connections, datasets, charts and dashboards
 - Creating, renaming, moving or deleting collections and workbooks
 - Seeing or changing who has which role on a collection or a workbook
+- Finding an entry anywhere by kind or name, what it uses and what uses it, its revisions
+- Checking what you may do with entries, workbooks and collections
+- Renaming an entry, or locking it while you edit
+- Finding the user, group or service account to give a role to
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -25,7 +29,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
 - Reading or editing Forms — use `yandex-360-forms`
-- Opening or changing a connection, dataset, chart or dashboard — not wrapped yet
+- Opening or changing the content of a connection, dataset, chart or dashboard — not wrapped yet
 
 ## Surfaces
 
