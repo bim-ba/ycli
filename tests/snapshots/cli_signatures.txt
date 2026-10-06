@@ -2,6 +2,8 @@ api: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT -
 auth login: --body-file:FILE --device-name:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --implicit:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False
 auth profiles: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens audit entries-updates-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --from:TEXT! --limit:INTEGER RANGE --profile:TEXT --to:TEXT --yes:BOOLEAN=False
+datalens audit entry-permissions-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --user-id:TEXT! --yes:BOOLEAN=False ENTRY_IDS:TEXT!
 datalens auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens charts data-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
 datalens charts editor create: --body-file:FILE --dry-run:BOOLEAN=False --entry:TEXT --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
@@ -16,6 +18,15 @@ datalens charts wizard create: --annotation:TEXT --body-file:FILE --data:TEXT --
 datalens charts wizard delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
 datalens charts wizard get: --body-file:FILE --branch:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-links:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --workbook-id:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
 datalens charts wizard update: --annotation:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --mode:TEXT! --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
+datalens cloudenvironments create: --body-file:FILE --cloud-id:TEXT! --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT! --profile:TEXT --security-group-ids:TEXT --storage:TEXT --subnet-id:TEXT! --yes:BOOLEAN=False
+datalens cloudenvironments delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens cloudenvironments get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens cloudenvironments list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --include-permissions:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
+datalens cloudenvironments update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --profile:TEXT --security-group-ids:TEXT --storage:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens cloudenvironmentstorage bucket-download-url-create: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --path:TEXT! --profile:TEXT --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
+datalens cloudenvironmentstorage bucket-object-metadata-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --path:TEXT! --profile:TEXT --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
+datalens cloudenvironmentstorage bucket-objects-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --prefix:TEXT --profile:TEXT --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
+datalens cloudenvironmentstorage bucket-upload-url-create: --body-file:FILE --content-md5:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --path:TEXT! --profile:TEXT --size:TEXT! --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
 datalens collections access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens collections access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
 datalens collections breadcrumbs-list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
@@ -55,13 +66,42 @@ datalens entries revisions-list: --all:BOOLEAN=False --body-file:FILE --dry-run:
 datalens entrylocks create: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens lakehouseoperations get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
+datalens licensing licenses-assign: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False USER_IDS:TEXT!
+datalens licensing licenses-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --order:TEXT --profile:TEXT --sort-by:TEXT --status:TEXT --user-ids:TEXT --yes:BOOLEAN=False
+datalens licensing limit-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens licensing limit-set: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False VALUE:INTEGER!
 datalens members list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --language:TEXT --limit:INTEGER RANGE --profile:TEXT --search:TEXT --tab-id:TEXT --yes:BOOLEAN=False
 datalens permissions get-bulk: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --entry-id:TEXT --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens reports create: --annotation:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions:BOOLEAN --key:TEXT --meta:TEXT --name:TEXT --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens reports delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens reports get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens reports update: --annotation:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --meta:TEXT --mode:TEXT! --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens restcatalogs create: --body-file:FILE --bucket-settings:TEXT! --cloud-environment-id:TEXT! --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --labels:TEXT --name:TEXT! --profile:TEXT --yes:BOOLEAN=False
+datalens restcatalogs list: --all:BOOLEAN=False --body-file:FILE --cloud-environment-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --include-permissions:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --reverse-order:BOOLEAN --sort-by:TEXT --yes:BOOLEAN=False
+datalens sharedentries access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens sharedentries access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens sparkapplications cancel: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkapplications create: --body-file:FILE --catalogs:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --profile:TEXT --pyspark-application:TEXT --spark-application:TEXT --spark-connect-application:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkapplications get: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkapplications list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkapplications log-list: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --page-size:INTEGER --page-token:TEXT --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sqlqueries create: --body-file:FILE --connection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --params:TEXT --profile:TEXT --query:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
+datalens sqlqueries delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
+datalens sqlqueries get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
+datalens sqlqueries run: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
+datalens sqlqueries update: --body-file:FILE --connection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --query:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens trinoclusters catalog-create: --body-file:FILE --catalog:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters catalog-delete: --body-file:FILE --catalog-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters create: --body-file:FILE --catalogs-config:TEXT --cloud-environment-id:TEXT! --collection-id:TEXT! --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --labels:TEXT --name:TEXT! --profile:TEXT --trino-version:TEXT --worker-config:TEXT! --yes:BOOLEAN=False
+datalens trinoclusters delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens trinoclusters get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens trinoclusters list: --all:BOOLEAN=False --body-file:FILE --catalog-id:TEXT --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
+datalens trinoclusters resource-preset-get: --body-file:FILE --cloud-environment-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False RESOURCE_PRESET_ID:TEXT!
+datalens trinoclusters resource-presets-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
+datalens trinoclusters start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters stop: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens workbookexports cancel: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
 datalens workbookexports result-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
 datalens workbookexports start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False WORKBOOK_ID:TEXT!

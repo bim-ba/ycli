@@ -27,6 +27,7 @@ def _fact(name: str, **changes: object) -> gen_services.Facts:
         summaries={"en": "Things.", "ru": "Вещи."},
         emoji="📋",
         operations=7,
+        tools=5,
         wrapped=7,
         published=7,
         in_progress=False,

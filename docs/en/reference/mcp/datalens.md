@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-77 tools.
+117 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -914,7 +914,9 @@ workbook with a dashboard) and holds no password or token of a connection.
 
 *Cancel DataLens workbook export* · idempotent write
 
-Stop an export; cancelling one that is over, or twice, answers the same.
+Stop an export: its status becomes ``error``, with ``WORKBOOK_EXPORT_CANCELLED``.
+
+An export that is over stays as it ended, and the call answers the same.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1053,3 +1055,575 @@ Delete a key for embedding. Deleting again answers 404.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `embedding_secret_id` | string | yes | Id of the key for embedding. |
+
+## `datalens_sharedentries_access_bindings_list`
+
+*List the roles on a DataLens shared entry* · read-only
+
+Who has which role on a shared entry, auto-paginated.
+
+An entry that lies in a workbook, or an id nothing knows, answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
+| `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
+
+## `datalens_sharedentries_access_bindings_update`
+
+*Change the roles on a DataLens shared entry* · write
+
+Give or take away roles on a shared entry; the roles not named stay as they are.
+
+The roles are ``datalens.sharedEntries.*`` (``viewer``, ``admin``, …).
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
+| `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+
+## `datalens_audit_entries_updates_list`
+
+*List DataLens entries changed in a period* · read-only
+
+The entries changed in a period, auto-paginated: what, when and by whom.
+
+A deleted entry is listed too, with ``isDeleted``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `from_` | string | yes | The start of the period: an ISO-8601 time with its zone. |
+| `to` | string or null |  | The end of the period. |
+| `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_audit_entry_permissions_get`
+
+*Get a user's permissions on DataLens entries* · read-only
+
+What one user may do with each entry: execute, read, edit, admin, by entry id.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_ids` | array of string | yes | The ids of the entries to ask about. |
+| `user_id` | string | yes | The user's id, as ``createdBy`` of an entry gives it. |
+
+## `datalens_sqlqueries_get`
+
+*Get DataLens saved SQL query* · read-only
+
+One saved SQL query: its text, its connection and its parameters.
+
+Experimental in the DataLens API and written from its document: not measured. An
+organization whose SQL editor is off answers 403 ``SQL_EDITOR_NOT_ALLOWED``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_favorite` | boolean or null |  | Also say whether it is a favourite. |
+
+## `datalens_sqlqueries_create`
+
+*Create DataLens saved SQL query* · write
+
+Save a SQL query in a workbook and return it.
+
+Experimental in the DataLens API and written from its document: not measured. An
+organization whose SQL editor is off answers 403 ``SQL_EDITOR_NOT_ALLOWED``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | The workbook to keep it in. |
+| `name` | string | yes | The query's name in the workbook. |
+| `connection_id` | string | yes | The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino. |
+| `query` | string | yes | The text of the query. |
+| `description` | string or null |  | A description. |
+| `params` | array of object or object or object or null |  | The parameters the text takes: a name, a type and a default each. |
+
+## `datalens_sqlqueries_update`
+
+*Update DataLens saved SQL query* · idempotent write
+
+Save a SQL query anew and return it; the connection and the text go every time.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `connection_id` | string | yes | The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino. |
+| `query` | string | yes | The text of the query. |
+| `description` | string or null |  | A description. |
+| `params` | array of object or object or object or null |  | The parameters the text takes. |
+
+## `datalens_sqlqueries_delete`
+
+*Delete DataLens saved SQL query* · destructive write
+
+Delete a saved SQL query.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+
+## `datalens_sqlqueries_run`
+
+*Run DataLens saved SQL query* · write
+
+Run a saved SQL query on its connection and return the result of each statement.
+
+The text runs as it is saved: one that changes data changes it. Experimental in the DataLens
+API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `sql_query_id` | string | yes | SQL query id. |
+| `params` | object or null |  | The values of the parameters, by name; one left out takes its default. |
+
+## `datalens_licensing_licenses_list`
+
+*List DataLens licences* · read-only
+
+The licences (seats) of the DataLens instance, auto-paginated.
+
+Each says whose it is, its type (``creator`` or ``viewer``), whether it is active, and when
+its holder last signed in.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `user_ids` | array of string or null |  | Only the licences of these users. |
+| `status` | `active` · `expired` · `expiring` or string or null |  | Only the licences in this state. |
+| `sort_by` | `createdAt` · `updatedAt` or string or null |  | The field to sort by. |
+| `order` | `asc` · `desc` or string or null |  | The order of the sort. |
+| `limit` | integer or null |  | Max licences to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_licensing_licenses_assign`
+
+*Assign DataLens licences* · write
+
+Give each of these users a licence and return the licences given.
+
+A licence is a seat DataLens bills for: ask the person before calling. Written from the
+DataLens document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `user_ids` | array of string | yes | The users to give a licence to. |
+
+## `datalens_licensing_limit_get`
+
+*Get DataLens licence limit* · read-only
+
+How many licences the instance may hold: the limit in force and the one that takes over.
+
+``current`` carries the count of active licences; ``next`` is null when no change is set.
+
+## `datalens_licensing_limit_set`
+
+*Set DataLens licence limit* · idempotent write
+
+Set how many licences the instance may hold and return the limits.
+
+The limit is the number of seats DataLens bills for: ask the person before calling. Written
+from the DataLens document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `value` | integer | yes | The most licences the instance may hold. |
+
+## `datalens_cloudenvironments_list`
+
+*List DataLens cloud environments* · read-only
+
+The cloud environments of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``cloud_id``, ``status`` or ``created_by_id``. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `limit` | integer or null |  | Max environments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_cloudenvironments_get`
+
+*Get DataLens cloud environment* · read-only
+
+One cloud environment: its cloud, its subnet, its status and its storage.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_cloudenvironments_create`
+
+*Create DataLens cloud environment* · write
+
+Make a cloud environment and return the operation that makes it.
+
+It creates resources in a cloud, which may be billed: ask the person before calling.
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `name` | string | yes | The environment's name. |
+| `cloud_id` | string | yes | The cloud to make it in. |
+| `subnet_id` | string | yes | The subnet it uses. |
+| `description` | string or null |  | A description. |
+| `security_group_ids` | array of string or null |  | The security groups the environment uses. |
+| `storage` | object or null |  | The settings of its storage bucket; no bucket when left out. |
+
+## `datalens_cloudenvironments_update`
+
+*Update DataLens cloud environment* · idempotent write
+
+Change the fields given of a cloud environment and return the operation.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+| `name` | string or null |  | A new name. |
+| `description` | string or null |  | A new description; an empty one clears it. |
+| `security_group_ids` | array of string or null |  | The security groups the environment uses. |
+| `storage` | object or null |  | New settings of its storage bucket. |
+
+## `datalens_cloudenvironments_delete`
+
+*Delete DataLens cloud environment* · destructive write
+
+Delete a cloud environment and return the operation that deletes it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+
+## `datalens_cloudenvironmentstorage_bucket_objects_list`
+
+*List the objects of a DataLens storage bucket* · read-only
+
+The paths of the objects in a cloud environment's storage bucket, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404: it is not a lack of
+rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `prefix` | string or null |  | Only the paths that start with this. |
+| `limit` | integer or null |  | Max paths to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_cloudenvironmentstorage_bucket_object_metadata_get`
+
+*Get the metadata of a DataLens bucket object* · read-only
+
+The size of an object, in bytes as a string, and when it last changed.
+
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+
+## `datalens_cloudenvironmentstorage_bucket_download_url_create`
+
+*Create a download link for a DataLens bucket object* · read-only
+
+A signed link to read one object of the bucket.
+
+The link works for whoever holds it, for a time, and it comes in this tool's result: hand
+it to the person and do not repeat it. Experimental in the DataLens API and written from
+its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+
+## `datalens_cloudenvironmentstorage_bucket_upload_url_create`
+
+*Create an upload link for a DataLens bucket object* · write
+
+A signed link to put one object into the bucket.
+
+The link works for whoever holds it, for a time, and it comes in this tool's result: hand
+it to the person and do not repeat it. Experimental in the DataLens API and written from
+its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+| `size` | string | yes | The size of the object in bytes, as a string. |
+| `content_md5` | string | yes | The MD5 digest of the content: 16 bytes, base64-encoded. |
+
+## `datalens_restcatalogs_list`
+
+*List DataLens REST catalogs* · read-only
+
+The REST catalogs of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string or null |  | Only the catalogs of this cloud environment. |
+| `filter` | array of string or null |  | Conditions such as ``name="…"``; only matching catalogs are kept. |
+| `sort_by` | `name` · `createdAt` · `updatedAt` or string or null |  | The field to sort by. |
+| `reverse_order` | boolean or null |  | Sort the other way round. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `limit` | integer or null |  | Max catalogs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_restcatalogs_create`
+
+*Create DataLens REST catalog* · write
+
+Make a REST catalog and return the operation that makes it.
+
+It creates a bucket in a cloud, which may be billed: ask the person before calling. Ask
+``lakehouseoperations_get`` for the operation until ``done``. Experimental in the DataLens
+API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | The cloud environment to make it in. |
+| `name` | string | yes | The catalog's name. |
+| `bucket_settings` | object | yes | The settings of its bucket; an empty object is valid. |
+| `description` | string or null |  | A description. |
+| `labels` | object or null |  | Labels, a name to a value. |
+
+## `datalens_lakehouseoperations_get`
+
+*Get DataLens Lakehouse operation* · read-only
+
+How far an operation is: ``done`` or not, and then its ``error`` or its ``response``.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `operation_id` | string | yes | Operation id, from making a cloud environment or a REST catalog. |
+
+## `datalens_trinoclusters_list`
+
+*List DataLens Trino clusters* · read-only
+
+The Trino clusters of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `filter` | array of string or null |  | Conditions the clusters must meet. |
+| `collection_id` | string or null |  | Only the clusters of this collection. |
+| `catalog_id` | string or null |  | Only the clusters this REST catalog is attached to. |
+| `limit` | integer or null |  | Max clusters to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_trinoclusters_get`
+
+*Get DataLens Trino cluster* · read-only
+
+One Trino cluster: its configuration, its health, its status and its coordinator.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_create`
+
+*Create DataLens Trino cluster* · write
+
+Make a Trino cluster and return the operation that makes it.
+
+A cluster is cloud resources, billed while it runs: ask the person before calling.
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | The DataLens collection to make it in. |
+| `cloud_environment_id` | string | yes | The cloud environment to make it in. |
+| `name` | string | yes | The cluster's name. |
+| `worker_config` | object | yes | The workers: their resource preset and how many there may be. |
+| `description` | string or null |  | A description. |
+| `labels` | object or null |  | Labels, a name to a value. |
+| `catalogs_config` | array of object or null |  | The REST catalogs to attach. |
+| `trino_version` | string or null |  | The version of Trino; the service's own when left out. |
+
+## `datalens_trinoclusters_delete`
+
+*Delete DataLens Trino cluster* · destructive write
+
+Delete a Trino cluster and return the operation that deletes it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_start`
+
+*Start DataLens Trino cluster* · write
+
+Start a stopped Trino cluster and return the operation that starts it.
+
+A running cluster is billed: ask the person before calling. Experimental in the DataLens
+API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_stop`
+
+*Stop DataLens Trino cluster* · write
+
+Stop a running Trino cluster and return the operation that stops it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_catalog_create`
+
+*Attach a REST catalog to a DataLens Trino cluster* · write
+
+Attach a REST catalog to a Trino cluster and return the operation.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+| `catalog` | object | yes | The REST catalog to attach, by its id. |
+
+## `datalens_trinoclusters_catalog_delete`
+
+*Detach a REST catalog from a DataLens Trino cluster* · destructive write
+
+Detach a REST catalog from a Trino cluster; the catalog itself stays.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+| `catalog_id` | string | yes | The id of the REST catalog to detach. |
+
+## `datalens_trinoclusters_resource_presets_list`
+
+*List DataLens Trino resource presets* · read-only
+
+The sizes a cluster's machines may have in a cloud environment, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | The cloud environment the presets are of. |
+| `limit` | integer or null |  | Max presets to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_trinoclusters_resource_preset_get`
+
+*Get DataLens Trino resource preset* · read-only
+
+One size of a cluster's machines: its cores and its memory.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `resource_preset_id` | string | yes | Id of the resource preset. |
+| `cloud_environment_id` | string | yes | The cloud environment the presets are of. |
+
+## `datalens_sparkapplications_list`
+
+*List DataLens Spark applications* · read-only
+
+The applications of a Spark cluster, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured. A cluster
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``created_by``, ``application_type`` or ``catalog_id``. |
+| `limit` | integer or null |  | Max applications to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_sparkapplications_get`
+
+*Get DataLens Spark application* · read-only
+
+One Spark application: its status, its times and what it runs.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+
+## `datalens_sparkapplications_create`
+
+*Create DataLens Spark application* · write
+
+Make a Spark application on a cluster and return the operation that makes it.
+
+Experimental in the DataLens API, written from its document and never called: not
+measured. Ask the person before calling.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object or object or object | yes | The application to make: ``clusterId``, a ``name``, the ``catalogs`` to attach, and exactly one of ``sparkApplication`` (a JAR), ``pysparkApplication`` (a Python file) or ``sparkConnectApplication``. |
+
+## `datalens_sparkapplications_cancel`
+
+*Cancel DataLens Spark application* · write
+
+Stop a Spark application and return the operation that cancels it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+
+## `datalens_sparkapplications_log_list`
+
+*Read the log of a DataLens Spark application* · read-only
+
+One fragment of an application's log, and the token of the next one.
+
+Give ``nextPageToken`` back as ``page_token`` to read on. Experimental in the DataLens API
+and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+| `page_size` | integer or null |  | The most characters the fragment may hold. |
+| `page_token` | string or null |  | The token of the fragment to read; the first when left out. |

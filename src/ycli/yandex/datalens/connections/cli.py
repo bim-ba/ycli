@@ -20,8 +20,11 @@ app = typer.Typer(name="connections", help="DataLens connections.", no_args_is_h
 
 ConnectionIDArg = Annotated[str, typer.Argument(metavar="CONNECTION_ID", help="Connection id.")]
 SECRET_IN_A_FILE = (
-    "Give a password or a token in --body-file (a file outside the repository, mode 600), not "
-    "in -F: a command line stays in the shell history. --dry-run prints a secret as ***."
+    "Give a password or a token from a file outside the repository, mode 600: in --body-file, "
+    "or as one field with -F password=@FILE. Typed on a command line it stays in the shell "
+    "history. Write the file of one field with no line break at its end "
+    "(printf %s 'secret' > file), or the break goes out with the secret. --dry-run prints a "
+    "secret as ***."
 )
 
 

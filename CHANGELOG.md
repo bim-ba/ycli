@@ -9,6 +9,152 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.113.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.112.0
+  ([`ab63475`](https://github.com/bim-ba/ycli/commit/ab6347578e43051fa5e9147d5722fefc4b345eb6))
+
+### Features
+
+- **datalens**: A Spark application is made, of any of its three kinds
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`d3708be`](https://github.com/bim-ba/ycli/commit/d3708be90498f2caaf3b8263f3f7f393d5b91678))
+
+
+## v0.112.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.111.0
+  ([`975ba6d`](https://github.com/bim-ba/ycli/commit/975ba6dffe052a9a451145e383c5f91017effadb))
+
+### Features
+
+- **cli**: -F key=@file reads a field's value from a file
+  ([`729aab9`](https://github.com/bim-ba/ycli/commit/729aab9fe8e3aaabda1d7181d641c92468488943))
+
+### Breaking Changes
+
+- **cli**: A `-F` value that starts with `@` is now read as a file in every command. Before, `-F
+  text=@ivan` sent the string "@ivan"; now it reads the file `ivan`. Write such a string in JSON
+  quotes: `-F 'text="@ivan"'`.
+
+- In `tracker issues update-bulk`, `move-bulk`, `transition-bulk`, `tracker entities update-bulk`
+  (`-F`) and `tracker entities permissions-update` (`--acl`) a key written `a[b]` is now the nested
+  object `{"a": {"b": …}}`, as with the common `-F`. Before, it was the literal key "a[b]".
+
+
+## v0.111.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.110.0
+  ([`e2ee654`](https://github.com/bim-ba/ycli/commit/e2ee654162b81458540f4643e5ccbfee892a560a))
+
+### Features
+
+- **datalens**: Spark applications are listed, read and cancelled, with their logs
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`1488bc5`](https://github.com/bim-ba/ycli/commit/1488bc5fc8932e6ca44f2e97e8662a7a5e82458c))
+
+
+## v0.110.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.109.0
+  ([`d9226cc`](https://github.com/bim-ba/ycli/commit/d9226cc8e792ee2cf5538703d35181bdddf2a6f6))
+
+### Features
+
+- **datalens**: Trino clusters, their catalogs and resource presets
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`2d99562`](https://github.com/bim-ba/ycli/commit/2d99562375f047ada1a699f375a8f3f2312f00ae))
+
+
+## v0.109.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.108.0
+  ([`351cc10`](https://github.com/bim-ba/ycli/commit/351cc1047020c5026040e819c2a500fc8702c3a2))
+
+### Features
+
+- **datalens**: REST catalogs, and the operations that make them
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`3b11b32`](https://github.com/bim-ba/ycli/commit/3b11b32967a35c35a89566ac587e09a405aeedc0))
+
+
+## v0.108.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.107.0
+  ([`4c159ab`](https://github.com/bim-ba/ycli/commit/4c159abb88c68172ca4b08b7d10118c89d3b1ed2))
+
+### Features
+
+- **datalens**: Cloud environments and their storage bucket
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`651047d`](https://github.com/bim-ba/ycli/commit/651047d45fd75d80eedc38550cf9e0deb3acb440))
+
+
+## v0.107.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.106.0
+  ([`80254d0`](https://github.com/bim-ba/ycli/commit/80254d06aa0d503dbc7014addee781198ad63bc7))
+
+### Features
+
+- **datalens**: The licences of the instance are listed, and its limit read
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`14da2f7`](https://github.com/bim-ba/ycli/commit/14da2f7d46852f6a73e7143f102aaf3e657a57c8))
+
+
+## v0.106.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.105.0
+  ([`7d8c964`](https://github.com/bim-ba/ycli/commit/7d8c964bac06953d47431ba1b298e1861d4b575f))
+
+### Chores
+
+- **docs**: The comparison pages include their numbers as generated fragments, and the DataLens
+  skill lists its sections
+  ([`1614614`](https://github.com/bim-ba/ycli/commit/161461495f11bb9605cfc2a06b2782c7af299803))
+
+### Features
+
+- **datalens**: Saved SQL queries are read, saved, run and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`bfb4b1e`](https://github.com/bim-ba/ycli/commit/bfb4b1e80a7361ecdd4f3424e72099471e3b7f23))
+
+
+## v0.105.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.104.0
+  ([`9c7d016`](https://github.com/bim-ba/ycli/commit/9c7d016faf2bb340f468ef34cd54f1aa7cfb8909))
+
+### Features
+
+- **datalens**: The roles on a shared entry, and the audit of what changed
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`f7a8cfa`](https://github.com/bim-ba/ycli/commit/f7a8cfa362a7278024cdca1178701c3dac429abe))
+
+### Refactoring
+
+- **datalens**: A request given as a union of objects has an envelope per member
+  ([`798a687`](https://github.com/bim-ba/ycli/commit/798a68767bbd99ea2d7415bffee08780a7c9f9c3))
+
+
 ## v0.104.0 (2026-10-06)
 
 ### Build System

@@ -1,0 +1,14 @@
+{
+  "body": {
+    "<key-1>": {
+      "permissions": {
+        "admin": true,
+        "edit": true,
+        "execute": true,
+        "read": true
+      }
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

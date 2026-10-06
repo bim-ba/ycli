@@ -1,0 +1,19 @@
+{
+  "body": {
+    "createdAt": {
+      "nanos": 1,
+      "seconds": "<seconds>"
+    },
+    "createdBy": "<createdBy>",
+    "description": "<description>",
+    "done": false,
+    "id": "<id>",
+    "metadata": {},
+    "modifiedAt": {
+      "nanos": 1,
+      "seconds": "<seconds>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

@@ -3,8 +3,8 @@
 from typing import Literal
 
 from ycli.yandex.datalens.schemas.shared import DatalensOperation as Operation
+from ycli.yandex.datalens.schemas.shared import LakehouseOperation, SubjectWithBindings
 from ycli.yandex.datalens.schemas.shared import ListAccessBindingsResult as AccessBindingsPage
-from ycli.yandex.datalens.schemas.shared import SubjectWithBindings
 from ycli.yandex.datalens.schemas.shared import USAccessBindingDelta as AccessBindingDelta
 
 #: What kind an entry is.
@@ -31,6 +31,7 @@ __all__ = [
     "AccessBindingDelta",
     "AccessBindingsPage",
     "EntryScope",
+    "LakehouseOperation",
     "Operation",
     "OrderField",
     "SaveMode",

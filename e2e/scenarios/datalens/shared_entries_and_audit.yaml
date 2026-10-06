@@ -1,0 +1,60 @@
+# A shared entry and the audit: a dataset made in a collection (not in a workbook) is a shared
+# entry; a role on it is added to the caller and taken back, and the audit is asked which
+# entries changed and what the caller may do with this one. Run by hand only (the README says
+# how): CI has no token DataLens takes.
+name: datalens/shared-entries-and-audit
+steps:
+  - id: collection
+    run: datalens collections create --title "${RUN} shared"
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: shared
+    run: >-
+      datalens datasets create --name "${RUN} shared dataset" --collection-id ${collection}
+      --dataset '{"sources": [], "result_schema": []}'
+    save:
+      shared: id
+    cleanup: datalens datasets delete ${shared}
+  - id: who-may
+    # The one subject of an entry just made is whoever made it.
+    run: datalens sharedentries access-bindings-list ${shared} --get-inherited-bindings
+    expect:
+      "length(@)": 1
+      "[0].accessBindings[0].roleId": datalens.sharedEntries.admin
+    save:
+      subject: "[0].subjectClaims.sub"
+  - id: role
+    # The reply is an operation that may not be done yet; the next step reads the result.
+    run: >-
+      datalens sharedentries access-bindings-update ${shared} --delta
+      '{"action": "ADD", "accessBinding": {"roleId": "datalens.sharedEntries.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+    expect:
+      "id != null": true
+  - id: role-given
+    run: datalens sharedentries access-bindings-list ${shared}
+    expect:
+      "length([0].accessBindings)": 2
+  - id: role-back
+    run: >-
+      datalens sharedentries access-bindings-update ${shared} --delta
+      '{"action": "REMOVE", "accessBinding": {"roleId": "datalens.sharedEntries.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+    expect:
+      "id != null": true
+  - id: changed
+    run: datalens audit entries-updates-list --from 2026-10-01T00:00:00Z --limit 5
+    expect:
+      "length(@) > `0`": true
+  - id: may
+    run: datalens audit entry-permissions-get ${shared} --user-id ${subject}
+    expect:
+      "values(@)[0].permissions.admin": true
+  - id: delete
+    run: datalens collections delete ${collection}
+    disarms: [collection, shared]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0

@@ -149,14 +149,26 @@ FORMS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Identity", ["me"]),
 ]
 DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("Organization", ["tenant", "members"]),
+    ("Organization", ["tenant", "members", "licensing"]),
     (
         "Collections & workbooks",
         ["collections", "workbooks", "workbookexports", "workbookimports"],
     ),
-    ("Entries", ["entries", "entrylocks", "permissions"]),
+    ("Entries", ["entries", "entrylocks", "permissions", "sharedentries", "audit"]),
     ("Data", ["connections", "datasets"]),
     ("Charts & reports", ["charts", "reports"]),
+    ("SQL", ["sqlqueries"]),
+    (
+        "Cloud environments",
+        [
+            "cloudenvironments",
+            "cloudenvironmentstorage",
+            "restcatalogs",
+            "lakehouseoperations",
+            "trinoclusters",
+            "sparkapplications",
+        ],
+    ),
     ("Embedding", ["embeds", "embeddingsecrets"]),
 ]
 
