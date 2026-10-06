@@ -2,7 +2,7 @@
 
 from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 
 from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.models import QuizShowFormat, UserRef
@@ -143,7 +143,9 @@ class SurveyAPIKey(RequestBody):
 
     name: str = Field(description="Name of the key.")
     id: str | None = Field(default=None, description="Id of an existing key.")
-    value: str | None = Field(default=None, description="Value of the key.")
+    value: SecretStr | None = Field(
+        default=None, description="Value of the key: a secret, sent and never printed."
+    )
     secure: bool | None = Field(
         default=None, description="Whether the value is stored encrypted (the API's default)."
     )

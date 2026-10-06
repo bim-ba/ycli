@@ -9,7 +9,7 @@ from the server, and :meth:`SubscriptionsClient.create` / ``modify`` never send 
 
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, TypeAdapter
+from pydantic import Field, SecretStr, TypeAdapter
 
 from ycli.yandex.models import APIModel
 
@@ -74,7 +74,9 @@ class SubscriptionVariable(APIModel):
     questions: VariableQuestions | None = Field(
         default=None, description="Questions the variable reads (multi-question types)."
     )
-    secret: str | None = Field(default=None, description="Secret value (write only).")
+    secret: SecretStr | None = Field(
+        default=None, description="Secret value (write only): sent and never printed."
+    )
     version: str | None = Field(default=None, description="Variable format version (write only).")
 
 
