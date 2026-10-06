@@ -36,7 +36,7 @@ def page_from_issue(issue_key: str, parent_slug: str) -> str:
         "back-and-forth; keep the names of who decided what.\n"
         f"3. Show me the draft, the title and the slug you propose under {parent_slug}/, and "
         "wait for my answer.\n"
-        "4. Only after I approve, call wiki_pages_create with that slug, title and content, and "
-        "give me the new page's slug.\n\n"
+        "4. Only after I approve, call wiki_pages_create with a body of that slug, title and "
+        "content, and give me the new page's slug.\n\n"
         "Do not create or change anything before step 4."
     )

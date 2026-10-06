@@ -29,9 +29,9 @@ def queue_digest(queue: str) -> str:
     """
     return (
         f"Give me a digest of the open issues in the Yandex Tracker queue {queue}.\n\n"
-        f"1. Call tracker_issues_count with query `Queue: {queue} Resolution: empty()` for the "
-        "total.\n"
-        "2. Call tracker_issues_search with the same query and "
+        f"1. Call tracker_issues_count with body.query `Queue: {queue} Resolution: empty()` for "
+        "the total.\n"
+        "2. Call tracker_issues_search with the same body.query and "
         '`"Sort by": Updated ASC` appended, limit 50: the issues untouched the longest come '
         "first.\n"
         "3. Answer with: the total; a table of counts by status and by assignee; the five issues "
@@ -97,7 +97,8 @@ def sprint_review(board: str, sprint: str) -> str:
     return (
         f"Review the sprint {sprint} of the Yandex Tracker board {board}.\n\n"
         f"1. Call tracker_sprints_get with sprint_id {sprint}: its name, dates and status.\n"
-        '2. Call tracker_issues_search with query `Sprint: "<the sprint\'s name>"`, limit 200.\n'
+        "2. Call tracker_issues_search with body.query "
+        '`Sprint: "<the sprint\'s name>"`, limit 200.\n'
         "3. Answer with: the sprint's name and dates; counts of issues done, in progress and not "
         "started; the issues done (key, summary, assignee); the issues that will not make it and "
         "why it looks so; and what to carry over to the next sprint.\n\n"

@@ -67,14 +67,7 @@ SEARCH_CASES = [
         ],
         mcp=(
             "wiki_pages_search",
-            {
-                "text": "quarterly roadmap",
-                "filters": FILTERS,
-                "order_by": "modified_date",
-                "highlight": True,
-                "limit": 25,
-                "cursor": 3,
-            },
+            {"body": FULL_BODY},
         ),
         effect=Effect.READ,
         exchanges=[
@@ -119,7 +112,7 @@ SEARCH_CASES = [
             ),
         ),
         cli=None,
-        mcp=("wiki_pages_search", {"text": "onboarding"}),
+        mcp=("wiki_pages_search", {"body": {"query": "onboarding"}}),
         effect=Effect.READ,
         exchanges=[
             (

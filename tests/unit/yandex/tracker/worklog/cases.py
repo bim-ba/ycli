@@ -82,9 +82,10 @@ CASES = [
         mcp=(
             "tracker_worklog_search",
             {
-                "created_by": "veikus",
-                "created_from": "2018-06-06T00:00:00",
-                "created_to": "2018-06-07T00:00:00",
+                "body": {
+                    "createdBy": "veikus",
+                    "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
+                }
             },
         ),
         exchanges=[
@@ -106,7 +107,7 @@ CASES = [
         "tracker.worklog.search",
         args=(WorklogSearch.model_validate({}),),
         cli=["tracker", "worklog", "search"],
-        mcp=("tracker_worklog_search", {}),
+        mcp=("tracker_worklog_search", {"body": {}}),
         exchanges=[(Sent("POST", "worklog/_search", json={}), Reply(json=[]))],
         effect=Effect.READ,
     ),

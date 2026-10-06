@@ -10,9 +10,11 @@
     {
       "name": "wiki_pages_create",
       "arguments": {
-        "slug": "eng/new",
-        "title": "New page",
-        "content": "# New"
+        "body": {
+          "slug": "eng/new",
+          "title": "New page",
+          "content": "# New"
+        }
       }
     }
     ```
