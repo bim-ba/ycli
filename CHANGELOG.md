@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.90.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.89.3
+  ([`d48a540`](https://github.com/bim-ba/ycli/commit/d48a5406fd5b0e7967dfb49b7b4c535c51d1c106))
+
+### Features
+
+- **tracker**: A checklist change returns the issue, and four more replies name their fields
+  ([`65db9ff`](https://github.com/bim-ba/ycli/commit/65db9ff0a7545d8ccc34819518654c8a0ca8d00c))
+
+### Breaking Changes
+
+- **tracker**: `tracker checklists create` / `update` / `delete` / `clear` print the issue as
+  `tracker issues get` does: `status`, `type`, `priority` and `queue` are a key, `createdBy` is a
+  name (each was the object the API sent), and the fields of an issue the reply leaves out are
+  printed as `null`. The MCP tools return the same.
+
+- SDK: `tracker.checklists.models.Checklist`, `tracker.links.models.LinkObject`,
+  `tracker.remotelinks.models.RemoteApplication` and the module `tracker.applications.models` are
+  gone; use `Issue`, `KeyedReference` and `Application` of `ycli.yandex.tracker.models`. The class
+  of an issue's checklist item is named `IssueChecklistItem`;
+  `tracker.checklists.models.ChecklistItem` is still that class.
+
+
 ## v0.89.3 (2026-10-06)
 
 ### Bug Fixes
