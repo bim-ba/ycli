@@ -87,6 +87,16 @@ datalens sqlqueries get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT -
 datalens sqlqueries run: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
 datalens sqlqueries update: --body-file:FILE --connection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --query:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens trinoclusters catalog-create: --body-file:FILE --catalog:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters catalog-delete: --body-file:FILE --catalog-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters create: --body-file:FILE --catalogs-config:TEXT --cloud-environment-id:TEXT! --collection-id:TEXT! --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --labels:TEXT --name:TEXT! --profile:TEXT --trino-version:TEXT --worker-config:TEXT! --yes:BOOLEAN=False
+datalens trinoclusters delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens trinoclusters get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ID:TEXT!
+datalens trinoclusters list: --all:BOOLEAN=False --body-file:FILE --catalog-id:TEXT --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
+datalens trinoclusters resource-preset-get: --body-file:FILE --cloud-environment-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False RESOURCE_PRESET_ID:TEXT!
+datalens trinoclusters resource-presets-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False CLOUD_ENVIRONMENT_ID:TEXT!
+datalens trinoclusters start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens trinoclusters stop: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens workbookexports cancel: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
 datalens workbookexports result-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
 datalens workbookexports start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False WORKBOOK_ID:TEXT!

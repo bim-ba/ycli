@@ -23,6 +23,7 @@ from ycli.yandex.datalens.restcatalogs.cli import app as restcatalogs_app
 from ycli.yandex.datalens.sharedentries.cli import app as sharedentries_app
 from ycli.yandex.datalens.sqlqueries.cli import app as sqlqueries_app
 from ycli.yandex.datalens.tenant.cli import app as tenant_app
+from ycli.yandex.datalens.trinoclusters.cli import app as trinoclusters_app
 from ycli.yandex.datalens.workbookexports.cli import app as workbookexports_app
 from ycli.yandex.datalens.workbookimports.cli import app as workbookimports_app
 from ycli.yandex.datalens.workbooks.cli import app as workbooks_app
@@ -55,3 +56,4 @@ app.add_typer(cloudenvironments_app)
 app.add_typer(cloudenvironmentstorage_app)
 app.add_typer(restcatalogs_app)
 app.add_typer(lakehouseoperations_app)
+app.add_typer(trinoclusters_app)

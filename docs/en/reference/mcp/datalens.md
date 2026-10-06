@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-102 tools.
+112 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1418,3 +1418,141 @@ nothing knows answers 403 Permission denied, not 404: it is not a lack of rights
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `operation_id` | string | yes | Operation id, from making a cloud environment or a REST catalog. |
+
+## `datalens_trinoclusters_list`
+
+*List DataLens Trino clusters* · read-only
+
+The Trino clusters of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `filter` | array of string or null |  | Conditions the clusters must meet. |
+| `collection_id` | string or null |  | Only the clusters of this collection. |
+| `catalog_id` | string or null |  | Only the clusters this REST catalog is attached to. |
+| `limit` | integer or null |  | Max clusters to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_trinoclusters_get`
+
+*Get DataLens Trino cluster* · read-only
+
+One Trino cluster: its configuration, its health, its status and its coordinator.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_create`
+
+*Create DataLens Trino cluster* · write
+
+Make a Trino cluster and return the operation that makes it.
+
+A cluster is cloud resources, billed while it runs: ask the person before calling.
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | The DataLens collection to make it in. |
+| `cloud_environment_id` | string | yes | The cloud environment to make it in. |
+| `name` | string | yes | The cluster's name. |
+| `worker_config` | object | yes | The workers: their resource preset and how many there may be. |
+| `description` | string or null |  | A description. |
+| `labels` | object or null |  | Labels, a name to a value. |
+| `catalogs_config` | array of object or null |  | The REST catalogs to attach. |
+| `trino_version` | string or null |  | The version of Trino; the service's own when left out. |
+
+## `datalens_trinoclusters_delete`
+
+*Delete DataLens Trino cluster* · destructive write
+
+Delete a Trino cluster and return the operation that deletes it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_start`
+
+*Start DataLens Trino cluster* · write
+
+Start a stopped Trino cluster and return the operation that starts it.
+
+A running cluster is billed: ask the person before calling. Experimental in the DataLens
+API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_stop`
+
+*Stop DataLens Trino cluster* · write
+
+Stop a running Trino cluster and return the operation that stops it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+
+## `datalens_trinoclusters_catalog_create`
+
+*Attach a REST catalog to a DataLens Trino cluster* · write
+
+Attach a REST catalog to a Trino cluster and return the operation.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+| `catalog` | object | yes | The REST catalog to attach, by its id. |
+
+## `datalens_trinoclusters_catalog_delete`
+
+*Detach a REST catalog from a DataLens Trino cluster* · destructive write
+
+Detach a REST catalog from a Trino cluster; the catalog itself stays.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Trino cluster. |
+| `catalog_id` | string | yes | The id of the REST catalog to detach. |
+
+## `datalens_trinoclusters_resource_presets_list`
+
+*List DataLens Trino resource presets* · read-only
+
+The sizes a cluster's machines may have in a cloud environment, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | The cloud environment the presets are of. |
+| `limit` | integer or null |  | Max presets to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_trinoclusters_resource_preset_get`
+
+*Get DataLens Trino resource preset* · read-only
+
+One size of a cluster's machines: its cores and its memory.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `resource_preset_id` | string | yes | Id of the resource preset. |
+| `cloud_environment_id` | string | yes | The cloud environment the presets are of. |

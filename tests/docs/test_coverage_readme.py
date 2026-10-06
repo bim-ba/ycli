@@ -51,6 +51,17 @@ EXPECTED_LINK_GAPS = (
     "datalens.sqlqueries.update",
     "datalens.tenant",
     "datalens.tenant.details_get",
+    "datalens.trinoclusters",
+    "datalens.trinoclusters.catalog_create",
+    "datalens.trinoclusters.catalog_delete",
+    "datalens.trinoclusters.create",
+    "datalens.trinoclusters.delete",
+    "datalens.trinoclusters.get",
+    "datalens.trinoclusters.list",
+    "datalens.trinoclusters.resource_preset_get",
+    "datalens.trinoclusters.resource_presets_list",
+    "datalens.trinoclusters.start",
+    "datalens.trinoclusters.stop",
     "tracker.linktypes",
     "tracker.linktypes.list",
 )
@@ -137,7 +148,7 @@ def test_link_stats_totals_are_consistent():
     assert stats.linked_resources <= stats.resources
     # The vast majority of operations deep-link to their own endpoint page.
     assert stats.specific_ops > stats.fallback_ops + stats.plain_ops
-    assert stats.plain_ops == 19 and stats.linked_resources == stats.resources - 7
+    assert stats.plain_ops == 29 and stats.linked_resources == stats.resources - 8
 
 
 def test_link_map_keys_reference_real_resources_and_operations():

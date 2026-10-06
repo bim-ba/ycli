@@ -23,6 +23,7 @@ from ycli.yandex.datalens.restcatalogs.mcp import mcp as restcatalogs_mcp
 from ycli.yandex.datalens.sharedentries.mcp import mcp as sharedentries_mcp
 from ycli.yandex.datalens.sqlqueries.mcp import mcp as sqlqueries_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
+from ycli.yandex.datalens.trinoclusters.mcp import mcp as trinoclusters_mcp
 from ycli.yandex.datalens.workbookexports.mcp import mcp as workbookexports_mcp
 from ycli.yandex.datalens.workbookimports.mcp import mcp as workbookimports_mcp
 from ycli.yandex.datalens.workbooks.mcp import mcp as workbooks_mcp
@@ -57,4 +58,5 @@ mcp.mount(cloudenvironments_mcp)
 mcp.mount(cloudenvironmentstorage_mcp)
 mcp.mount(restcatalogs_mcp)
 mcp.mount(lakehouseoperations_mcp)
+mcp.mount(trinoclusters_mcp)
 mcp.mount(mcp_resources_mcp)
