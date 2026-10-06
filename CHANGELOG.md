@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.95.3 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A set of values is written in one order, so a schema does not depend on the
+  interpreter
+  ([`4c479cb`](https://github.com/bim-ba/ycli/commit/4c479cb04916644dfaa66c544b3b8f9006462464))
+
+### Build System
+
+- Re-lock uv.lock for 0.95.2
+  ([`ecf9f39`](https://github.com/bim-ba/ycli/commit/ecf9f39b2745d23053957d6950079bac46b8ec8e))
+
+### Refactoring
+
+- One loader for the snapshot of an API, one state for a Wiki operation
+  ([`5301897`](https://github.com/bim-ba/ycli/commit/5301897d1fdac95d24005ef80efac0f752cd6b85))
+
+
 ## v0.95.2 (2026-10-06)
 
 ### Bug Fixes
