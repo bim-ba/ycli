@@ -59,7 +59,8 @@ def result_get(
     """The exported workbook: every entry it holds, as one document.
 
     ``data`` is what ``workbookimports_start`` takes. An export that is not over, or was
-    cancelled, answers 409 Conflict.
+    cancelled, answers 409 Conflict. The document is large (hundreds of kilobytes for a
+    workbook with a dashboard) and holds no password or token of a connection.
     """
     return client.workbookexports.result_get(export_id)
 

@@ -50,7 +50,9 @@ def start(
 ) -> WorkbookImportStarted | WorkbookImportStatus:
     """Make a workbook from an export (async): prints the import's final status.
 
-    With --no-wait it prints the ids of the import and of the workbook at once.
+    With --no-wait it prints the ids of the import and of the workbook at once. The
+    connections of the new workbook come without their secrets: give them again with
+    `connections update`.
 
     `ycli datalens workbookexports result-get EXPORT_ID | jq '{data}' > export.json` writes
     the file --body-file takes here.

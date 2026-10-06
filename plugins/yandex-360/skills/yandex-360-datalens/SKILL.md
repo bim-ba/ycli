@@ -2,14 +2,14 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, exporting a workbook and importing it as a new one, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, charts and their data, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, exporting a workbook and importing it as a new one, embedding an entry on another site, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, charts and their data, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; the embeds of an entry and the keys for embedding that sign them; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
@@ -17,6 +17,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Listing what a workbook holds: its connections, datasets, charts and dashboards
 - Creating, renaming, moving or deleting collections and workbooks
 - Exporting everything a workbook holds as one document, and making a new workbook from it
+- Listing, creating, changing or deleting the embeds of a chart or a dashboard, and the keys for embedding of a workbook
 - Seeing or changing who has which role on a collection or a workbook
 - Finding an entry anywhere by kind or name, what it uses and what uses it, its revisions
 - Checking what you may do with entries, workbooks and collections
@@ -91,6 +92,8 @@ DataLens differs from the other services in both credentials:
 | How far an export of a workbook is | `uv run ycli datalens workbookexports status-get <export_id>` | `datalens_workbookexports_status_get` |
 | The exported workbook, as one document | `uv run ycli datalens workbookexports result-get <export_id>` | `datalens_workbookexports_result_get` |
 | How far an import is | `uv run ycli datalens workbookimports status-get <import_id>` | `datalens_workbookimports_status_get` |
+| Keys for embedding of a workbook (never the private key) | `uv run ycli datalens embeddingsecrets list <workbook_id>` · `get <embedding_secret_id>` | `datalens_embeddingsecrets_list` · `datalens_embeddingsecrets_get` |
+| Where an entry is embedded | `uv run ycli datalens embeds list <entry_id>` | `datalens_embeds_list` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -128,6 +131,11 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Start exporting a workbook | `uv run ycli datalens workbookexports start <workbook_id>` | `datalens_workbookexports_start` |
 | Stop an export | `uv run ycli datalens workbookexports cancel <export_id>` | `datalens_workbookexports_cancel` |
 | Make a workbook from an export | `uv run ycli datalens workbookimports start --body-file export.json --title … [--collection-id <id>]` | `datalens_workbookimports_start` |
+| Make a key for embedding (prints the private key, once) | `uv run ycli -o json datalens embeddingsecrets create --title … --workbook-id <id> > secret.json` | `datalens_embeddingsecrets_create` |
+| Delete a key for embedding | `uv run ycli datalens embeddingsecrets delete <embedding_secret_id>` | `datalens_embeddingsecrets_delete` |
+| Embed an entry | `uv run ycli datalens embeds create --title … --embedding-secret-id <id> --entry-id <id> --public-params-mode --settings '{}'` | `datalens_embeds_create` |
+| Save an embed as given | `uv run ycli datalens embeds update <embed_id> --title … --embedding-secret-id <id> --no-public-params-mode --settings '{}' [--unsigned-params …]` | `datalens_embeds_update` |
+| Delete an embed | `uv run ycli datalens embeds delete <embed_id>` | `datalens_embeds_delete` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
 | Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
@@ -145,6 +153,14 @@ An operation takes the fields of its request as arguments, under one name on eve
 **No parent is the root.** Leave `--parent-id` / `parent_id` (a collection) or `--collection-id` / `collection_id` (a workbook) out to create in the root or to move there: `move <id>` with no destination moves it to the root.
 
 **A workbook is exported and imported in steps.** `workbookexports start` answers an export id at once; ask `workbookexports status-get` until `status` is `success` (`pending` before, `error` if it failed), then `workbookexports result-get`. Its `data` (the `export` and its `hash`, together) is what `workbookimports start` takes: `… result-get <export_id> | jq '{data}' > export.json`, then `workbookimports start --body-file export.json --title …`. The new workbook exists at once and is filled as the import runs; `workbookimports status-get` says when it is done. The result of an export that is not over, or was cancelled, answers 409; an id nothing knows answers 404.
+
+**After an import, give the connections their secrets again.** A password or a token is not in the exported document: the status of the export and of the import carries a notification for each connection (`NOTIF.WB_EXPORT.CONN.CHECK_CREDENTIALS`, `NOTIF.WB_IMPORT.CONN.CHECK_CREDENTIALS`), and the imported connection works once `connections update` has given it the secret.
+
+**Write the exported document to a file, do not read it.** A workbook with a dashboard exports to hundreds of kilobytes (287 KB for 27 entries, measured): redirect `workbookexports result-get` to a file and hand the file to `workbookimports start --body-file`; an agent that takes the document into its context spends it on nothing.
+
+**The private key of a key for embedding is given once.** `embeddingsecrets create` answers the id and the private key; `get` and `list` never return the key again, so write it to a file at once (`-o json … > secret.json`, a file nobody else reads) and do not paste it anywhere. Through MCP the key comes in the tool's result, into the agent's context: hand it over at once and do not repeat it.
+
+**An embed is saved whole.** `embeds update` replaces the embed: the API requires the title, the key, the mode of parameters and the settings every time, and a list left out (`--deps-ids`, `--unsigned-params`, `--private-params`) is saved empty. Read the embed with `embeds list` first and name what is to stay. Deleting an embed twice answers 404.
 
 **Deleting a collection or a workbook deletes what it holds**: nested collections, workbooks and their entries. The reply lists what was deleted.
 

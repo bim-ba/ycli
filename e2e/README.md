@@ -37,6 +37,8 @@ The token is a person's: it reaches every organization that person is in, and on
 
 A second scenario, `datalens/workbook-transfer`, exports a workbook holding one empty dataset and makes a new workbook from the export.
 
+A third, `datalens/embedding`, gives a workbook a key for embedding, embeds an entry with it, and deletes both. The private key the API returns is never written anywhere: a recording keeps `<privateKey>` in its place.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

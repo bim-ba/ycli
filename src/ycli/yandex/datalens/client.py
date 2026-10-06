@@ -13,6 +13,8 @@ from ycli.yandex.datalens.charts.client import ChartsClient
 from ycli.yandex.datalens.collections.client import CollectionsClient
 from ycli.yandex.datalens.connections.client import ConnectionsClient
 from ycli.yandex.datalens.datasets.client import DatasetsClient
+from ycli.yandex.datalens.embeddingsecrets.client import EmbeddingSecretsClient
+from ycli.yandex.datalens.embeds.client import EmbedsClient
 from ycli.yandex.datalens.entries.client import EntriesClient
 from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
 from ycli.yandex.datalens.members.client import MembersClient
@@ -50,3 +52,5 @@ class DataLensClient(DomainClient):
         self.charts = ChartsClient(session=session)
         self.workbookexports = WorkbookExportsClient(session=session)
         self.workbookimports = WorkbookImportsClient(session=session)
+        self.embeds = EmbedsClient(session=session)
+        self.embeddingsecrets = EmbeddingSecretsClient(session=session)

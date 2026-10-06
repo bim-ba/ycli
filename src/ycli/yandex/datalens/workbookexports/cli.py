@@ -57,7 +57,8 @@ def status_get(export_id: ExportIDArg, *, datalens: DataLensClient) -> WorkbookE
 def result_get(export_id: ExportIDArg, *, datalens: DataLensClient) -> WorkbookExport:
     """Print the exported workbook; its `data` is what `workbookimports start` takes.
 
-    An export that is not over, or was cancelled, answers 409.
+    An export that is not over, or was cancelled, answers 409. The document is large: write
+    it to a file. It holds no password or token of a connection.
     """
     return datalens.workbookexports.result_get(export_id)
 
