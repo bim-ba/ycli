@@ -37,10 +37,18 @@ def create(
         str | None, typer.Option(help="Access template: 'private' or 'public'.")
     ] = None,
     backlog: Annotated[
-        bool | None, typer.Option("--backlog/--no-backlog", help="Enable the board backlog.")
+        bool | None,
+        typer.Option(
+            "--backlog/--no-backlog",
+            help="Enable the board backlog; the API takes it together with --sprints only.",
+        ),
     ] = None,
     sprints: Annotated[
-        bool | None, typer.Option("--sprints/--no-sprints", help="Enable board sprints.")
+        bool | None,
+        typer.Option(
+            "--sprints/--no-sprints",
+            help="Enable board sprints; the API takes them together with --backlog only.",
+        ),
     ] = None,
     *,
     tracker: TrackerClient,
@@ -61,10 +69,18 @@ def update(
     board_id: BoardIDArg,
     name: Annotated[str | None, typer.Option(help="New board name.")] = None,
     backlog: Annotated[
-        bool | None, typer.Option("--backlog/--no-backlog", help="Enable the board backlog.")
+        bool | None,
+        typer.Option(
+            "--backlog/--no-backlog",
+            help="Enable the board backlog; the API takes it together with --sprints only.",
+        ),
     ] = None,
     sprints: Annotated[
-        bool | None, typer.Option("--sprints/--no-sprints", help="Enable board sprints.")
+        bool | None,
+        typer.Option(
+            "--sprints/--no-sprints",
+            help="Enable board sprints; the API takes them together with --backlog only.",
+        ),
     ] = None,
     *,
     tracker: TrackerClient,

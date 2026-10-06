@@ -6,107 +6,14 @@ from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
-    DisplayStr,
-    KeyStr,
     RequestBody,
 )
-from ycli.yandex.tracker.models import KeyedReference, UserReference
+
+# ``Issue`` lives with the models several resources share: a checklist change returns one too.
+from ycli.yandex.tracker.models import Issue as Issue
 
 #: How a scrolled search orders its results.
 ScrollType = Literal["sorted", "unsorted"] | str
-
-
-class Issue(APIModel):
-    """A Yandex Tracker issue (``/issues/{key}`` response).
-
-    Examples:
-        >>> Issue.model_validate({"key": "DE-1", "type": {"key": "task"}}).type
-        'task'
-    """
-
-    key: str | None = Field(default=None, description="Issue key, e.g. ``TEST-1``.")
-    summary: str | None = Field(default=None, description="Issue title.")
-    type: KeyStr = Field(default=None, description="Key of the issue type, e.g. ``task``.")
-    status: KeyStr = Field(default=None, description="Key of the current status.")
-    priority: KeyStr = Field(default=None, description="Key of the priority.")
-    epic: KeyStr = Field(default=None, description="Key of the epic the issue belongs to.")
-    parent: KeyStr = Field(default=None, description="Key of the parent issue.")
-    queue: KeyStr = Field(default=None, description="Key of the queue the issue belongs to.")
-    assignee: DisplayStr = Field(default=None, description="Display name of the assignee.")
-    tags: list[str] = Field(default_factory=list, description="Tags set on the issue.")
-    description: str | None = Field(default=None, description="Issue description (YFM markdown).")
-    created_at: str | None = Field(
-        default=None, alias="createdAt", description="When the issue was created (ISO 8601)."
-    )
-    created_by: DisplayStr = Field(
-        default=None, alias="createdBy", description="Display name of the issue author."
-    )
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource URL of the issue."
-    )
-    id: str | None = Field(default=None, description="Issue identifier.")
-    version: int | None = Field(
-        default=None, description="Issue version; each change of a field increases it."
-    )
-    updated_at: str | None = Field(
-        default=None, alias="updatedAt", description="When the issue was last changed (ISO 8601)."
-    )
-    updated_by: UserReference | None = Field(
-        default=None, alias="updatedBy", description="The user who last changed the issue."
-    )
-    status_start_time: str | None = Field(
-        default=None,
-        alias="statusStartTime",
-        description="When the issue entered its current status (ISO 8601).",
-    )
-    status_type: KeyedReference | None = Field(
-        default=None, alias="statusType", description="The type of the current status."
-    )
-    previous_status: KeyedReference | None = Field(
-        default=None, alias="previousStatus", description="The previous status of the issue."
-    )
-    last_comment_updated_at: str | None = Field(
-        default=None,
-        alias="lastCommentUpdatedAt",
-        description="When the last comment was updated (ISO 8601).",
-    )
-    comment_with_external_message_count: int | None = Field(
-        default=None,
-        alias="commentWithExternalMessageCount",
-        description="Number of comments with external messages (emails sent from the issue).",
-    )
-    comment_without_external_message_count: int | None = Field(
-        default=None,
-        alias="commentWithoutExternalMessageCount",
-        description="Number of comments without external messages.",
-    )
-    followers: list[UserReference] = Field(
-        default_factory=list, description="The users following the issue."
-    )
-    resolution: KeyedReference | None = Field(
-        default=None, description="The resolution of the issue, once it has one."
-    )
-    resolved_at: str | None = Field(
-        default=None, alias="resolvedAt", description="When the issue was resolved (ISO 8601)."
-    )
-    resolved_by: UserReference | None = Field(
-        default=None, alias="resolvedBy", description="The user who set the resolution."
-    )
-    estimation: str | None = Field(
-        default=None, description="The estimate of the issue, an ISO 8601 duration."
-    )
-    original_estimation: str | None = Field(
-        default=None,
-        alias="originalEstimation",
-        description="The original estimate of the issue, an ISO 8601 duration.",
-    )
-    spent: str | None = Field(
-        default=None, description="Time spent on the issue, an ISO 8601 duration."
-    )
-    votes: int | None = Field(default=None, description="Number of votes for the issue.")
-    favorite: bool | None = Field(
-        default=None, description="Whether the issue is in the caller's favourites."
-    )
 
 
 class IssueCreate(APIModel):

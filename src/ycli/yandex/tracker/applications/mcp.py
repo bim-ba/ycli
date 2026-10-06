@@ -4,9 +4,9 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.applications.models import Application
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, tracker_client
+from ycli.yandex.tracker.models import Application
 
 mcp = FastMCP("tracker-applications")
 

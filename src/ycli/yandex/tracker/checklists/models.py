@@ -1,69 +1,20 @@
 """Pydantic models for Tracker issue checklists.
 
-Read shapes: ``ChecklistItem`` / ``ItemList[ChecklistItem]`` (the ``GET …/checklistItems`` array)
-and ``Checklist`` (the issue wrapper that create/edit/delete calls return, carrying the
-current ``checklistItems``). Typed write bodies: ``ChecklistItemCreate`` / ``ChecklistItemUpdate``
-(with a nested ``DeadlineInput``).
+A checklist item is ``ChecklistItem``; adding, editing or deleting one returns the issue
+itself (``ycli.yandex.tracker.models.Issue``, with its ``checklistItems``). Typed write
+bodies: ``ChecklistItemCreate`` / ``ChecklistItemUpdate`` (with a nested ``DeadlineInput``).
 """
 
 from pydantic import Field
 
 from ycli.yandex.models import (
-    APIModel,
-    DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
-from ycli.yandex.tracker.models import Deadline, DeadlineInput
+from ycli.yandex.tracker.models import DeadlineInput, IssueChecklistItem
 
-
-class ChecklistItem(APIModel):
-    """A single checklist item (``GET /issues/{key}/checklistItems`` element).
-
-    Examples:
-        >>> ChecklistItem.model_validate({"id": "5f", "text": "do it", "checked": False}).text
-        'do it'
-    """
-
-    id: str | None = Field(default=None, description="Checklist item id.")
-    text: str | None = Field(default=None, description="Item text.")
-    text_html: str | None = Field(
-        default=None, alias="textHtml", description="Item text rendered to HTML."
-    )
-    checked: bool | None = Field(default=None, description="Whether the item is marked done.")
-    assignee: DisplayStr = Field(
-        default=None, description="Display name of the item assignee, if any."
-    )
-    deadline: Deadline | None = Field(default=None, description="Per-item deadline, if set.")
-    checklist_item_type: str | None = Field(
-        default=None, alias="checklistItemType", description="Item type, e.g. 'standard'."
-    )
-
-
-class Checklist(APIModel):
-    """The issue wrapper returned by checklist create/edit/delete calls.
-
-    Carries the issue ``key`` plus the current ``checklistItems`` and the done/total counts.
-    ``checklist_items`` is empty when the whole checklist was cleared.
-
-    Examples:
-        >>> Checklist.model_validate(
-        ...     {"key": "ORG-3", "checklistItems": [{"text": "a"}], "checklistTotal": 1}
-        ... ).checklist_items[0].text
-        'a'
-    """
-
-    key: str | None = Field(default=None, description="Key of the issue the checklist belongs to.")
-    checklist_items: list[ChecklistItem] = Field(
-        default_factory=list,
-        alias="checklistItems",
-        description="Current checklist items after the change (empty once cleared).",
-    )
-    checklist_total: int | None = Field(
-        default=None, alias="checklistTotal", description="Total number of checklist items."
-    )
-    checklist_done: int | str | None = Field(
-        default=None, alias="checklistDone", description="Number of items marked done."
-    )
+#: An item of an issue's checklist. The class lives beside ``Issue``, which carries the items,
+#: under a name that tells it from the item of an entity's checklist.
+ChecklistItem = IssueChecklistItem
 
 
 class ChecklistItemCreate(RequestBody):

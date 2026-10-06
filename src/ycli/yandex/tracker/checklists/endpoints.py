@@ -15,11 +15,11 @@ from http import HTTPMethod
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.checklists.models import (
-    Checklist,
     ChecklistItem,
     ChecklistItemCreate,
     ChecklistItemUpdate,
 )
+from ycli.yandex.tracker.models import Issue
 
 
 def list_(issue_key: str) -> Endpoint[ItemList[ChecklistItem]]:
@@ -28,21 +28,21 @@ def list_(issue_key: str) -> Endpoint[ItemList[ChecklistItem]]:
     )
 
 
-def create(issue_key: str, body: ChecklistItemCreate) -> Endpoint[Checklist]:
+def create(issue_key: str, body: ChecklistItemCreate) -> Endpoint[Issue]:
     return Endpoint(
-        HTTPMethod.POST, f"issues/{segment(issue_key)}/checklistItems", Checklist, json=body
+        HTTPMethod.POST, f"issues/{segment(issue_key)}/checklistItems", Issue, json=body
     )
 
 
-def update(issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
+def update(issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Issue]:
     path = f"issues/{segment(issue_key)}/checklistItems/{segment(item_id)}"
-    return Endpoint(HTTPMethod.PATCH, path, Checklist, json=body)
+    return Endpoint(HTTPMethod.PATCH, path, Issue, json=body)
 
 
-def delete(issue_key: str, item_id: str) -> Endpoint[Checklist]:
+def delete(issue_key: str, item_id: str) -> Endpoint[Issue]:
     path = f"issues/{segment(issue_key)}/checklistItems/{segment(item_id)}"
-    return Endpoint(HTTPMethod.DELETE, path, Checklist)
+    return Endpoint(HTTPMethod.DELETE, path, Issue)
 
 
-def clear(issue_key: str) -> Endpoint[Checklist]:
-    return Endpoint(HTTPMethod.DELETE, f"issues/{segment(issue_key)}/checklistItems", Checklist)
+def clear(issue_key: str) -> Endpoint[Issue]:
+    return Endpoint(HTTPMethod.DELETE, f"issues/{segment(issue_key)}/checklistItems", Issue)

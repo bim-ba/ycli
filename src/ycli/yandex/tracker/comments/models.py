@@ -78,6 +78,16 @@ class Comment(APIModel):
         default=None,
         description="How the comment was added: ``internal`` (Tracker interface) or ``email``.",
     )
+    own_reactions: list[str] = Field(
+        default_factory=list,
+        alias="ownReactions",
+        description="The caller's own reactions to the comment, in lower case.",
+    )
+    reactions_count: dict[str, int] = Field(
+        default_factory=dict,
+        alias="reactionsCount",
+        description="How many reactions of each kind the comment has, by its lower-case name.",
+    )
 
 
 class CommentUpdate(RequestBody):

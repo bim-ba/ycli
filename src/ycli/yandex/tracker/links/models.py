@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker issue links (LinkObject + Link + ItemList[Link])."""
+"""Pydantic models for Tracker issue links (Link + ItemList[Link])."""
 
 from typing import Literal
 
@@ -11,6 +11,7 @@ from ycli.yandex.models import (
     KeyStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.tracker.models import KeyedReference
 
 #: The link verbs ``POST /issues/{key}/links`` documents.
 Relationship = (
@@ -27,18 +28,6 @@ Relationship = (
 )
 
 
-class LinkObject(APIModel):
-    """The ``object`` sub-model in a ``Link`` — carries ``key`` and ``display``.
-
-    Examples:
-        >>> LinkObject.model_validate({"key": "DE-2", "display": "Other"}).key
-        'DE-2'
-    """
-
-    key: str | None = Field(default=None, description="Key of the linked issue.")
-    display: str | None = Field(default=None, description="Display name of the linked issue.")
-
-
 class Link(APIModel):
     """A linked issue reference (``/issues/{key}/links`` item).
 
@@ -49,13 +38,16 @@ class Link(APIModel):
         'relates'
     """
 
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the link."
+    )
     id: int | str | None = Field(default=None, description="Link identifier.")
     type: IDStr = Field(default=None, description="Identifier of the link type, e.g. ``relates``.")
     direction: str | None = Field(
         default=None,
         description="Link direction relative to the requested issue: ``outward`` or ``inward``.",
     )
-    object: LinkObject | None = Field(default=None, description="The linked issue.")
+    object: KeyedReference | None = Field(default=None, description="The linked issue.")
     created_by: DisplayStr = Field(
         default=None,
         alias="createdBy",

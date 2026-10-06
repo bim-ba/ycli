@@ -8,7 +8,7 @@ fields to it, whichever resource reads them.
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, DisplayStr, KeyStr, RequestBody
 
 
 class Reference(APIModel):
@@ -286,3 +286,150 @@ class AccessPermissions(APIModel):
     deny: AccessHolders | None = Field(
         default=None, alias="DENY", description="Who is denied access."
     )
+
+
+class IssueChecklistItem(APIModel):
+    """A single checklist item (``GET /issues/{key}/checklistItems`` element).
+
+    Examples:
+        >>> IssueChecklistItem.model_validate({"id": "5f", "text": "do it", "checked": False}).text
+        'do it'
+    """
+
+    id: str | None = Field(default=None, description="Checklist item id.")
+    text: str | None = Field(default=None, description="Item text.")
+    text_html: str | None = Field(
+        default=None, alias="textHtml", description="Item text rendered to HTML."
+    )
+    checked: bool | None = Field(default=None, description="Whether the item is marked done.")
+    assignee: DisplayStr = Field(
+        default=None, description="Display name of the item assignee, if any."
+    )
+    deadline: Deadline | None = Field(default=None, description="Per-item deadline, if set.")
+    checklist_item_type: str | None = Field(
+        default=None, alias="checklistItemType", description="Item type, e.g. 'standard'."
+    )
+
+
+class Issue(APIModel):
+    """A Yandex Tracker issue (``/issues/{key}`` response).
+
+    Examples:
+        >>> Issue.model_validate({"key": "DE-1", "type": {"key": "task"}}).type
+        'task'
+    """
+
+    key: str | None = Field(default=None, description="Issue key, e.g. ``TEST-1``.")
+    summary: str | None = Field(default=None, description="Issue title.")
+    type: KeyStr = Field(default=None, description="Key of the issue type, e.g. ``task``.")
+    status: KeyStr = Field(default=None, description="Key of the current status.")
+    priority: KeyStr = Field(default=None, description="Key of the priority.")
+    epic: KeyStr = Field(default=None, description="Key of the epic the issue belongs to.")
+    parent: KeyStr = Field(default=None, description="Key of the parent issue.")
+    queue: KeyStr = Field(default=None, description="Key of the queue the issue belongs to.")
+    assignee: DisplayStr = Field(default=None, description="Display name of the assignee.")
+    tags: list[str] = Field(default_factory=list, description="Tags set on the issue.")
+    description: str | None = Field(default=None, description="Issue description (YFM markdown).")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="When the issue was created (ISO 8601)."
+    )
+    created_by: DisplayStr = Field(
+        default=None, alias="createdBy", description="Display name of the issue author."
+    )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the issue."
+    )
+    id: str | None = Field(default=None, description="Issue identifier.")
+    version: int | None = Field(
+        default=None, description="Issue version; each change of a field increases it."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the issue was last changed (ISO 8601)."
+    )
+    updated_by: UserReference | None = Field(
+        default=None, alias="updatedBy", description="The user who last changed the issue."
+    )
+    status_start_time: str | None = Field(
+        default=None,
+        alias="statusStartTime",
+        description="When the issue entered its current status (ISO 8601).",
+    )
+    status_type: KeyedReference | None = Field(
+        default=None, alias="statusType", description="The type of the current status."
+    )
+    previous_status: KeyedReference | None = Field(
+        default=None, alias="previousStatus", description="The previous status of the issue."
+    )
+    last_comment_updated_at: str | None = Field(
+        default=None,
+        alias="lastCommentUpdatedAt",
+        description="When the last comment was updated (ISO 8601).",
+    )
+    comment_with_external_message_count: int | None = Field(
+        default=None,
+        alias="commentWithExternalMessageCount",
+        description="Number of comments with external messages (emails sent from the issue).",
+    )
+    comment_without_external_message_count: int | None = Field(
+        default=None,
+        alias="commentWithoutExternalMessageCount",
+        description="Number of comments without external messages.",
+    )
+    followers: list[UserReference] = Field(
+        default_factory=list, description="The users following the issue."
+    )
+    resolution: KeyedReference | None = Field(
+        default=None, description="The resolution of the issue, once it has one."
+    )
+    resolved_at: str | None = Field(
+        default=None, alias="resolvedAt", description="When the issue was resolved (ISO 8601)."
+    )
+    resolved_by: UserReference | None = Field(
+        default=None, alias="resolvedBy", description="The user who set the resolution."
+    )
+    estimation: str | None = Field(
+        default=None, description="The estimate of the issue, an ISO 8601 duration."
+    )
+    original_estimation: str | None = Field(
+        default=None,
+        alias="originalEstimation",
+        description="The original estimate of the issue, an ISO 8601 duration.",
+    )
+    spent: str | None = Field(
+        default=None, description="Time spent on the issue, an ISO 8601 duration."
+    )
+    votes: int | None = Field(default=None, description="Number of votes for the issue.")
+    favorite: bool | None = Field(
+        default=None, description="Whether the issue is in the caller's favourites."
+    )
+    checklist_items: list[IssueChecklistItem] = Field(
+        default_factory=list,
+        alias="checklistItems",
+        description="The items of the issue's checklist (empty once cleared).",
+    )
+    checklist_total: int | None = Field(
+        default=None, alias="checklistTotal", description="Number of checklist items."
+    )
+    checklist_done: int | str | None = Field(
+        default=None, alias="checklistDone", description="Number of checklist items marked done."
+    )
+
+
+class Application(APIModel):
+    """An external application that issues can be linked to (``/applications`` item).
+
+    Examples:
+        >>> Application.model_validate({"id": "my-app", "name": "My app"}).id
+        'my-app'
+    """
+
+    self_url: str | None = Field(
+        default=None,
+        alias="self",
+        description="API resource URL that returns full information about the application.",
+    )
+    id: str | None = Field(default=None, description="Unique identifier of the application.")
+    type: str | None = Field(
+        default=None, description="Type of the application; matches the value of the id parameter."
+    )
+    name: str | None = Field(default=None, description="Display name of the application.")
