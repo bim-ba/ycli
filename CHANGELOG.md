@@ -9,6 +9,22 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.103.1 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A field the API requires as null goes out as null
+  ([`9cbc973`](https://github.com/bim-ba/ycli/commit/9cbc97321395651ad4fcf934c3da20c95a503f5a))
+
+- **datalens**: A kind the specification does not list is sent as it was given
+  ([`867d03b`](https://github.com/bim-ba/ycli/commit/867d03b32b14cd72d6d455f3991297715fe36de0))
+
+### Build System
+
+- Re-lock uv.lock for 0.103.0
+  ([`247aad5`](https://github.com/bim-ba/ycli/commit/247aad5288197e2ad5fef8c476fa224d83669139))
+
+
 ## v0.103.0 (2026-10-06)
 
 ### Build System
