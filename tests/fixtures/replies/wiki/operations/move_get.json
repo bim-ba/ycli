@@ -1,0 +1,11 @@
+{
+  "body": {
+    "progress": {
+      "details": "<details>",
+      "percentage": 0.5
+    },
+    "status": "in_progress"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

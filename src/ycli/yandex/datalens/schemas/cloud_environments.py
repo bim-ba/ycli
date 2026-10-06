@@ -48,14 +48,18 @@ class CloudEnvironmentCreatedAt(APIModel):
     """Time when the cloud environment was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class CloudEnvironmentUpdatedAt(APIModel):
     """Time when the cloud environment was last updated."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class CloudEnvironmentStorage(APIModel):

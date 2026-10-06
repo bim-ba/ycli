@@ -1,0 +1,18 @@
+{
+  "body": {
+    "id": 1,
+    "links": {
+      "<key-1>": "<key-1>",
+      "<key-2>": "<key-2>",
+      "<key-3>": "<key-3>",
+      "<key-4>": "<key-4>",
+      "<key-5>": "<key-5>",
+      "<key-6>": "<key-6>",
+      "<key-7>": "<key-7>",
+      "<key-8>": "<key-8>"
+    },
+    "name": "<name>"
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

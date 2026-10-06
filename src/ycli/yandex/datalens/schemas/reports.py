@@ -44,8 +44,10 @@ class ReportTabItemV2Variant1DataBackgroundSettings(APIModel):
 
 
 class ReportTabItemV2Variant2DataSizeVariant2(APIModel):
-    font_size: float | None = Field(default=None, alias="fontSize", description="Title font size.")
-    line_height: float | None = Field(
+    font_size: int | float | None = Field(
+        default=None, alias="fontSize", description="Title font size."
+    )
+    line_height: int | float | None = Field(
         default=None, alias="lineHeight", description="Title line height."
     )
 
@@ -160,7 +162,7 @@ class ReportDataV2VisualSettingsBackgroundSettings(APIModel):
 class ReportDataV2VisualSettingsWidgetsSettings(APIModel):
     """Default visual settings for report widgets."""
 
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Default widget border radius."
     )
     internal_margins_enabled: bool | None = Field(
@@ -181,7 +183,7 @@ class ReportDataV2SlideSettingsValueBackgroundSettings(APIModel):
 class ReportDataV2SlideSettingsValueWidgetsSettings(APIModel):
     """Default visual settings for report widgets."""
 
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Default widget border radius."
     )
     internal_margins_enabled: bool | None = Field(
@@ -221,7 +223,7 @@ class ReportTabItemV2Variant1Data(APIModel):
     background_settings: ReportTabItemV2Variant1DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Text item border radius."
     )
 
@@ -238,7 +240,7 @@ class ReportTabItemV2Variant3Data(APIModel):
     hide_title: bool | None = Field(
         default=None, alias="hideTitle", description="Whether to hide the widget title."
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Widget border radius."
     )
     tabs: list[ReportTabItemV2Variant3DataTabsItem] | None = Field(
@@ -262,7 +264,7 @@ class ReportTabItemV2Variant4Data(APIModel):
     background_settings: ReportTabItemV2Variant4DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Image border radius."
     )
 
@@ -270,8 +272,10 @@ class ReportTabItemV2Variant4Data(APIModel):
 class ReportTabItemV2Variant5(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["control"] = Field(..., description="Control item type.")
@@ -330,7 +334,7 @@ class ReportTabItemV2Variant7Data(APIModel):
     background_settings: ReportTabItemV2Variant7DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Insight widget border radius."
     )
     hide_actions: bool | None = Field(
@@ -354,7 +358,7 @@ class ReportDataV2VisualSettings(APIModel):
     background_settings: ReportDataV2VisualSettingsBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Legacy widget border radius."
     )
     widgets_settings: ReportDataV2VisualSettingsWidgetsSettings | None = Field(
@@ -406,7 +410,7 @@ class ReportDataV2SlideSettingsValue(APIModel):
     background_settings: ReportDataV2SlideSettingsValueBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Legacy widget border radius."
     )
     widgets_settings: ReportDataV2SlideSettingsValueWidgetsSettings | None = Field(
@@ -452,8 +456,10 @@ class ReportDataV2SlideSettingsValue(APIModel):
 class ReportTabItemV2Variant1(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     data: ReportTabItemV2Variant1Data | None = None
@@ -471,7 +477,7 @@ class ReportTabItemV2Variant2Data(APIModel):
         default=None, alias="textSettings"
     )
     hint: ReportTabItemV2Variant2DataHint | None = None
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Title border radius."
     )
     internal_margins_enabled: bool | None = Field(
@@ -487,8 +493,10 @@ class ReportTabItemV2Variant2Data(APIModel):
 class ReportTabItemV2Variant3(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     data: ReportTabItemV2Variant3Data | None = None
@@ -498,8 +506,10 @@ class ReportTabItemV2Variant3(APIModel):
 class ReportTabItemV2Variant4(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["image"] = Field(..., description="Image item type.")
@@ -549,8 +559,10 @@ class ReportTabItemV2Variant6Data(APIModel):
 class ReportTabItemV2Variant7(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["neuro_widget"] = Field(..., description="Insight widget item type.")
@@ -560,8 +572,10 @@ class ReportTabItemV2Variant7(APIModel):
 class ReportTabItemV2Variant2(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     data: ReportTabItemV2Variant2Data | None = None
@@ -571,8 +585,10 @@ class ReportTabItemV2Variant2(APIModel):
 class ReportTabItemV2Variant6(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["group_control"] = Field(..., description="Control group item type.")

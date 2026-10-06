@@ -507,7 +507,7 @@ class AddSourceAvatar(APIModel):
 
 class ArrayFloat(APIModel):
     type: Literal["array_float"]
-    value: list[float] | None = None
+    value: list[int | float] | None = None
 
 
 class ArrayInt(APIModel):
@@ -719,7 +719,7 @@ class Direct1(APIModel):
 
 class Float(APIModel):
     type: Literal["float"]
-    value: float | None = None
+    value: int | float | None = None
 
 
 class Formula(APIModel):
@@ -830,12 +830,12 @@ class Genericdatetime(APIModel):
 
 class Geopoint(APIModel):
     type: Literal["geopoint"]
-    value: list[float] | None = None
+    value: list[int | float] | None = None
 
 
 class Geopolygon(APIModel):
     type: Literal["geopolygon"]
-    value: list[list[list[float]]] | None = None
+    value: list[list[list[int | float]]] | None = None
 
 
 class Integer(APIModel):

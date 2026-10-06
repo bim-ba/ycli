@@ -13,7 +13,7 @@ from .shared import EntryLocationIdentifiers
 
 
 class WizardV1LineShapeSettingsSchema(APIModel):
-    line_width: float | Literal["auto"] | None = Field(
+    line_width: int | float | Literal["auto"] | None = Field(
         default=None,
         alias="lineWidth",
         description="Line width in pixels or automatic width.",
@@ -111,7 +111,7 @@ class WizardFieldSchemaVariant1Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -140,7 +140,7 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIMode
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -152,7 +152,7 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIMode
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -162,7 +162,7 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIMode
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -278,7 +278,7 @@ class WizardFieldSchemaVariant1FieldsItemFormatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -307,7 +307,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settin
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -319,7 +319,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settin
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -329,7 +329,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settin
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -445,7 +445,7 @@ class WizardFieldSchemaVariant2Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -474,7 +474,7 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIMode
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -486,7 +486,7 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIMode
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -496,7 +496,7 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIMode
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -612,7 +612,7 @@ class WizardFieldSchemaVariant3Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -641,7 +641,7 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings(APIMode
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -653,7 +653,7 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings(APIMode
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -663,7 +663,7 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings(APIMode
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -779,7 +779,7 @@ class WizardFieldSchemaVariant4Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -808,7 +808,7 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings(APIMode
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -820,7 +820,7 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings(APIMode
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -830,7 +830,7 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings(APIMode
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -946,7 +946,7 @@ class WizardPseudoFieldSchemaVariant1Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -975,7 +975,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(A
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -987,7 +987,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(A
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -997,7 +997,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(A
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -1113,7 +1113,7 @@ class WizardPseudoFieldSchemaVariant2Formatting(APIModel):
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -1142,7 +1142,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(A
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    color_index: int | float | None = Field(
         default=None,
         alias="colorIndex",
         description="Selected color index in the palette.",
@@ -1154,7 +1154,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(A
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    negative_color_index: int | float | None = Field(
         default=None,
         alias="negativeColorIndex",
         description="Palette color index for negative values.",
@@ -1164,7 +1164,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(A
         alias="negativeColor",
         description="Custom color for negative values.",
     )
-    positive_color_index: float | None = Field(
+    positive_color_index: int | float | None = Field(
         default=None,
         alias="positiveColorIndex",
         description="Palette color index for positive values.",
@@ -1286,7 +1286,7 @@ class WizardV1GeolayerLayerSchemaVariant1LayerSettings(APIModel):
 
     id: str | None = Field(default=None, description="Unique layer identifier.")
     name: str | None = Field(default=None, description="Layer display name.")
-    alpha: float | None = Field(
+    alpha: int | float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
@@ -1294,7 +1294,7 @@ class WizardV1GeolayerLayerSchemaVariant1LayerSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant1SizeSettings(APIModel):
     """Map point size settings."""
 
-    radius: float | None = Field(default=None, description="Radius of map points in pixels.")
+    radius: int | float | None = Field(default=None, description="Radius of map points in pixels.")
 
 
 class WizardV1GeolayerLayerSchemaVariant1ColorsSettings(APIModel):
@@ -1370,7 +1370,7 @@ class WizardV1GeolayerLayerSchemaVariant2LayerSettings(APIModel):
 
     id: str | None = Field(default=None, description="Unique layer identifier.")
     name: str | None = Field(default=None, description="Layer display name.")
-    alpha: float | None = Field(
+    alpha: int | float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
@@ -1378,7 +1378,7 @@ class WizardV1GeolayerLayerSchemaVariant2LayerSettings(APIModel):
 class WizardV1GeolayerLayerSchemaVariant2SizeSettings(APIModel):
     """Map point size settings."""
 
-    radius: float | None = Field(default=None, description="Radius of map points in pixels.")
+    radius: int | float | None = Field(default=None, description="Radius of map points in pixels.")
 
 
 class WizardV1GeolayerLayerSchemaVariant2ColorsSettings(APIModel):
@@ -1454,7 +1454,7 @@ class WizardV1GeolayerLayerSchemaVariant3LayerSettings(APIModel):
 
     id: str | None = Field(default=None, description="Unique layer identifier.")
     name: str | None = Field(default=None, description="Layer display name.")
-    alpha: float | None = Field(
+    alpha: int | float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
@@ -1529,7 +1529,7 @@ class WizardV1GeolayerLayerSchemaVariant4LayerSettings(APIModel):
 
     id: str | None = Field(default=None, description="Unique layer identifier.")
     name: str | None = Field(default=None, description="Layer display name.")
-    alpha: float | None = Field(
+    alpha: int | float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
@@ -1607,7 +1607,7 @@ class WizardV1GeolayerLayerSchemaVariant5LayerSettings(APIModel):
 
     id: str | None = Field(default=None, description="Unique layer identifier.")
     name: str | None = Field(default=None, description="Layer display name.")
-    alpha: float | None = Field(
+    alpha: int | float | None = Field(
         default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
@@ -1694,7 +1694,7 @@ class WizardV1CombinedChartLayerSchemaVariant1XSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -1724,7 +1724,7 @@ class WizardV1CombinedChartLayerSchemaVariant1YSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -1754,7 +1754,7 @@ class WizardV1CombinedChartLayerSchemaVariant1Y2SettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -1822,7 +1822,7 @@ class WizardV1CombinedChartLayerSchemaVariant1ColorsSettings(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1ShapesSettingsCommonLineSettings(APIModel):
     """Line shape settings shared by all series."""
 
-    line_width: float | Literal["auto"] | None = Field(
+    line_width: int | float | Literal["auto"] | None = Field(
         default=None,
         alias="lineWidth",
         description="Line width in pixels or automatic width.",
@@ -1870,7 +1870,7 @@ class WizardV1CombinedChartLayerSchemaVariant2XSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -1900,7 +1900,7 @@ class WizardV1CombinedChartLayerSchemaVariant2YSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2005,7 +2005,7 @@ class WizardV1CombinedChartLayerSchemaVariant3XSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2035,7 +2035,7 @@ class WizardV1CombinedChartLayerSchemaVariant3YSettingsAxisLabelFormatting(APIMo
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2227,7 +2227,7 @@ class WizardV1ConfigSchemaSourcesUpdatesItemField(APIModel):
         default=None,
         description="Date or datetime format, separate from numeric formatting.",
     )
-    default_value: str | float | bool | None = Field(
+    default_value: str | int | float | bool | None = Field(
         default=None, description="Value of a parameter added in the chart."
     )
 
@@ -2314,7 +2314,7 @@ class WizardV1ConfigSchemaVisualizationVariant1XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2344,7 +2344,7 @@ class WizardV1ConfigSchemaVisualizationVariant1YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2374,7 +2374,7 @@ class WizardV1ConfigSchemaVisualizationVariant1Y2SettingsAxisLabelFormatting(API
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2442,7 +2442,7 @@ class WizardV1ConfigSchemaVisualizationVariant1ColorsSettings(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant1ShapesSettingsCommonLineSettings(APIModel):
     """Line shape settings shared by all series."""
 
-    line_width: float | Literal["auto"] | None = Field(
+    line_width: int | float | Literal["auto"] | None = Field(
         default=None,
         alias="lineWidth",
         description="Line width in pixels or automatic width.",
@@ -2520,7 +2520,7 @@ class WizardV1ConfigSchemaVisualizationVariant2XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2550,7 +2550,7 @@ class WizardV1ConfigSchemaVisualizationVariant2YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2685,7 +2685,7 @@ class WizardV1ConfigSchemaVisualizationVariant3XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2715,7 +2715,7 @@ class WizardV1ConfigSchemaVisualizationVariant3YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2845,7 +2845,7 @@ class WizardV1ConfigSchemaVisualizationVariant4XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2875,7 +2875,7 @@ class WizardV1ConfigSchemaVisualizationVariant4YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2968,7 +2968,7 @@ class WizardV1ConfigSchemaVisualizationVariant5XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -2998,7 +2998,7 @@ class WizardV1ConfigSchemaVisualizationVariant5YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3153,7 +3153,7 @@ class WizardV1ConfigSchemaVisualizationVariant6XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3183,7 +3183,7 @@ class WizardV1ConfigSchemaVisualizationVariant6YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3306,7 +3306,7 @@ class WizardV1ConfigSchemaVisualizationVariant7XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3336,7 +3336,7 @@ class WizardV1ConfigSchemaVisualizationVariant7YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3556,7 +3556,7 @@ class WizardV1ConfigSchemaVisualizationVariant9XSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3586,7 +3586,7 @@ class WizardV1ConfigSchemaVisualizationVariant9YSettingsAxisLabelFormatting(APIM
     unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
         default=None, description="Unit used to scale the numeric value."
     )
-    precision: float | None = Field(
+    precision: int | float | None = Field(
         default=None, description="Number of decimal places to display."
     )
     label_mode: Literal["absolute", "percent"] | str | None = Field(
@@ -3599,11 +3599,11 @@ class WizardV1ConfigSchemaVisualizationVariant9YSettingsAxisLabelFormatting(APIM
 class WizardV1ConfigSchemaVisualizationVariant9SizeSettings(APIModel):
     """Point size settings."""
 
-    radius: float | None = Field(default=None, description="Default point radius in pixels.")
-    min_radius: float | None = Field(
+    radius: int | float | None = Field(default=None, description="Default point radius in pixels.")
+    min_radius: int | float | None = Field(
         default=None, alias="minRadius", description="Minimum point radius in pixels."
     )
-    max_radius: float | None = Field(
+    max_radius: int | float | None = Field(
         default=None, alias="maxRadius", description="Maximum point radius in pixels."
     )
 
@@ -3847,7 +3847,7 @@ class WizardV1ConfigSchemaVisualizationVariant12ChartSettings(APIModel):
         alias="metricFontColor",
         description="Custom color of the metric value.",
     )
-    metric_font_color_index: float | None = Field(
+    metric_font_color_index: int | float | None = Field(
         default=None,
         alias="metricFontColorIndex",
         description="Metric value color index in the palette.",
@@ -3997,7 +3997,7 @@ class WizardV1ConfigSchemaVisualizationVariant14ChartSettings(APIModel):
     pagination: Literal["on", "off"] | str | None = Field(
         default=None, description="Whether table pagination is enabled."
     )
-    limit: float | None = Field(
+    limit: int | float | None = Field(
         default=None, description="Maximum number of rows displayed per page."
     )
     grouping: Literal["on", "disabled", "off"] | str | None = Field(
@@ -4006,7 +4006,7 @@ class WizardV1ConfigSchemaVisualizationVariant14ChartSettings(APIModel):
     totals: Literal["on", "off"] | str | None = Field(
         default=None, description="Whether a total row is displayed."
     )
-    pinned_columns: float | None = Field(
+    pinned_columns: int | float | None = Field(
         default=None,
         alias="pinnedColumns",
         description="Number of columns pinned to the left side.",
@@ -4088,7 +4088,7 @@ class WizardV1ConfigSchemaVisualizationVariant15ChartSettings(APIModel):
     pagination: Literal["on", "off"] | str | None = Field(
         default=None, description="Whether table pagination is enabled."
     )
-    limit: float | None = Field(
+    limit: int | float | None = Field(
         default=None, description="Maximum number of rows displayed per page."
     )
     pivot_fallback: Literal["on", "off"] | str | None = Field(
@@ -4101,7 +4101,7 @@ class WizardV1ConfigSchemaVisualizationVariant15ChartSettings(APIModel):
         alias="pivotInlineSort",
         description="Whether sorting the pivot table by rows is enabled.",
     )
-    pinned_columns: float | None = Field(
+    pinned_columns: int | float | None = Field(
         default=None,
         alias="pinnedColumns",
         description="Number of columns pinned to the left side.",
@@ -4197,7 +4197,7 @@ class WizardV1ConfigSchemaVisualizationVariant16ChartSettings(APIModel):
         alias="zoomMode",
         description="Mode used to determine the initial map zoom.",
     )
-    zoom_value: float | None = Field(
+    zoom_value: int | float | None = Field(
         default=None,
         alias="zoomValue",
         description="Initial map zoom level from 1 to 21.",
@@ -4754,7 +4754,7 @@ class WizardV1CombinedChartLayerSchemaVariant1XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -4809,7 +4809,7 @@ class WizardV1CombinedChartLayerSchemaVariant1YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -4867,7 +4867,7 @@ class WizardV1CombinedChartLayerSchemaVariant1Y2Settings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -4946,7 +4946,7 @@ class WizardV1CombinedChartLayerSchemaVariant2XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5001,7 +5001,7 @@ class WizardV1CombinedChartLayerSchemaVariant2YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5059,7 +5059,7 @@ class WizardV1CombinedChartLayerSchemaVariant3XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5114,7 +5114,7 @@ class WizardV1CombinedChartLayerSchemaVariant3YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5219,7 +5219,7 @@ class WizardV1ConfigSchemaVisualizationVariant1XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5274,7 +5274,7 @@ class WizardV1ConfigSchemaVisualizationVariant1YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5332,7 +5332,7 @@ class WizardV1ConfigSchemaVisualizationVariant1Y2Settings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5434,7 +5434,7 @@ class WizardV1ConfigSchemaVisualizationVariant2XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5489,7 +5489,7 @@ class WizardV1ConfigSchemaVisualizationVariant2YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5570,7 +5570,7 @@ class WizardV1ConfigSchemaVisualizationVariant3XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5625,7 +5625,7 @@ class WizardV1ConfigSchemaVisualizationVariant3YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5706,7 +5706,7 @@ class WizardV1ConfigSchemaVisualizationVariant4XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5761,7 +5761,7 @@ class WizardV1ConfigSchemaVisualizationVariant4YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5819,7 +5819,7 @@ class WizardV1ConfigSchemaVisualizationVariant5XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5874,7 +5874,7 @@ class WizardV1ConfigSchemaVisualizationVariant5YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -5955,7 +5955,7 @@ class WizardV1ConfigSchemaVisualizationVariant6XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -6016,7 +6016,7 @@ class WizardV1ConfigSchemaVisualizationVariant6YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -6068,7 +6068,7 @@ class WizardV1ConfigSchemaVisualizationVariant7XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -6129,7 +6129,7 @@ class WizardV1ConfigSchemaVisualizationVariant7YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -6181,7 +6181,7 @@ class WizardV1ConfigSchemaVisualizationVariant9XSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",
@@ -6244,7 +6244,7 @@ class WizardV1ConfigSchemaVisualizationVariant9YSettings(APIModel):
     grid_step: Literal["auto", "manual"] | str | None = Field(
         default=None, alias="gridStep", description="Grid step calculation mode."
     )
-    grid_step_value: float | None = Field(
+    grid_step_value: int | float | None = Field(
         default=None,
         alias="gridStepValue",
         description="Manual grid-line spacing in pixels.",

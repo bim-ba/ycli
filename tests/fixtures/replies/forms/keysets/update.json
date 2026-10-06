@@ -1,0 +1,11 @@
+{
+  "body": {
+    "id": 1,
+    "is_enabled": false,
+    "name": "<name>",
+    "total": 5,
+    "used": 0
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

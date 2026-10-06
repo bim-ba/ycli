@@ -1,0 +1,12 @@
+{
+  "body": {
+    "dry_run": false,
+    "operation": {
+      "id": "<id>",
+      "type": "clone_inline_grid"
+    },
+    "status_url": "<status_url>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

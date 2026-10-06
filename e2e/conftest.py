@@ -91,4 +91,4 @@ def variables() -> dict[str, str]:
     if runs_file := os.environ.get(RUNS_FILE_ENV):
         with Path(runs_file).open("a", encoding="utf-8") as listed:
             listed.write(f"{run}\n")
-    return {"RUN": run, "QUEUE": sandbox_queue()}
+    return {"RUN": run, "QUEUE": sandbox_queue(), "FILES": str(Path(__file__).parent / "files")}

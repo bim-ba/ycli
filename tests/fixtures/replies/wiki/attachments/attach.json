@@ -1,0 +1,31 @@
+{
+  "body": {
+    "results": [
+      {
+        "check_status": "<check_status>",
+        "created_at": "<created_at>",
+        "description": "<description>",
+        "download_url": "<download_url>",
+        "has_preview": false,
+        "id": 1,
+        "is_downloadable": true,
+        "mimetype": "<mimetype>",
+        "name": "<name>",
+        "size": "<size>",
+        "user": {
+          "affiliation": "<affiliation>",
+          "display_name": "<display_name>",
+          "id": 1,
+          "identity": {
+            "cloud_uid": "<cloud_uid>",
+            "uid": "<uid>"
+          },
+          "is_dismissed": false,
+          "username": "<username>"
+        }
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

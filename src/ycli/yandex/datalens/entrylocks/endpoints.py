@@ -3,7 +3,7 @@
 Examples:
     >>> from ycli.yandex.datalens.entrylocks.models import LockTerms
     >>> create("e1", data=LockTerms(duration=300000)).body
-    {'entryId': 'e1', 'data': {'duration': 300000.0}}
+    {'entryId': 'e1', 'data': {'duration': 300000}}
 """
 
 from ycli.yandex.core.endpoint import RPC, Effect, Endpoint

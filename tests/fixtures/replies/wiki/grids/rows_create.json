@@ -1,0 +1,17 @@
+{
+  "body": {
+    "results": [
+      {
+        "color": null,
+        "id": "<id>",
+        "pinned": null,
+        "row": [
+          "<row>"
+        ]
+      }
+    ],
+    "revision": "<revision>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

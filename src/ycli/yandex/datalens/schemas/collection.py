@@ -139,7 +139,7 @@ class GetStructureItemsArgs(RequestBody):
     mode: Literal["all", "onlyCollections", "onlyWorkbooks", "onlyEntries"] | str | None = Field(
         default=None, description="Types of items to include in the response."
     )
-    page_size: float | None = Field(
+    page_size: int | float | None = Field(
         default=None,
         alias="pageSize",
         description="Number of collection items per page.",
@@ -206,7 +206,7 @@ class ListCollectionAccessBindingsArgs(RequestBody):
         alias="getInheritedBindings",
         description="Include access bindings inherited from parent resources.",
     )
-    page_size: float | None = Field(
+    page_size: int | float | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of subjects to return.",

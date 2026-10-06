@@ -86,7 +86,9 @@ class GetLicensesArgs(RequestBody):
     order: Literal["asc", "desc"] | str | None = Field(
         default=None, description="License sort order."
     )
-    limit: float | None = Field(default=None, description="Maximum number of licenses to return.")
+    limit: int | float | None = Field(
+        default=None, description="Maximum number of licenses to return."
+    )
     page_token: str | None = Field(
         default=None,
         alias="pageToken",
@@ -95,7 +97,9 @@ class GetLicensesArgs(RequestBody):
 
 
 class SetLicenseLimitArgs(RequestBody):
-    value: float = Field(..., description="Maximum number of licenses allowed for the tenant.")
+    value: int | float = Field(
+        ..., description="Maximum number of licenses allowed for the tenant."
+    )
 
 
 class License(APIModel):
@@ -162,13 +166,15 @@ class LicenseLimitsCurrent(APIModel):
     type: Literal["regular", "forced"] | str | None = Field(
         default=None, description="Type of the license limit."
     )
-    value: float | None = Field(default=None, description="Maximum number of active licenses.")
+    value: int | float | None = Field(
+        default=None, description="Maximum number of active licenses."
+    )
     started_at: str | None = Field(
         default=None,
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
-    active_licenses_count: float | None = Field(
+    active_licenses_count: int | float | None = Field(
         default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",
@@ -181,13 +187,15 @@ class LicenseLimitsNext(APIModel):
     type: Literal["regular", "forced"] | str | None = Field(
         default=None, description="Type of the license limit."
     )
-    value: float | None = Field(default=None, description="Maximum number of active licenses.")
+    value: int | float | None = Field(
+        default=None, description="Maximum number of active licenses."
+    )
     started_at: str | None = Field(
         default=None,
         alias="startedAt",
         description="Date and time when the license limit takes effect.",
     )
-    active_licenses_count: float | None = Field(
+    active_licenses_count: int | float | None = Field(
         default=None,
         alias="activeLicensesCount",
         description="Number of active licenses counted against the limit.",
