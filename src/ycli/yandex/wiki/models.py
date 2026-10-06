@@ -119,3 +119,6 @@ class CursorPage[T](APIModel):
         default=None,
         description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )
+    prev_cursor: str | None = Field(
+        default=None, description="Cursor for the page before this one; ``null`` on the first."
+    )

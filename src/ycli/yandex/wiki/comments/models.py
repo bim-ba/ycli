@@ -1,5 +1,7 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses."""
 
+from typing import Any
+
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -8,6 +10,21 @@ from ycli.yandex.models import (
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.wiki.models import ResolveStatus, User
+
+
+class CommentReaction(APIModel):
+    """One reaction left on a comment (``reactions`` item).
+
+    Examples:
+        >>> CommentReaction.model_validate({"type": "like"}).type
+        'like'
+    """
+
+    type: str | None = Field(
+        default=None, description="Kind of reaction, e.g. ``like``, ``heart``, ``check``."
+    )
+    author: User | None = Field(default=None, description="Who left the reaction.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time it was left.")
 
 
 class Comment(APIModel):
@@ -36,6 +53,20 @@ class Comment(APIModel):
     content: str | None = Field(
         default=None, validation_alias="body", description="Text of the comment."
     )
+    inline_text: str | None = Field(
+        default=None, description="Page fragment the comment is pinned to, if inline."
+    )
+    thread_id: int | None = Field(
+        default=None, description="Id of the thread the comment belongs to."
+    )
+    thread_info: Any = Field(default=None, description="The thread the comment opens, if any.")
+    is_deleted: bool | None = Field(default=None, description="Whether the comment is deleted.")
+    resolve_status: ResolveStatus | None = Field(
+        default=None, description="``resolved`` or ``unresolved``."
+    )
+    reactions: list[CommentReaction] = Field(
+        default_factory=list, description="Reactions left on the comment."
+    )
 
 
 class CommentCreate(RequestBody):
@@ -60,21 +91,6 @@ class CommentCreate(RequestBody):
     thread_id: int | None = Field(
         default=None, description="Id of an existing thread to file this comment into."
     )
-
-
-class CommentReaction(APIModel):
-    """One reaction left on a comment (``reactions`` item).
-
-    Examples:
-        >>> CommentReaction.model_validate({"type": "like"}).type
-        'like'
-    """
-
-    type: str | None = Field(
-        default=None, description="Kind of reaction, e.g. ``like``, ``heart``, ``check``."
-    )
-    author: User | None = Field(default=None, description="Who left the reaction.")
-    created_at: str | None = Field(default=None, description="ISO-8601 time it was left.")
 
 
 class CommentCreated(APIModel):

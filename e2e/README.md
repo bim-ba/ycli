@@ -44,7 +44,7 @@ set -a; . ./.env; set +a
 YCLI_E2E=1 uv run pytest e2e --no-cov -n 0 -p no:cacheprovider --record
 ```
 
-`--record` runs the same scenarios through the CLI in this process instead of the installed binary, lets every request through to the real API and keeps the first good reply of each operation as `tests/fixtures/replies/<service>/<resource>/<method>.json`. A fixture is never edited by hand: record again and review the diff. `tests/contract/test_recorded_replies.py` then checks, offline, that the model of each operation reads its recorded reply.
+`--record` runs the same scenarios through the CLI in this process instead of the installed binary, lets every request through to the real API and keeps the fullest good reply of each operation as `tests/fixtures/replies/<service>/<resource>/<method>.json`. A fixture is never edited by hand: record again and review the diff. `tests/contract/test_recorded_replies.py` then checks, offline, that the model of each operation reads its recorded reply.
 
 The repository is public, so a reply is scrubbed before it is written (`scrub.py`), and what reaches the file is decided by a list of what is allowed, not by what looks personal:
 
