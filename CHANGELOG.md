@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.108.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.107.0
+  ([`4c159ab`](https://github.com/bim-ba/ycli/commit/4c159abb88c68172ca4b08b7d10118c89d3b1ed2))
+
+### Features
+
+- **datalens**: Cloud environments and their storage bucket
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`651047d`](https://github.com/bim-ba/ycli/commit/651047d45fd75d80eedc38550cf9e0deb3acb440))
+
+
 ## v0.107.0 (2026-10-06)
 
 ### Build System
