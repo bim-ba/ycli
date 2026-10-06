@@ -16,6 +16,46 @@ def test_base_install_imports_cli_without_fastmcp():
     assert proc.returncode == 0, proc.stderr
 
 
+MCP_ONLY = """
+import asyncio, httpx2
+from fastmcp import Client
+from tests.contract import load_cases
+from tests.full_server import mcp
+
+case = next(case for case in load_cases() if case.operation == "forms.questions.list")
+reply = case.exchanges[0][1]
+transport = httpx2.MockTransport(lambda request: httpx2.Response(reply.status, json=reply.json))
+import ycli.yandex.core.session as session
+session.default_transport = lambda: transport
+
+async def call():
+    async with Client(mcp) as client:
+        return (await client.call_tool(*case.mcp)).structured_content
+
+print(asyncio.run(call()))
+"""
+
+
+def test_a_tool_answers_when_nothing_has_used_its_models_before():
+    """A server process calls a tool with no SDK call before it: the listing of questions answers.
+
+    In an interpreter of its own, since the contract test calls the SDK first in the same
+    process, and that alone finishes a model pydantic left incomplete (v0.46.0 to v0.94.0).
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    proc = subprocess.run(
+        [sys.executable, "-c", MCP_ONLY],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parents[3],
+    )
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    assert "'slug': 'name'" in proc.stdout
+
+
 async def test_root_mounts_all_domains_with_namespaces():
     async with Client(mcp) as client:
         names = {t.name for t in await client.list_tools()}
