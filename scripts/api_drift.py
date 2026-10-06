@@ -78,6 +78,9 @@ EXHAUSTIVE = frozenset({*api_surface.OPENAPI_URLS, "datalens"})
 NOT_WRAPPED: dict[tuple[str, str, str], str] = {
     ("tracker", "GET", "/boards"): "`boards list` reads the paginated `GET /boards/_paginate`",
     ("tracker", "GET", "/users"): "`users list` reads the paginated `GET /users/_relative`",
+    ("datalens", "POST", "/rpc/listDirectory"): (
+        "the old folder model of DataLens; whether ycli wraps it is the question of #394"
+    ),
 }
 
 # A difference that stays, with its reason: one name of one kind (``GAP_KINDS``), either on one

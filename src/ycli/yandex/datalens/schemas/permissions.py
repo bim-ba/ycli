@@ -9,7 +9,44 @@ from pydantic import Field
 from ycli.yandex.models import APIModel, RequestBody
 
 
-class SharedEntryPermissions(APIModel):
+class GetPermissionsBulkArgs(RequestBody):
+    entry_ids: list[str] | None = Field(
+        default=None,
+        alias="entryIds",
+        description="Identifiers of the entries to check permissions for.",
+    )
+    workbook_ids: list[str] | None = Field(
+        default=None,
+        alias="workbookIds",
+        description="Identifiers of the workbooks to check permissions for.",
+    )
+    collection_ids: list[str] | None = Field(
+        default=None,
+        alias="collectionIds",
+        description="Identifiers of the collections to check permissions for.",
+    )
+
+
+class GetPermissionsBulkResultEntriesValuePermissions(APIModel):
+    """Basic permissions for the entry."""
+
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
+
+
+class GetPermissionsBulkResultEntriesValueFullPermissions(APIModel):
+    """Full permissions for the entry."""
+
     list_access_bindings: bool | None = Field(
         default=None,
         alias="listAccessBindings",
@@ -38,71 +75,11 @@ class SharedEntryPermissions(APIModel):
         alias="createLimitedEntryBinding",
         description="Permission to create limited entry binding.",
     )
-
-
-class GetPermissionsBulkArgs(RequestBody):
-    entry_ids: list[str] | None = Field(
-        default=None,
-        alias="entryIds",
-        description="Identifiers of the entries to check permissions for.",
-    )
-    workbook_ids: list[str] | None = Field(
-        default=None,
-        alias="workbookIds",
-        description="Identifiers of the workbooks to check permissions for.",
-    )
-    collection_ids: list[str] | None = Field(
-        default=None,
-        alias="collectionIds",
-        description="Identifiers of the collections to check permissions for.",
-    )
-
-
-class GetPermissionsBulkResultEntriesValueVariant1Permissions(APIModel):
-    """Basic permissions for the entry."""
-
-    execute: bool | None = Field(
-        default=None, description="Indicates if there are permissions to execute."
-    )
-    read: bool | None = Field(
-        default=None, description="Indicates if there are permissions to read."
-    )
-    edit: bool | None = Field(
-        default=None, description="Indicates if there are permissions to edit."
-    )
-    admin: bool | None = Field(
-        default=None, description="Indicates if there are permissions for admin."
-    )
-
-
-class GetPermissionsBulkResultEntriesValueVariant1FullPermissionsVariant2(APIModel):
     get: bool | None = Field(default=None, description="Permission to read compute entry metadata.")
     use: bool | None = Field(default=None, description="Permission to use the compute resource.")
-    update: bool | None = Field(
-        default=None, description="Permission to update the compute resource."
-    )
-    delete: bool | None = Field(
-        default=None, description="Permission to delete the compute resource."
-    )
-    list_access_bindings: bool | None = Field(
-        default=None,
-        alias="listAccessBindings",
-        description="Permission to list access bindings.",
-    )
-    update_access_bindings: bool | None = Field(
-        default=None,
-        alias="updateAccessBindings",
-        description="Permission to update access bindings.",
-    )
 
 
-class GetPermissionsBulkResultEntriesValueVariant2(APIModel):
-    error: Literal["NOT_FOUND"] = Field(
-        ..., description="Error code indicating a missing resource."
-    )
-
-
-class GetPermissionsBulkResultWorkbooksValueVariant1Permissions(APIModel):
+class GetPermissionsBulkResultWorkbooksValuePermissions(APIModel):
     """Permissions for the workbook."""
 
     list_access_bindings: bool | None = Field(
@@ -143,13 +120,7 @@ class GetPermissionsBulkResultWorkbooksValueVariant1Permissions(APIModel):
     )
 
 
-class GetPermissionsBulkResultWorkbooksValueVariant2(APIModel):
-    error: Literal["NOT_FOUND"] = Field(
-        ..., description="Error code indicating a missing resource."
-    )
-
-
-class GetPermissionsBulkResultCollectionsValueVariant1Permissions(APIModel):
+class GetPermissionsBulkResultCollectionsValuePermissions(APIModel):
     """Permissions for the collection."""
 
     list_access_bindings: bool | None = Field(
@@ -203,53 +174,39 @@ class GetPermissionsBulkResultCollectionsValueVariant1Permissions(APIModel):
     )
 
 
-class GetPermissionsBulkResultCollectionsValueVariant2(APIModel):
-    error: Literal["NOT_FOUND"] = Field(
-        ..., description="Error code indicating a missing resource."
+class GetPermissionsBulkResultEntriesValue(APIModel):
+    permissions: GetPermissionsBulkResultEntriesValuePermissions | None = None
+    full_permissions: GetPermissionsBulkResultEntriesValueFullPermissions | None = Field(
+        default=None, alias="fullPermissions"
+    )
+    error: Literal["NOT_FOUND"] | str | None = Field(
+        default=None, description="Error code indicating a missing resource."
     )
 
 
-class GetPermissionsBulkResultEntriesValueVariant1(APIModel):
-    permissions: GetPermissionsBulkResultEntriesValueVariant1Permissions | None = None
-    full_permissions: (
-        SharedEntryPermissions
-        | GetPermissionsBulkResultEntriesValueVariant1FullPermissionsVariant2
-        | None
-    ) = Field(default=None, alias="fullPermissions", description="Full permissions for the entry.")
+class GetPermissionsBulkResultWorkbooksValue(APIModel):
+    permissions: GetPermissionsBulkResultWorkbooksValuePermissions | None = None
+    error: Literal["NOT_FOUND"] | str | None = Field(
+        default=None, description="Error code indicating a missing resource."
+    )
 
 
-class GetPermissionsBulkResultWorkbooksValueVariant1(APIModel):
-    permissions: GetPermissionsBulkResultWorkbooksValueVariant1Permissions | None = None
-
-
-class GetPermissionsBulkResultCollectionsValueVariant1(APIModel):
-    permissions: GetPermissionsBulkResultCollectionsValueVariant1Permissions | None = None
+class GetPermissionsBulkResultCollectionsValue(APIModel):
+    permissions: GetPermissionsBulkResultCollectionsValuePermissions | None = None
+    error: Literal["NOT_FOUND"] | str | None = Field(
+        default=None, description="Error code indicating a missing resource."
+    )
 
 
 class GetPermissionsBulkResult(APIModel):
-    entries: (
-        dict[
-            str,
-            GetPermissionsBulkResultEntriesValueVariant1
-            | GetPermissionsBulkResultEntriesValueVariant2,
-        ]
-        | None
-    ) = Field(default=None, description="Entry permissions or errors indexed by entry ID.")
-    workbooks: (
-        dict[
-            str,
-            GetPermissionsBulkResultWorkbooksValueVariant1
-            | GetPermissionsBulkResultWorkbooksValueVariant2,
-        ]
-        | None
-    ) = Field(default=None, description="Workbook permissions or errors indexed by workbook ID.")
-    collections: (
-        dict[
-            str,
-            GetPermissionsBulkResultCollectionsValueVariant1
-            | GetPermissionsBulkResultCollectionsValueVariant2,
-        ]
-        | None
-    ) = Field(
-        default=None, description="Collection permissions or errors indexed by collection ID."
+    entries: dict[str, GetPermissionsBulkResultEntriesValue] | None = Field(
+        default=None, description="Entry permissions or errors indexed by entry ID."
+    )
+    workbooks: dict[str, GetPermissionsBulkResultWorkbooksValue] | None = Field(
+        default=None,
+        description="Workbook permissions or errors indexed by workbook ID.",
+    )
+    collections: dict[str, GetPermissionsBulkResultCollectionsValue] | None = Field(
+        default=None,
+        description="Collection permissions or errors indexed by collection ID.",
     )

@@ -74,6 +74,11 @@ DataLens differs from the other services in both credentials:
 | Several workbooks by id | `uv run ycli datalens workbooks list-by-ids <id> <id>…` | `datalens_workbooks_list_by_ids` |
 | What a workbook holds | `uv run ycli datalens workbooks entries-list <workbook_id> [--scope dash] [--scope dataset] [--all]` | `datalens_workbooks_entries_list` |
 | Who has which role on a workbook | `uv run ycli datalens workbooks access-bindings-list <workbook_id>` | `datalens_workbooks_access_bindings_list` |
+| Find entries anywhere (give a scope or ids) | `uv run ycli datalens entries list --scope dash [--filters '{"name": "sales"}'] [--all]` | `datalens_entries_list` |
+| What an entry uses, or what uses it | `uv run ycli datalens entries relations-list <entry_id>… --link-direction from\|to` | `datalens_entries_relations_list` |
+| Revisions of an entry | `uv run ycli datalens entries revisions-list <entry_id>` | `datalens_entries_revisions_list` |
+| What you may do with entries | `uv run ycli datalens entries permissions-get <entry_id>…` | `datalens_entries_permissions_get` |
+| What you may do with many entries, workbooks and collections | `uv run ycli datalens permissions get-bulk --entry-id … --workbook-id … --collection-id …` | `datalens_permissions_get_bulk` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
@@ -102,6 +107,7 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Move one or several workbooks | `uv run ycli datalens workbooks move <workbook_id> [--collection-id <id>]` · `move-bulk <id> <id>…` | `datalens_workbooks_move` · `datalens_workbooks_move_bulk` |
 | Delete one or several workbooks | `uv run ycli datalens workbooks delete <workbook_id>` · `delete-bulk <id> <id>…` | `datalens_workbooks_delete` · `datalens_workbooks_delete_bulk` |
 | Give or take away roles on a workbook | `uv run ycli datalens workbooks access-bindings-update <workbook_id> --delta '<json>'…` | `datalens_workbooks_access_bindings_update` |
+| Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
@@ -119,3 +125,5 @@ An operation takes the fields of its request as arguments, under one name on eve
 The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` or `REMOVE`; subject `type` is one of `userAccount`, `federatedUser`, `serviceAccount`, `group`, `invitee`, `system`. It answers with an operation; `done` says whether it has been applied.
 
 **A lock is held by its token.** `entrylocks create` answers with the token alone: keep it, `extend` and `delete` take it. The duration is in milliseconds. An entry that is already locked answers 423 `ERR.US.ENTRY_IS_LOCKED` with who holds the lock and until when; releasing an entry that is not locked answers 404.
+
+**Permissions come as a map by id.** `entries permissions-get` and `permissions get-bulk` answer `{<id>: {"permissions": {…}}}`; an id that does not exist answers `{<id>: {"error": "NOT_FOUND"}}` in the same map, and an id of a wrong form refuses the whole request. `entries list` needs `--scope`, `--scopes` or `--id`; an entry you may not read comes with `isLocked: true` and little else.

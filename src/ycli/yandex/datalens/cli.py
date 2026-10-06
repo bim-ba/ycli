@@ -4,8 +4,10 @@ import typer
 
 from ycli.yandex.datalens import SERVICE
 from ycli.yandex.datalens.collections.cli import app as collections_app
+from ycli.yandex.datalens.entries.cli import app as entries_app
 from ycli.yandex.datalens.entrylocks.cli import app as entrylocks_app
 from ycli.yandex.datalens.members.cli import app as members_app
+from ycli.yandex.datalens.permissions.cli import app as permissions_app
 from ycli.yandex.datalens.tenant.cli import app as tenant_app
 from ycli.yandex.datalens.workbooks.cli import app as workbooks_app
 from ycli.yandex.status.service_cli import service_auth_app
@@ -19,3 +21,5 @@ app.add_typer(collections_app)
 app.add_typer(workbooks_app)
 app.add_typer(entrylocks_app)
 app.add_typer(members_app)
+app.add_typer(entries_app)
+app.add_typer(permissions_app)

@@ -10,8 +10,10 @@ if TYPE_CHECKING:
 from ycli.yandex.base import DomainClient
 from ycli.yandex.datalens import SERVICE
 from ycli.yandex.datalens.collections.client import CollectionsClient
+from ycli.yandex.datalens.entries.client import EntriesClient
 from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
 from ycli.yandex.datalens.members.client import MembersClient
+from ycli.yandex.datalens.permissions.client import PermissionsClient
 from ycli.yandex.datalens.tenant.client import TenantClient
 from ycli.yandex.datalens.workbooks.client import WorkbooksClient
 
@@ -36,3 +38,5 @@ class DataLensClient(DomainClient):
         self.workbooks = WorkbooksClient(session=session)
         self.entrylocks = EntryLocksClient(session=session)
         self.members = MembersClient(session=session)
+        self.entries = EntriesClient(session=session)
+        self.permissions = PermissionsClient(session=session)

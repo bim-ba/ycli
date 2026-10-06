@@ -53,7 +53,7 @@ DataLens publishes one OpenAPI document with about 600 schemas, and its objects 
 write by hand, so `scripts/gen_datalens_models.py` generates them into
 `src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
 are met by the script, not by an editor: before the generator runs it rewrites the document so
-that a reply is read openly, no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
+that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
 and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.

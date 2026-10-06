@@ -139,7 +139,7 @@ class GetEntriesRelationsEntryFullPermissions(APIModel):
     )
 
 
-class GetEntriesPermissionsResultValueVariant1Permissions(APIModel):
+class GetEntriesPermissionsResultValuePermissions(APIModel):
     """Permissions for the entry."""
 
     execute: bool | None = Field(
@@ -154,10 +154,6 @@ class GetEntriesPermissionsResultValueVariant1Permissions(APIModel):
     admin: bool | None = Field(
         default=None, description="Indicates if there are permissions for admin."
     )
-
-
-class GetEntriesPermissionsResultValueVariant2(APIModel):
-    error: Literal["NOT_FOUND"] = Field(..., description="Error code indicating a missing entry.")
 
 
 class GetRevisionsResultEntriesItem(APIModel):
@@ -242,17 +238,12 @@ class GetRevisionsResult(APIModel):
     )
 
 
-class GetEntriesPermissionsResultValueVariant1(APIModel):
-    permissions: GetEntriesPermissionsResultValueVariant1Permissions | None = None
+class GetEntriesPermissionsResultValue(APIModel):
+    permissions: GetEntriesPermissionsResultValuePermissions | None = None
+    error: Literal["NOT_FOUND"] | str | None = Field(
+        default=None, description="Error code indicating a missing entry."
+    )
 
 
-class GetEntriesPermissionsResult(
-    RootModel[
-        dict[
-            str, GetEntriesPermissionsResultValueVariant1 | GetEntriesPermissionsResultValueVariant2
-        ]
-    ]
-):
-    root: dict[
-        str, GetEntriesPermissionsResultValueVariant1 | GetEntriesPermissionsResultValueVariant2
-    ]
+class GetEntriesPermissionsResult(RootModel[dict[str, GetEntriesPermissionsResultValue]]):
+    root: dict[str, GetEntriesPermissionsResultValue]

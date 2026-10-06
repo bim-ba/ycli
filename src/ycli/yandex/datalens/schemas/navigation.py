@@ -11,21 +11,7 @@ from ycli.yandex.models import APIModel, RequestBody
 from . import shared
 
 
-class GetEntriesV2ResultEntriesItemVariant1(APIModel):
-    is_locked: Literal[True] = Field(
-        ..., alias="isLocked", description="Indicates that the entry is locked."
-    )
-    entry_id: str | None = Field(
-        default=None,
-        alias="entryId",
-        description="Unique identifier of the locked entry.",
-    )
-    scope: shared.EntryScope | None = None
-    type: str | None = Field(default=None, description="Type of the locked entry.")
-    name: str | None = Field(default=None, description="Name of the entry.")
-
-
-class GetEntriesV2ResultEntriesItemVariant2Permissions(APIModel):
+class GetEntriesV2ResultEntriesItemPermissions(APIModel):
     """Permissions for the entry."""
 
     execute: bool | None = Field(
@@ -286,13 +272,21 @@ class ListDirectoryArgs(RequestBody):
     )
 
 
-class GetEntriesV2ResultEntriesItemVariant2(APIModel):
-    entry_id: str | None = Field(
-        default=None, alias="entryId", description="Unique identifier of the entry."
+class GetEntriesV2ResultEntriesItem(APIModel):
+    is_locked: bool | None = Field(
+        default=None,
+        alias="isLocked",
+        description="Indicates that the entry is locked.",
     )
-    key: str | None = Field(default=None, description="Key of the entry.")
+    entry_id: str | None = Field(
+        default=None,
+        alias="entryId",
+        description="Unique identifier of the locked entry.",
+    )
     scope: shared.EntryScope | None = None
-    type: str | None = Field(default=None, description="Type of the entry.")
+    type: str | None = Field(default=None, description="Type of the locked entry.")
+    name: str | None = Field(default=None, description="Name of the entry.")
+    key: str | None = Field(default=None, description="Key of the entry.")
     meta: dict[str, Any] | None = Field(
         default=None, description="Metadata associated with the entry."
     )
@@ -350,17 +344,11 @@ class GetEntriesV2ResultEntriesItemVariant2(APIModel):
         alias="isFavorite",
         description="Whether the entry is marked as a favorite.",
     )
-    is_locked: Literal[False] | None = Field(
-        default=None,
-        alias="isLocked",
-        description="Indicates that the entry is not locked.",
-    )
-    permissions: GetEntriesV2ResultEntriesItemVariant2Permissions | None = None
+    permissions: GetEntriesV2ResultEntriesItemPermissions | None = None
     links: dict[str, Any] | None = Field(
         default=None, description="Links associated with the entry."
     )
     data: dict[str, Any] | None = Field(default=None, description="Data stored in the entry.")
-    name: str | None = Field(default=None, description="Name of the entry.")
 
 
 class GetEntriesV2Result(APIModel):
@@ -369,6 +357,6 @@ class GetEntriesV2Result(APIModel):
         alias="nextPageToken",
         description="Token for the next page of entries.",
     )
-    entries: (
-        list[GetEntriesV2ResultEntriesItemVariant1 | GetEntriesV2ResultEntriesItemVariant2] | None
-    ) = Field(default=None, description="Entries matching the request.")
+    entries: list[GetEntriesV2ResultEntriesItem] | None = Field(
+        default=None, description="Entries matching the request."
+    )
