@@ -16,6 +16,7 @@ from ycli.yandex.datalens.members.cli import app as members_app
 from ycli.yandex.datalens.permissions.cli import app as permissions_app
 from ycli.yandex.datalens.reports.cli import app as reports_app
 from ycli.yandex.datalens.sharedentries.cli import app as sharedentries_app
+from ycli.yandex.datalens.sqlqueries.cli import app as sqlqueries_app
 from ycli.yandex.datalens.tenant.cli import app as tenant_app
 from ycli.yandex.datalens.workbookexports.cli import app as workbookexports_app
 from ycli.yandex.datalens.workbookimports.cli import app as workbookimports_app
@@ -43,3 +44,4 @@ app.add_typer(embeds_app)
 app.add_typer(embeddingsecrets_app)
 app.add_typer(sharedentries_app)
 app.add_typer(audit_app)
+app.add_typer(sqlqueries_app)

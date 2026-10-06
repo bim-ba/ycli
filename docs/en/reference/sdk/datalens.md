@@ -78,3 +78,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## audit
 
 ::: ycli.yandex.datalens.audit.client.AuditClient
+
+## sqlqueries
+
+::: ycli.yandex.datalens.sqlqueries.client.SqlQueriesClient

@@ -26,6 +26,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - the embeds of an entry and the keys for embedding that sign them
 - the roles on a shared entry
 - the audit (reads)
+- saved SQL queries (experimental in the API; written from its document, not measured)
 - the members of the organization and the details of the DataLens instance (reads)
 
 Not wrapped yet: dashboards are found and listed as entries, but their content is not opened or changed.
@@ -117,6 +118,7 @@ DataLens differs from the other services in both credentials:
 | Who has which role on a shared entry | `uv run ycli datalens sharedentries access-bindings-list <entry_id> [--get-inherited-bindings]` | `datalens_sharedentries_access_bindings_list` |
 | Entries changed in a period (deleted ones too) | `uv run ycli datalens audit entries-updates-list --from 2026-10-01T00:00:00Z [--to …] [--all]` | `datalens_audit_entries_updates_list` |
 | What one user may do with entries | `uv run ycli datalens audit entry-permissions-get <entry_id>… --user-id <user_id>` | `datalens_audit_entry_permissions_get` |
+| One saved SQL query (experimental) | `uv run ycli datalens sqlqueries get <sql_query_id>` | `datalens_sqlqueries_get` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -163,6 +165,10 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Save an embed as given | `uv run ycli datalens embeds update <embed_id> --title … --embedding-secret-id <id> --no-public-params-mode --settings '{}' [--unsigned-params …]` | `datalens_embeds_update` |
 | Delete an embed | `uv run ycli datalens embeds delete <embed_id>` | `datalens_embeds_delete` |
 | Give or take away roles on a shared entry | `uv run ycli datalens sharedentries access-bindings-update <entry_id> --delta '<json>'…` | `datalens_sharedentries_access_bindings_update` |
+| Save a SQL query in a workbook (experimental) | `uv run ycli datalens sqlqueries create --workbook-id <id> --name … --connection-id <id> --query '…'` | `datalens_sqlqueries_create` |
+| Save a SQL query anew | `uv run ycli datalens sqlqueries update <sql_query_id> --connection-id <id> --query '…'` | `datalens_sqlqueries_update` |
+| Run a saved SQL query | `uv run ycli datalens sqlqueries run <sql_query_id> [--params '{"since": "2026-10-01"}']` | `datalens_sqlqueries_run` |
+| Delete a saved SQL query | `uv run ycli datalens sqlqueries delete <sql_query_id>` | `datalens_sqlqueries_delete` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
 | Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
@@ -191,6 +197,8 @@ An operation takes the fields of its request as arguments, under one name on eve
 **A shared entry lies in a collection, not in a workbook.** A connection or a dataset created with `--collection-id` (and no `--workbook-id`) is one: workbooks may use it, and it has roles of its own, `datalens.sharedEntries.*` (`admin`, `viewer`), changed by deltas as on a collection. `sharedentries access-bindings-list` of an entry that lies in a workbook, or of an id nothing knows, answers an empty list, not an error. A change of roles answers an operation that may not be done yet (`done: false`): read the roles again to see it.
 
 **The audit is asked with a start time.** `audit entries-updates-list` requires `--from` (ISO-8601 with its zone) and lists every entry changed since, deleted ones included (`isDeleted`), with who changed it. `audit entry-permissions-get` answers by entry id: `permissions` (`execute`, `read`, `edit`, `admin`), or `error` for an entry that does not exist; the user's id is the one `createdBy` of an entry gives.
+
+**Saved SQL queries are experimental, and not measured.** DataLens marks the whole section experimental; ycli wraps it from the published document, and no reply of it was checked against the service. An organization whose SQL editor is off answers `403 SQL_EDITOR_NOT_ALLOWED` to every call. A query runs over a connection to PostgreSQL, ClickHouse, MySQL, Greenplum or Trino; `sqlqueries run` runs the text as it is saved, so a text that changes data changes it. `sqlqueries update` takes the connection and the text every time.
 
 **The private key of a key for embedding is given once.** `embeddingsecrets create` answers the id and the private key; `get` and `list` never return the key again, so write it to a file at once (`-o json … > secret.json`, a file nobody else reads) and do not paste it anywhere. Through MCP the key comes in the tool's result, into the agent's context: hand it over at once and do not repeat it.
 

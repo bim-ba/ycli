@@ -39,6 +39,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `embeddingsecrets`: DataLens keys for embedding.
 * `sharedentries`: DataLens shared entries: connections and...
 * `audit`: DataLens audit.
+* `sqlqueries`: DataLens saved SQL queries (experimental...
 
 ## `ycli datalens auth`
 
@@ -2614,3 +2615,167 @@ $ ycli datalens audit entry-permissions-get [OPTIONS] ENTRY_ID...
 * `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
+
+## `ycli datalens sqlqueries`
+
+DataLens saved SQL queries (experimental in the API).
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `get`: Print one saved SQL query: its text, its...
+* `create`: Save a SQL query in a workbook.
+* `update`: Save a SQL query anew; the connection and...
+* `delete`: Delete a saved SQL query.
+* `run`: Run a saved SQL query on its connection; a...
+
+### `ycli datalens sqlqueries get`
+
+Print one saved SQL query: its text, its connection and its parameters.
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries get [OPTIONS] SQL_QUERY_ID
+```
+
+**Arguments**:
+
+* `SQL_QUERY_ID`: SQL query id.  [required]
+
+**Options**:
+
+* `--rev-id TEXT`: The revision to read; the current if not.
+* `--include-permissions / --no-include-permissions`: Also say what you may do with the query.
+* `--include-favorite / --no-include-favorite`: Also say whether the query is a favourite.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
+
+### `ycli datalens sqlqueries create`
+
+Save a SQL query in a workbook.
+
+The workbook, the name, the connection and the text are required.
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries create [OPTIONS]
+```
+
+**Options**:
+
+* `--workbook-id TEXT`: The workbook to keep it in.
+* `--name TEXT`: The query's name in the workbook.
+* `--connection-id TEXT`: The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum or Trino.
+* `--query TEXT`: The text of the query.
+* `--description TEXT`: A description.
+* `--params TEXT`: The parameters the text takes, as a JSON array: [{"name": "since", "type": "date", "defaultValue": "2026-01-01"}].
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
+
+### `ycli datalens sqlqueries update`
+
+Save a SQL query anew; the connection and the text are required every time.
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries update [OPTIONS] SQL_QUERY_ID
+```
+
+**Arguments**:
+
+* `SQL_QUERY_ID`: SQL query id.  [required]
+
+**Options**:
+
+* `--connection-id TEXT`: The connection it runs over: PostgreSQL, ClickHouse, MySQL, Greenplum or Trino.
+* `--query TEXT`: The text of the query.
+* `--description TEXT`: A description.
+* `--params TEXT`: The parameters the text takes, as a JSON array: [{"name": "since", "type": "date", "defaultValue": "2026-01-01"}].
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
+
+### `ycli datalens sqlqueries delete`
+
+Delete a saved SQL query.
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries delete [OPTIONS] SQL_QUERY_ID
+```
+
+**Arguments**:
+
+* `SQL_QUERY_ID`: SQL query id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
+
+### `ycli datalens sqlqueries run`
+
+Run a saved SQL query on its connection; a text that changes data changes it.
+
+**Usage**:
+
+```console
+$ ycli datalens sqlqueries run [OPTIONS] SQL_QUERY_ID
+```
+
+**Arguments**:
+
+* `SQL_QUERY_ID`: SQL query id.  [required]
+
+**Options**:
+
+* `--params TEXT`: The values of the parameters, as a JSON object: {"since": "2026-10-01"}. A parameter left out takes its default.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
