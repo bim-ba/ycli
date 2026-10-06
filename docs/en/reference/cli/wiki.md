@@ -132,7 +132,7 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 * `descendants-list-by-id`: Print descendant slugs under a numeric...
 * `grids-list`: List dynamic tables (grids) attached to a...
 * `create`: Create a wiki page (POST /pages).
-* `update`: Update a wiki page by id (POST /pages/{id}).
+* `update`: Update a wiki page by id (POST...
 * `delete`: Delete a wiki page (DELETE /pages/{id});...
 * `append`: Append content to a wiki page (POST...
 * `clone`: Copy a page to a new address (POST...
@@ -329,7 +329,7 @@ $ ycli wiki pages create [OPTIONS]
 
 ### `ycli wiki pages update`
 
-Update a wiki page by id (POST /pages/{id}).
+Update a wiki page by id (POST /pages/{id}): only what is given changes.
 
 **Usage**:
 
@@ -343,8 +343,8 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
-* `--title TEXT`: New title (optional).
+* `--content TEXT`: New Markdown body, replacing the whole one — pass "$(cat file.md)".
+* `--title TEXT`: New title.
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
 * `--allow-merge / --no-allow-merge`: Merge with a concurrent edit instead of failing.

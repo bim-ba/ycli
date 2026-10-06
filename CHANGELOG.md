@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.100.1 (2026-10-06)
+
+### Bug Fixes
+
+- **wiki**: Pages update changes a title without the text sent again
+  ([`97c3cbf`](https://github.com/bim-ba/ycli/commit/97c3cbfbfa8ae8b2a97c88663809830a757fc3bf))
+
+### Build System
+
+- Re-lock uv.lock for 0.100.0
+  ([`fbcee49`](https://github.com/bim-ba/ycli/commit/fbcee495ea7d4d504f9343aa1ea1198c95143f81))
+
+
 ## v0.100.0 (2026-10-06)
 
 ### Build System
