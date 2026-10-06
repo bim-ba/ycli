@@ -223,7 +223,11 @@ def move_bulk(
 
 @mcp.tool(name="workbooks_delete", annotations={**DESTRUCTIVE, "title": "Delete DataLens workbook"})
 def delete(workbook_id: WorkbookID, client: DataLensClient = Depends(datalens_client)) -> Workbook:
-    """Delete a workbook with everything it holds: connections, datasets, charts, dashboards."""
+    """Delete a workbook with everything it holds: connections, datasets, charts, dashboards.
+
+    Deleting a workbook that is already deleted answers 500, not 404: after a server error,
+    read the workbook before deleting it again.
+    """
     return client.workbooks.delete(workbook_id)
 
 
