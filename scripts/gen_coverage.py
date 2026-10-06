@@ -158,6 +158,7 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Data", ["connections", "datasets"]),
     ("Charts & reports", ["charts", "reports"]),
     ("SQL", ["sqlqueries"]),
+    ("Cloud environments", ["cloudenvironments", "cloudenvironmentstorage"]),
     ("Embedding", ["embeds", "embeddingsecrets"]),
 ]
 

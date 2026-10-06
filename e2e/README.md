@@ -43,6 +43,8 @@ A fourth, `datalens/shared-entries-and-audit`, makes a dataset in a collection (
 
 A fifth, `datalens/licensing`, only reads: who holds a licence and how many there may be. The writes of that section are billed and are never run.
 
+A sixth, `datalens/cloud-environments`, only lists the cloud environments; making one creates cloud resources and is never run.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

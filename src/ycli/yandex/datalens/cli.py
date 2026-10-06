@@ -5,6 +5,8 @@ import typer
 from ycli.yandex.datalens import SERVICE
 from ycli.yandex.datalens.audit.cli import app as audit_app
 from ycli.yandex.datalens.charts.cli import app as charts_app
+from ycli.yandex.datalens.cloudenvironments.cli import app as cloudenvironments_app
+from ycli.yandex.datalens.cloudenvironmentstorage.cli import app as cloudenvironmentstorage_app
 from ycli.yandex.datalens.collections.cli import app as collections_app
 from ycli.yandex.datalens.connections.cli import app as connections_app
 from ycli.yandex.datalens.datasets.cli import app as datasets_app
@@ -47,3 +49,5 @@ app.add_typer(sharedentries_app)
 app.add_typer(audit_app)
 app.add_typer(sqlqueries_app)
 app.add_typer(licensing_app)
+app.add_typer(cloudenvironments_app)
+app.add_typer(cloudenvironmentstorage_app)

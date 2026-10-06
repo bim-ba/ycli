@@ -1,0 +1,9 @@
+# The cloud environments of the instance, listed only. Making, changing or deleting one creates
+# resources in a cloud and is never run; the storage of an environment cannot be read without
+# one. Run by hand only (the README says how): CI has no token DataLens takes.
+name: datalens/cloud-environments
+steps:
+  - id: listed
+    run: datalens cloudenvironments list --include-permissions --limit 5
+    expect:
+      "type(@)": array

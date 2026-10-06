@@ -86,3 +86,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## licensing
 
 ::: ycli.yandex.datalens.licensing.client.LicensingClient
+
+## cloudenvironments
+
+::: ycli.yandex.datalens.cloudenvironments.client.CloudEnvironmentsClient
+
+## cloudenvironmentstorage
+
+::: ycli.yandex.datalens.cloudenvironmentstorage.client.CloudEnvironmentStorageClient

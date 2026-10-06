@@ -11,6 +11,8 @@ from ycli.yandex.base import DomainClient
 from ycli.yandex.datalens import SERVICE
 from ycli.yandex.datalens.audit.client import AuditClient
 from ycli.yandex.datalens.charts.client import ChartsClient
+from ycli.yandex.datalens.cloudenvironments.client import CloudEnvironmentsClient
+from ycli.yandex.datalens.cloudenvironmentstorage.client import CloudEnvironmentStorageClient
 from ycli.yandex.datalens.collections.client import CollectionsClient
 from ycli.yandex.datalens.connections.client import ConnectionsClient
 from ycli.yandex.datalens.datasets.client import DatasetsClient
@@ -64,3 +66,5 @@ class DataLensClient(DomainClient):
         self.audit = AuditClient(session=session)
         self.sqlqueries = SqlQueriesClient(session=session)
         self.licensing = LicensingClient(session=session)
+        self.cloudenvironments = CloudEnvironmentsClient(session=session)
+        self.cloudenvironmentstorage = CloudEnvironmentStorageClient(session=session)
