@@ -1,0 +1,89 @@
+{
+  "body": {
+    "create": {
+      "<unknown-1>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-2>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>",
+          "<unknown-4>": 1,
+          "<unknown-5>": "<unknown-5>"
+        }
+      ]
+    },
+    "grant": {
+      "<unknown-1>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>",
+          "<unknown-4>": 1,
+          "<unknown-5>": "<unknown-5>"
+        }
+      ]
+    },
+    "read": {
+      "<unknown-1>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-2>": "<unknown-2>"
+    },
+    "self": "<self>",
+    "version": 1,
+    "write": {
+      "<unknown-1>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-2>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>"
+        }
+      ],
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": [
+        {
+          "<unknown-1>": "<unknown-1>",
+          "<unknown-2>": "<unknown-2>",
+          "<unknown-3>": "<unknown-3>",
+          "<unknown-4>": 1,
+          "<unknown-5>": "<unknown-5>"
+        }
+      ]
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}
