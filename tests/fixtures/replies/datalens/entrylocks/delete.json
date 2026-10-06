@@ -1,0 +1,12 @@
+{
+  "body": {
+    "entryId": "<entryId>",
+    "expiryDate": "<expiryDate>",
+    "lockId": "<lockId>",
+    "lockToken": "<lockToken>",
+    "login": "<login>",
+    "startDate": "<startDate>"
+  },
+  "status": 200,
+  "unknown_keys": 1
+}

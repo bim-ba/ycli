@@ -1,11 +1,9 @@
 # Collections and workbooks of DataLens: made, renamed, nested, moved one by one and in bulk,
-# a role added to the caller and taken back, and all of it deleted. Run by hand only (the
-# README says how): CI has no token DataLens takes.
+# a role added to the caller and taken back, and all of it deleted. An empty dataset made in
+# the run's workbook is the entry that is renamed, locked, held longer and released. Run by
+# hand only (the README says how): CI has no token DataLens takes.
 #
-# Not here yet: `entries rename` and the three `entrylocks` commands. They need an entry of the
-# run's own, and nothing ycli wraps can make one in a temporary workbook. When `datasets create`
-# and `datasets delete` are in, this scenario makes an empty dataset in its workbook and these
-# four steps are added. Entries that exist already are only read.
+# Entries that exist already are only read.
 name: datalens/collections-and-workbooks
 steps:
   - id: instance
@@ -109,6 +107,46 @@ steps:
       - datalens workbooks access-bindings-list ${workbook} --get-inherited-bindings
       - datalens permissions get-bulk --workbook-id ${workbook} --workbook-id ${other}
       - datalens members list --limit 2
+  - id: dataset
+    # With no source and no field: an entry of the run's own, and nothing to connect to.
+    run: >-
+      datalens datasets create --name "${RUN} dataset" --workbook-id ${workbook}
+      --dataset '{"sources": [], "result_schema": []}'
+    save:
+      dataset: id
+    cleanup: datalens datasets delete ${dataset}
+    reads:
+      - datalens datasets get ${dataset}
+  - id: entry-rename
+    run: datalens entries rename ${dataset} --name "${RUN} dataset renamed"
+    expect:
+      "[0].entryId": ${dataset}
+      "ends_with([0].key, 'dataset renamed')": true
+  - id: lock
+    run: >-
+      datalens entrylocks create ${dataset} --data '{"duration": 300000, "force": false}'
+    save:
+      lock: lockToken
+    cleanup: >-
+      datalens entrylocks delete ${dataset} --params '{"force": true}'
+  - id: lock-extend
+    run: >-
+      datalens entrylocks extend ${dataset}
+      --data '{"lockToken": "${lock}", "duration": 600000}'
+    expect:
+      entryId: ${dataset}
+      lockToken: ${lock}
+  - id: unlock
+    run: >-
+      datalens entrylocks delete ${dataset} --params '{"lockToken": "${lock}"}'
+    expect:
+      entryId: ${dataset}
+    disarms: [lock]
+  - id: dataset-delete
+    run: datalens datasets delete ${dataset}
+    expect:
+      ok: true
+    disarms: [dataset]
   - id: an-entry-that-exists
     # Read only: an entry somebody made, never changed by this scenario.
     run: datalens entries list --scope dataset --limit 1

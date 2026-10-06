@@ -33,7 +33,7 @@ uv run pytest e2e --no-cov -n 0 --service datalens            # the scenarios
 uv run pytest e2e --no-cov -n 0 --service datalens --record   # and record the replies
 ```
 
-The token is a person's: it reaches every organization that person is in, and only `YANDEX_CLOUD_ORGANIZATION_ID` picks the one the scenarios work in. They make a collection, nest two more and two workbooks in it, and delete all of it; entries that exist already are only read.
+The token is a person's: it reaches every organization that person is in, and only `YANDEX_CLOUD_ORGANIZATION_ID` picks the one the scenarios work in. They make a collection, nest two more and two workbooks in it, make an empty dataset in one of them (the entry that is renamed and locked), and delete all of it; entries that exist already are only read.
 
 ## Scenario files
 

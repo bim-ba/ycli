@@ -1,0 +1,14 @@
+{
+  "body": [
+    {
+      "entryId": "<entryId>",
+      "key": "<key>",
+      "scope": "dataset",
+      "type": "<type>",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>"
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}
