@@ -104,7 +104,7 @@ class CommentsClient(Resource):
         """
         return self._session.send(endpoints.update(issue_key, comment_id, body))
 
-    def delete(self, issue_key: str, comment_id: str) -> None:
+    def delete(self, issue_key: str, comment_id: int | str) -> None:
         """Delete a comment (``DELETE …/comments/{id}`` → 204). Raises on non-2xx.
 
         Args:

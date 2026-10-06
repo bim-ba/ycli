@@ -50,9 +50,7 @@ def list_(
 @mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"})
 def get(
     issue_key: IssueKey,
-    comment_id: Annotated[
-        str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
-    ],
+    comment_id: CommentID,
     expand: Annotated[
         str | None,
         Field(description="Extra fields: ``attachments``, ``html`` or ``all`` (comma-separated)."),

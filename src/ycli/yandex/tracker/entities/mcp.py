@@ -97,9 +97,9 @@ def get(
 def search(
     entity_type: SearchTypeArg,
     body: Annotated[
-        EntitySearch,
-        Field(description="What to find: name substring, filter, sort order; ``{}`` for all."),
-    ],
+        EntitySearch | None,
+        Field(description="What to find: name substring, filter, sort order; omit for all."),
+    ] = None,
     fields: Annotated[
         str | None, Field(description="Comma-separated extra fields to include.")
     ] = None,

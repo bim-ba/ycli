@@ -32,7 +32,8 @@ MacroID = Annotated[
     int, Field(description="Numeric identifier of the macro, from ``macros_list``.")
 ]
 CommentID = Annotated[
-    str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
+    int | str,
+    Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``."),
 ]
 ChecklistItemID = Annotated[str, Field(description="Checklist item id, from ``checklists_list``.")]
 WorklogRecordID = Annotated[str, Field(description="Worklog record id, from ``worklog_list``.")]
