@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.attachments import endpoints
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentCreate
+from ycli.yandex.wiki.attachments.models import AttachedFile, AttachmentCreate
 from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 
 if TYPE_CHECKING:
@@ -30,8 +30,8 @@ class AttachmentsClient(Resource):
         limit: int | None = None,
         order_by: str | None = None,
         order_direction: str | None = None,
-    ) -> ItemList[Attachment]:
-        """``GET /pages/{id}/attachments`` → ``ItemList[Attachment]``, draining ``next_cursor``.
+    ) -> ItemList[AttachedFile]:
+        """``GET /pages/{id}/attachments`` → ``ItemList[AttachedFile]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every attachment).
 
@@ -49,7 +49,7 @@ class AttachmentsClient(Resource):
             ['spec.pdf', 'logo.png']
         """
         paged = endpoints.list_(page_id, order_by=order_by, order_direction=order_direction)
-        return ItemList[Attachment](list(self._session.iterate(paged, limit=limit)))
+        return ItemList[AttachedFile](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, page_id: int, file_id: int) -> AttachedFile:
         """``GET /pages/{id}/attachments/{file_id}`` → one attachment's metadata.

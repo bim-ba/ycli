@@ -12,7 +12,7 @@ from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList, SortDirection
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentOrder
+from ycli.yandex.wiki.attachments.models import AttachedFile, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -39,7 +39,7 @@ def list_(
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Attachment]:
+) -> ItemList[AttachedFile]:
     """Attachments (name, size, mime type) on a page id, auto-paginated (drains ``next_cursor``).
 
     Capped at the configured item cap unless ``limit`` is given. This is the list surface;

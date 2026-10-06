@@ -7,7 +7,20 @@ from tests.contract import Case, Reply, Sent, Sibling
 
 FILE = Path(__file__).with_name("diagram.txt")
 DATA = FILE.read_bytes()
-ATTACHMENT = {"id": 5611, "name": "spec.pdf", "size": "2048", "mimetype": "application/pdf"}
+# An item of the listing carries every field of an attached file.
+ATTACHMENT = {
+    "id": 5611,
+    "name": "spec.pdf",
+    "size": "2048",
+    "mimetype": "application/pdf",
+    "description": "the signed spec",
+    "user": {"id": 8101, "username": "ivan", "display_name": "Ivan"},
+    "created_at": "2026-09-30T09:15:00.000Z",
+    "download_url": "/eng/specs/.files/spec.pdf",
+    "check_status": "check",
+    "has_preview": False,
+    "is_downloadable": True,
+}
 SESSION = "3f2b1a0c-5d4e-4f6a-8b9c-0d1e2f3a4b5c"
 
 DETAILS = {
