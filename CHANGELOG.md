@@ -9,6 +9,37 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.92.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.91.0
+  ([`9a784b3`](https://github.com/bim-ba/ycli/commit/9a784b3f5851f08e05cf63f574b252139d8b767c))
+
+### Documentation
+
+- **datalens**: The skill names everything ycli wraps today
+  ([`3656c64`](https://github.com/bim-ba/ycli/commit/3656c642f98a08125b700e643016a8be637ea0f7))
+
+### Features
+
+- **tracker**: The user of an absence is the user of the directory, and a file names its comment
+  ([`5164aa1`](https://github.com/bim-ba/ycli/commit/5164aa1c0de9bb6de9a1d0d8fa7c3e4abd7103f3))
+
+### Testing
+
+- **e2e**: A step may wait for what only the owner can name, and imports and absences are written
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`3c98f06`](https://github.com/bim-ba/ycli/commit/3c98f06e14770a44e6cda729ff2fb26835a4d875))
+
+### Breaking Changes
+
+- **tracker**: SDK: `ycli.yandex.tracker.gaps.models.GapUser` is gone; the `user` of a `Gap` and of
+  a `UserGaps` is `ycli.yandex.tracker.models.User`. `tracker gaps create` and `gaps search` print
+  three more keys of the user (`groups`, `welcomeMailSent`, `position`), `null` or `[]` when the API
+  leaves them out.
+
+
 ## v0.91.0 (2026-10-06)
 
 ### Build System
