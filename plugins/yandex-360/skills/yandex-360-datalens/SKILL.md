@@ -2,14 +2,14 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, exporting a workbook and importing it as a new one, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, the data of a chart, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, exporting a workbook and importing it as a new one, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, charts and their data, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. Charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
@@ -25,6 +25,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Reading, creating, changing or deleting a connection to a database, a file or an API
 - Reading, creating, changing, checking or deleting a dataset, and reading its rows
 - Reading the data a saved chart shows
+- Reading, creating, saving or deleting a chart of the wizard, a QL chart or a chart of the editor
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -33,7 +34,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
 - Reading or editing Forms — use `yandex-360-forms`
-- Opening or changing the content of a chart or dashboard — not wrapped yet
+- Opening or changing the content of a dashboard — not wrapped yet
 
 ## Surfaces
 
@@ -96,6 +97,7 @@ DataLens differs from the other services in both credentials:
 | Rows of a dataset (one page) | `uv run ycli datalens datasets data-get <dataset_id> --columns <guid> --columns <guid> [--limit 100] [--offset 100 --sort '{"guid": "…", "direction": "asc"}']` | `datalens_datasets_data_get` |
 | Check a dataset or a change to it, saving nothing | `uv run ycli datalens datasets validate <dataset_id> --body-file change.json` | `datalens_datasets_validate` |
 | The data a saved chart shows, as tables | `uv run ycli datalens charts data-get <chart_id> [--params '{"year": "2026"}']` | `datalens_charts_data_get` |
+| One chart, by how it is built | `uv run ycli datalens charts wizard get <chart_id>` · `charts ql get <chart_id>` · `charts editor get <chart_id>` | `datalens_charts_wizard_get` · `datalens_charts_ql_get` · `datalens_charts_editor_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -133,6 +135,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Create a dataset (empty is valid) | `uv run ycli datalens datasets create --name … --workbook-id <id> --dataset '{"sources": [], "result_schema": []}'` | `datalens_datasets_create` |
 | Save a dataset as given | `uv run ycli datalens datasets update <dataset_id> --body-file dataset.json` | `datalens_datasets_update` |
 | Delete a dataset | `uv run ycli datalens datasets delete <dataset_id>` | `datalens_datasets_delete` |
+| Create a chart | `uv run ycli datalens charts wizard create --workbook-id <id> --name … --body-file chart.json` · `charts ql create --template ql …` · `charts editor create --body-file chart.json` | `datalens_charts_wizard_create` · `datalens_charts_ql_create` · `datalens_charts_editor_create` |
+| Save a chart as given | `uv run ycli datalens charts wizard update <chart_id> --mode save --body-file chart.json` · `charts ql update <entry_id> --template ql --mode save …` · `charts editor update --mode save --body-file chart.json` | `datalens_charts_wizard_update` · `datalens_charts_ql_update` · `datalens_charts_editor_update` |
+| Delete a chart | `uv run ycli datalens charts wizard delete <chart_id>` · `charts ql delete` · `charts editor delete` | `datalens_charts_wizard_delete` · `datalens_charts_ql_delete` · `datalens_charts_editor_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
@@ -162,3 +167,5 @@ The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` 
 **A dataset is changed whole.** Read it with `datasets get`, change `dataset` (sources, `result_schema`, filters), and send it back as `data.dataset` of `datasets update`; `--body-file` holds it under `data`. Try the change with `datasets validate` first: it saves nothing and answers `code`, `message` and `dataset_errors`. Read the dataset again after every save: content of an older revision is refused (`ERR.DS_API.DATASET_REVISION_MISMATCH`). A source or a field of a kind ycli does not know comes and goes back as it is. Over MCP the body is read with `schema_get(service="datalens", name="DatasetUpdate")`.
 
 **Rows are asked for by guid.** `datasets data-get` takes the guids of fields (`dataset.result_schema[].guid`), not their titles. One call is one page: `--limit` rows (100 by default) from `--offset`, and an offset above zero needs `--sort`, or the API refuses the request.
+
+**A chart is read by how it is built.** An entry of the scope `widget` is a chart, and its `type` says which command reads it: `…_wizard_node` is `charts wizard`, `…_ql_node` is `charts ql`, the rest (`table_node`, `d3_node`, `markdown_node`, `advanced-chart_node`, `control_node`) is `charts editor`. A chart is changed whole, like a dataset: read it, change `entry.data`, send it back with `--mode save` (a draft) or `--mode publish`. `--body-file` gives the request itself (`data`, `workbookId`, `name`), and a flag lies over it. Over MCP the content of a wizard chart is read with `schema_get(service="datalens", name="WizardChartData")`. QL charts take `--template ql`, the only value the API accepts today, and come flat, with no `entry` around them.
