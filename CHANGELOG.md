@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.113.1 (2026-10-06)
+
+### Bug Fixes
+
+- **mcp**: Codex no longer cuts the schemas of the larger tools
+  ([`4f5efb7`](https://github.com/bim-ba/ycli/commit/4f5efb700d03fb1145ca48921f277abe0e49ffff))
+
+### Build System
+
+- Re-lock uv.lock for 0.113.0
+  ([`8afdbc6`](https://github.com/bim-ba/ycli/commit/8afdbc65ce94712626fc16a5607ff3b9c23d7dbe))
+
+
 ## v0.113.0 (2026-10-06)
 
 ### Build System
