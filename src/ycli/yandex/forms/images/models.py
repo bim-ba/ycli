@@ -5,7 +5,7 @@ from typing import Any, Literal
 from pydantic import Field
 
 from ycli.yandex.forms.models import FileCheckStatus
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import IGNORED_BY_API, APIModel, WarnsOnIgnored
 
 #: How strictly an uploaded image is scanned.
 FileCheckMode = Literal["strict", "loose"] | str
@@ -41,10 +41,12 @@ class Image(APIModel):
     )
 
 
-class ImageClone(RequestBody):
-    """Typed body for ``POST /surveys/{id}/images/clone``: the image to copy and its new name.
+class ImageClone(WarnsOnIgnored):
+    """Typed body for ``POST /surveys/{id}/images/clone``: the image to copy.
 
-    Unset fields are dropped before the request is sent.
+    Unset fields are dropped before the request is sent. ``name`` is accepted and ignored by
+    the API (checked live on 2026-10-06): it stays for callers that send it, and setting it
+    logs a warning.
 
     Examples:
         >>> ImageClone(id=7, name="copy.png").model_dump(exclude_none=True)
@@ -55,4 +57,7 @@ class ImageClone(RequestBody):
     links: dict[str, str] | None = Field(
         default=None, description="Map of image size → URL of the image to clone."
     )
-    name: str | None = Field(default=None, description="File name for the clone.")
+    name: str | None = Field(
+        default=None,
+        description=IGNORED_BY_API + "the clone keeps the file name of the original.",
+    )
