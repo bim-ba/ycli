@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.109.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.108.0
+  ([`351cc10`](https://github.com/bim-ba/ycli/commit/351cc1047020c5026040e819c2a500fc8702c3a2))
+
+### Features
+
+- **datalens**: REST catalogs, and the operations that make them
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`3b11b32`](https://github.com/bim-ba/ycli/commit/3b11b32967a35c35a89566ac587e09a405aeedc0))
+
+
 ## v0.108.0 (2026-10-06)
 
 ### Build System
