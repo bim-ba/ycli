@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-36 tools.
+40 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -294,6 +294,9 @@ moves none of them.
 
 Delete a workbook with everything it holds: connections, datasets, charts, dashboards.
 
+Deleting a workbook that is already deleted answers 500, not 404: after a server error,
+read the workbook before deleting it again.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
@@ -468,3 +471,55 @@ one that does not exist gives ``error: "NOT_FOUND"``.
 | `entry_ids` | array of string or null |  | Ids of entries. |
 | `workbook_ids` | array of string or null |  | Ids of workbooks. |
 | `collection_ids` | array of string or null |  | Ids of collections. |
+
+## `datalens_connections_get`
+
+*Get DataLens connection* · read-only
+
+One connection by id: its name, its kind and the settings of that kind.
+
+The kind comes in ``db_type``: the reply has no ``type``, though creating one takes it.
+
+A password or a token is never in the reply. ``workbooks_entries_list`` with the scope
+``connection`` finds the connections of a workbook.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `connection_id` | string | yes | Connection id. |
+| `workbook_id` | string or null |  | The workbook the connection lies in. |
+| `binded_dataset_id` | string or null |  | A dataset bound to the connection, to read it through. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+
+## `datalens_connections_create`
+
+*Create DataLens connection* · write
+
+Create a connection and return its id.
+
+Give ``workbook_id`` (or ``dir_path``) for where it lies. The password or the token you
+give is stored by DataLens and never returned by ``connections_get``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `connection` | object | yes | The new connection; ``type`` says which kind it is and selects its schema. Its schema is not listed here: read `ConnectionCreate` with schema_get(service="datalens", name="ConnectionCreate"), then the definitions it refers to. |
+
+## `datalens_connections_update`
+
+*Update DataLens connection* · idempotent write
+
+Change the fields given of a connection; returns an acknowledgement.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `connection_id` | string | yes | Connection id. |
+| `data` | object | yes | The fields to change, of the connection's own kind; the others stay as they are. Its schema is not listed here: read `ConnectionUpdate` with schema_get(service="datalens", name="ConnectionUpdate"), then the definitions it refers to. |
+
+## `datalens_connections_delete`
+
+*Delete DataLens connection* · destructive write
+
+Delete a connection; the datasets built on it lose their source.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `connection_id` | string | yes | Connection id. |

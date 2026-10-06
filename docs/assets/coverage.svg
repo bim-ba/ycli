@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="256" viewBox="0 0 760 256" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" role="img" aria-labelledby="title">
-<title id="title">ycli wraps 369 operations across 67 resources</title>
+<title id="title">ycli wraps 373 operations across 68 resources</title>
 <style>.value{fill:#768390}.label{fill:#768390}.bar{fill:#3987e5}</style>
-<text class="value" x="0" y="40" font-size="36" font-weight="600">369</text>
+<text class="value" x="0" y="40" font-size="36" font-weight="600">373</text>
 <text class="label" x="0" y="66" font-size="15">operations</text>
-<text class="value" x="253.333" y="40" font-size="36" font-weight="600">67</text>
+<text class="value" x="253.333" y="40" font-size="36" font-weight="600">68</text>
 <text class="label" x="253.333" y="66" font-size="15">resources</text>
-<text class="value" x="506.667" y="40" font-size="36" font-weight="600">359</text>
+<text class="value" x="506.667" y="40" font-size="36" font-weight="600">363</text>
 <text class="label" x="506.667" y="66" font-size="15">MCP tools</text>
 <text class="value" x="0" y="128" font-size="15" font-weight="600">Tracker</text>
 <path class="bar" d="M90,112H506Q510,112 510,116V130Q510,134 506,134H90Z"/>
@@ -17,6 +17,6 @@
 <path class="bar" d="M90,184H273.895Q277.895,184 277.895,188V202Q277.895,206 273.895,206H90Z"/>
 <text class="label" x="287.895" y="200" font-size="14">85 operations · 78 MCP tools</text>
 <text class="value" x="0" y="236" font-size="15" font-weight="600">DataLens</text>
-<path class="bar" d="M90,220H165.579Q169.579,220 169.579,224V238Q169.579,242 165.579,242H90Z"/>
-<text class="label" x="179.579" y="236" font-size="14">36 operations · 36 MCP tools</text>
+<path class="bar" d="M90,220H174.421Q178.421,220 178.421,224V238Q178.421,242 174.421,242H90Z"/>
+<text class="label" x="188.421" y="236" font-size="14">40 operations · 40 MCP tools</text>
 </svg>

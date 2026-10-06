@@ -802,6 +802,26 @@ def test_a_service_wrapped_by_sections_is_compared_in_the_sections_begun():
     assert [operation.name for operation in whole.not_wrapped] == ["deleteWorkbook", "getDashboard"]
     assert whole.pending == ()
     assert by_section.wrapped == whole.wrapped == 1
+
+
+def test_an_operation_left_out_on_purpose_is_not_pending(monkeypatch):
+    """Both sides: with a reason it is excluded though its section is not begun; else pending."""
+    published = [
+        Operation("POST", "/rpc/getWorkbook", name="getWorkbook", group="Workbook"),
+        Operation("POST", "/rpc/createFolder", name="createFolder", group="Folder"),
+    ]
+    sent = [Call("datalens.workbooks.get", "POST", "/rpc/getWorkbook", frozenset(), None)]
+    monkeypatch.setattr(api_drift, "NOT_WRAPPED", {})
+    assert [operation.name for operation in compare("datalens", published, sent).pending] == [
+        "createFolder"
+    ]
+    reasons = {("datalens", "POST", "/rpc/createFolder"): "the old placement model"}
+    monkeypatch.setattr(api_drift, "NOT_WRAPPED", reasons)
+    decided = compare("datalens", published, sent)
+    assert decided.pending == () and decided.not_wrapped == ()
+    assert [(operation.name, why) for operation, why in decided.excluded] == [
+        ("createFolder", "the old placement model")
+    ]
     # Nothing wrapped yet: no section is begun, so nothing is missing.
     assert compare("datalens", published, []).not_wrapped == ()
 

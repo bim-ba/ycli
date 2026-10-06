@@ -2,14 +2,14 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes; entries as such (finding them, their relations, revisions and permissions, renaming, locks); the members of the organization; and the details of the DataLens instance. Connections, datasets, charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections, reads and writes; the members of the organization; and the details of the DataLens instance. Datasets, charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
@@ -21,6 +21,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Checking what you may do with entries, workbooks and collections
 - Renaming an entry, or locking it while you edit
 - Finding the user, group or service account to give a role to
+- Reading, creating, changing or deleting a connection to a database, a file or an API
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -29,7 +30,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
 - Reading or editing Forms — use `yandex-360-forms`
-- Opening or changing the content of a connection, dataset, chart or dashboard — not wrapped yet
+- Opening or changing the content of a dataset, chart or dashboard — not wrapped yet
 
 ## Surfaces
 
@@ -84,6 +85,7 @@ DataLens differs from the other services in both credentials:
 | What you may do with entries | `uv run ycli datalens entries permissions-get <entry_id>…` | `datalens_entries_permissions_get` |
 | What you may do with many entries, workbooks and collections | `uv run ycli datalens permissions get-bulk --entry-id … --workbook-id … --collection-id …` | `datalens_permissions_get_bulk` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
+| One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -112,6 +114,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Delete one or several workbooks | `uv run ycli datalens workbooks delete <workbook_id>` · `delete-bulk <id> <id>…` | `datalens_workbooks_delete` · `datalens_workbooks_delete_bulk` |
 | Give or take away roles on a workbook | `uv run ycli datalens workbooks access-bindings-update <workbook_id> --delta '<json>'…` | `datalens_workbooks_access_bindings_update` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
+| Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
+| Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
+| Delete a connection | `uv run ycli datalens connections delete <connection_id>` | `datalens_connections_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
@@ -131,3 +136,7 @@ The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` 
 **A lock is held by its token.** `entrylocks create` answers with the token alone: keep it, `extend` and `delete` take it. The duration is in milliseconds. An entry that is already locked answers 423 `ERR.US.ENTRY_IS_LOCKED` with who holds the lock and until when; releasing an entry that is not locked answers 404.
 
 **Permissions come as a map by id.** `entries permissions-get` and `permissions get-bulk` answer `{<id>: {"permissions": {…}}}`; an id that does not exist answers `{<id>: {"error": "NOT_FOUND"}}` in the same map, and an id of a wrong form refuses the whole request. `entries list` needs `--scope`, `--scopes` or `--id`; an entry you may not read comes with `isLocked: true` and little else.
+
+**A connection is its kind.** `type` (`clickhouse`, `postgres`, `gsheets`, `json_api`… 29 kinds) says which fields it takes; over MCP read them with `schema_get(service="datalens", name="ConnectionCreate")`, then the definition of the kind. `connections get` answers with the kind in `db_type` and never with the password or the token.
+
+**Give a secret in a file.** A password or a token goes in `--body-file` (a file outside the repository, mode 600), not in `-F` or `--data`: a command line stays in the shell history. `--dry-run` prints a secret as `***`, and a model prints it as `**********`; only the request itself carries it.

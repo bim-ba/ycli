@@ -2330,7 +2330,7 @@ wheels = [
 
 [[package]]
 name = "yandex-cli"
-version = "0.95.3"
+version = "0.97.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx2" },
