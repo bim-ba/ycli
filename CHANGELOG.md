@@ -9,6 +9,38 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.101.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.100.1
+  ([`2d42e73`](https://github.com/bim-ba/ycli/commit/2d42e73919bb73498072794a098955cf1bf8de30))
+
+### Documentation
+
+- **datalens**: A connection to Google Sheets cannot be created through the API, and the docs say so
+  ([`0d393bc`](https://github.com/bim-ba/ycli/commit/0d393bc5535ab209fd43a5a1175d3ab1c776472e))
+
+- **forms**: A listing of integration runs needs the form, and says so
+  ([`2fe55bf`](https://github.com/bim-ba/ycli/commit/2fe55bf2b23529be78b00e584d2811187d394a9d))
+
+### Features
+
+- **datalens**: A workbook is exported as one document and imported as a new workbook
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`2d607c3`](https://github.com/bim-ba/ycli/commit/2d607c337e884d575e31a0b04d0e14e628e9cdf1))
+
+### Refactoring
+
+- **datalens**: The generator names every class by its place and closes an envelope given in parts
+  ([`4f2ecad`](https://github.com/bim-ba/ycli/commit/4f2ecad15d8bb1ef844e79c526a966bff6db65ab))
+
+### Testing
+
+- **e2e**: The DataLens scenario renames and locks an entry of its own
+  ([`01697d2`](https://github.com/bim-ba/ycli/commit/01697d2f72dae1ec128e66af29f7e124af54c2de))
+
+
 ## v0.100.1 (2026-10-06)
 
 ### Bug Fixes
