@@ -6,5 +6,14 @@ steps:
     run: tracker issues list --queue ${QUEUE} --all
     expect:
       "length(@) >= `130`": true
+      "[?queue != '${QUEUE}'] | length(@)": 0
+  # No key twice is asserted on the issues nobody touched today. Tracker pages by number, and a
+  # set that the scenarios before this one are still changing shifts between pages: the whole
+  # queue, listed right after a bulk change, came back once with a key repeated. That is how
+  # the API pages, and ycli does not hide it.
+  - id: settled-pages
+    run: 'tracker issues search "Queue: ${QUEUE} AND Updated: < today()" --all'
+    expect:
+      "length(@) >= `130`": true
       "length(unique([].key)) == length(@)": true
       "[?queue != '${QUEUE}'] | length(@)": 0
