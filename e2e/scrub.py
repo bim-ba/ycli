@@ -9,7 +9,8 @@ What stays, by the position of the value in the model of the reply:
 - a key the model of that position reads; where a model reads the object, also a key that
   is public already (a field of another model of ycli, a name the service publishes);
 - a string that the model lists as a ``Literal`` or an enum value at that position;
-- a boolean, ``null``, and a small number under a key that does not name an identifier.
+- a boolean, ``null``, and a small number under a key that is known and does not name an
+  identifier.
 
 Everything else is replaced: a string by ``<key>``, a date by one constant, an identifier or a
 large number by 1, a key of a map (``dict[str, X]``: its keys are data) by ``<key-N>``,
@@ -158,7 +159,9 @@ def _scrub(
         literal = any(
             get_origin(member) is Literal and value in get_args(member) for member in members
         )
-        if literal or (not _IDENTIFIER_KEY.search(key) and abs(value) < SMALL_NUMBER):
+        # Under a key nothing knows, a number may be an identifier for all we can tell.
+        named = not key.startswith("unknown-") and not _IDENTIFIER_KEY.search(key)
+        if literal or (named and abs(value) < SMALL_NUMBER):
             return value
         return 1 if isinstance(value, int) else 1.0
     if value in _allowed_strings(members):
