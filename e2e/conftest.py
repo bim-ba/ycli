@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from e2e.recording import REPLIES, Recorder, recording
-from e2e.runner import CREDENTIAL_VARIABLES
-from e2e.settings import optional_variables, sandbox_queue
+from e2e.settings import missing_credentials, optional_variables, sandbox_queue
+from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -37,8 +37,8 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--service",
         default=None,
-        help="Run only the scenarios of this service (tracker, wiki, forms): the nightly "
-        "run is one job per service.",
+        help="Run only the scenarios of this service (tracker, wiki, forms, datalens): the "
+        "nightly run is one job per service.",
     )
     parser.addoption(
         "--record",
@@ -86,13 +86,20 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "smoke: the live subset that also runs on pull requests")
 
 
-def _skip_reason() -> str | None:
+def _skip_reason(service: str | None) -> str | None:
+    """Why a live test of ``service`` does not run here; ``None`` when it does.
+
+    Each service is asked for what its own profile takes, so one run reaches the services
+    its credentials fit and skips the others with the reason: DataLens takes no OAuth token
+    and a Yandex Cloud organization, the three services of Yandex 360 the other way round.
+    """
     if os.environ.get("YCLI_E2E") != "1":
         return "live e2e is opt-in: set YCLI_E2E=1"
-    missing = [name for name in CREDENTIAL_VARIABLES if not os.environ.get(name)]
-    if missing:
-        return "missing credentials: " + ", ".join(missing)
-    return None
+    profiles = {known.name: known.profile for known in SERVICES}
+    if service not in profiles:
+        return None
+    lacking = missing_credentials(profiles[service])
+    return f"{service}: {lacking}" if lacking else None
 
 
 def of_service(scenario_name: str, service: str | None) -> bool:
@@ -116,11 +123,12 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     if dropped:
         config.hook.pytest_deselected(items=dropped)
         items[:] = [item for item in items if item not in dropped]
-    reason = _skip_reason()
-    if reason is None:
-        return
     for item in items:
-        if "live" in item.keywords:
+        if "live" not in item.keywords:
+            continue
+        scenario = getattr(getattr(item, "callspec", None), "params", {}).get("scenario")
+        reason = _skip_reason(scenario.name.split("/")[0] if scenario is not None else None)
+        if reason is not None:
             item.add_marker(pytest.mark.skip(reason=reason))
 
 

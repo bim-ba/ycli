@@ -1,0 +1,20 @@
+{
+  "body": {
+    "relations": [
+      {
+        "collectionId": null,
+        "createdAt": "<createdAt>",
+        "entryId": "<entryId>",
+        "isLocked": false,
+        "key": null,
+        "public": true,
+        "scope": "connection",
+        "tenantId": "<tenantId>",
+        "type": "<type>",
+        "workbookId": "<workbookId>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

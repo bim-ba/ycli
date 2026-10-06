@@ -1,0 +1,16 @@
+{
+  "body": {
+    "collectionId": "<collectionId>",
+    "createdAt": "<createdAt>",
+    "createdBy": "<createdBy>",
+    "description": null,
+    "meta": {},
+    "parentId": "<parentId>",
+    "tenantId": "<tenantId>",
+    "title": "<title>",
+    "updatedAt": "<updatedAt>",
+    "updatedBy": "<updatedBy>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

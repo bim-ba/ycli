@@ -3,6 +3,19 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
+
+from ycli.settings import (
+    CLOUD_ORGANIZATION_ID_ENV,
+    IAM_TOKEN_ENV,
+    OAUTH_TOKEN_ENV,
+    ORGANIZATION_ID_ENV,
+    SERVICE_ACCOUNT_KEY_ENV,
+    SERVICE_ACCOUNT_KEY_FILE_ENV,
+)
+
+if TYPE_CHECKING:
+    from ycli.yandex.core.profile import ServiceProfile
 
 QUEUE_VARIABLE = "YCLI_E2E_QUEUE"
 DEFAULT_QUEUE = "YCLIPAGE"  # the owner's sandbox queue: Tracker issues cannot be deleted
@@ -29,6 +42,40 @@ def optional_variables() -> dict[str, str]:
         for name, variable in OPTIONAL_VARIABLES.items()
         if (value := os.environ.get(variable))
     }
+
+
+# Every variable whose value must never show in a log: the runner cuts them out of excerpts.
+CREDENTIAL_VARIABLES = (
+    OAUTH_TOKEN_ENV,
+    IAM_TOKEN_ENV,
+    SERVICE_ACCOUNT_KEY_ENV,
+    ORGANIZATION_ID_ENV,
+    CLOUD_ORGANIZATION_ID_ENV,
+)
+
+
+def missing_credentials(profile: ServiceProfile) -> str | None:
+    """What the environment lacks to reach a service with this profile; ``None`` when nothing.
+
+    The profile says it all: whether the service takes an OAuth token besides the ways of
+    Yandex Cloud, and which kind of organization it is asked for. One way to sign in and one
+    organization the service takes are enough.
+    """
+    ways = [IAM_TOKEN_ENV, SERVICE_ACCOUNT_KEY_FILE_ENV, SERVICE_ACCOUNT_KEY_ENV]
+    if profile.oauth_token:
+        ways.insert(0, OAUTH_TOKEN_ENV)
+    organizations = [
+        variable
+        for header, variable in (
+            (profile.org_header, ORGANIZATION_ID_ENV),
+            (profile.cloud_org_header, CLOUD_ORGANIZATION_ID_ENV),
+        )
+        if header is not None
+    ]
+    lacking = [
+        " or ".join(group) for group in (ways, organizations) if not any(map(os.environ.get, group))
+    ]
+    return "set " + " and ".join(lacking) if lacking else None
 
 
 def sandbox_queue() -> str:

@@ -1,0 +1,8 @@
+{
+  "body": {
+    "createCollectionInRoot": true,
+    "createWorkbookInRoot": true
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

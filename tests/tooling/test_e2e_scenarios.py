@@ -15,11 +15,13 @@ from typing import TYPE_CHECKING
 import pytest
 from e2e.catalog import load, scenario_paths
 from e2e.conftest import of_service
-from e2e.settings import OPTIONAL_VARIABLES
+from e2e.settings import CREDENTIAL_VARIABLES, OPTIONAL_VARIABLES, missing_credentials
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
 from ycli.cli.app import app
+from ycli.settings import SERVICE_ACCOUNT_KEY_FILE_ENV
+from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -44,7 +46,7 @@ def _commands() -> list[object]:
 
 def test_every_service_has_a_scenario():
     services = {path.parent.name for path in scenario_paths()}
-    assert services == {"tracker", "wiki", "forms"}
+    assert services == {service.name for service in SERVICES}
 
 
 @pytest.mark.parametrize("command", _commands())
@@ -107,3 +109,30 @@ def test_a_step_needs_only_a_variable_the_settings_know():
         for name in step.needs
         if name not in OPTIONAL_VARIABLES
     ]
+
+
+def _only(monkeypatch, **environment: str) -> None:
+    for variable in (*CREDENTIAL_VARIABLES, SERVICE_ACCOUNT_KEY_FILE_ENV):
+        monkeypatch.delenv(variable, raising=False)
+    for variable, value in environment.items():
+        monkeypatch.setenv(variable, value)
+
+
+def test_a_service_is_reached_with_what_its_own_profile_takes(monkeypatch):
+    """One rule for every service: no service is named in the rule."""
+    profiles = {service.name: service.profile for service in SERVICES}
+    _only(monkeypatch, YANDEX_ID_OAUTH_TOKEN="t", YANDEX_ID_ORGANIZATION_ID="o")
+    assert missing_credentials(profiles["tracker"]) is None
+    # DataLens takes no OAuth token and no Yandex 360 organization.
+    assert missing_credentials(profiles["datalens"]) == (
+        "set YANDEX_CLOUD_IAM_TOKEN or YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_FILE or "
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY and YANDEX_CLOUD_ORGANIZATION_ID"
+    )
+    _only(monkeypatch, YANDEX_CLOUD_IAM_TOKEN="t", YANDEX_CLOUD_ORGANIZATION_ID="c")
+    assert missing_credentials(profiles["datalens"]) is None
+    # Tracker takes either way to sign in and either kind of organization.
+    assert missing_credentials(profiles["tracker"]) is None
+    _only(monkeypatch, YANDEX_CLOUD_IAM_TOKEN="t")
+    assert missing_credentials(profiles["wiki"]) == (
+        "set YANDEX_ID_ORGANIZATION_ID or YANDEX_CLOUD_ORGANIZATION_ID"
+    )
