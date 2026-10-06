@@ -228,7 +228,7 @@ One comment of a Tracker issue: text, author, edit history and, on request, atta
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
+| `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `expand` | string or null |  | Extra fields: ``attachments``, ``html`` or ``all`` (comma-separated). |
 
 ## `tracker_comments_create`
@@ -253,7 +253,7 @@ Get ``comment_id`` from ``comments_list``. Returns the updated comment.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
+| `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment). |
 
 ## `tracker_comments_delete`
@@ -267,7 +267,7 @@ Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
+| `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 
 ## `tracker_comments_reactions_create`
 
@@ -281,7 +281,7 @@ with its updated reactions.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
+| `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `name` | string | yes | Reaction name, e.g. ``like``, ``dislike`` or ``fire``. |
 
 ## `tracker_comments_import`
@@ -1901,7 +1901,7 @@ is a field → value object (author, status, followers, …), ``body.orderBy`` w
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` (issue reports). |
-| `body` | object | yes | What to find: name substring, filter, sort order; ``{}`` for all. |
+| `body` | object or null |  | What to find: name substring, filter, sort order; omit for all. |
 | `fields` | string or null |  | Comma-separated extra fields to include. |
 
 ## `tracker_entities_events_list`

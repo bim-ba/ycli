@@ -153,7 +153,7 @@ CASES = [
         cli=["tracker", "comments", "get", "DE-5", "9001", "--expand", "attachments,html"],
         mcp=(
             "tracker_comments_get",
-            {"issue_key": "DE-5", "comment_id": "9001", "expand": "attachments,html"},
+            {"issue_key": "DE-5", "comment_id": 9001, "expand": "attachments,html"},
         ),
         exchanges=[
             (
@@ -181,7 +181,7 @@ CASES = [
         "tracker.comments.get",
         args=("DE-6", "5fa15a24ac894476bb"),
         cli=["tracker", "comments", "get", "DE-6", "5fa15a24ac894476bb"],
-        mcp=None,
+        mcp=("tracker_comments_get", {"issue_key": "DE-6", "comment_id": "5fa15a24ac894476bb"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-6/comments/5fa15a24ac894476bb"),

@@ -461,7 +461,7 @@ CASES = [
         "tracker.entities.search",
         args=("project",),
         cli=["tracker", "entities", "search", "project"],
-        mcp=("tracker_entities_search", {"entity_type": "project", "body": {}}),
+        mcp=("tracker_entities_search", {"entity_type": "project"}),
         exchanges=[
             (Sent("POST", "entities/project/_search", json={}), Reply(json={"values": []})),
         ],
