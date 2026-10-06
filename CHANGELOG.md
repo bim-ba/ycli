@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.113.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.112.0
+  ([`ab63475`](https://github.com/bim-ba/ycli/commit/ab6347578e43051fa5e9147d5722fefc4b345eb6))
+
+### Features
+
+- **datalens**: A Spark application is made, of any of its three kinds
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`d3708be`](https://github.com/bim-ba/ycli/commit/d3708be90498f2caaf3b8263f3f7f393d5b91678))
+
+
 ## v0.112.0 (2026-10-06)
 
 ### Build System
