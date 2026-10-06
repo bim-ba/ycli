@@ -1,16 +1,12 @@
 ---
 name: yandex-360-datalens
 description: >-
-  Use when reading or changing Yandex DataLens through ycli — collections and
-  workbooks, what they hold, creating, moving and deleting them, exporting a
-  workbook and importing it as a new one, embedding an entry on another site,
-  the roles on them and on shared entries, the audit of what changed and what a
-  user may do, finding entries anywhere with their relations, revisions and
-  permissions, renaming and locking an entry, connections to data sources,
-  datasets and their rows, charts and their data, reports, the members of the
-  organization, which DataLens instance the credentials reach, and how to sign
-  in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the
-  DataLensClient SDK.
+  Use when reading or changing Yandex DataLens through ycli — collections,
+  workbooks and the entries they hold (connections, datasets, charts, reports,
+  dashboards and the rest), the roles on them, the export and import of a
+  workbook, embedding, the audit, the members of the organization, and how to
+  sign in to DataLens — via the `ycli datalens` CLI, the `datalens_*` MCP tools,
+  or the DataLensClient SDK.
 metadata:
   category: workflow
 ---
@@ -18,7 +14,21 @@ metadata:
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; the embeds of an entry and the keys for embedding that sign them; the roles on a shared entry; the audit; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes; reports, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section, and this skill grows with each one. Wrapped today, reads and writes unless said otherwise (one line a section):
+
+- collections (the folders that hold workbooks) and workbooks
+- the export of a workbook as one document and its import as a new workbook
+- entries as such: finding them, their relations, revisions and permissions, renaming, locks
+- connections
+- datasets, with their rows
+- charts built in the wizard, in QL and in the editor, and the data of a saved chart
+- reports
+- the embeds of an entry and the keys for embedding that sign them
+- the roles on a shared entry
+- the audit (reads)
+- the members of the organization and the details of the DataLens instance (reads)
+
+Not wrapped yet: dashboards are found and listed as entries, but their content is not opened or changed.
 
 ## When to use
 
