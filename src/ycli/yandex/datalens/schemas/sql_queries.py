@@ -346,7 +346,9 @@ class SqlQuery(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the SQL query."
     )
-    scope: Literal["sql_query"] = Field(..., description="Scope of the SQL query entry.")
+    scope: Literal["sql_query"] | None = Field(
+        default=None, description="Scope of the SQL query entry."
+    )
     type: str | None = Field(default=None, description="Type of the SQL query entry.")
     key: str | None = Field(default=None, description="Key of the SQL query entry.")
     workbook_id: str | None = Field(

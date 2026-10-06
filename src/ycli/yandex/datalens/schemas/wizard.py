@@ -10431,7 +10431,7 @@ class WizardV1ConfigSchema(APIModel):
 
 
 class WizardV1(APIModel):
-    version: Literal[1] = Field(..., description="Entry API version.")
+    version: Literal[1] | None = Field(default=None, description="Entry API version.")
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
@@ -10465,8 +10465,8 @@ class WizardV1(APIModel):
         alias="workbookId",
         description="ID of the workbook the Wizard chart belongs to.",
     )
-    scope: Literal["widget"] = Field(
-        ..., description="Type of the entry. For charts takes value: widget"
+    scope: Literal["widget"] | None = Field(
+        default=None, description="Type of the entry. For charts takes value: widget"
     )
     type: (
         Literal[

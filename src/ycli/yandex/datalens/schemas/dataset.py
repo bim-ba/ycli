@@ -1034,7 +1034,7 @@ class JoinCondition(APIModel):
     left: ConditionPartGeneric | None = None
     operator: Literal["gt", "lt", "gte", "lte", "eq", "ne"] | str | None = None
     right: ConditionPartGeneric | None = None
-    type: Literal["binary"]
+    type: Literal["binary"] | None = None
 
 
 class ObligatoryFilter(APIModel):

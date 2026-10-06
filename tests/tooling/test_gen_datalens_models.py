@@ -428,7 +428,8 @@ def test_nothing_is_required_but_a_kind_and_the_arguments_of_an_operation():
     }
     schemas = gen.prepare(spec)["components"]["schemas"]
     assert schemas["things.GetThingResponse"]["required"] == []
-    assert schemas["things.Thing"]["required"] == ["kind"]  # one value: it tells the kind
+    # One value, but no union to tell apart: as optional as the rest of a reply.
+    assert schemas["things.Thing"]["required"] == []
     assert schemas["things.Owner"]["required"] == []  # read and sent back: one class
     assert schemas["things.GetThingRequest"]["required"] == ["id"]  # an argument
 
@@ -1014,3 +1015,44 @@ def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
         spark_applications.CreateSparkApplicationArgsVariant3,
     ):
         assert issubclass(envelope_class, RequestBody), envelope_class.__name__
+
+
+def test_a_field_with_one_value_is_required_only_where_it_tells_kinds_apart():
+    """Both sides: required in a member of a union, optional in an object that is none.
+
+    Seen on the defect: ``updateHtmlPage`` answers ``version: null`` (measured, 2026-10-06)
+    where the document has the one value ``1``, and the class that required it refused the
+    reply.
+    """
+    spec = {
+        "paths": {
+            "/rpc/getThing": _operation(
+                {"type": "object", "properties": {"id": {"type": "string"}}},
+                {
+                    "type": "object",
+                    "properties": {
+                        "alone": {"$ref": REF + "Alone"},
+                        "item": {"anyOf": [{"$ref": REF + "A"}, {"$ref": REF + "B"}]},
+                    },
+                },
+            )
+        },
+        "components": {
+            "schemas": {
+                name: {**_kind(value), "required": ["kind", "size"]}
+                for name, value in (("Alone", "x"), ("A", "a"), ("B", "b"))
+            }
+        },
+    }
+    schemas = gen.prepare(spec)["components"]["schemas"]
+    assert schemas["things.Alone"]["required"] == []
+    assert schemas["things.A"]["required"] == ["kind"] and schemas["things.B"]["required"] == [
+        "kind"
+    ]
+    # The layer as committed: the reply DataLens gives is read, and a known value still is.
+    from ycli.yandex.datalens.schemas.html_pages import GetHtmlPageResult, UpdateHtmlPageResult
+
+    saved = {"entry": {"entryId": "p1", "scope": "artifact", "type": "html-page", "version": None}}
+    entry = UpdateHtmlPageResult.model_validate(saved).entry
+    assert entry is not None and entry.version is None
+    assert GetHtmlPageResult.model_validate({"entryId": "p1", "version": 1}).version == 1

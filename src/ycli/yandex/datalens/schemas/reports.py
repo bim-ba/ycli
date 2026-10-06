@@ -122,8 +122,8 @@ class ReportTabItemV2Variant5Data(APIModel):
     """Control item data."""
 
     title: str | None = Field(default=None, description="Control title.")
-    source_type: Literal["external"] = Field(
-        ..., alias="sourceType", description="External control source type."
+    source_type: Literal["external"] | None = Field(
+        default=None, alias="sourceType", description="External control source type."
     )
     source: shared.DashControlSourceExternalV2 | None = None
 
@@ -676,18 +676,18 @@ class ReportV2(APIModel):
     data: ReportDataV2 | None = None
     entry_id: str | None = Field(default=None, alias="entryId")
     key: str | None = None
-    scope: Literal["report"]
+    scope: Literal["report"] | None = None
     hidden: bool | None = None
     meta: Annotated[ReportMetaV2 | None, NoDropNull()] = None
     published_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="publishedId")
     saved_id: str | None = Field(default=None, alias="savedId")
     rev_id: str | None = Field(default=None, alias="revId")
     tenant_id: str | None = Field(default=None, alias="tenantId")
-    type: Literal[""]
+    type: Literal[""] | None = None
     workbook_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="workbookId")
     collection_id: Annotated[str | None, NoDropNull()] = Field(default=None, alias="collectionId")
-    version: Literal[2]
-    public: Literal[False]
+    version: Literal[2] | None = None
+    public: Literal[False] | None = None
     links: dict[str, Any] | None = None
 
 
