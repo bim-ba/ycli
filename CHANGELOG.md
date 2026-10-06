@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.89.0 (2026-10-06)
+
+### Bug Fixes
+
+- **wiki**: A listing of attachments declares every field of an attached file
+  ([`0c0625c`](https://github.com/bim-ba/ycli/commit/0c0625cb45b2af10f25c681694312de828832ada))
+
+### Build System
+
+- Re-lock uv.lock for 0.88.0
+  ([`95972f8`](https://github.com/bim-ba/ycli/commit/95972f817c4f2271efc5d4f2cfc30f3332ada722))
+
+### Breaking Changes
+
+- **wiki**: SDK: `ycli.yandex.wiki.attachments.models.Attachment` is gone; `wiki.attachments.list`
+  returns `AttachedFile`, which has the same four fields and seven more.
+
+
 ## v0.88.0 (2026-10-06)
 
 ### Build System

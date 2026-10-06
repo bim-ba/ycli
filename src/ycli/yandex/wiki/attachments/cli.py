@@ -9,7 +9,7 @@ from ycli.cli.output import BinaryResult
 from ycli.cli.typedefs import AllOption, LimitOption, OutputOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList, SortDirection
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentOrder
+from ycli.yandex.wiki.attachments.models import AttachedFile, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
@@ -30,7 +30,7 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[Attachment]:
+) -> ItemList[AttachedFile]:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.attachments.list(

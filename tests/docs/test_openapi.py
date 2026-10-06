@@ -139,7 +139,7 @@ def test_models_that_share_a_class_name_are_named_by_resource():
 
 def test_a_generic_page_is_named_after_its_item():
     names = set(DOCUMENTS["wiki"]["components"]["schemas"])
-    assert {"PageRefPage", "AttachmentPage", "CommentPage"} <= names
+    assert {"PageRefPage", "AttachedFilePage", "CommentPage"} <= names
     assert not [name for name in names if name.startswith("CursorPage")]
 
 
