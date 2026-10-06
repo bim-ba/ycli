@@ -36,6 +36,30 @@ class OperationProgress(APIModel):
     details: str | None = Field(default=None, description="Free-text progress detail, if any.")
 
 
+class OperationState(APIModel):
+    """What every status of an asynchronous Wiki operation carries: where it is and how far.
+
+    Each operation adds its own ``result``. Poll until :attr:`is_terminal`.
+
+    Examples:
+        >>> OperationState.model_validate({"status": "in_progress"}).is_terminal
+        False
+    """
+
+    status: OperationStatus | None = Field(
+        default=None,
+        description="Lifecycle status (``scheduled``/``in_progress``/``success``/``failed``).",
+    )
+    progress: OperationProgress | None = Field(
+        default=None, description="Progress of the running operation."
+    )
+
+    @property
+    def is_terminal(self) -> bool:
+        """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
+        return self.status in TERMINAL_STATUSES
+
+
 class PageCloneResult(APIModel):
     """Result payload of a finished page-clone operation — the cloned ``page``.
 
@@ -68,7 +92,7 @@ class GridCloneResult(APIModel):
     )
 
 
-class CloneOperationStatus(APIModel):
+class CloneOperationStatus(OperationState):
     """Status of a page-clone operation (``GET /operations/clone/{task_id}``).
 
     Poll this until :attr:`is_terminal`; on ``success`` the ``result.page`` names the clone.
@@ -78,24 +102,12 @@ class CloneOperationStatus(APIModel):
         True
     """
 
-    status: OperationStatus | None = Field(
-        default=None,
-        description="Lifecycle status (``scheduled``/``in_progress``/``success``/``failed``).",
-    )
-    progress: OperationProgress | None = Field(
-        default=None, description="Progress of the running operation."
-    )
     result: PageCloneResult | None = Field(
         default=None, description="Result payload (present once ``status`` is ``success``)."
     )
 
-    @property
-    def is_terminal(self) -> bool:
-        """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
-        return self.status in TERMINAL_STATUSES
 
-
-class GridCloneOperationStatus(APIModel):
+class GridCloneOperationStatus(OperationState):
     """Status of an inline-grid-clone operation (``GET /operations/clone_inline_grid/{task_id}``).
 
     Poll this until :attr:`is_terminal`; on ``success`` the ``result.grid_id`` names the copy.
@@ -107,21 +119,9 @@ class GridCloneOperationStatus(APIModel):
         'g2'
     """
 
-    status: OperationStatus | None = Field(
-        default=None,
-        description="Lifecycle status (``scheduled``/``in_progress``/``success``/``failed``).",
-    )
-    progress: OperationProgress | None = Field(
-        default=None, description="Progress of the running operation."
-    )
     result: GridCloneResult | None = Field(
         default=None, description="Result payload (present once ``status`` is ``success``)."
     )
-
-    @property
-    def is_terminal(self) -> bool:
-        """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
-        return self.status in TERMINAL_STATUSES
 
 
 class PageMoveResult(APIModel):
@@ -137,7 +137,7 @@ class PageMoveResult(APIModel):
     )
 
 
-class MoveOperationStatus(APIModel):
+class MoveOperationStatus(OperationState):
     """Status of a page-move operation (``GET /operations/move/{task_id}``).
 
     Undocumented by Yandex (it is in the live OpenAPI only) and may change. Poll this until
@@ -150,18 +150,6 @@ class MoveOperationStatus(APIModel):
         2
     """
 
-    status: OperationStatus | None = Field(
-        default=None,
-        description="Lifecycle status (``scheduled``/``in_progress``/``success``/``failed``).",
-    )
-    progress: OperationProgress | None = Field(
-        default=None, description="Progress of the running operation."
-    )
     result: PageMoveResult | None = Field(
         default=None, description="Result payload (present once ``status`` is ``success``)."
     )
-
-    @property
-    def is_terminal(self) -> bool:
-        """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
-        return self.status in TERMINAL_STATUSES
