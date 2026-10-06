@@ -680,3 +680,64 @@ def test_the_rpc_arguments_check_bites():
     # Without a pager ``limit`` and ``pageToken`` are an argument and a field like any other.
     assert _rpc_arguments_off(exact, body, None) == ["limit", "page_token"]
     assert _rpc_arguments_off(lambda: None, None, None) == []
+
+
+def _unpaired_boolean_options(sources: dict[str, str]) -> list[str]:
+    """Where a three-valued boolean option has no ``--x/--no-x`` pair: ``["a/cli.py:3"]``.
+
+    An option is ``Annotated[bool | None, typer.Option(...)]`` wherever it is written, in a
+    command's signature or as an alias; the pair is a declaration with a slash in it.
+    """
+    found = []
+    for path, source in sorted(sources.items()):
+        for node in ast.walk(ast.parse(source)):
+            if not (
+                isinstance(node, ast.Subscript)
+                and ast.unparse(node.value) == "Annotated"
+                and isinstance(node.slice, ast.Tuple)
+                and {part.strip() for part in ast.unparse(node.slice.elts[0]).split("|")}
+                == {"bool", "None"}
+            ):
+                continue
+            options = [
+                call
+                for meta in node.slice.elts[1:]
+                for call in ast.walk(meta)
+                if isinstance(call, ast.Call) and ast.unparse(call.func).endswith("Option")
+            ]
+            declared = [
+                argument.value
+                for call in options
+                for argument in call.args
+                if isinstance(argument, ast.Constant) and isinstance(argument.value, str)
+            ]
+            if options and not any("/" in name for name in declared):
+                found.append(f"{path}:{node.lineno}")
+    return found
+
+
+def test_a_three_valued_boolean_option_is_declared_as_a_pair():
+    """Section 6, "ycli sends what the caller gave" (#296): the rule is stated there.
+
+    Without ``--no-x`` a caller cannot say ``False``, and ``None`` and ``False`` would be one.
+    """
+    assert _unpaired_boolean_options(_sources()) == []
+
+
+def test_the_boolean_pair_check_bites():
+    sources = {
+        "a/cli.py": (
+            "def one(\n"
+            '    notify: Annotated[bool | None, typer.Option("--notify/--no-notify")] = None,\n'
+            '    silent: Annotated[bool | None, typer.Option("--silent", help="x")] = None,\n'
+            "    bare: Annotated[None | bool, typer.Option(help='x')] = None,\n"
+            '    flag: Annotated[bool, typer.Option("--flag")] = False,\n'
+            "    count: Annotated[int | None, typer.Option()] = None,\n"
+            "): ...\n"
+        ),
+        "a/typedefs.py": 'Deep = Annotated[bool | None, typer.Option("--deep")]\n',
+        "a/mcp.py": "def tool(notify: Annotated[bool | None, Field()] = None): ...\n",
+    }
+    assert _unpaired_boolean_options(sources) == ["a/cli.py:3", "a/cli.py:4", "a/typedefs.py:1"]
+    paired = {"a/cli.py": 'X = Annotated[bool | None, typer.Option("--x/--no-x")]\n'}
+    assert _unpaired_boolean_options(paired) == []
