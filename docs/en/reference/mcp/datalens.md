@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-40 tools.
+47 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -520,3 +520,118 @@ Delete a connection; the datasets built on it lose their source.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `connection_id` | string | yes | Connection id. |
+
+## `datalens_datasets_get`
+
+*Get DataLens dataset* · read-only
+
+One dataset by id: its sources, their joins and its fields.
+
+``dataset.result_schema`` lists the fields with their guids, which ``datasets_data_get``
+takes as columns. A source or a field of a kind this server does not know comes as it is.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset_id` | string | yes | Dataset id. |
+| `workbook_id` | string or null |  | The workbook the dataset lies in. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+
+## `datalens_datasets_create`
+
+*Create DataLens dataset* · write
+
+Create a dataset in a workbook and return it with its id.
+
+A dataset with no source and no field is valid: create it empty, then fill it with
+``datasets_update``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset` | object | yes | What the dataset holds: sources, their joins, fields. An empty one is valid. Its schema is not listed here: read `DatasetContent` with schema_get(service="datalens", name="DatasetContent"), then the definitions it refers to. |
+| `collection_id` | string or null |  | The collection to create it in. |
+| `created_via` | string or null |  | How it is created: `user` or `workbook_copy`. |
+| `dir_path` | string or null |  | The folder to create it in (old placement model). |
+| `name` | string or null |  | The dataset's name. |
+| `options` | object or null |  | What the editor may do with it. |
+| `preview` | boolean or null |  | Whether it is a preview. |
+| `published_id` | string or null |  | The published revision. |
+| `rev_id` | string or null |  | The revision. |
+| `saved_id` | string or null |  | The saved revision. |
+| `workbook_id` | string or null |  | The workbook to create it in. |
+
+## `datalens_datasets_update`
+
+*Update DataLens dataset* · idempotent write
+
+Save a dataset as given: read it, change what it holds, send it back whole.
+
+``data.dataset`` replaces the content. Check a change first with ``datasets_validate``.
+Read the dataset again after every save: content of an older revision is refused.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset_id` | string | yes | Dataset id. |
+| `data` | object | yes | The content to save (`dataset`) and how (`mode`: `save` or `publish`). Its schema is not listed here: read `DatasetUpdate` with schema_get(service="datalens", name="DatasetUpdate"), then the definitions it refers to. |
+| `workbook_id` | string or null |  | The workbook the dataset lies in. |
+
+## `datalens_datasets_delete`
+
+*Delete DataLens dataset* · destructive write
+
+Delete a dataset; the charts built on it lose their data.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset_id` | string | yes | Dataset id. |
+
+## `datalens_datasets_validate`
+
+*Validate DataLens dataset* · read-only
+
+Check a dataset, or changes to it, without saving anything.
+
+The reply is the dataset as it would be, with ``code``, ``message`` and ``dataset_errors``.
+Give the content as last read: after a save, content of an older revision is refused.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset_id` | string | yes | Dataset id. |
+| `data` | object | yes | The content to check (`dataset`) and the changes to try on it (`updates`). Its schema is not listed here: read `DatasetValidate` with schema_get(service="datalens", name="DatasetValidate"), then the definitions it refers to. |
+| `workbook_id` | string or null |  | The workbook the dataset lies in. |
+| `binded_dataset_id` | string or null |  | A dataset bound to this one. |
+
+## `datalens_datasets_data_get`
+
+*Read rows of a DataLens dataset* · read-only
+
+Rows of a dataset: the columns asked for, one page per call.
+
+Columns are named by the guid of a field, not by its title: read them with
+``datasets_get``. For the next page give ``offset`` together with ``sort``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dataset_id` | string | yes | Dataset id. |
+| `columns` | array of string | yes | The guids of the fields to return (`dataset.result_schema[].guid`). |
+| `workbook_id` | string or null |  | The workbook the dataset lies in. |
+| `filters` | array of object or null |  | The rows to keep: a field's guid, an operation and its values. |
+| `params` | array of object or null |  | Values for the dataset's parameters. |
+| `sort` | array of object or null |  | The order of the rows: a field's guid and `asc` or `desc`. |
+| `limit` | integer or null |  | The most rows to return; 100 when left out. |
+| `offset` | integer or null |  | How many rows to skip; above zero it needs `sort`. |
+
+## `datalens_charts_data_get`
+
+*Read the data of a DataLens chart* · read-only
+
+The data a saved chart shows, as tables of columns and rows.
+
+The chart runs with its saved settings. ``chartType`` says how it is built (``wizard``,
+``ql``, ``editor``). A pivot table is not supported, and a chart whose source cannot be
+reached answers with an error.
+``entries_list`` with the scope ``widget`` finds charts.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+| `params` | object or null |  | Values for the chart's parameters, by name: one value or several. |

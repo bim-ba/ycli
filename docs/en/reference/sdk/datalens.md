@@ -42,3 +42,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## connections
 
 ::: ycli.yandex.datalens.connections.client.ConnectionsClient
+
+## datasets
+
+::: ycli.yandex.datalens.datasets.client.DatasetsClient
+
+## charts
+
+::: ycli.yandex.datalens.charts.client.ChartsClient

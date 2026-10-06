@@ -1,0 +1,66 @@
+"""`datalens datasets`: a body that comes from a file, and the fields under `data`."""
+
+import json
+
+import pytest
+from pydantic import ValidationError
+from typer.testing import CliRunner
+
+import ycli.cli.app as cli
+from tests.unit.yandex.datalens.datasets.cases import CONTENT, CREATED, DS, WB
+from ycli.cli.errors import format_cli_error
+
+RPC = "https://api.datalens.tech/rpc/"
+
+
+@pytest.fixture(autouse=True)
+def signed_in(monkeypatch):
+    """DataLens takes an IAM token and a Yandex Cloud organization."""
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "c")
+
+
+def _planned(*argv: str) -> dict:
+    result = CliRunner().invoke(cli.app, ["-o", "json", "--dry-run", "datalens", "datasets", *argv])
+    assert result.exit_code == 0, result.output
+    return json.loads(result.stdout)["body"]
+
+
+def test_a_dataset_is_created_from_a_file_with_flags_over_it(api, tmp_path):
+    """What a dataset holds is too large for a command line: it comes from --body-file."""
+    body = tmp_path / "dataset.json"
+    body.write_text(json.dumps({"name": "From file", "dataset": CONTENT}), encoding="utf-8")
+    api.add("POST", RPC + "createDataset", json=CREATED)
+    argv = ["create", "--body-file", str(body), "--name", "Sales", "--workbook-id", WB]
+    result = CliRunner().invoke(cli.app, ["-o", "json", "datalens", "datasets", *argv])
+    assert result.exit_code == 0, result.output
+    assert api.body() == {"name": "Sales", "workbook_id": WB, "dataset": CONTENT}
+
+
+def test_a_dataset_with_nothing_to_hold_is_refused_before_anything_is_sent(api):
+    result = CliRunner().invoke(cli.app, ["datalens", "datasets", "create", "--name", "Sales"])
+    assert isinstance(result.exception, ValidationError)
+    assert "dataset: is required" in format_cli_error(result.exception)
+    assert api.calls == []
+
+
+def test_the_data_of_a_request_may_come_from_field_flags(api):
+    planned = _planned("update", DS, "-F", "data[dataset][description]=Q1")
+    assert planned == {"datasetId": DS, "data": {"dataset": {"description": "Q1"}}}
+
+
+def test_validate_is_a_read_and_runs_under_dry_run(api):
+    """It saves nothing, so --dry-run does not stop it."""
+    api.add("POST", RPC + "validateDataset", json={"code": "OK"})
+    argv = ["validate", DS, "-F", "data[dataset][description]=Q1"]
+    result = CliRunner().invoke(cli.app, ["-o", "json", "--dry-run", "datalens", "datasets", *argv])
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.stdout)["code"] == "OK"
+    assert api.body() == {"datasetId": DS, "data": {"dataset": {"description": "Q1"}}}
+
+
+def test_an_update_with_no_data_is_refused_before_anything_is_sent(api):
+    result = CliRunner().invoke(cli.app, ["datalens", "datasets", "update", DS])
+    assert isinstance(result.exception, ValidationError)
+    assert api.calls == []
