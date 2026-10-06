@@ -2210,6 +2210,10 @@ Manage access to QUEUE_ID (PATCH /queues/{queue_id}/permissions).
 Each scope is a JSON object of users/groups/roles, e.g.
 --grant '{"roles": {"add": ["author"]}}'. Pass at least one scope.
 
+A removal is not always the inverse of an addition: taking a user out of --read took it
+out of --write too (seen once, 2026-10-06). The command prints the permissions as they
+are after the change.
+
 **Usage**:
 
 ```console
