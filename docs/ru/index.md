@@ -1,13 +1,15 @@
 ---
-description: "ycli управляет Яндекс Трекером, Вики и Формами из командной строки, MCP-сервера для ИИ-агентов и Python SDK."
+description: "ycli управляет Яндекс Трекером, Вики, Формами и DataLens из командной строки, MCP-сервера для ИИ-агентов и Python SDK."
 ---
 
 # ycli
 
-**Яндекс 360 для людей и для агентов.** Трекер, Вики и Формы из командной строки, MCP-сервера и Python: один инструмент, и у каждой операции везде одно имя.
+--8<-- "docs/examples/services/slogan.ru.md"
 
 [Начать](tutorials/first-steps.md){ .md-button .md-button--primary }
 [Подключить ИИ-клиент](how-to/install-in-your-harness.md){ .md-button }
+
+--8<-- "docs/examples/services/cards.ru.md"
 
 ## От установки до первого вызова
 
