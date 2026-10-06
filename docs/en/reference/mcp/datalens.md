@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-112 tools.
+116 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1556,3 +1556,61 @@ Experimental in the DataLens API and written from its document: not measured.
 |---|---|:---:|---|
 | `resource_preset_id` | string | yes | Id of the resource preset. |
 | `cloud_environment_id` | string | yes | The cloud environment the presets are of. |
+
+## `datalens_sparkapplications_list`
+
+*List DataLens Spark applications* · read-only
+
+The applications of a Spark cluster, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured. A cluster
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``created_by``, ``application_type`` or ``catalog_id``. |
+| `limit` | integer or null |  | Max applications to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_sparkapplications_get`
+
+*Get DataLens Spark application* · read-only
+
+One Spark application: its status, its times and what it runs.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+
+## `datalens_sparkapplications_cancel`
+
+*Cancel DataLens Spark application* · write
+
+Stop a Spark application and return the operation that cancels it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+
+## `datalens_sparkapplications_log_list`
+
+*Read the log of a DataLens Spark application* · read-only
+
+One fragment of an application's log, and the token of the next one.
+
+Give ``nextPageToken`` back as ``page_token`` to read on. Experimental in the DataLens API
+and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Id of the Spark cluster. |
+| `application_id` | string | yes | Id of the Spark application. |
+| `page_size` | integer or null |  | The most characters the fragment may hold. |
+| `page_token` | string or null |  | The token of the fragment to read; the first when left out. |

@@ -46,6 +46,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `restcatalogs`: DataLens REST catalogs (experimental in...
 * `lakehouseoperations`: DataLens Lakehouse operations...
 * `trinoclusters`: DataLens Trino clusters (experimental in...
+* `sparkapplications`: DataLens Spark applications (experimental...
 
 ## `ycli datalens auth`
 
@@ -3604,3 +3605,136 @@ $ ycli datalens trinoclusters resource-preset-get [OPTIONS] RESOURCE_PRESET_ID
 * `--help`: Show this message and exit.
 
 Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied, not 404.
+
+## `ycli datalens sparkapplications`
+
+DataLens Spark applications (experimental in the API).
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List the applications of a Spark cluster...
+* `get`: Print one Spark application: its status,...
+* `cancel`: Stop a Spark application; prints the...
+* `log-list`: Print one fragment of an application's...
+
+### `ycli datalens sparkapplications list`
+
+List the applications of a Spark cluster (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications list [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Spark cluster.  [required]
+
+**Options**:
+
+* `--filter TEXT`: A condition, all must hold: name="…", created_by="…", application_type="…", catalog_id="…" (repeatable).
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. A cluster nothing knows answers 403 Permission denied, not 404.
+
+### `ycli datalens sparkapplications get`
+
+Print one Spark application: its status, its times and what it runs.
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications get [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Spark cluster.  [required]
+
+**Options**:
+
+* `--application-id TEXT`: Id of the Spark application.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. A cluster nothing knows answers 403 Permission denied, not 404.
+
+### `ycli datalens sparkapplications cancel`
+
+Stop a Spark application; prints the operation that cancels it.
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications cancel [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Spark cluster.  [required]
+
+**Options**:
+
+* `--application-id TEXT`: Id of the Spark application.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+### `ycli datalens sparkapplications log-list`
+
+Print one fragment of an application's log, and the token of the next.
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications log-list [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Spark cluster.  [required]
+
+**Options**:
+
+* `--application-id TEXT`: Id of the Spark application.  [required]
+* `--page-size INTEGER`: The most characters the fragment may hold.
+* `--page-token TEXT`: The token of the fragment to read; the first if not.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. A cluster nothing knows answers 403 Permission denied, not 404.
