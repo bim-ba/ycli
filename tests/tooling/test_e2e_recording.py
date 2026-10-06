@@ -13,7 +13,14 @@ from typing import TYPE_CHECKING, Any, Literal
 import httpx2
 import pytest
 from e2e.models import Scenario
-from e2e.recording import InProcessDriver, NotAReadError, load, operations, recording
+from e2e.recording import (
+    InProcessDriver,
+    NotAReadError,
+    load,
+    operations,
+    recording,
+    reply_type,
+)
 from e2e.runner import run_scenario
 from e2e.scrub import DATE, DATE_TIME, scrub, strings
 from pydantic import BaseModel
@@ -267,3 +274,18 @@ def test_a_reply_with_no_model_keeps_no_name():
     }
     assert scrub(reply, public=frozenset({"name"})).body == scrub(reply).body
     assert json.loads(json.dumps(scrub("text").body)) == "<reply>"
+
+
+def test_a_reply_read_by_a_parser_takes_the_type_the_parser_returns():
+    """Otherwise nothing would read it, and its fixture would be placeholders all through."""
+    from ycli.yandex.forms.subscriptions import endpoints
+    from ycli.yandex.forms.subscriptions.models import Subscription
+
+    assert reply_type(endpoints.get("s", 1, 2)) == Subscription
+    reply = {"id": 7, "type": "email", "subject": PERSONAL_VALUE, "active": False}
+    assert scrub(reply, reply_type(endpoints.get("s", 1, 2))).body == {
+        "active": False,
+        "id": 1,
+        "subject": "<subject>",
+        "type": "email",
+    }
