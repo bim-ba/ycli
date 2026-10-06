@@ -154,7 +154,7 @@ class AssignLicensesArgs(RequestBody):
     )
 
 
-class AssignLicensesResponse(RootModel[list[License]]):
+class AssignLicensesResponse(RootModel[list[License]], hide_input_in_errors=True):
     """Licenses assigned to the users."""
 
     root: list[License] = Field(..., description="Licenses assigned to the users.")

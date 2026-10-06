@@ -45,7 +45,8 @@ FieldOption = Annotated[
         "-F",
         help="Set any field of the request body: key=value, key[sub]=value for a nested one "
         "(JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list "
-        "replaces the one below it.",
+        "replaces the one below it. Give a secret in --body-file, not here: a command line "
+        "stays in the shell history.",
     ),
 ]
 BodyFileOption = Annotated[
@@ -65,7 +66,8 @@ DryRunOption = Annotated[
     typer.Option(
         "--dry-run",
         help="Do not send a write: print the request it would send instead. Reads still run, "
-        "and only the first write of a command is shown.",
+        "and only the first write of a command is shown. A secret in the body (a password, "
+        "a token) is printed as ***.",
     ),
 ]
 

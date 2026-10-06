@@ -23,7 +23,8 @@ class EntryScope(
             "sql_query",
         ]
         | str
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         Literal[
@@ -41,7 +42,7 @@ class EntryScope(
     ) = Field(..., description="Type of the entry, e.g. `dash` — dashboard, `widget` — chart, etc.")
 
 
-class DashStringDefaultValueV2(RootModel[str | list[str]]):
+class DashStringDefaultValueV2(RootModel[str | list[str]], hide_input_in_errors=True):
     root: str | list[str] = Field(
         ...,
         description="A dashboard parameter value represented by one or multiple strings.",
@@ -133,7 +134,7 @@ class EntryPermissions(APIModel):
     )
 
 
-class EntryBranch(RootModel[Literal["saved", "published"] | str]):
+class EntryBranch(RootModel[Literal["saved", "published"] | str], hide_input_in_errors=True):
     root: Literal["saved", "published"] | str = Field(
         ..., description="Entry branch: saved or published."
     )
@@ -157,17 +158,21 @@ class EntryLocationIdentifiers(APIModel):
     )
 
 
-class EntryUpdateMode(RootModel[Literal["save", "publish"] | str]):
+class EntryUpdateMode(RootModel[Literal["save", "publish"] | str], hide_input_in_errors=True):
     root: Literal["save", "publish"] | str = Field(..., description="Entry update mode.")
 
 
-class WorkbookTransferProcessStatus(RootModel[Literal["pending", "success", "error"] | str]):
+class WorkbookTransferProcessStatus(
+    RootModel[Literal["pending", "success", "error"] | str], hide_input_in_errors=True
+):
     root: Literal["pending", "success", "error"] | str = Field(
         ..., description="Status of the workbook transfer process."
     )
 
 
-class WorkbookTransferNotificationLevel(RootModel[Literal["info", "warning", "critical"] | str]):
+class WorkbookTransferNotificationLevel(
+    RootModel[Literal["info", "warning", "critical"] | str], hide_input_in_errors=True
+):
     root: Literal["info", "warning", "critical"] | str = Field(
         ..., description="Severity level of the workbook transfer notification."
     )
@@ -647,7 +652,8 @@ class DashControlElementV2(
         | DashControlElementV2Variant3
         | DashControlElementV2Variant4
         | OtherKindByElementType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         DashControlElementV2Variant1
@@ -700,7 +706,8 @@ class DashControlSourceDatasetV2Model5(
         | DashControlSourceDatasetV2Model2
         | DashControlSourceDatasetV2Model3
         | DashControlSourceDatasetV2Model4
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     """Dataset control source."""
 
@@ -772,7 +779,8 @@ class DashControlSourceManualV2Model5(
         | DashControlSourceManualV2Model2
         | DashControlSourceManualV2Model3
         | DashControlSourceManualV2Model4
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     """Manual control source."""
 

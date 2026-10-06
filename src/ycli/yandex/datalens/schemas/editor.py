@@ -650,7 +650,10 @@ class EntryModel3(CreateEditorSelectorNodeEntry, EntryLocationIdentifiers):
     pass
 
 
-class EntryModel4(RootModel[Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3]):
+class EntryModel4(
+    RootModel[Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3],
+    hide_input_in_errors=True,
+):
     root: Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3
 
 

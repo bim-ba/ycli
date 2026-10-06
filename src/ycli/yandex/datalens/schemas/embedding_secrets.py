@@ -85,5 +85,5 @@ class GetEmbeddingSecretArgs(RequestBody):
     )
 
 
-class ListEmbeddingSecretsResponse(RootModel[list[EmbeddingSecret]]):
+class ListEmbeddingSecretsResponse(RootModel[list[EmbeddingSecret]], hide_input_in_errors=True):
     root: list[EmbeddingSecret]

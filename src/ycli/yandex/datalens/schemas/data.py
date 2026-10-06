@@ -238,7 +238,8 @@ class GetChartDataResult(
         | GetQLChartDataResult
         | GetEditorChartDataResult
         | OtherKindByChartType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         GetWizardChartDataResult

@@ -55,7 +55,7 @@ class RenameEntryResultEntry(APIModel):
     )
 
 
-class RenameEntryResult(RootModel[list[RenameEntryResultEntry]]):
+class RenameEntryResult(RootModel[list[RenameEntryResultEntry]], hide_input_in_errors=True):
     root: list[RenameEntryResultEntry]
 
 
@@ -245,5 +245,7 @@ class GetEntriesPermissionsResultValue(APIModel):
     )
 
 
-class GetEntriesPermissionsResult(RootModel[dict[str, GetEntriesPermissionsResultValue]]):
+class GetEntriesPermissionsResult(
+    RootModel[dict[str, GetEntriesPermissionsResultValue]], hide_input_in_errors=True
+):
     root: dict[str, GetEntriesPermissionsResultValue]
