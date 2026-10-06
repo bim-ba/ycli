@@ -642,6 +642,25 @@ def _join_envelope_parts(spec: dict[str, Any]) -> int:
     return joined
 
 
+def _request_envelopes(spec: dict[str, Any]) -> Iterator[dict[str, Any]]:
+    """Each object that is the top level of a request: its fields are an operation's arguments.
+
+    A request the document writes as a union of objects (``updateHtmlPage``: new content, or
+    a revision to publish) has one envelope per member: each is closed and keeps what it
+    requires, so the fields that tell the members apart are in their types.
+    """
+    for _, _, kind, holder in _bodies(spec):
+        envelope = _target(spec, holder["schema"]) if kind == "Request" else None
+        if envelope is None:
+            continue
+        members = (
+            envelope.get("anyOf", envelope.get("oneOf", [])) if "properties" not in envelope else []
+        )
+        for one in [envelope, *(_target(spec, member) for member in members)]:
+            if one and "properties" in one:
+                yield one
+
+
 def _close_only_requests(spec: dict[str, Any]) -> None:
     """Only the envelope of a request refuses an unknown field; a reply is read as it comes.
 
@@ -651,10 +670,8 @@ def _close_only_requests(spec: dict[str, Any]) -> None:
     for schema in list(_every_schema(spec)):
         if schema.get("additionalProperties") is False:
             del schema["additionalProperties"]
-    for _, _, kind, holder in _bodies(spec):
-        envelope = _target(spec, holder["schema"])
-        if kind == "Request" and envelope and "properties" in envelope:
-            envelope.setdefault("additionalProperties", False)
+    for envelope in _request_envelopes(spec):
+        envelope.setdefault("additionalProperties", False)
 
 
 def _one_value(schema: object) -> bool:
@@ -719,11 +736,7 @@ def _require_only_kinds(spec: dict[str, Any], keep: set[int]) -> int:
     the document names no discriminator). And the top level of a request, whose fields are the
     arguments of the operation.
     """
-    envelopes = {
-        id(_target(spec, holder["schema"]))
-        for _, _, kind, holder in _bodies(spec)
-        if kind == "Request"
-    }
+    envelopes = {id(envelope) for envelope in _request_envelopes(spec)}
     changed = 0
     for schema in list(_every_schema(spec)):
         required = schema.get("required")
