@@ -43,6 +43,11 @@ EXPECTED_LINK_GAPS = (
     "datalens.restcatalogs",
     "datalens.restcatalogs.create",
     "datalens.restcatalogs.list",
+    "datalens.sparkapplications",
+    "datalens.sparkapplications.cancel",
+    "datalens.sparkapplications.get",
+    "datalens.sparkapplications.list",
+    "datalens.sparkapplications.log_list",
     "datalens.sqlqueries",
     "datalens.sqlqueries.create",
     "datalens.sqlqueries.delete",
@@ -148,7 +153,7 @@ def test_link_stats_totals_are_consistent():
     assert stats.linked_resources <= stats.resources
     # The vast majority of operations deep-link to their own endpoint page.
     assert stats.specific_ops > stats.fallback_ops + stats.plain_ops
-    assert stats.plain_ops == 29 and stats.linked_resources == stats.resources - 8
+    assert stats.plain_ops == 33 and stats.linked_resources == stats.resources - 9
 
 
 def test_link_map_keys_reference_real_resources_and_operations():

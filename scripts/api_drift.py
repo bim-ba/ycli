@@ -89,6 +89,11 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
             *("getPermissions", "modifyPermissions", "dlsSuggest"),
         )
     },
+    # Waiting, not left out: the rest of its section is wrapped, and this one follows the
+    # generator's change that closes its request (#464).
+    ("datalens", "POST", "/rpc/createSparkApplication"): (
+        "its request is a union of three kinds of application; wrapped after #464"
+    ),
 }
 
 # A difference that stays, with its reason: one name of one kind (``GAP_KINDS``), either on one

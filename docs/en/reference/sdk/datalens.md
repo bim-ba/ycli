@@ -106,3 +106,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## trinoclusters
 
 ::: ycli.yandex.datalens.trinoclusters.client.TrinoClustersClient
+
+## sparkapplications
+
+::: ycli.yandex.datalens.sparkapplications.client.SparkApplicationsClient
