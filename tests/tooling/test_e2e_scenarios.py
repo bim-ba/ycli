@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 import pytest
 from e2e.catalog import load, scenario_paths
 from e2e.conftest import of_service
+from e2e.settings import OPTIONAL_VARIABLES
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
@@ -95,3 +96,14 @@ def test_a_scenario_is_named_after_the_directory_of_its_service():
     ]
     assert of_service("wiki/page-lifecycle", None)
     assert not of_service("wiki/page-lifecycle", "forms")
+
+
+def test_a_step_needs_only_a_variable_the_settings_know():
+    """A typo in ``needs`` would skip the step for ever, and say only that it was skipped."""
+    assert not [
+        f"{load(path).name}/{step.id}: {name}"
+        for path in scenario_paths()
+        for step in load(path).steps
+        for name in step.needs
+        if name not in OPTIONAL_VARIABLES
+    ]

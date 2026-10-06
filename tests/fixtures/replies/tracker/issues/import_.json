@@ -1,0 +1,60 @@
+{
+  "body": {
+    "commentWithExternalMessageCount": 0,
+    "commentWithoutExternalMessageCount": 0,
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "favorite": false,
+    "id": "<id>",
+    "key": "<key>",
+    "priority": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "queue": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "self": "<self>",
+    "status": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "statusType": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>"
+    },
+    "summary": "<summary>",
+    "type": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "updatedAt": "<updatedAt>",
+    "updatedBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
+    "version": 1,
+    "votes": 0
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

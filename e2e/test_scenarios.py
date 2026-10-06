@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from e2e.catalog import load, scenario_paths
+from e2e.conftest import SKIPPED_STEPS
 from e2e.recording import InProcessDriver
 from e2e.runner import CliDriver, run_scenario
 
@@ -29,6 +30,9 @@ def _parameters() -> list[object]:
 def test_scenario(scenario: Scenario, variables: dict[str, str], recorder: Recorder | None) -> None:
     print(f"RUN={variables['RUN']}")  # shown on failure: every object of this run carries it
     if recorder is None:
-        run_scenario(scenario, CliDriver(), variables)
+        skipped = run_scenario(scenario, CliDriver(), variables)
     else:
-        run_scenario(scenario, InProcessDriver(), variables, read=recorder.read)
+        skipped = run_scenario(scenario, InProcessDriver(), variables, read=recorder.read)
+    SKIPPED_STEPS.extend(skipped)
+    if len(skipped) == len(scenario.steps):
+        pytest.skip("; ".join(skipped))

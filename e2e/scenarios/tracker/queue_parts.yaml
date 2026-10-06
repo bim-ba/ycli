@@ -1,0 +1,62 @@
+# What a queue is set up with: a version, a tag that is removed once no issue carries it, and
+# a workflow that is renamed, has one of its actions rewritten and is deleted. The workflow is
+# never bound to a queue; the issue ends closed in the sandbox queue.
+name: tracker/queue-parts
+steps:
+  - id: version
+    run: tracker queues versions-create --queue ${QUEUE} --name "${RUN} version" --description First --start-date 2027-01-04 --due-date 2027-01-18
+    save:
+      version: id
+    cleanup: tracker queues versions-delete ${version}
+  - id: version-rename
+    run: tracker queues versions-update ${version} --name "${RUN} version renamed" --description Renamed
+    expect:
+      name: ${RUN} version renamed
+  - id: version-delete
+    run: tracker queues versions-delete ${version}
+    disarms: [version]
+  - id: tagged
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} tagged" --tag ${RUN}-tag
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: untag
+    # A tag can be removed from a queue only when no issue carries it.
+    run: >-
+      tracker issues update ${key} -F 'tags={"remove": ["${RUN}-tag"]}'
+    expect:
+      "length(tags)": 0
+  - id: tag-delete
+    run: tracker queues tags-delete ${QUEUE} ${RUN}-tag
+  - id: close
+    run: tracker transitions execute ${key} close --field resolution=fixed
+    disarms: [tagged]
+  - id: workflow
+    run: >-
+      tracker workflows create --name "${RUN} workflow"
+      --initial-action '{"id": "open", "name": {"ru": "Открыть", "en": "Open"}, "target": "open"}'
+      --step '{"status": "open", "actions": [{"id": "close", "name": {"ru": "Закрыть", "en": "Close"}, "target": "closed"}]}'
+      --step '{"status": "closed", "actions": []}'
+    expect:
+      "length(steps)": 2
+    save:
+      workflow: id
+      revision: version
+    cleanup: tracker workflows delete ${workflow}
+  - id: workflow-rename
+    run: >-
+      tracker workflows update ${workflow} --version ${revision} --name "${RUN} workflow renamed"
+      --initial-action '{"id": "open", "name": {"ru": "Открыть", "en": "Open"}, "target": "open"}'
+      --step '{"status": "open", "actions": [{"id": "close", "name": {"ru": "Закрыть", "en": "Close"}, "target": "closed"}]}'
+      --step '{"status": "closed", "actions": []}'
+    expect:
+      name: ${RUN} workflow renamed
+    save:
+      revision: version
+  - id: workflow-action
+    run: >-
+      tracker workflows actions-update ${workflow} open close --version ${revision}
+      --action '{"id": "close", "name": {"ru": "Завершить", "en": "Complete"}, "target": "closed"}'
+  - id: workflow-delete
+    run: tracker workflows delete ${workflow}
+    disarms: [workflow]

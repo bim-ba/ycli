@@ -13,13 +13,24 @@ import pytest
 
 from e2e.recording import REPLIES, Recorder, recording
 from e2e.runner import CREDENTIAL_VARIABLES
-from e2e.settings import sandbox_queue
+from e2e.settings import optional_variables, sandbox_queue
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
 # A file every scenario appends its run name to, when set (see ``e2e/janitor.py --runs-file``).
 RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
+
+
+# The steps this run did not run because a variable they need is not set, said at the end.
+SKIPPED_STEPS: list[str] = []
+
+
+def pytest_terminal_summary(terminalreporter: pytest.TerminalReporter) -> None:
+    if SKIPPED_STEPS:
+        terminalreporter.section("steps skipped: a variable they need is not set")
+        for step in SKIPPED_STEPS:
+            terminalreporter.line(step)
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -117,4 +128,9 @@ def variables() -> dict[str, str]:
     if runs_file := os.environ.get(RUNS_FILE_ENV):
         with Path(runs_file).open("a", encoding="utf-8") as listed:
             listed.write(f"{run}\n")
-    return {"RUN": run, "QUEUE": sandbox_queue(), "FILES": str(Path(__file__).parent / "files")}
+    return {
+        "RUN": run,
+        "QUEUE": sandbox_queue(),
+        "FILES": str(Path(__file__).parent / "files"),
+        **optional_variables(),
+    }
