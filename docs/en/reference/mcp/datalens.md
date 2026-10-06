@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-30 tools.
+36 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -375,3 +375,96 @@ the configured item cap unless ``limit`` is given.
 | `search` | string or null |  | Keep the members whose name or address has this text. |
 | `tab_id` | `SUBJECT_TYPE_UNSPECIFIED` · `USER_ACCOUNT` · `GROUP` · `INVITEE` · `SERVICE_ACCOUNT` · `_system` or string or null |  | Keep one kind of subject. |
 | `filter` | string or null |  | A filter expression of the API. |
+
+## `datalens_entries_list`
+
+*Find DataLens entries* · read-only
+
+Entries across the whole organization: dashboards, charts, datasets, connections.
+
+The API requires one of ``scope``, ``scopes`` and ``ids``. An entry the caller may not read
+comes with ``isLocked`` set and little else. Auto-paginated; capped at the configured item
+cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `ids` | array of string or null |  | Keep the entries with these ids. |
+| `scope` | `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep one kind of entry. |
+| `scopes` | array of `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep several kinds of entries. |
+| `type` | array of string or null |  | Keep these types of entries. |
+| `created_by` | array of string or null |  | Keep what these users created. |
+| `order_by` | object or null |  | What to sort by and in which direction. |
+| `exclude_locked` | boolean or null |  | Leave out the entries the caller may not read. |
+| `include_links` | boolean or null |  | Also say what each entry is linked to. |
+| `filters` | object or null |  | Keep the entries whose name has a text. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+| `ignore_workbook_entries` | boolean or null |  | Leave out the entries that lie in workbooks. |
+| `ignore_shared_entries` | boolean or null |  | Leave out the shared entries. |
+| `include_data` | boolean or null |  | Also give the content of each entry (large). |
+
+## `datalens_entries_relations_list`
+
+*List what DataLens entries use or are used by* · read-only
+
+What entries use (a chart's dataset, a dataset's connection) or what uses them.
+
+Use it before changing or deleting an entry, to see what depends on it. Auto-paginated.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_ids` | array of string | yes | Entry ids. |
+| `limit` | integer or null |  | Max relations to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `link_direction` | string or null |  | `from`: what the entries use; `to`: what uses them. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+| `scope` | `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep one kind of related entry. |
+
+## `datalens_entries_permissions_get`
+
+*Get DataLens permissions on entries* · read-only
+
+What the caller may do with each entry, as a map by id.
+
+An entry that does not exist gives ``error: "NOT_FOUND"`` under its id.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_ids` | array of string | yes | Entry ids. |
+
+## `datalens_entries_revisions_list`
+
+*List DataLens entry revisions* · read-only
+
+The revisions of an entry: who saved it and when. Auto-paginated.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `limit` | integer or null |  | Max revisions to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `rev_ids` | array of string or null |  | Keep only these revisions. |
+
+## `datalens_entries_rename`
+
+*Rename DataLens entry* · idempotent write
+
+Give an entry another name; its id and what refers to it stay.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `name` | string | yes | The new name. |
+
+## `datalens_permissions_get_bulk`
+
+*Get DataLens permissions on many objects* · read-only
+
+What the caller may do with many entries, workbooks and collections, in one call.
+
+Each of the three maps is keyed by id: an object the caller can see gives ``permissions``,
+one that does not exist gives ``error: "NOT_FOUND"``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_ids` | array of string or null |  | Ids of entries. |
+| `workbook_ids` | array of string or null |  | Ids of workbooks. |
+| `collection_ids` | array of string or null |  | Ids of collections. |

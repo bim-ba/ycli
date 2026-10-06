@@ -81,7 +81,7 @@ class GetAuditEntryPermissionsForUserArgs(RequestBody):
     )
 
 
-class GetAuditEntryPermissionsForUserResultValueVariant1Permissions(APIModel):
+class GetAuditEntryPermissionsForUserResultValuePermissions(APIModel):
     """Permissions granted to the user for the entry."""
 
     execute: bool | None = Field(
@@ -98,25 +98,14 @@ class GetAuditEntryPermissionsForUserResultValueVariant1Permissions(APIModel):
     )
 
 
-class GetAuditEntryPermissionsForUserResultValueVariant2(APIModel):
-    error: Literal["NOT_FOUND"] = Field(..., description="Error code indicating a missing entry.")
-
-
-class GetAuditEntryPermissionsForUserResultValueVariant1(APIModel):
-    permissions: GetAuditEntryPermissionsForUserResultValueVariant1Permissions | None = None
+class GetAuditEntryPermissionsForUserResultValue(APIModel):
+    permissions: GetAuditEntryPermissionsForUserResultValuePermissions | None = None
+    error: Literal["NOT_FOUND"] | str | None = Field(
+        default=None, description="Error code indicating a missing entry."
+    )
 
 
 class GetAuditEntryPermissionsForUserResult(
-    RootModel[
-        dict[
-            str,
-            GetAuditEntryPermissionsForUserResultValueVariant1
-            | GetAuditEntryPermissionsForUserResultValueVariant2,
-        ]
-    ]
+    RootModel[dict[str, GetAuditEntryPermissionsForUserResultValue]]
 ):
-    root: dict[
-        str,
-        GetAuditEntryPermissionsForUserResultValueVariant1
-        | GetAuditEntryPermissionsForUserResultValueVariant2,
-    ]
+    root: dict[str, GetAuditEntryPermissionsForUserResultValue]

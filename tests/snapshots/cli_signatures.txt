@@ -16,10 +16,16 @@ datalens collections move: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT
 datalens collections move-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent-id:TEXT --profile:TEXT --yes:BOOLEAN=False COLLECTION_IDS:TEXT!
 datalens collections permissions-get-root: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens collections update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens entries list: --all:BOOLEAN=False --body-file:FILE --created-by:TEXT --dry-run:BOOLEAN=False --exclude-locked:BOOLEAN --field:TEXT --filters:TEXT --format:CHOICE --id:TEXT --ignore-shared-entries:BOOLEAN --ignore-workbook-entries:BOOLEAN --include-data:BOOLEAN --include-links:BOOLEAN --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --order-by:TEXT --profile:TEXT --scope:TEXT --scopes:TEXT --type:TEXT --yes:BOOLEAN=False
+datalens entries permissions-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!
+datalens entries relations-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --link-direction:TEXT --profile:TEXT --scope:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!
+datalens entries rename: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens entries revisions-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks create: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens members list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --language:TEXT --limit:INTEGER RANGE --profile:TEXT --search:TEXT --tab-id:TEXT --yes:BOOLEAN=False
+datalens permissions get-bulk: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --entry-id:TEXT --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens workbooks access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
 datalens workbooks access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!

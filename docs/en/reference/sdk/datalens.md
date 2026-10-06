@@ -30,3 +30,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## members
 
 ::: ycli.yandex.datalens.members.client.MembersClient
+
+## entries
+
+::: ycli.yandex.datalens.entries.client.EntriesClient
+
+## permissions
+
+::: ycli.yandex.datalens.permissions.client.PermissionsClient

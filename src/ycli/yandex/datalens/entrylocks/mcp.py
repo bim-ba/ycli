@@ -11,6 +11,7 @@ from ycli.yandex.datalens.dependencies import (
     DESTRUCTIVE,
     WRITE,
     WRITE_IDEMPOTENT,
+    EntryID,
     datalens_client,
 )
 from ycli.yandex.datalens.entrylocks.models import (
@@ -22,8 +23,6 @@ from ycli.yandex.datalens.entrylocks.models import (
 )
 
 mcp = FastMCP("datalens-entrylocks")
-
-EntryID = Annotated[str, Field(description="Entry id.")]
 
 
 @mcp.tool(name="entrylocks_create", annotations={**WRITE, "title": "Lock a DataLens entry"})

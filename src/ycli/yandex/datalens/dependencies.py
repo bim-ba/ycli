@@ -20,6 +20,7 @@ TAGS: set[str] = {"datalens"}
 PermissionsInfo = Annotated[
     bool | None, Field(description="Also say what the caller may do with it.")
 ]
+EntryID = Annotated[str, Field(description="Entry id.")]
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
 datalens_client = client_provider(DataLensClient)
 
@@ -31,6 +32,7 @@ __all__ = [
     "WRITE",
     "WRITE_IDEMPOTENT",
     "WRITE_TAGS",
+    "EntryID",
     "PermissionsInfo",
     "app_config",
     "datalens_client",

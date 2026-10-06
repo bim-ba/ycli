@@ -495,3 +495,83 @@ def test_a_generated_model_sends_a_number_as_it_was_given():
 
     assert sent(60000) == '{"duration": 60000}'
     assert sent(1.5) == '{"duration": 1.5}'
+
+
+def _mapping_reply(members: list[dict]) -> dict:
+    """A document whose ``getThing`` reply is a union of ``members`` with no discriminator."""
+    reply = {"post": {"tags": ["Things"], "responses": {"200": _json({"anyOf": members})}}}
+    return {"paths": {"/rpc/getThing": reply}, "components": {"schemas": {}}}
+
+
+def _text(description: str = "") -> dict:
+    return {"type": "string", **({"description": description} if description else {})}
+
+
+def test_a_reply_union_nothing_tells_apart_is_read_as_one_object():
+    """Three sides: agreeing members merge; a name of two types keeps the union; tags open."""
+    granted = {"type": "object", "properties": {"permissions": {"type": "object"}}}
+    missing = {"type": "object", "properties": {"error": {"enum": ["NOT_FOUND"]}}}
+    merged = gen.prepare(_mapping_reply([granted, missing]))["components"]["schemas"]
+    assert set(merged["things.GetThingResponse"]["properties"]) == {"permissions", "error"}
+    assert "anyOf" not in merged["things.GetThingResponse"]
+
+    locked = {
+        "type": "object",
+        "properties": {"isLocked": {"const": True}, "id": _text("Of the locked entry.")},
+    }
+    plain = {
+        "type": "object",
+        "properties": {"isLocked": {"type": "boolean"}, "id": _text("Of the entry.")},
+    }
+    one = gen.prepare(_mapping_reply([locked, plain]))["components"]["schemas"]
+    fields = one["things.GetThingResponse"]["properties"]
+    # A one-value field is of its type, descriptions are not compared, the first one is kept.
+    assert fields["isLocked"] == {"type": "boolean"}
+    assert fields["id"] == _text("Of the locked entry.")
+
+    auto = {"type": "object", "properties": {"scale": {"enum": ["auto"]}}}
+    fixed = {"type": "object", "properties": {"scale": {"enum": ["fixed"]}}}
+    tagged = gen.prepare(_mapping_reply([auto, fixed]))["components"]["schemas"]
+    # The values the members were told apart by: a set of them, open like any other.
+    assert tagged["things.GetThingResponse"]["properties"]["scale"] == {
+        "anyOf": [{"enum": ["auto", "fixed"], "type": "string"}, {"type": "string"}]
+    }
+
+    texts = {"type": "object", "properties": {"value": {"type": "string"}}}
+    numbers = {"type": "object", "properties": {"value": {"type": "object", "properties": {}}}}
+    kept = gen.prepare(_mapping_reply([texts, numbers]))["components"]["schemas"]
+    assert "anyOf" in kept["things.GetThingResponse"]  # one name, two types: still a union
+
+
+def test_a_union_a_request_reaches_is_not_merged():
+    """The other side of the rule: merged, a request could carry the fields of two members."""
+    either = {
+        "anyOf": [
+            {"type": "object", "properties": {"auto": {"type": "boolean"}}},
+            {"type": "object", "properties": {"fixed": {"type": "boolean"}}},
+        ]
+    }
+    arguments = {"type": "object", "properties": {"scale": either}}
+    spec = {
+        "paths": {"/rpc/setThing": _operation(arguments, {"type": "object"})},
+        "components": {"schemas": {}},
+    }
+    schemas = gen.prepare(spec)["components"]["schemas"]
+    assert "anyOf" in schemas["things.SetThingRequest"]["properties"]["scale"]
+
+
+def test_the_measured_permission_replies_are_read():
+    """Measured: a found id answers its permissions, a missing one ``{"error": "NOT_FOUND"}``."""
+    from ycli.yandex.datalens.schemas.entries import GetEntriesPermissionsResult
+    from ycli.yandex.datalens.schemas.permissions import GetPermissionsBulkResult
+
+    rights = {"execute": True, "read": True, "edit": False, "admin": False}
+    mixed = {"ent1": {"permissions": rights}, "ent2": {"error": "NOT_FOUND"}}
+    entries = GetEntriesPermissionsResult.model_validate(mixed)
+    assert entries.model_dump(exclude_none=True)["ent1"] == {"permissions": rights}
+    assert entries.root["ent2"].error == "NOT_FOUND"
+    bulk = GetPermissionsBulkResult.model_validate(
+        {"entries": {"e": {"error": "NOT_FOUND"}}, "workbooks": {"w": {"permissions": {}}}}
+    )
+    assert bulk.model_dump(exclude_none=True)["entries"] == {"e": {"error": "NOT_FOUND"}}
+    assert bulk.model_dump(exclude_none=True)["workbooks"] == {"w": {"permissions": {}}}

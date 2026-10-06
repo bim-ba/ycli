@@ -12,10 +12,9 @@ from ycli.yandex.datalens.entrylocks.models import (
     LockRelease,
     LockTerms,
 )
+from ycli.yandex.datalens.typedefs import EntryIDArg
 
 app = typer.Typer(name="entrylocks", help="Locks on DataLens entries.", no_args_is_help=True)
-
-EntryIDArg = Annotated[str, typer.Argument(metavar="ENTRY_ID", help="Entry id.")]
 
 
 @app.command()

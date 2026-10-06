@@ -154,19 +154,8 @@ class UpdateSqlQueryArgsParamsItemVariant3(APIModel):
     )
 
 
-class RunSqlQueryResultResultsItemVariant1ColumnsItem(APIModel):
+class RunSqlQueryResultResultsItemColumnsItem(APIModel):
     name: str | None = Field(default=None, description="Name of the column.")
-
-
-class RunSqlQueryResultResultsItemVariant2(APIModel):
-    status: Literal["error"] = Field(..., description="Status of the statement.")
-    code: str | None = Field(default=None, description="Error code.")
-    message: str | None = Field(default=None, description="Error message.")
-    database_message: str | None = Field(
-        default=None,
-        alias="databaseMessage",
-        description="Message returned by the database.",
-    )
 
 
 class RunSqlQueryArgsParamsValueVariant5(APIModel):
@@ -223,9 +212,11 @@ class UpdateSqlQueryArgsParamsItemVariant1(APIModel):
     )
 
 
-class RunSqlQueryResultResultsItemVariant1(APIModel):
-    status: Literal["success"] = Field(..., description="Status of the statement.")
-    columns: list[RunSqlQueryResultResultsItemVariant1ColumnsItem] | None = Field(
+class RunSqlQueryResultResultsItem(APIModel):
+    status: Literal["success", "error"] | str | None = Field(
+        default=None, description="Status of the statement."
+    )
+    columns: list[RunSqlQueryResultResultsItemColumnsItem] | None = Field(
         default=None,
         description="Columns of the statement result. Empty for statements that return no rows.",
     )
@@ -237,6 +228,13 @@ class RunSqlQueryResultResultsItemVariant1(APIModel):
         default=None,
         alias="affectedRows",
         description="Number of rows affected by the statement.",
+    )
+    code: str | None = Field(default=None, description="Error code.")
+    message: str | None = Field(default=None, description="Error message.")
+    database_message: str | None = Field(
+        default=None,
+        alias="databaseMessage",
+        description="Message returned by the database.",
     )
 
 
@@ -302,9 +300,7 @@ class RunSqlQueryResult(APIModel):
         alias="statementPositions",
         description="Start and end indexes of the executed statements.",
     )
-    results: (
-        list[RunSqlQueryResultResultsItemVariant1 | RunSqlQueryResultResultsItemVariant2] | None
-    ) = Field(
+    results: list[RunSqlQueryResultResultsItem] | None = Field(
         default=None,
         description="Results of the executed statements, in the order of the statements.",
     )
