@@ -69,7 +69,13 @@ EntityTypeArg = Annotated[
 EntityIDArg = Annotated[str, typer.Argument(metavar="ID", help="Entity id (or shortId).")]
 BulkFieldOpt = Annotated[
     list[str] | None,
-    typer.Option("--field", "-F", help="Field to set on every entity: key=value (repeatable)."),
+    typer.Option(
+        "--field",
+        "-F",
+        help="Field to set on every entity: key=value (JSON-coerced; repeatable). "
+        "key[sub]=value nests, and key=@FILE (@- for stdin) gives the file's text; a string "
+        "that starts with @ goes in JSON quotes.",
+    ),
 ]
 
 
@@ -295,7 +301,7 @@ def permissions_update(
     (READ/WRITE/GRANT) to users/groups/roles, e.g.
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
-    body = PermissionsUpdate.model_validate({"acl": parse_fields(field)})
+    body = PermissionsUpdate.model_validate({"acl": parse_fields(field, structured=True)})
     return tracker.entities.permissions_update(entity_type, entity_id, body=body)
 
 
@@ -340,7 +346,7 @@ def update_bulk(
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
-    values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment)
+    values = BulkChangeValues(fields=parse_fields(field, structured=True) or None, comment=comment)
     body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
     return tracker.entities.update_bulk(entity_type, body=body)
 

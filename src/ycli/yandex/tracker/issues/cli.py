@@ -273,7 +273,13 @@ BulkQueryOpt = Annotated[
 ]
 BulkValueOpt = Annotated[
     list[str] | None,
-    typer.Option("--field", "-F", help="Field to set, key=value (JSON-coerced; repeatable)."),
+    typer.Option(
+        "--field",
+        "-F",
+        help="Field to set, key=value (JSON-coerced; repeatable). key[sub]=value nests, and "
+        "key=@FILE (@- for stdin) gives the file's text; a string that starts with @ goes in "
+        "JSON quotes.",
+    ),
 ]
 BulkNotifyOpt = Annotated[
     bool | None, typer.Option("--notify/--no-notify", help="Notify affected users.")
@@ -320,7 +326,11 @@ def update_bulk(
     tracker: TrackerClient,
 ) -> BulkChange:
     """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
-    body = BulkUpdate(issues=_bulk_issues(issue, query), values=parse_fields(field), notify=notify)
+    body = BulkUpdate(
+        issues=_bulk_issues(issue, query),
+        values=parse_fields(field, structured=True),
+        notify=notify,
+    )
     started = tracker.issues.update_bulk(body=body, notify=notify)
     return _bulk_finish(tracker, config, started, wait)
 
@@ -355,7 +365,7 @@ def move_bulk(
     body = BulkMove(
         queue=queue,
         issues=_bulk_issues(issue, query),
-        values=parse_fields(field) or None,
+        values=parse_fields(field, structured=True) or None,
         moveAllFields=move_all_fields,
         initialStatus=initial_status,
         notify=notify,
@@ -382,7 +392,7 @@ def transition_bulk(
     body = BulkTransition(
         transition=transition,
         issues=_bulk_issues(issue, query),
-        values=parse_fields(field) or None,
+        values=parse_fields(field, structured=True) or None,
         notify=notify,
     )
     started = tracker.issues.transition_bulk(body=body, notify=notify)

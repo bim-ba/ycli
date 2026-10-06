@@ -82,7 +82,7 @@ $ ycli datalens auth status [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -120,7 +120,7 @@ $ ycli datalens tenant details-get [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -175,7 +175,7 @@ $ ycli datalens collections get [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -199,7 +199,7 @@ $ ycli datalens collections list-by-ids [OPTIONS] COLLECTION_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -231,7 +231,7 @@ $ ycli datalens collections content-list [OPTIONS] [COLLECTION_ID]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -256,7 +256,7 @@ $ ycli datalens collections breadcrumbs-list [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -276,7 +276,7 @@ $ ycli datalens collections permissions-get-root [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -303,7 +303,7 @@ $ ycli datalens collections access-bindings-list [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -326,7 +326,7 @@ $ ycli datalens collections create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -352,7 +352,7 @@ $ ycli datalens collections update [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -378,7 +378,7 @@ $ ycli datalens collections move [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -403,7 +403,7 @@ $ ycli datalens collections move-bulk [OPTIONS] COLLECTION_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -427,7 +427,7 @@ $ ycli datalens collections delete [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -451,7 +451,7 @@ $ ycli datalens collections delete-bulk [OPTIONS] COLLECTION_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -476,7 +476,7 @@ $ ycli datalens collections access-bindings-update [OPTIONS] COLLECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -530,7 +530,7 @@ $ ycli datalens workbooks get [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -558,7 +558,7 @@ $ ycli datalens workbooks list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -582,7 +582,7 @@ $ ycli datalens workbooks list-by-ids [OPTIONS] WORKBOOK_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -609,7 +609,7 @@ $ ycli datalens workbooks access-bindings-list [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -641,7 +641,7 @@ $ ycli datalens workbooks entries-list [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -664,7 +664,7 @@ $ ycli datalens workbooks create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -690,7 +690,7 @@ $ ycli datalens workbooks update [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -716,7 +716,7 @@ $ ycli datalens workbooks move [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -741,7 +741,7 @@ $ ycli datalens workbooks move-bulk [OPTIONS] WORKBOOK_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -765,7 +765,7 @@ $ ycli datalens workbooks delete [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -789,7 +789,7 @@ $ ycli datalens workbooks delete-bulk [OPTIONS] WORKBOOK_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -814,7 +814,7 @@ $ ycli datalens workbooks access-bindings-update [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -862,7 +862,7 @@ $ ycli datalens entrylocks create [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -887,7 +887,7 @@ $ ycli datalens entrylocks extend [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -912,7 +912,7 @@ $ ycli datalens entrylocks delete [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -956,7 +956,7 @@ $ ycli datalens members list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1013,7 +1013,7 @@ $ ycli datalens entries list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1042,7 +1042,7 @@ $ ycli datalens entries relations-list [OPTIONS] ENTRY_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1066,7 +1066,7 @@ $ ycli datalens entries permissions-get [OPTIONS] ENTRY_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1093,7 +1093,7 @@ $ ycli datalens entries revisions-list [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1118,7 +1118,7 @@ $ ycli datalens entries rename [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1161,7 +1161,7 @@ $ ycli datalens permissions get-bulk [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1209,7 +1209,7 @@ $ ycli datalens connections get [OPTIONS] CONNECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1232,11 +1232,11 @@ $ ycli datalens connections create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
-Give a password or a token in --body-file (a file outside the repository, mode 600), not in -F: a command line stays in the shell history. --dry-run prints a secret as ***.
+Give a password or a token from a file outside the repository, mode 600: in --body-file, or as one field with -F password=@FILE. Typed on a command line it stays in the shell history. Write the file of one field with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret. --dry-run prints a secret as ***.
 
 ### `ycli datalens connections update`
 
@@ -1259,11 +1259,11 @@ $ ycli datalens connections update [OPTIONS] CONNECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
-Give a password or a token in --body-file (a file outside the repository, mode 600), not in -F: a command line stays in the shell history. --dry-run prints a secret as ***.
+Give a password or a token from a file outside the repository, mode 600: in --body-file, or as one field with -F password=@FILE. Typed on a command line it stays in the shell history. Write the file of one field with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret. --dry-run prints a secret as ***.
 
 ### `ycli datalens connections delete`
 
@@ -1285,7 +1285,7 @@ $ ycli datalens connections delete [OPTIONS] CONNECTION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1334,7 +1334,7 @@ $ ycli datalens datasets get [OPTIONS] DATASET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1365,7 +1365,7 @@ $ ycli datalens datasets create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1391,7 +1391,7 @@ $ ycli datalens datasets update [OPTIONS] DATASET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1415,7 +1415,7 @@ $ ycli datalens datasets delete [OPTIONS] DATASET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1442,7 +1442,7 @@ $ ycli datalens datasets validate [OPTIONS] DATASET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1473,7 +1473,7 @@ $ ycli datalens datasets data-get [OPTIONS] DATASET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1519,7 +1519,7 @@ $ ycli datalens charts data-get [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1570,7 +1570,7 @@ $ ycli datalens charts wizard get [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1598,7 +1598,7 @@ $ ycli datalens charts wizard create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1628,7 +1628,7 @@ $ ycli datalens charts wizard update [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1652,7 +1652,7 @@ $ ycli datalens charts wizard delete [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1703,7 +1703,7 @@ $ ycli datalens charts ql get [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1729,7 +1729,7 @@ $ ycli datalens charts ql create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1757,7 +1757,7 @@ $ ycli datalens charts ql update [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1781,7 +1781,7 @@ $ ycli datalens charts ql delete [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1832,7 +1832,7 @@ $ ycli datalens charts editor get [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1853,7 +1853,7 @@ $ ycli datalens charts editor create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1875,7 +1875,7 @@ $ ycli datalens charts editor update [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1899,7 +1899,7 @@ $ ycli datalens charts editor delete [OPTIONS] CHART_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1947,7 +1947,7 @@ $ ycli datalens reports get [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -1977,7 +1977,7 @@ $ ycli datalens reports create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2010,7 +2010,7 @@ $ ycli datalens reports update [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2034,7 +2034,7 @@ $ ycli datalens reports delete [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2082,7 +2082,7 @@ $ ycli datalens workbookexports start [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2106,7 +2106,7 @@ $ ycli datalens workbookexports status-get [OPTIONS] EXPORT_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2133,7 +2133,7 @@ $ ycli datalens workbookexports result-get [OPTIONS] EXPORT_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2159,7 +2159,7 @@ $ ycli datalens workbookexports cancel [OPTIONS] EXPORT_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2210,7 +2210,7 @@ $ ycli datalens workbookimports start [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2234,7 +2234,7 @@ $ ycli datalens workbookimports status-get [OPTIONS] IMPORT_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2279,7 +2279,7 @@ $ ycli datalens embeds list [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2307,7 +2307,7 @@ $ ycli datalens embeds create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2338,7 +2338,7 @@ $ ycli datalens embeds update [OPTIONS] EMBED_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2362,7 +2362,7 @@ $ ycli datalens embeds delete [OPTIONS] EMBED_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2407,7 +2407,7 @@ $ ycli datalens embeddingsecrets get [OPTIONS] EMBEDDING_SECRET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2431,7 +2431,7 @@ $ ycli datalens embeddingsecrets list [OPTIONS] WORKBOOK_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2456,7 +2456,7 @@ $ ycli datalens embeddingsecrets create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2480,7 +2480,7 @@ $ ycli datalens embeddingsecrets delete [OPTIONS] EMBEDDING_SECRET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2526,7 +2526,7 @@ $ ycli datalens sharedentries access-bindings-list [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2551,7 +2551,7 @@ $ ycli datalens sharedentries access-bindings-update [OPTIONS] ENTRY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2594,7 +2594,7 @@ $ ycli datalens audit entries-updates-list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2619,7 +2619,7 @@ $ ycli datalens audit entry-permissions-get [OPTIONS] ENTRY_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2668,7 +2668,7 @@ $ ycli datalens sqlqueries get [OPTIONS] SQL_QUERY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2698,7 +2698,7 @@ $ ycli datalens sqlqueries create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2728,7 +2728,7 @@ $ ycli datalens sqlqueries update [OPTIONS] SQL_QUERY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2754,7 +2754,7 @@ $ ycli datalens sqlqueries delete [OPTIONS] SQL_QUERY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2781,7 +2781,7 @@ $ ycli datalens sqlqueries run [OPTIONS] SQL_QUERY_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2830,7 +2830,7 @@ $ ycli datalens licensing licenses-list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2854,7 +2854,7 @@ $ ycli datalens licensing licenses-assign [OPTIONS] USER_ID...
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2876,7 +2876,7 @@ $ ycli datalens licensing limit-get [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2900,7 +2900,7 @@ $ ycli datalens licensing limit-set [OPTIONS] VALUE
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2948,7 +2948,7 @@ $ ycli datalens cloudenvironments list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2973,7 +2973,7 @@ $ ycli datalens cloudenvironments get [OPTIONS] ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -2999,7 +2999,7 @@ $ ycli datalens cloudenvironments create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3029,7 +3029,7 @@ $ ycli datalens cloudenvironments update [OPTIONS] ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3055,7 +3055,7 @@ $ ycli datalens cloudenvironments delete [OPTIONS] ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3105,7 +3105,7 @@ $ ycli datalens cloudenvironmentstorage bucket-objects-list [OPTIONS] CLOUD_ENVI
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3132,7 +3132,7 @@ $ ycli datalens cloudenvironmentstorage bucket-object-metadata-get [OPTIONS] CLO
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3159,7 +3159,7 @@ $ ycli datalens cloudenvironmentstorage bucket-download-url-create [OPTIONS] CLO
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3188,7 +3188,7 @@ $ ycli datalens cloudenvironmentstorage bucket-upload-url-create [OPTIONS] CLOUD
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3236,7 +3236,7 @@ $ ycli datalens restcatalogs list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3261,7 +3261,7 @@ $ ycli datalens restcatalogs create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3305,7 +3305,7 @@ $ ycli datalens lakehouseoperations get [OPTIONS] OPERATION_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3359,7 +3359,7 @@ $ ycli datalens trinoclusters list [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3383,7 +3383,7 @@ $ ycli datalens trinoclusters get [OPTIONS] ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3413,7 +3413,7 @@ $ ycli datalens trinoclusters create [OPTIONS]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3439,7 +3439,7 @@ $ ycli datalens trinoclusters delete [OPTIONS] ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3465,7 +3465,7 @@ $ ycli datalens trinoclusters start [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3491,7 +3491,7 @@ $ ycli datalens trinoclusters stop [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3518,7 +3518,7 @@ $ ycli datalens trinoclusters catalog-create [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3545,7 +3545,7 @@ $ ycli datalens trinoclusters catalog-delete [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3573,7 +3573,7 @@ $ ycli datalens trinoclusters resource-presets-list [OPTIONS] CLOUD_ENVIRONMENT_
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3600,7 +3600,7 @@ $ ycli datalens trinoclusters resource-preset-get [OPTIONS] RESOURCE_PRESET_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3650,7 +3650,7 @@ $ ycli datalens sparkapplications list [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3677,7 +3677,7 @@ $ ycli datalens sparkapplications get [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3704,7 +3704,7 @@ $ ycli datalens sparkapplications cancel [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 
@@ -3733,7 +3733,7 @@ $ ycli datalens sparkapplications log-list [OPTIONS] CLUSTER_ID
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
-* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
 

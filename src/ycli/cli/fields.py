@@ -18,7 +18,6 @@ def parse_fields(
     *,
     raw: list[str] | None = None,
     structured: bool = False,
-    nested: bool = False,
 ) -> dict[str, Any]:
     """Parse repeated ``key=value`` strings into a dict (the gh ``-F`` / ``-f`` model).
 
@@ -26,16 +25,15 @@ def parse_fields(
     ``{"id":5}`` → object), falling back to the raw string when it is not valid JSON (``NaN``,
     ``Infinity`` and ``1e999`` are not: JSON has no such numbers). ``raw``
     values are always strings and are applied first. ``structured`` adds what ``ycli api``
-    needs: ``key[sub]=v`` nests, ``key[]=v`` appends to an array, and a typed value ``@file``
-    (``@-`` for stdin) is the file's text; ``nested`` adds the keys alone, without ``@file``.
-    Raises ``typer.BadParameter`` for an item without
-    ``=``, a malformed key, a missing file or a key that clashes with an earlier one.
+    and the global ``-F`` need: ``key[sub]=v`` nests, ``key[]=v`` appends to an array, and a
+    typed value ``@file`` (``@-`` for stdin) is the file's text as it is, always a string.
+    Raises ``typer.BadParameter`` for an item without ``=``, a malformed key, a file that
+    cannot be read or a key that clashes with an earlier one.
 
     Args:
         items: Typed ``key=value`` strings.
         raw: Always-string ``key=value`` strings, applied first.
         structured: Whether ``key[sub]``, ``key[]`` and ``@file`` values are understood.
-        nested: Whether ``key[sub]`` and ``key[]`` are understood (a value stays as given).
 
     Returns:
         The parsed fields.
@@ -49,10 +47,10 @@ def parse_fields(
     out: dict[str, Any] = {}
     for item in raw or []:
         key, text = _pair(item)
-        _assign(out, key, text, structured=structured or nested)
+        _assign(out, key, text, structured=structured)
     for item in items or []:
         key, text = _pair(item)
-        _assign(out, key, _typed(text, structured=structured), structured=structured or nested)
+        _assign(out, key, _typed(text, structured=structured), structured=structured)
     return out
 
 
@@ -87,6 +85,8 @@ def _read_text(source: str) -> str:
         return Path(source).read_text(encoding="utf-8")
     except OSError as exc:
         raise typer.BadParameter(f"cannot read {source!r}: {exc.strerror}") from exc
+    except UnicodeDecodeError as exc:
+        raise typer.BadParameter(f"cannot read {source!r}: it is not UTF-8 text") from exc
 
 
 def _assign(out: dict[str, Any], key: str, value: Any, *, structured: bool) -> None:

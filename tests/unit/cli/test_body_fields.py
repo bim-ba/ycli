@@ -110,7 +110,7 @@ def test_only_the_first_request_of_a_command_gets_the_fields(api, tmp_path, monk
 
 
 def test_a_key_may_name_a_nested_field_and_a_value_is_taken_as_written(api):
-    fields = ["texts[submit]=Go", "name=@ann", "tags[]=a", "ratio=1.5"]
+    fields = ["texts[submit]=Go", 'name="@ann"', "tags[]=a", "ratio=1.5"]
     sent = _update(api, *(part for field in fields for part in ("-F", field)))
     assert sent == {"texts": {"submit": "Go"}, "name": "@ann", "tags": ["a"], "ratio": 1.5}
 
@@ -320,3 +320,26 @@ def test_a_yaml_file_names_the_type_of_a_union_body(api, tmp_path):
     result = runner.invoke(cli.app, [*argv, "--body-file", str(body_file)])
     assert result.exit_code == 0, result.output
     assert api.body() == {"type": "string", "label": "flag"}
+
+
+def test_a_field_takes_its_value_from_a_file(api, tmp_path):
+    """#412: the value is the file's text."""
+    held = tmp_path / "name.txt"
+    held.write_text("Poll")
+    assert _update(api, "-F", f"name=@{held}") == {"name": "Poll"}
+
+
+def test_a_field_takes_its_value_from_stdin(api):
+    api.add("PATCH", f"{FORMS_BASE}/surveys/s1", json={"id": "s1"})
+    argv = ["forms", "surveys", "update", "s1", "-F", "name=@-"]
+    result = runner.invoke(cli.app, argv, input="Piped")
+    assert result.exit_code == 0, result.output
+    assert api.body() == {"name": "Piped"}
+
+
+def test_a_field_from_a_file_that_is_not_there_is_a_usage_error(api, tmp_path):
+    argv = ["forms", "surveys", "update", "s1", "-F", f"name=@{tmp_path / 'nope'}"]
+    result = runner.invoke(cli.app, argv)
+    assert result.exit_code == 2
+    assert "cannot read" in " ".join(result.output.split())
+    assert api.calls == []

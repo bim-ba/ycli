@@ -44,9 +44,12 @@ FieldOption = Annotated[
         "--field",
         "-F",
         help="Set any field of the request body: key=value, key[sub]=value for a nested one "
-        "(JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list "
-        "replaces the one below it. Give a secret in --body-file, not here: a command line "
-        "stays in the shell history.",
+        "(JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; "
+        "a string that starts with @ goes in JSON quotes ('text=\"@ivan\"'). A flag of the "
+        "command wins over it. Objects merge; a list replaces the one below it. Give a secret "
+        "from a file, not typed here: a command line stays in the shell history. Write that "
+        "file with no line break at its end (printf %s 'secret' > file), or the break goes "
+        "out with the secret.",
     ),
 ]
 BodyFileOption = Annotated[
