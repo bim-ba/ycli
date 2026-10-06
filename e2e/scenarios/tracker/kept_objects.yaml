@@ -1,7 +1,8 @@
 # Editing what a run must not create, because the API cannot delete it: a local field and a
 # trigger kept in the sandbox queue, named by the owner of the organization (LOCAL_FIELD,
 # TRIGGER). Each step only rewrites a description or a name. Without the variables every step
-# is skipped; the first run with them set is the first run of these steps.
+# is skipped; the first run with them set is the first run of these steps. Whether there will
+# be such objects: #413.
 name: tracker/kept-objects
 steps:
   - id: local-field

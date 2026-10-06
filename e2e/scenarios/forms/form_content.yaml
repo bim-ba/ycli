@@ -159,7 +159,7 @@ steps:
       name: ${RUN} survey renamed
   - id: open-to-all
     run: forms access update ${id} --action submit --access public
-  # Written before a grantee was named: the first run with GRANTEE set is their first run.
+  # Access to change the form goes to someone else, and is taken back at once.
   - id: grant
     needs: [GRANTEE]
     run: forms access grant ${id} --action change --uid ${GRANTEE}

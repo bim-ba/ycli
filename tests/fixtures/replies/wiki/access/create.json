@@ -1,0 +1,22 @@
+{
+  "body": {
+    "created_at": "<created_at>",
+    "group": null,
+    "id": "<id>",
+    "inheritance": "not_inherited",
+    "role": "reader",
+    "user": {
+      "affiliation": "<affiliation>",
+      "display_name": "<display_name>",
+      "id": 1,
+      "identity": {
+        "cloud_uid": null,
+        "uid": "<uid>"
+      },
+      "is_dismissed": false,
+      "username": "<username>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

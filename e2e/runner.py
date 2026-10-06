@@ -192,6 +192,7 @@ def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[st
                 f" (output {_shape(document)})"
             )
     for name, expression in step.save.items():
+        expression = render(expression, variables)
         value = search(expression, document)
         if value is None:
             raise ScenarioError(f"{where} save {name}: `{expression}` matched nothing")

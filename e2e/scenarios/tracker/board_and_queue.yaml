@@ -38,8 +38,16 @@ steps:
       name: ${RUN} sprint renamed
     save:
       version: version
+  # The version is read again before each change of state: right after an edit Tracker may
+  # still answer with the version before it, and a stale one is refused (412).
+  - id: sprint-renamed
+    run: tracker sprints get ${sprint}
+    save:
+      version: version
   - id: sprint-start
     run: tracker sprints start ${sprint} --version ${version}
+  - id: sprint-started
+    run: tracker sprints get ${sprint}
     save:
       version: version
   - id: sprint-archive
