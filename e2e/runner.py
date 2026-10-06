@@ -137,18 +137,25 @@ def run_scenario(
     driver: Driver,
     variables: dict[str, str],
     read: Callable[[Driver, Sequence[Sequence[str]]], None] | None = None,
-) -> None:
+) -> list[str]:
     """Run every step in order, then the registered cleanups last-in-first-out.
 
     ``read`` is given the reads of each step right after it; without it they are not run.
+    A step that needs a variable nobody set is not run; the steps skipped are returned, each
+    with what it lacked (``"wiki/page-content/grant: needs GRANTEE"``).
 
     Cleanups run whatever happens; a cleanup failure never replaces the step failure that came
     first, and fails the scenario only when every step passed (the janitor is the backstop).
     """
     variables = dict(variables)
     cleanups: dict[str, list[str]] = {}
+    skipped: list[str] = []
     try:
         for step in scenario.steps:
+            missing = [name for name in step.needs if name not in variables]
+            if missing:
+                skipped.append(f"{scenario.name}/{step.id}: needs {', '.join(missing)}")
+                continue
             _run_step(scenario, step, driver, variables)
             if step.cleanup is not None:
                 cleanups[step.id] = render_command(step.cleanup, variables)
@@ -162,6 +169,7 @@ def run_scenario(
     failures = _clean_up(cleanups, driver)
     if failures:
         raise ScenarioError(f"[{scenario.name}] cleanup failed: " + "; ".join(failures))
+    return skipped
 
 
 def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[str, str]) -> None:
