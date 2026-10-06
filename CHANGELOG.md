@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.89.3 (2026-10-06)
+
+### Bug Fixes
+
+- **forms**: The name of an image clone is said to be ignored, and a key set to only grow
+  ([`4938405`](https://github.com/bim-ba/ycli/commit/49384058e5f4d143846f2e7e7a0075a3b965c71b))
+
+### Build System
+
+- Re-lock uv.lock for 0.89.2
+  ([`b45f18e`](https://github.com/bim-ba/ycli/commit/b45f18efab481ff0d3ee8f7281eeaf4c73e11e06))
+
+### Continuous Integration
+
+- **e2e**: The nightly live run is one job per service
+  ([`e109c0b`](https://github.com/bim-ba/ycli/commit/e109c0b148a2bddf17e831e12e688c532d567d62))
+
+
 ## v0.89.2 (2026-10-06)
 
 ### Bug Fixes
