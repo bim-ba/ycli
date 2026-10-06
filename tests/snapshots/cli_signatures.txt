@@ -16,6 +16,10 @@ datalens collections move: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT
 datalens collections move-bulk: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --parent-id:TEXT --profile:TEXT --yes:BOOLEAN=False COLLECTION_IDS:TEXT!
 datalens collections permissions-get-root: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens collections update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --yes:BOOLEAN=False COLLECTION_ID:TEXT!
+datalens connections create: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens connections delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
+datalens connections get: --binded-dataset-id:TEXT --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --rev-id:TEXT --workbook-id:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
+datalens connections update: --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CONNECTION_ID:TEXT!
 datalens entries list: --all:BOOLEAN=False --body-file:FILE --created-by:TEXT --dry-run:BOOLEAN=False --exclude-locked:BOOLEAN --field:TEXT --filters:TEXT --format:CHOICE --id:TEXT --ignore-shared-entries:BOOLEAN --ignore-workbook-entries:BOOLEAN --include-data:BOOLEAN --include-links:BOOLEAN --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --order-by:TEXT --profile:TEXT --scope:TEXT --scopes:TEXT --type:TEXT --yes:BOOLEAN=False
 datalens entries permissions-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!
 datalens entries relations-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions-info:BOOLEAN --limit:INTEGER RANGE --link-direction:TEXT --profile:TEXT --scope:TEXT --yes:BOOLEAN=False ENTRY_IDS:TEXT!

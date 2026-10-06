@@ -628,6 +628,10 @@ def _rpc_arguments_off(method: Any, body: Any, pagination: Any) -> list[str]:
     named = vars(pagination) if pagination else {}
     pager = {value for name, value in named.items() if name.endswith("_param")}
     arguments = set(inspect.signature(method).parameters) - ({"limit"} if pagination else set())
+    if isinstance(body, RootModel):
+        # The request is itself a union of kinds (a connection by its ``type``): it has no
+        # top level of its own, so the method takes it whole, as its one argument.
+        return [] if len(arguments) == 1 else sorted(arguments)
     fields = {
         name
         for name, field in (type(body).model_fields if body is not None else {}).items()
@@ -653,7 +657,7 @@ def test_an_rpc_method_takes_the_fields_of_its_request_as_arguments():
         domain, resource, operation = found.case.operation.split(".")
         method = getattr(getattr(clients[domain], resource), operation)
         body = found.endpoint.json
-        assert body is None or isinstance(body, RequestBody), found.case.operation
+        assert body is None or isinstance(body, RequestBody | RootModel), found.case.operation
         if off := _rpc_arguments_off(method, body, found.pagination):
             offenders[found.case.operation] = off
     assert seen, "no RPC operation was looked at"
@@ -678,6 +682,10 @@ def test_the_rpc_arguments_check_bites():
     # Without a pager ``limit`` and ``pageToken`` are an argument and a field like any other.
     assert _rpc_arguments_off(exact, body, None) == ["limit", "page_token"]
     assert _rpc_arguments_off(lambda: None, None, None) == []
+    # A request that is a union is taken whole: one argument, and no more.
+    whole = RootModel[Request](body)
+    assert _rpc_arguments_off(lambda thing: None, whole, None) == []
+    assert _rpc_arguments_off(renamed, whole, None) == ["item_id", "title"]
 
 
 def _unpaired_boolean_options(sources: dict[str, str]) -> list[str]:

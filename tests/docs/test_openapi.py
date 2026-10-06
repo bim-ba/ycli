@@ -5,17 +5,25 @@ generates them into the site. These tests build them in memory.
 """
 
 import inspect
+import re
 
 import pytest
 import yaml
 from openapi_spec_validator import validate
 from scripts import api_drift, api_surface, gen_openapi
 
+from tests.architecture.scanners import GENERATED, SRC
 from tests.contract import Case, Reply, Sent, load_cases
 from ycli.yandex.models import APIModel
 from ycli.yandex.registry import SERVICES
 
 DOCUMENTS = {service: gen_openapi.document(service) for service in api_surface.SERVICES}
+_GENERATED_NAMES = {
+    name
+    for home in GENERATED
+    for module in sorted((SRC / home).glob("*.py"))
+    for name in re.findall(r"^class (\w+)", module.read_text(encoding="utf-8"), re.MULTILINE)
+}
 
 
 def _operations(service: str) -> dict[tuple[str, str], dict]:
@@ -131,7 +139,10 @@ def test_models_that_share_a_class_name_are_named_by_resource():
         # pydantic numbers a name it meets twice; a generated class may end in a digit of
         # its own (``…Variant1``), so only a name numbered on top of its class counts.
         assert not [name for name in schemas if "__" in name]
-        assert not [name for name in schemas if name[-1].isdigit() and name[:-1] in schemas]
+        # A class of a generated layer keeps the name its specification gave it, and
+        # DataLens numbers its own (``clickhouse``, ``clickhouse1``, ``clickhouse2``).
+        numbered = [name for name in schemas if name[-1].isdigit() and name[:-1] in schemas]
+        assert not [name for name in numbered if name not in _GENERATED_NAMES]
     assert gen_openapi._readable("ycli__yandex__tracker__import___models__Link") == "ImportLink"
 
 

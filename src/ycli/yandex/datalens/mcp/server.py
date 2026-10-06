@@ -3,6 +3,7 @@
 from fastmcp import FastMCP
 
 from ycli.yandex.datalens.collections.mcp import mcp as collections_mcp
+from ycli.yandex.datalens.connections.mcp import mcp as connections_mcp
 from ycli.yandex.datalens.entries.mcp import mcp as entries_mcp
 from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
@@ -25,4 +26,5 @@ mcp.mount(entrylocks_mcp)
 mcp.mount(members_mcp)
 mcp.mount(entries_mcp)
 mcp.mount(permissions_mcp)
+mcp.mount(connections_mcp)
 mcp.mount(mcp_resources_mcp)

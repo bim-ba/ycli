@@ -29,6 +29,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `members`: DataLens members.
 * `entries`: DataLens entries.
 * `permissions`: DataLens permissions.
+* `connections`: DataLens connections.
 
 ## `ycli datalens auth`
 
@@ -1139,6 +1140,130 @@ $ ycli datalens permissions get-bulk [OPTIONS]
 * `--entry-id TEXT`: An entry id (repeatable).
 * `--workbook-id TEXT`: A workbook id (repeatable).
 * `--collection-id TEXT`: A collection id (repeatable).
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens connections`
+
+DataLens connections.
+
+**Usage**:
+
+```console
+$ ycli datalens connections [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `get`: Print one connection; its kind comes in...
+* `create`: Create a connection from --body-file (JSON...
+* `update`: Change the fields given of a connection;...
+* `delete`: Delete a connection; the datasets on it...
+
+### `ycli datalens connections get`
+
+Print one connection; its kind comes in `db_type`, its password or token never.
+
+**Usage**:
+
+```console
+$ ycli datalens connections get [OPTIONS] CONNECTION_ID
+```
+
+**Arguments**:
+
+* `CONNECTION_ID`: Connection id.  [required]
+
+**Options**:
+
+* `--workbook-id TEXT`: The workbook the connection lies in.
+* `--binded-dataset-id TEXT`: A dataset bound to it, to read it through.
+* `--rev-id TEXT`: The revision to read; the current by default.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens connections create`
+
+Create a connection from --body-file (JSON or YAML) and -F over it.
+
+The body is the connection itself: `type` says which kind it is and which fields it takes
+(`ycli datalens connections create --body-file conn.yaml --dry-run` shows what would go).
+
+**Usage**:
+
+```console
+$ ycli datalens connections create [OPTIONS]
+```
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Give a password or a token in --body-file (a file outside the repository, mode 600), not in -F: a command line stays in the shell history. --dry-run prints a secret as ***.
+
+### `ycli datalens connections update`
+
+Change the fields given of a connection; the others stay as they are.
+
+**Usage**:
+
+```console
+$ ycli datalens connections update [OPTIONS] CONNECTION_ID
+```
+
+**Arguments**:
+
+* `CONNECTION_ID`: Connection id.  [required]
+
+**Options**:
+
+* `--data TEXT`: The fields to change, as a JSON object: {"host": "db2.example.net"}. --body-file and -F give them under `data` (-F 'data[port]=8443').
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Give a password or a token in --body-file (a file outside the repository, mode 600), not in -F: a command line stays in the shell history. --dry-run prints a secret as ***.
+
+### `ycli datalens connections delete`
+
+Delete a connection; the datasets on it lose their source.
+
+**Usage**:
+
+```console
+$ ycli datalens connections delete [OPTIONS] CONNECTION_ID
+```
+
+**Arguments**:
+
+* `CONNECTION_ID`: Connection id.  [required]
+
+**Options**:
+
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

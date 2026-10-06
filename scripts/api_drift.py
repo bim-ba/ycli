@@ -78,9 +78,17 @@ EXHAUSTIVE = frozenset({*api_surface.OPENAPI_URLS, "datalens"})
 NOT_WRAPPED: dict[tuple[str, str, str], str] = {
     ("tracker", "GET", "/boards"): "`boards list` reads the paginated `GET /boards/_paginate`",
     ("tracker", "GET", "/users"): "`users list` reads the paginated `GET /users/_relative`",
-    ("datalens", "POST", "/rpc/listDirectory"): (
-        "the old folder model of DataLens; whether ycli wraps it is the question of #394"
-    ),
+    # The old placement model of DataLens, folders instead of workbooks and collections (#394):
+    # not wrapped, since the owner's organization has none and there is nowhere to check it live.
+    **{
+        ("datalens", "POST", f"/rpc/{name}"): (
+            "the old placement model (folders); the organization has none to check it on (#394)"
+        )
+        for name in (
+            *("listDirectory", "createFolder", "deleteFolder", "moveFolderEntry"),
+            *("getPermissions", "modifyPermissions", "dlsSuggest"),
+        )
+    },
 }
 
 # A difference that stays, with its reason: one name of one kind (``GAP_KINDS``), either on one
@@ -479,12 +487,15 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
             gaps.append(gap)
 
     missing = [operation for operation in published if operation.key not in reached]
+    reasons = {key[1:]: reason for key, reason in NOT_WRAPPED.items() if key[0] == service}
     pending: list[Operation] = []
     if service in api_surface.BY_SECTION:
+        # An operation left out on purpose is decided, whether its section is begun or not:
+        # it is excluded with its reason, not waiting to be wrapped.
         begun = {operation.group for operation in published if operation.key in reached}
-        pending = [operation for operation in missing if operation.group not in begun]
-        missing = [operation for operation in missing if operation.group in begun]
-    reasons = {key[1:]: reason for key, reason in NOT_WRAPPED.items() if key[0] == service}
+        decided = [op for op in missing if op.group in begun or op.key in reasons]
+        pending = [operation for operation in missing if operation not in decided]
+        missing = decided
     return Drift(
         service=service,
         published=tuple(published),

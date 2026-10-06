@@ -2,6 +2,6 @@
 
 Workbooks, connections, datasets, charts, dashboards.
 
-`36 of 141 operations` · CLI · MCP · Python <mark>in progress</mark>
+`40 of 141 operations` · CLI · MCP · Python <mark>in progress</mark>
 
-ycli wraps DataLens section by section: 36 of the 141 operations Yandex publishes so far.
+ycli wraps DataLens section by section: 40 of the 141 operations Yandex publishes so far.
