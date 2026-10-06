@@ -9,6 +9,29 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.112.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.111.0
+  ([`975ba6d`](https://github.com/bim-ba/ycli/commit/975ba6dffe052a9a451145e383c5f91017effadb))
+
+### Features
+
+- **cli**: -F key=@file reads a field's value from a file
+  ([`729aab9`](https://github.com/bim-ba/ycli/commit/729aab9fe8e3aaabda1d7181d641c92468488943))
+
+### Breaking Changes
+
+- **cli**: A `-F` value that starts with `@` is now read as a file in every command. Before, `-F
+  text=@ivan` sent the string "@ivan"; now it reads the file `ivan`. Write such a string in JSON
+  quotes: `-F 'text="@ivan"'`.
+
+- In `tracker issues update-bulk`, `move-bulk`, `transition-bulk`, `tracker entities update-bulk`
+  (`-F`) and `tracker entities permissions-update` (`--acl`) a key written `a[b]` is now the nested
+  object `{"a": {"b": …}}`, as with the common `-F`. Before, it was the literal key "a[b]".
+
+
 ## v0.111.0 (2026-10-06)
 
 ### Build System
