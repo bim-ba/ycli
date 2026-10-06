@@ -152,6 +152,7 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Organization", ["tenant", "members"]),
     ("Collections & workbooks", ["collections", "workbooks"]),
     ("Entries", ["entries", "entrylocks", "permissions"]),
+    ("Data", ["connections"]),
 ]
 
 

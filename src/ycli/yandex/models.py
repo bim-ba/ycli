@@ -345,6 +345,23 @@ class Ack(APIModel):
         return cls(detail=f"restored {kind} {ident} in {in_}")
 
     @classmethod
+    def updated(cls, kind: str, ident: object) -> Ack:
+        """``updated <kind> <ident>``: for an API that answers a change with no body.
+
+        Args:
+            kind: What was affected, e.g. ``connection``.
+            ident: Its id.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
+            >>> Ack.updated("connection", "c1").detail
+            'updated connection c1'
+        """
+        return cls(detail=f"updated {kind} {ident}")
+
+    @classmethod
     def published(cls, kind: str, ident: object) -> Ack:
         """``published <kind> <ident>``.
 
