@@ -50,7 +50,8 @@ class KeysetUpdate(KeysetCreate):
 
     Same fields as :class:`KeysetCreate`. Although the verb is PATCH, the API validates the body as
     a full record — ``name``, ``total`` and ``is_enabled`` are all required (a missing field is
-    rejected with ``400 value_error.missing``), so set every field.
+    rejected with ``400 value_error.missing``), so set every field. ``total`` can only grow: the
+    API refuses a number smaller than the set has now (checked live on 2026-10-06).
 
     Examples:
         >>> KeysetUpdate(name="Q1", total=250, is_enabled=False).is_enabled

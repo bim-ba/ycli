@@ -97,10 +97,12 @@ EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, pat
     ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
 }
 # Body fields marked ``IGNORED_BY_API`` that the published schema does list: the API ignores
-# them all the same (checked live on 2026-10-04), and no difference comes of the mark.
+# them all the same (checked live on 2026-10-04; the name of a clone on 2026-10-06), and no
+# difference comes of the mark.
 IGNORED_THOUGH_PUBLISHED = {
     ("forms", "POST", "/surveys/{}/questions", "items"),
     ("forms", "PATCH", "/surveys/{}/questions/{}", "items"),
+    ("forms", "POST", "/surveys/{}/images/clone", "name"),
 }
 EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
     ("forms", "unknown_response", "modified"): _RETURNED,
