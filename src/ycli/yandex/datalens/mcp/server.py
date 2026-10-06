@@ -5,6 +5,7 @@ from fastmcp import FastMCP
 from ycli.yandex.datalens.collections.mcp import mcp as collections_mcp
 from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
+from ycli.yandex.datalens.members.mcp import mcp as members_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
 from ycli.yandex.datalens.workbooks.mcp import mcp as workbooks_mcp
 
@@ -19,4 +20,5 @@ mcp.mount(tenant_mcp)
 mcp.mount(collections_mcp)
 mcp.mount(workbooks_mcp)
 mcp.mount(entrylocks_mcp)
+mcp.mount(members_mcp)
 mcp.mount(mcp_resources_mcp)
