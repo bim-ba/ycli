@@ -1,0 +1,13 @@
+{
+  "body": [
+    {
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "embeddingSecretId": "<embeddingSecretId>",
+      "title": "<title>",
+      "workbookId": "<workbookId>"
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}

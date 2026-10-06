@@ -7,6 +7,8 @@ from ycli.yandex.datalens.charts.cli import app as charts_app
 from ycli.yandex.datalens.collections.cli import app as collections_app
 from ycli.yandex.datalens.connections.cli import app as connections_app
 from ycli.yandex.datalens.datasets.cli import app as datasets_app
+from ycli.yandex.datalens.embeddingsecrets.cli import app as embeddingsecrets_app
+from ycli.yandex.datalens.embeds.cli import app as embeds_app
 from ycli.yandex.datalens.entries.cli import app as entries_app
 from ycli.yandex.datalens.entrylocks.cli import app as entrylocks_app
 from ycli.yandex.datalens.members.cli import app as members_app
@@ -33,3 +35,5 @@ app.add_typer(datasets_app)
 app.add_typer(charts_app)
 app.add_typer(workbookexports_app)
 app.add_typer(workbookimports_app)
+app.add_typer(embeds_app)
+app.add_typer(embeddingsecrets_app)

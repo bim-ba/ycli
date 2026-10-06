@@ -60,7 +60,8 @@ class WorkbookExportsClient(Resource):
         """``getWorkbookExportResult`` → the exported workbook.
 
         ``data`` is what :meth:`WorkbookImportsClient.start` takes. An export that is not over,
-        or was cancelled, answers ``409 Conflict``.
+        or was cancelled, answers ``409 Conflict``. The document is large (hundreds of kilobytes
+        for a workbook with a dashboard) and holds no password or token of a connection.
 
         Args:
             export_id: The export's id.

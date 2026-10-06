@@ -36,7 +36,9 @@ def start(
     """Start making a workbook from an export; returns the ids of the import and the workbook.
 
     The workbook exists at once and is filled as the import runs: ask
-    ``workbookimports_status_get`` until ``status`` is ``success``.
+    ``workbookimports_status_get`` until ``status`` is ``success``. Its connections come
+    without their secrets (a notification ``…CONN.CHECK_CREDENTIALS`` says so): give each its
+    password or token again with ``connections_update``.
     """
     return client.workbookimports.start(
         data, title=title, collection_id=collection_id, description=description

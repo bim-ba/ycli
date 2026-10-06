@@ -1,0 +1,85 @@
+# An entry embedded on another site: a workbook gets a key for embedding, an entry of it is
+# embedded with that key, the embed is saved anew and deleted, and the key is deleted. The
+# private key the first step returns is never kept: a recording replaces it. Run by hand only
+# (the README says how): CI has no token DataLens takes.
+name: datalens/embedding
+steps:
+  - id: collection
+    run: datalens collections create --title "${RUN} embedding"
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: workbook
+    run: datalens workbooks create --title "${RUN} embedding" --collection-id ${collection}
+    save:
+      workbook: workbookId
+    cleanup: datalens workbooks delete ${workbook}
+  - id: dataset
+    # The entry to embed: an empty dataset is enough for the API.
+    run: >-
+      datalens datasets create --name "${RUN} dataset" --workbook-id ${workbook}
+      --dataset '{"sources": [], "result_schema": []}'
+    save:
+      dataset: id
+    cleanup: datalens datasets delete ${dataset}
+  - id: key
+    run: datalens embeddingsecrets create --title "${RUN} key" --workbook-id ${workbook}
+    expect:
+      "privateKey != null": true
+    save:
+      key: embeddingSecretId
+    cleanup: datalens embeddingsecrets delete ${key}
+    reads:
+      - datalens embeddingsecrets get ${key}
+      - datalens embeddingsecrets list ${workbook}
+  - id: key-read-back
+    # Read back, a key never carries its private key.
+    run: datalens embeddingsecrets get ${key}
+    expect:
+      embeddingSecretId: ${key}
+      workbookId: ${workbook}
+      "contains(keys(@), 'privateKey')": false
+  - id: embed
+    run: >-
+      datalens embeds create --title "${RUN} embed" --embedding-secret-id ${key}
+      --entry-id ${dataset} --public-params-mode --settings '{}'
+    expect:
+      entryId: ${dataset}
+      embeddingSecretId: ${key}
+      publicParamsMode: true
+    save:
+      embed: embedId
+    cleanup: datalens embeds delete ${embed}
+    reads:
+      - datalens embeds list ${dataset}
+  - id: embed-update
+    run: >-
+      datalens embeds update ${embed} --title "${RUN} embed renamed"
+      --embedding-secret-id ${key} --no-public-params-mode --settings '{}'
+      --unsigned-params region
+    expect:
+      embedId: ${embed}
+      title: ${RUN} embed renamed
+      publicParamsMode: false
+      unsignedParams: [region]
+  - id: embed-delete
+    run: datalens embeds delete ${embed}
+    expect:
+      embedId: ${embed}
+    disarms: [embed]
+  - id: no-embed-left
+    run: datalens embeds list ${dataset}
+    expect:
+      "length(@)": 0
+  - id: key-delete
+    run: datalens embeddingsecrets delete ${key}
+    expect:
+      embeddingSecretId: ${key}
+    disarms: [key]
+  - id: delete
+    run: datalens collections delete ${collection}
+    disarms: [collection, workbook, dataset]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0

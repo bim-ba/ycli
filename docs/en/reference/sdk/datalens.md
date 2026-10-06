@@ -58,3 +58,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## workbookimports
 
 ::: ycli.yandex.datalens.workbookimports.client.WorkbookImportsClient
+
+## embeds
+
+::: ycli.yandex.datalens.embeds.client.EmbedsClient
+
+## embeddingsecrets
+
+::: ycli.yandex.datalens.embeddingsecrets.client.EmbeddingSecretsClient

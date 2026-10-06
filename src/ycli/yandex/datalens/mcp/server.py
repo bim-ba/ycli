@@ -6,6 +6,8 @@ from ycli.yandex.datalens.charts.mcp import mcp as charts_mcp
 from ycli.yandex.datalens.collections.mcp import mcp as collections_mcp
 from ycli.yandex.datalens.connections.mcp import mcp as connections_mcp
 from ycli.yandex.datalens.datasets.mcp import mcp as datasets_mcp
+from ycli.yandex.datalens.embeddingsecrets.mcp import mcp as embeddingsecrets_mcp
+from ycli.yandex.datalens.embeds.mcp import mcp as embeds_mcp
 from ycli.yandex.datalens.entries.mcp import mcp as entries_mcp
 from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
@@ -35,4 +37,6 @@ mcp.mount(datasets_mcp)
 mcp.mount(charts_mcp)
 mcp.mount(workbookexports_mcp)
 mcp.mount(workbookimports_mcp)
+mcp.mount(embeds_mcp)
+mcp.mount(embeddingsecrets_mcp)
 mcp.mount(mcp_resources_mcp)

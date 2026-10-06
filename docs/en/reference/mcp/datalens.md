@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-65 tools.
+73 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -837,7 +837,8 @@ How far an export is: ``pending``, ``success`` or ``error``, and the progress in
 The exported workbook: every entry it holds, as one document.
 
 ``data`` is what ``workbookimports_start`` takes. An export that is not over, or was
-cancelled, answers 409 Conflict.
+cancelled, answers 409 Conflict. The document is large (hundreds of kilobytes for a
+workbook with a dashboard) and holds no password or token of a connection.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -860,7 +861,9 @@ Stop an export; cancelling one that is over, or twice, answers the same.
 Start making a workbook from an export; returns the ids of the import and the workbook.
 
 The workbook exists at once and is filled as the import runs: ask
-``workbookimports_status_get`` until ``status`` is ``success``.
+``workbookimports_status_get`` until ``status`` is ``success``. Its connections come
+without their secrets (a notification ``…CONN.CHECK_CREDENTIALS`` says so): give each its
+password or token again with ``connections_update``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -880,3 +883,107 @@ How far an import is: ``pending``, ``success`` or ``error``, and the progress in
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `import_id` | string | yes | Import id, from ``workbookimports_start``. |
+
+## `datalens_embeds_list`
+
+*List DataLens embeds* · read-only
+
+The embeds of one entry: where a chart or a dashboard is shown on another site.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | The id of the entry that is embedded. |
+
+## `datalens_embeds_create`
+
+*Create DataLens embed* · write
+
+Embed an entry and return the embed.
+
+The key for embedding is one of the workbook the entry lies in (``embeddingsecrets_list``).
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `title` | string | yes | The name of the embed. |
+| `embedding_secret_id` | string | yes | The key for embedding that signs its links. |
+| `entry_id` | string | yes | The entry to embed. |
+| `public_params_mode` | boolean | yes | Whether the default mode of parameters is on. |
+| `settings` | object | yes | The settings of the embed; an empty object is valid. |
+| `deps_ids` | array of string or null |  | The entries the embedded one depends on. |
+| `unsigned_params` | array of string or null |  | The parameters a link may carry unsigned. |
+| `private_params` | array of string or null |  | The parameters that go signed, inside the token. |
+
+## `datalens_embeds_update`
+
+*Update DataLens embed* · idempotent write
+
+Save an embed as given and return it.
+
+The embed is replaced whole: read it with ``embeds_list`` and send back what is to stay; a
+list left out is saved empty.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `embed_id` | string | yes | Embed id, from ``embeds_list``. |
+| `title` | string | yes | The name of the embed. |
+| `embedding_secret_id` | string | yes | The key for embedding that signs its links. |
+| `public_params_mode` | boolean | yes | Whether the default mode of parameters is on. |
+| `settings` | object | yes | The settings of the embed; an empty object is valid. |
+| `deps_ids` | array of string or null |  | The entries the embedded one depends on. |
+| `unsigned_params` | array of string or null |  | The parameters a link may carry unsigned. |
+| `private_params` | array of string or null |  | The parameters that go signed, inside the token. |
+
+## `datalens_embeds_delete`
+
+*Delete DataLens embed* · destructive write
+
+Delete an embed; its links stop working. Deleting again answers 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `embed_id` | string | yes | Embed id, from ``embeds_list``. |
+
+## `datalens_embeddingsecrets_get`
+
+*Get DataLens key for embedding* · read-only
+
+One key for embedding: its name, its workbook, who made it. Never its private key.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `embedding_secret_id` | string | yes | Id of the key for embedding. |
+
+## `datalens_embeddingsecrets_list`
+
+*List DataLens keys for embedding* · read-only
+
+The keys for embedding of a workbook, without their private keys.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+
+## `datalens_embeddingsecrets_create`
+
+*Create DataLens key for embedding* · write
+
+Make a key for embedding and return its id and its private key.
+
+The private key is given once: ``embeddingsecrets_get`` and ``embeddingsecrets_list`` do not
+return it. It comes in this tool's result, so it enters your context: hand it to the person
+at once, and do not repeat it in later messages.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `title` | string | yes | The name of the key. |
+| `workbook_id` | string | yes | The workbook the key belongs to. |
+
+## `datalens_embeddingsecrets_delete`
+
+*Delete DataLens key for embedding* · destructive write
+
+Delete a key for embedding. Deleting again answers 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `embedding_secret_id` | string | yes | Id of the key for embedding. |

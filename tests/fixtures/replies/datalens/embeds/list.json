@@ -1,0 +1,23 @@
+{
+  "body": [
+    {
+      "<unknown-1>": false,
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "depsIds": [],
+      "embedId": "<embedId>",
+      "embeddingSecretId": "<embeddingSecretId>",
+      "entryId": "<entryId>",
+      "privateParams": [],
+      "publicParamsMode": true,
+      "settings": {},
+      "title": "<title>",
+      "type": null,
+      "unsignedParams": [],
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>"
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 2
+}

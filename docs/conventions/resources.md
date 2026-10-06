@@ -430,6 +430,11 @@ check of its own to say it. A reply that does not fit its model is another error
   `writeOnly`, with the names the generator adds and removes, each with its reason
   (`_SECRET_MAPS`, `_NOT_SECRETS`). The help of a command that takes a secret says to give it
   in `--body-file`.
+- A secret in a reply is the result of the operation and is printed as it came: the private
+  key that `datalens embeddingsecrets create` returns once is a plain string in the CLI, the
+  MCP tool and the SDK alike (#448). `SecretStr` is for a secret in a request. The command,
+  the tool and the method say that the value is given once, and the tool says that it enters
+  the agent's context.
 - Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
   field that has no flag of its own (#354). They are declared once, beside `--yes` and
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the

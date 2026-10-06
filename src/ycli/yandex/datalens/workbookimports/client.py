@@ -28,7 +28,8 @@ class WorkbookImportsClient(Resource):
         """``startWorkbookImport`` — start making a workbook from an export → its ids.
 
         The workbook exists at once and is filled as the import runs: ask :meth:`status_get`
-        until it is over.
+        until it is over. Its connections come without their secrets (a notification
+        ``…CONN.CHECK_CREDENTIALS`` says so) and take them again through an update.
 
         Args:
             data: The ``data`` of an export's result: its ``export`` and its ``hash``.
