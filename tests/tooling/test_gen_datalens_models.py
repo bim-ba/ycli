@@ -439,7 +439,10 @@ def test_a_reply_without_a_field_the_document_requires_is_read():
 
 
 def test_fields_and_one_of_becomes_one_of_each_with_the_fields():
-    """Both sides: the members are written out and named by place; a mapped union is left."""
+    """The members are written out and named by place, of a mapped union too.
+
+    A part that is no object leaves the schema as it is, named by its place.
+    """
     named = {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}
     text = {"type": "object", "properties": {"text": {"type": "string"}}}
     number = {"type": "object", "properties": {"number": {"type": "integer"}}}
@@ -455,7 +458,8 @@ def test_fields_and_one_of_becomes_one_of_each_with_the_fields():
         ]
     }
     kind = {"type": "object", "properties": {"kind": {"enum": ["a"]}}}
-    reply = {"type": "object", "properties": {"mapped": mapped}}
+    left = {"allOf": [{"type": "string"}, {"anyOf": [text, number]}]}
+    reply = {"type": "object", "properties": {"mapped": mapped, "left": left}}
     spec = {
         "paths": {"/rpc/getThing": _operation(arguments, reply)},
         "components": {"schemas": {"Kind": kind}},
@@ -470,7 +474,18 @@ def test_fields_and_one_of_becomes_one_of_each_with_the_fields():
         "name",
         "number",
     ]
-    assert "allOf" in schemas["things.GetThingResponse"]["properties"]["mapped"]
+    # A union with a mapping is spread too: its member is a new object that carries the
+    # tag, named by its place and not ``MappedModel`` by the generator.
+    read = schemas["things.GetThingResponse"]["properties"]
+    assert read["mapped"] == {
+        "discriminator": {"propertyName": "kind"},
+        "oneOf": [{"$ref": REF + "things.GetThingResponseMappedVariant1"}],
+    }
+    assert sorted(schemas["things.GetThingResponseMappedVariant1"]["properties"]) == [
+        "kind",
+        "name",
+    ]
+    assert "allOf" in schemas[read["left"]["$ref"].removeprefix(REF)]
 
 
 def test_a_number_is_read_as_the_whole_number_or_the_fraction_it_is():
@@ -767,3 +782,60 @@ def test_a_set_of_values_is_written_in_one_order_everywhere():
                 values = " ".join(written.split())
                 orders.setdefault(frozenset(values.rstrip(",").split(", ")), set()).add(values)
     assert not [sorted(found) for found in orders.values() if len(found) > 1]
+
+
+def test_a_request_envelope_given_in_parts_is_one_closed_object():
+    """Both sides (#371): parts that are plain objects are joined; a union among them is not.
+
+    Seen on the defect: before the step ``createWizardChart`` came out as an open class that
+    inherits one part, so the arguments check had no envelope to read.
+    """
+    place = {"type": "object", "properties": {"name": {"type": "string"}}}
+    own = {"type": "object", "properties": {"data": {"type": "object"}}, "required": ["data"]}
+    spec = {
+        "paths": {"/rpc/createThing": _operation({"allOf": [own, {"$ref": REF + "Place"}]}, {})},
+        "components": {"schemas": {"Place": place}},
+    }
+    envelope = gen.prepare(spec)["components"]["schemas"]["things.CreateThingRequest"]
+    assert sorted(envelope["properties"]) == ["data", "name"]
+    assert envelope["required"] == ["data"] and envelope["additionalProperties"] is False
+    module = gen.generate(spec)["things.py"]
+    assert "class CreateThingRequest(RequestBody):" in module
+    kinds = {"oneOf": [_kind("a"), _kind("b")]}
+    spec["paths"]["/rpc/createThing"] = _operation({"allOf": [own, kinds]}, {})
+    assert "class CreateThingRequest(RequestBody):" not in gen.generate(spec)["things.py"]
+    # The layer as committed: the four envelopes the document gives in parts are closed.
+    from ycli.yandex.datalens.schemas import html_pages, ql, reports, wizard
+    from ycli.yandex.models import RequestBody
+
+    for envelope_class in (
+        wizard.CreateWizardChartV1Args,
+        ql.CreateQLChartArgs,
+        reports.CreateReportV2Args,
+        html_pages.CreateHtmlPageArgs,
+    ):
+        assert issubclass(envelope_class, RequestBody), envelope_class.__name__
+
+
+def test_no_class_of_the_layer_is_named_by_the_code_generator():
+    """A class is named by the document or by its place, never ``EntryModel3`` in order met.
+
+    Seven names stay: the document itself has ``AddField`` and ``add_field``, two names that
+    are one in Python, and the generator tells the second apart with ``Model``.
+    """
+    made_up = sorted(
+        name
+        for home in GENERATED
+        for module in sorted((SRC / home).glob("*.py"))
+        for name in re.findall(r"^class (\w+)", module.read_text(encoding="utf-8"), re.MULTILINE)
+        if re.search(r"Model\d*$", name)
+    )
+    assert made_up == [
+        "AddFieldModel",
+        "CloneFieldModel",
+        "DeleteFieldModel",
+        "DeleteObligatoryFilterModel",
+        "RefreshSourceModel",
+        "ReplaceConnectionModel",
+        "UpdateFieldModel",
+    ]

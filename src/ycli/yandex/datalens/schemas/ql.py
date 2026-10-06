@@ -7,7 +7,6 @@ from pydantic import ConfigDict, Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-from .shared import EntryLocationIdentifiers
 
 
 class GetQLChartArgs(RequestBody):
@@ -80,7 +79,18 @@ class UpdateQLChartArgs(APIModel):
     data: UpdateQLChartArgsData
 
 
-class CreateQLChartArgs(EntryLocationIdentifiers):
+class CreateQLChartArgs(RequestBody):
     template: Literal["ql"]
     annotation: shared.EntryAnnotationArg | None = None
-    data: CreateQLChartArgsData | None = None
+    data: CreateQLChartArgsData
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )

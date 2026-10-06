@@ -7,7 +7,6 @@ from pydantic import Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-from .shared import EntryLocationIdentifiers
 
 
 class GetDashboardV2Args(RequestBody):
@@ -22,6 +21,20 @@ class GetDashboardV2Args(RequestBody):
 
 class DashMetaV2(RootModel[dict[str, Any] | None], hide_input_in_errors=True):
     root: dict[str, Any] | None
+
+
+class EntryLocationIdentifiers(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
 
 
 class DeleteDashboardArgs(RequestBody):
@@ -246,36 +259,7 @@ class DashControlV2Variant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model5 | None = None
-
-
-class DashControlV2Variant2(APIModel):
-    title: str | None = Field(default=None, description="Control title.")
-    impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
-        default=None,
-        alias="impactType",
-        description="Determines where the control is displayed: 'allTabs' on all tabs, 'currentTab' on its current tab, 'selectedTabs' on the tabs listed in 'impactTabsIds', and 'asGroup' according to the containing group's settings.",
-    )
-    impact_tabs_ids: list[str] | None = Field(
-        default=None,
-        alias="impactTabsIds",
-        description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
-    )
-    background_settings: DashControlV2Variant2BackgroundSettings | None = Field(
-        default=None, alias="backgroundSettings"
-    )
-    border_radius: int | float | None = Field(
-        default=None, alias="borderRadius", description="Control border radius."
-    )
-    auto_height: bool | None = Field(
-        default=None,
-        alias="autoHeight",
-        description="Whether to adjust the control height to its content.",
-    )
-    source_type: Literal["manual"] = Field(
-        ..., alias="sourceType", description="Manual control source type."
-    )
-    source: shared.DashControlSourceManualV2Model5 | None = None
+    source: shared.DashControlSourceDatasetV2 | None = None
 
 
 class DashControlV2Variant3(APIModel):
@@ -332,35 +316,7 @@ class DashGroupControlItemV2Variant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model5 | None = None
-
-
-class DashGroupControlItemV2Variant2(APIModel):
-    title: str | None = Field(default=None, description="Control title.")
-    impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
-        default=None,
-        alias="impactType",
-        description="Determines where the control is displayed: 'allTabs' on all tabs, 'currentTab' on its current tab, 'selectedTabs' on the tabs listed in 'impactTabsIds', and 'asGroup' according to the containing group's settings.",
-    )
-    impact_tabs_ids: list[str] | None = Field(
-        default=None,
-        alias="impactTabsIds",
-        description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
-    )
-    id: str | None = Field(default=None, description="Control identifier.")
-    namespace: Literal["default"] = Field(..., description="Control namespace.")
-    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
-        default=None,
-        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
-    )
-    placement_mode: Literal["auto", "%", "px"] | str | None = Field(
-        default=None, alias="placementMode", description="Control placement mode."
-    )
-    width: str | None = Field(default=None, description="Control width.")
-    source_type: Literal["manual"] = Field(
-        ..., alias="sourceType", description="Manual control source type."
-    )
-    source: shared.DashControlSourceManualV2Model5 | None = None
+    source: shared.DashControlSourceDatasetV2 | None = None
 
 
 class DashTabItemV2Variant1DataBackgroundSettings(APIModel):
@@ -421,125 +377,61 @@ class DashDataV2SettingsWidgetsSettings(APIModel):
     )
 
 
-class DashControlV2(
-    RootModel[
-        DashControlV2Variant1
-        | DashControlV2Variant2
-        | DashControlV2Variant3
-        | shared.OtherKindBySourceType
-    ],
-    hide_input_in_errors=True,
-):
-    root: (
-        DashControlV2Variant1
-        | DashControlV2Variant2
-        | DashControlV2Variant3
-        | shared.OtherKindBySourceType
-    ) = Field(..., description="Control item data.")
-
-
-class DashTabControlItemV2(APIModel):
-    id: str | None = Field(default=None, description="Dashboard item identifier.")
-    namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: int | float | None = Field(
-        default=None, alias="orderId", description="Current item order."
-    )
-    default_order_id: int | float | None = Field(
-        default=None, alias="defaultOrderId", description="Default item order."
-    )
-    type: Literal["control"] = Field(..., description="Control item type.")
-    data: DashControlV2 | None = None
-    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
-        default=None,
-        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
-    )
-
-
-class DashGroupControlItemV2(
-    RootModel[
-        DashGroupControlItemV2Variant1
-        | DashGroupControlItemV2Variant2
-        | shared.OtherKindBySourceType
-    ],
-    hide_input_in_errors=True,
-):
-    root: (
-        DashGroupControlItemV2Variant1
-        | DashGroupControlItemV2Variant2
-        | shared.OtherKindBySourceType
-    )
-
-
-class DashGroupControlV2(APIModel):
-    """Control group item data."""
-
-    auto_height: bool | None = Field(
-        default=None,
-        alias="autoHeight",
-        description="Whether to adjust the group height to its content.",
-    )
-    button_apply: bool | None = Field(
-        default=None,
-        alias="buttonApply",
-        description="Whether to show the Apply button.",
-    )
-    button_reset: bool | None = Field(
-        default=None,
-        alias="buttonReset",
-        description="Whether to show the Reset button.",
-    )
-    show_group_name: bool | None = Field(
-        default=None,
-        alias="showGroupName",
-        description="Whether to show the control group name.",
-    )
-    group_name: str | None = Field(
-        default=None, alias="groupName", description="Control group name."
-    )
-    impact_type: Literal["allTabs", "currentTab", "selectedTabs"] | str | None = Field(
+class DashControlV2Variant2(APIModel):
+    title: str | None = Field(default=None, description="Control title.")
+    impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
-        description="Tabs affected by the control group.",
+        description="Determines where the control is displayed: 'allTabs' on all tabs, 'currentTab' on its current tab, 'selectedTabs' on the tabs listed in 'impactTabsIds', and 'asGroup' according to the containing group's settings.",
     )
     impact_tabs_ids: list[str] | None = Field(
         default=None,
         alias="impactTabsIds",
-        description="Identifiers of tabs affected by the control group.",
+        description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
     )
-    update_controls_on_change: bool | None = Field(
-        default=None,
-        alias="updateControlsOnChange",
-        description="Whether controls update immediately after a value changes.",
-    )
-    background_settings: DashGroupControlV2BackgroundSettings | None = Field(
+    background_settings: DashControlV2Variant2BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
     border_radius: int | float | None = Field(
-        default=None, alias="borderRadius", description="Control group border radius."
+        default=None, alias="borderRadius", description="Control border radius."
     )
-    group: list[DashGroupControlItemV2] | None = Field(
-        default=None, description="Controls in the group."
+    auto_height: bool | None = Field(
+        default=None,
+        alias="autoHeight",
+        description="Whether to adjust the control height to its content.",
     )
+    source_type: Literal["manual"] = Field(
+        ..., alias="sourceType", description="Manual control source type."
+    )
+    source: shared.DashControlSourceManualV2 | None = None
 
 
-class DashTabGroupControlItemV2(APIModel):
-    id: str | None = Field(default=None, description="Dashboard item identifier.")
-    namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: int | float | None = Field(
-        default=None, alias="orderId", description="Current item order."
+class DashGroupControlItemV2Variant2(APIModel):
+    title: str | None = Field(default=None, description="Control title.")
+    impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
+        default=None,
+        alias="impactType",
+        description="Determines where the control is displayed: 'allTabs' on all tabs, 'currentTab' on its current tab, 'selectedTabs' on the tabs listed in 'impactTabsIds', and 'asGroup' according to the containing group's settings.",
     )
-    default_order_id: int | float | None = Field(
-        default=None, alias="defaultOrderId", description="Default item order."
+    impact_tabs_ids: list[str] | None = Field(
+        default=None,
+        alias="impactTabsIds",
+        description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
     )
-    type: Literal["group_control"] = Field(..., description="Control group item type.")
-    data: DashGroupControlV2 | None = None
-
-
-class DashGlobalItemV2(
-    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType],
-    hide_input_in_errors=True,
-):
-    root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType
+    id: str | None = Field(default=None, description="Control identifier.")
+    namespace: Literal["default"] = Field(..., description="Control namespace.")
+    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
+        default=None,
+        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
+    )
+    placement_mode: Literal["auto", "%", "px"] | str | None = Field(
+        default=None, alias="placementMode", description="Control placement mode."
+    )
+    width: str | None = Field(default=None, description="Control width.")
+    source_type: Literal["manual"] = Field(
+        ..., alias="sourceType", description="Manual control source type."
+    )
+    source: shared.DashControlSourceManualV2 | None = None
 
 
 class DashTabItemV2Variant1Data(APIModel):
@@ -806,6 +698,127 @@ class DashDataV2Settings(APIModel):
     )
 
 
+class DashControlV2(
+    RootModel[
+        DashControlV2Variant1
+        | DashControlV2Variant2
+        | DashControlV2Variant3
+        | shared.OtherKindBySourceType
+    ],
+    hide_input_in_errors=True,
+):
+    root: (
+        DashControlV2Variant1
+        | DashControlV2Variant2
+        | DashControlV2Variant3
+        | shared.OtherKindBySourceType
+    ) = Field(..., description="Control item data.")
+
+
+class DashTabControlItemV2(APIModel):
+    id: str | None = Field(default=None, description="Dashboard item identifier.")
+    namespace: Literal["default"] = Field(..., description="Item namespace.")
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
+        default=None, alias="defaultOrderId", description="Default item order."
+    )
+    type: Literal["control"] = Field(..., description="Control item type.")
+    data: DashControlV2 | None = None
+    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
+        default=None,
+        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
+    )
+
+
+class DashGroupControlItemV2(
+    RootModel[
+        DashGroupControlItemV2Variant1
+        | DashGroupControlItemV2Variant2
+        | shared.OtherKindBySourceType
+    ],
+    hide_input_in_errors=True,
+):
+    root: (
+        DashGroupControlItemV2Variant1
+        | DashGroupControlItemV2Variant2
+        | shared.OtherKindBySourceType
+    )
+
+
+class DashGroupControlV2(APIModel):
+    """Control group item data."""
+
+    auto_height: bool | None = Field(
+        default=None,
+        alias="autoHeight",
+        description="Whether to adjust the group height to its content.",
+    )
+    button_apply: bool | None = Field(
+        default=None,
+        alias="buttonApply",
+        description="Whether to show the Apply button.",
+    )
+    button_reset: bool | None = Field(
+        default=None,
+        alias="buttonReset",
+        description="Whether to show the Reset button.",
+    )
+    show_group_name: bool | None = Field(
+        default=None,
+        alias="showGroupName",
+        description="Whether to show the control group name.",
+    )
+    group_name: str | None = Field(
+        default=None, alias="groupName", description="Control group name."
+    )
+    impact_type: Literal["allTabs", "currentTab", "selectedTabs"] | str | None = Field(
+        default=None,
+        alias="impactType",
+        description="Tabs affected by the control group.",
+    )
+    impact_tabs_ids: list[str] | None = Field(
+        default=None,
+        alias="impactTabsIds",
+        description="Identifiers of tabs affected by the control group.",
+    )
+    update_controls_on_change: bool | None = Field(
+        default=None,
+        alias="updateControlsOnChange",
+        description="Whether controls update immediately after a value changes.",
+    )
+    background_settings: DashGroupControlV2BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    border_radius: int | float | None = Field(
+        default=None, alias="borderRadius", description="Control group border radius."
+    )
+    group: list[DashGroupControlItemV2] | None = Field(
+        default=None, description="Controls in the group."
+    )
+
+
+class DashTabGroupControlItemV2(APIModel):
+    id: str | None = Field(default=None, description="Dashboard item identifier.")
+    namespace: Literal["default"] = Field(..., description="Item namespace.")
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
+        default=None, alias="defaultOrderId", description="Default item order."
+    )
+    type: Literal["group_control"] = Field(..., description="Control group item type.")
+    data: DashGroupControlV2 | None = None
+
+
+class DashGlobalItemV2(
+    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType],
+    hide_input_in_errors=True,
+):
+    root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType
+
+
 class DashTabItemV2Variant1(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
@@ -937,16 +950,6 @@ class DashDataV2(APIModel):
     )
 
 
-class Entry(EntryLocationIdentifiers):
-    data: DashDataV2 | None = None
-    meta: DashMetaV2 | None = None
-    annotation: shared.EntryAnnotationArg | None = None
-
-
-class CreateDashboardV2Args(RequestBody):
-    entry: Entry
-
-
 class DashboardV2Data(APIModel):
     """Versioned data of the dashboard."""
 
@@ -966,6 +969,12 @@ class DashboardV2Data(APIModel):
         alias="accessDescription",
         description="Custom message shown when access is denied.",
     )
+
+
+class CreateDashboardV2ArgsEntry(EntryLocationIdentifiers):
+    data: DashDataV2 | None = None
+    meta: DashMetaV2 | None = None
+    annotation: shared.EntryAnnotationArg | None = None
 
 
 class UpdateDashboardV2ArgsEntry(APIModel):
@@ -1051,6 +1060,10 @@ class GetDashboardV2Result(APIModel):
     entry: DashboardV2 | None = None
     is_favorite: bool | None = Field(default=None, alias="isFavorite")
     permissions: shared.EntryPermissions | None = None
+
+
+class CreateDashboardV2Args(RequestBody):
+    entry: CreateDashboardV2ArgsEntry
 
 
 class UpdateDashboardV2Args(RequestBody):
