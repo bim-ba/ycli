@@ -1,0 +1,56 @@
+{
+  "body": {
+    "created_at": "<created_at>",
+    "id": "<id>",
+    "page": {
+      "id": 1,
+      "slug": "<slug>"
+    },
+    "revision": "<revision>",
+    "rich_text_format": "yfm",
+    "rows": [
+      {
+        "color": null,
+        "id": "<id>",
+        "pinned": null,
+        "row": [
+          "<row>"
+        ]
+      },
+      {
+        "color": "orange",
+        "id": "<id>",
+        "pinned": true,
+        "row": [
+          "<row>"
+        ]
+      }
+    ],
+    "structure": {
+      "columns": [
+        {
+          "color": null,
+          "description": "<description>",
+          "format": null,
+          "id": "<id>",
+          "mark_rows": null,
+          "multiple": null,
+          "pinned": null,
+          "required": false,
+          "select_options": null,
+          "slug": "<slug>",
+          "ticket_field": null,
+          "title": "<title>",
+          "type": "string",
+          "width": null,
+          "width_units": null
+        }
+      ],
+      "default_sort": []
+    },
+    "template_id": null,
+    "title": "<title>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

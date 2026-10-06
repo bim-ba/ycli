@@ -1,0 +1,23 @@
+{
+  "body": {
+    "attributes": null,
+    "created_at": "<created_at>",
+    "id": "<id>",
+    "page": {
+      "id": 1,
+      "slug": "<slug>"
+    },
+    "revision": "<revision>",
+    "rich_text_format": "yfm",
+    "rows": [],
+    "structure": {
+      "columns": [],
+      "default_sort": []
+    },
+    "template_id": null,
+    "title": "<title>",
+    "user_permissions": null
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

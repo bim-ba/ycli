@@ -1,0 +1,24 @@
+{
+  "body": {
+    "column": {
+      "color": null,
+      "description": "<description>",
+      "format": null,
+      "id": "<id>",
+      "mark_rows": null,
+      "multiple": null,
+      "pinned": null,
+      "required": false,
+      "select_options": null,
+      "slug": "<slug>",
+      "ticket_field": null,
+      "title": "<title>",
+      "type": "string",
+      "width": null,
+      "width_units": null
+    },
+    "revision": "<revision>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

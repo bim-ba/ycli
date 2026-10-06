@@ -1,0 +1,14 @@
+{
+  "body": {
+    "cells": [
+      {
+        "column_slug": "<column_slug>",
+        "row_id": "<row_id>",
+        "value": "<value>"
+      }
+    ],
+    "revision": "<revision>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

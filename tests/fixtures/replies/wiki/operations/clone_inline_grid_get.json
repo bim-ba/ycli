@@ -1,0 +1,15 @@
+{
+  "body": {
+    "result": {
+      "grid": null,
+      "grid_id": "<grid_id>",
+      "page": {
+        "id": 1,
+        "slug": "<slug>"
+      }
+    },
+    "status": "success"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

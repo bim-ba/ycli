@@ -1,7 +1,5 @@
 {
   "body": {
-    "next_cursor": null,
-    "prev_cursor": null,
     "results": [
       {
         "check_status": "<check_status>",
