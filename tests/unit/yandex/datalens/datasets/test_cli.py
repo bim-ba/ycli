@@ -64,3 +64,43 @@ def test_an_update_with_no_data_is_refused_before_anything_is_sent(api):
     result = CliRunner().invoke(cli.app, ["datalens", "datasets", "update", DS])
     assert isinstance(result.exception, ValidationError)
     assert api.calls == []
+
+
+def test_a_field_of_the_request_given_in_a_file_or_by_a_field_flag_reaches_it(api, tmp_path):
+    """Measured defect: `workbookId` from --body-file and -F was dropped by `update`."""
+    data = {"dataset": {"description": "Q1"}}
+    body = tmp_path / "save.json"
+    body.write_text(json.dumps({"data": data, "workbookId": WB}), encoding="utf-8")
+    assert _planned("update", DS, "--body-file", str(body)) == {
+        "datasetId": DS,
+        "data": data,
+        "workbookId": WB,
+    }
+    by_field = ["-F", "workbookId=wb2", "-F", "data[dataset][description]=Q1"]
+    assert _planned("update", DS, *by_field)["workbookId"] == "wb2"
+    # A flag lies over the file.
+    assert _planned("update", DS, "--body-file", str(body), "--workbook-id", "wb3") == {
+        "datasetId": DS,
+        "data": data,
+        "workbookId": "wb3",
+    }
+
+
+def test_validate_takes_the_fields_of_its_request_from_a_file_too(api, tmp_path):
+    body = tmp_path / "try.json"
+    given = {"data": {"dataset": {"description": "Q1"}}, "workbookId": WB, "bindedDatasetId": "d2"}
+    body.write_text(json.dumps(given), encoding="utf-8")
+    api.add("POST", RPC + "validateDataset", json={"code": "OK"})
+    result = CliRunner().invoke(
+        cli.app, ["-o", "json", "datalens", "datasets", "validate", DS, "--body-file", str(body)]
+    )
+    assert result.exit_code == 0, result.output
+    assert api.body() == {"datasetId": DS, **given}
+
+
+def test_a_field_that_is_not_of_the_request_is_refused_not_dropped(api):
+    result = CliRunner().invoke(
+        cli.app, ["datalens", "datasets", "update", DS, "-F", "data[x]=1", "-F", "workbok=w"]
+    )
+    assert isinstance(result.exception, ValidationError)
+    assert "workbok" in format_cli_error(result.exception) and api.calls == []

@@ -17,7 +17,11 @@ from ycli.yandex.datalens.datasets.models import (
     DatasetValidate,
     DataSort,
 )
-from ycli.yandex.datalens.schemas.dataset import DatasetCreate
+from ycli.yandex.datalens.schemas.dataset import (
+    DatasetCreate,
+    UpdateDatasetRequest,
+    ValidateDatasetRequest,
+)
 from ycli.yandex.models import Ack
 
 app = typer.Typer(name="datasets", help="DataLens datasets.", no_args_is_help=True)
@@ -28,10 +32,22 @@ WorkbookOption = Annotated[
 ]
 
 
-def _data[M: BaseModel](model: type[M], data: str | None, caller: CallerFields) -> M:
-    """The `data` of a request: --data over what -F and --body-file give under `data`."""
-    given = caller.over({"data": json.loads(data)} if data is not None else {})
-    return model.model_validate(given.get("data"))
+def _request[E: BaseModel, M: BaseModel](
+    envelope: type[E], data: type[M], flags: dict[str, str | None], caller: CallerFields
+) -> tuple[E, M]:
+    """The request as ``envelope`` and its ``data``: the flags given, over -F, over --body-file.
+
+    A flag is given under the API's name of its field, ``data`` as JSON. The file and ``-F``
+    give the request itself, so ``workbookId`` in a file reaches it like ``--workbook-id``.
+    ``data`` is asked for by itself: the specification leaves it optional, a save does not.
+    """
+    given = {
+        name: json.loads(value) if name == "data" else value
+        for name, value in flags.items()
+        if value is not None
+    }
+    merged = caller.over(given)
+    return envelope.model_validate(merged), data.model_validate(merged.get("data"))
 
 
 @app.command()
@@ -138,9 +154,9 @@ def update(
     datalens: DataLensClient,
 ) -> Dataset:
     """Save a dataset as given: read it, change what it holds, send it back whole."""
-    return datalens.datasets.update(
-        dataset_id, data=_data(DatasetUpdate, data, caller), workbook_id=workbook_id
-    )
+    flags = {"datasetId": dataset_id, "data": data, "workbookId": workbook_id}
+    body, given = _request(UpdateDatasetRequest, DatasetUpdate, flags, caller)
+    return datalens.datasets.update(body.dataset_id, data=given, workbook_id=body.workbook_id)
 
 
 @app.command()
@@ -170,11 +186,18 @@ def validate(
     datalens: DataLensClient,
 ) -> Dataset:
     """Check a dataset, or changes to it, without saving anything."""
+    flags = {
+        "datasetId": dataset_id,
+        "data": data,
+        "workbookId": workbook_id,
+        "bindedDatasetId": binded_dataset_id,
+    }
+    body, given = _request(ValidateDatasetRequest, DatasetValidate, flags, caller)
     return datalens.datasets.validate(
-        dataset_id,
-        data=_data(DatasetValidate, data, caller),
-        workbook_id=workbook_id,
-        binded_dataset_id=binded_dataset_id,
+        body.dataset_id,
+        data=given,
+        workbook_id=body.workbook_id,
+        binded_dataset_id=body.binded_dataset_id,
     )
 
 
