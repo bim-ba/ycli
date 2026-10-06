@@ -69,7 +69,9 @@ def create(
     """Create a connection and return its id.
 
     Give ``workbook_id`` (or ``dir_path``) for where it lies. The password or the token you
-    give is stored by DataLens and never returned by ``connections_get``.
+    give is stored by DataLens and never returned by ``connections_get``. A connection to
+    Google Sheets (``gsheets``) cannot be created here: the API answers that the type is not
+    editable; it is made in the DataLens interface and then read like any other.
     """
     return client.connections.create(connection)
 

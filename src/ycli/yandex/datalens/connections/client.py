@@ -60,7 +60,9 @@ class ConnectionsClient(Resource):
         """``createConnection`` — create a connection → its id.
 
         ``type`` says which kind it is and which fields it takes; give ``workbook_id`` or
-        ``dir_path`` for where it lies.
+        ``dir_path`` for where it lies. Not every kind can be created through the API: a
+        connection to Google Sheets (``gsheets``) answers ``400 This connection type is not
+        editable``. Such a connection is made in the interface and is read here like any other.
 
         Args:
             connection: The new connection.
