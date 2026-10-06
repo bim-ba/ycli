@@ -100,8 +100,10 @@ def strip_schema_examples(schema: Any) -> Any:
 class LightListing(Transform):
     """Lists tools without ``outputSchema`` and without doctest blocks in their texts.
 
-    Only the listing changes: ``get_tool`` is untouched, so a call still validates its result
-    against the tool's full output schema and returns ``structuredContent``.
+    Only the listing changes: ``get_tool`` is untouched, so a call still returns
+    ``structuredContent``, shaped by the tool's return type. Nothing checks it against the
+    output schema, though: that check is the client's, made with the schema the listing gave
+    it, and this listing gives none.
     """
 
     async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:

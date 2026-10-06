@@ -599,6 +599,13 @@ QuestionCreate = Annotated[
 # ``SeriesQuestion.items`` forward-references the union defined just above — resolve it now that
 # every name is in the module namespace.
 SeriesQuestion.model_rebuild()
+# The read models name classes defined below them, and the ones that hold a ``Question`` wait
+# with it. Pydantic would finish each at its first validation, but an MCP tool serializes with
+# a serializer it took when the tool was registered, before any reply was read.
+Question.model_rebuild()
+QuestionItem.model_rebuild()
+Page.model_rebuild()
+QuestionsResponse.model_rebuild()
 
 #: Runtime validator that routes a raw dict to the right member by its ``type`` tag.
 QuestionCreateAdapter: TypeAdapter[Any] = TypeAdapter(QuestionCreate)
