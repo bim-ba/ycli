@@ -9,6 +9,28 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.99.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.98.0
+  ([`d044b26`](https://github.com/bim-ba/ycli/commit/d044b26b78b96586b439240ba7d143e38e6ee42c))
+
+### Refactoring
+
+- Two SDK listings take the arguments their command and tool take
+  ([`a1ef1f0`](https://github.com/bim-ba/ycli/commit/a1ef1f06db31050946543cbab54ef392dcb6d9f8))
+
+### Breaking Changes
+
+- Two SDK methods change their arguments. TrackerClient.worklog.list_global: was (created_by,
+  created_at=["from:<time>", "to:<time>"]), is (created_by, created_from, created_to). A bare
+  `created_at="<time>"`, which the API does not document, can no longer be sent.
+  FormsClient.notifications.list: was (filters=NotificationFilter(...), limit=), is keyword
+  arguments survey_id, hook_id, subscription_id, answer_id, status, created_since, created_until,
+  finished_since, finished_until, visible, integration_type, ordering, limit.
+
+
 ## v0.98.0 (2026-10-06)
 
 ### Build System
