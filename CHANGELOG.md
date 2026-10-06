@@ -9,6 +9,57 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.95.0 (2026-10-06)
+
+### Build System
+
+- Pydantic-core is a dependency ycli names itself
+  ([`fe555c0`](https://github.com/bim-ba/ycli/commit/fe555c0101f071127d05dc7b224bcd44f0da81dd))
+
+- Re-lock uv.lock for 0.94.0
+  ([`c8250f2`](https://github.com/bim-ba/ycli/commit/c8250f27730a228fbd8cec6274dd1efae84b7f4f))
+
+### Chores
+
+- The future import goes from 39 files that do not need it
+  ([`1a40fee`](https://github.com/bim-ba/ycli/commit/1a40feefca4c62b1c24128a239b842127f0c03c4))
+
+### Continuous Integration
+
+- **e2e**: The live jobs are given the account the access steps grant to
+  ([`ecf514e`](https://github.com/bim-ba/ycli/commit/ecf514ea3698a8363cc79adead74799add4ab111))
+
+### Refactoring
+
+- Two properties of the models that nothing reads are gone
+  ([`dd15bc9`](https://github.com/bim-ba/ycli/commit/dd15bc939fb4b0cf4720a6983c47144b9f0c1bb0))
+
+### Testing
+
+- A three-valued boolean option is checked to be a --x/--no-x pair
+  ([`a8aedff`](https://github.com/bim-ba/ycli/commit/a8aedffa342b0024882a8be1c4075e029ba3ec9c))
+
+- **e2e**: A number under a key nothing knows never reaches a fixture
+  ([`d6275aa`](https://github.com/bim-ba/ycli/commit/d6275aac3ac9543ee7b78ca8a5ba903a56c8111b))
+
+- **e2e**: Access is granted to a named account and taken back, on a page, a form and a project
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`eee6ad0`](https://github.com/bim-ba/ycli/commit/eee6ad0a591e5a61838a3b5b00a6ca92dc574c7b))
+
+- **e2e**: DataLens has a live scenario, run by hand, and its real replies are recorded
+  ([`f4b04cc`](https://github.com/bim-ba/ycli/commit/f4b04cc9cc7598d056c90de3135bec6780804476))
+
+- **e2e**: No key twice is asserted on the issues nobody touched today
+  ([`6a76914`](https://github.com/bim-ba/ycli/commit/6a76914785e3bdca5bda212e3f282aadc3a21ce6))
+
+### Breaking Changes
+
+- SDK: `ycli.yandex.wiki.pages.models.PageDetails.owner_username` and
+  `ycli.yandex.tracker.links.models.Link.object_display` are removed; read `owner.user.username` and
+  `object.display`. The output of the CLI and of the MCP tools does not change: a property was never
+  part of it.
+
+
 ## v0.94.0 (2026-10-06)
 
 ### Build System
