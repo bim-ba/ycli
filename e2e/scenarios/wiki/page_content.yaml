@@ -1,0 +1,143 @@
+# What lives on a page: a grid with its columns, rows and cells, attachments (uploaded at once
+# and through an upload session), a comment that is deleted, and the page cloned and moved.
+# Everything is made under the page of the run and goes with it.
+name: wiki/page-content
+steps:
+  - id: create
+    run: wiki pages create --slug ${RUN} --title "${RUN} page" --content "body ${RUN}" --is-silent
+    save:
+      id: id
+    cleanup: wiki pages delete ${id} --recursive
+  - id: grid
+    run: wiki grids create --title "${RUN} grid" --page-slug ${RUN}
+    expect:
+      title: ${RUN} grid
+      "length(rows)": 0
+    save:
+      grid: id
+      rev: revision
+  - id: columns
+    run: >-
+      wiki grids columns create ${grid} --revision ${rev} --columns
+      '[{"title": "Name", "type": "string", "slug": "name", "required": false},
+      {"title": "Stage", "type": "string", "slug": "stage", "required": false}]'
+    save:
+      rev: revision
+  - id: rows
+    run: >-
+      wiki grids rows create ${grid} --revision ${rev} --rows
+      '[{"name": "Launch", "stage": "todo"}, {"name": "Review", "stage": "done"}]'
+    expect:
+      "length(results)": 2
+    save:
+      rev: revision
+      first: results[0].id
+      second: results[1].id
+  - id: cell
+    run: >-
+      wiki grids cells update ${grid} --revision ${rev} --cells
+      '[{"row_id": ${first}, "column_slug": "name", "value": "Launch v2"}]'
+    expect:
+      "length(cells)": 1
+    save:
+      rev: revision
+  - id: row-colour
+    run: wiki grids rows update ${grid} ${second} --revision ${rev} --pinned --color orange
+  - id: filled
+    run: wiki grids get ${grid}
+    expect:
+      "length(rows)": 2
+      "length(structure.columns)": 2
+    save:
+      rev: revision
+  - id: row-move
+    run: wiki grids rows move ${grid} --revision ${rev} --row-id ${second} --position 0
+    save:
+      rev: revision
+  - id: column-rename
+    run: wiki grids columns update ${grid} stage --revision ${rev} --title "Stage 2"
+    expect:
+      column.title: Stage 2
+    save:
+      rev: revision
+  - id: column-move
+    run: wiki grids columns move ${grid} --revision ${rev} --column-slug stage --position 0
+    save:
+      rev: revision
+  - id: grid-rename
+    run: wiki grids update ${grid} --revision ${rev} --title "${RUN} grid renamed"
+    save:
+      rev: revision
+  - id: grid-clone
+    run: wiki grids clone ${grid} --target ${RUN}/copy --title "${RUN} copy" --with-data
+  - id: row-delete
+    run: wiki grids rows delete ${grid} --revision ${rev} --row-id ${first}
+    save:
+      rev: revision
+  - id: column-delete
+    run: wiki grids columns delete ${grid} --revision ${rev} --column-slug stage
+    save:
+      rev: revision
+  - id: emptied
+    run: wiki grids get ${grid}
+    expect:
+      "length(rows)": 1
+      "length(structure.columns)": 1
+  - id: grid-delete
+    run: wiki grids delete ${grid}
+  - id: upload
+    run: wiki attachments upload ${id} ${FILES}/note.txt
+    expect:
+      "length(@)": 1
+    save:
+      file: "[0].id"
+  - id: uploaded
+    run: wiki attachments list ${id} --all
+    expect:
+      "length(@)": 1
+  - id: attachment-delete
+    run: wiki attachments delete ${id} ${file}
+  - id: session
+    run: wiki uploadsessions create --file-name note.txt --file-size 30
+    save:
+      session: session_id
+  - id: session-part
+    run: wiki uploadsessions parts-upload ${session} ${FILES}/note.txt --part-number 1
+  - id: session-finish
+    run: wiki uploadsessions finish ${session}
+    expect:
+      "finished_at != null": true
+  - id: attach
+    run: wiki attachments attach ${id} --session-ids ${session}
+    expect:
+      "length(@)": 1
+  - id: session-to-abort
+    run: wiki uploadsessions create --file-name unused.txt --file-size 30
+    save:
+      unused: session_id
+  - id: session-abort
+    run: wiki uploadsessions abort ${unused}
+  - id: session-left-open
+    run: wiki uploadsessions create --file-name unused.txt --file-size 30
+  - id: sessions-abort-all
+    run: wiki uploadsessions abort-all
+  - id: comment
+    run: wiki comments create ${id} --body "note ${RUN}"
+    save:
+      comment: id
+  - id: comment-delete
+    run: wiki comments delete ${id} ${comment}
+    expect:
+      comments_count: 0
+  - id: clone
+    run: wiki pages clone ${id} --target ${RUN}/clone --title "${RUN} clone"
+  - id: move
+    run: wiki pages move ${RUN}/clone ${RUN}/moved
+  - id: tree
+    run: wiki pages descendants-list ${RUN} --include-self --all
+    expect:
+      "length(@)": 3
+      "contains([].slug, '${RUN}/moved')": true
+  - id: delete
+    run: wiki pages delete ${id} --recursive
+    disarms: [create]
