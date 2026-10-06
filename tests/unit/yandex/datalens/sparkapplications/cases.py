@@ -4,8 +4,11 @@ Written from the document: the owner's instance has no Spark cluster, so nothing
 measured but the refusals (a missing cluster id: 400; a cluster nothing knows: 403).
 """
 
+import json
+
 from tests.contract import Case, Reply, Sent
 from ycli.yandex.core.endpoint import Effect
+from ycli.yandex.datalens.sparkapplications.models import SparkApplicationCreate
 
 STAMP = {"seconds": "1790000000", "nanos": 0}
 CLUSTER = "sc00000000001"
@@ -26,8 +29,81 @@ APPLICATION = {
         "properties": {"spark.executor.instances": "2"},
     },
 }
+JAR = {"mainJarFileUri": "s3a://bucket/jobs/etl.jar", "mainClass": "org.example.Etl"}
+PYSPARK = {"mainPythonFileUri": "s3a://bucket/jobs/nightly.py", "args": ["--day", "2026-10-06"]}
+CONNECT = {"properties": {"spark.executor.instances": "2"}}
+NEW_JAR = {"clusterId": CLUSTER, "name": "etl", "sparkApplication": JAR}
+NEW_PYSPARK = {
+    "clusterId": "sc00000000003",
+    "name": "nightly",
+    "catalogs": [{"catalogId": "cat0000000001"}, {"catalogId": "cat0000000002"}],
+    "pysparkApplication": PYSPARK,
+}
+NEW_CONNECT = {"clusterId": "sc00000000004", "sparkConnectApplication": CONNECT}
+
+
+def _made(operation_id: str) -> Reply:
+    return Reply(
+        json={
+            "id": operation_id,
+            "description": "Create Spark application",
+            "createdAt": STAMP,
+            "createdBy": "user-1",
+            "modifiedAt": STAMP,
+            "done": False,
+            "metadata": {},
+        }
+    )
+
 
 CASES = [
+    Case(
+        "datalens.sparkapplications.create",
+        args=(SparkApplicationCreate.model_validate(NEW_JAR),),
+        cli=[
+            *("datalens", "sparkapplications", "create", CLUSTER, "--name", "etl"),
+            *("--spark-application", json.dumps(JAR)),
+        ],
+        mcp=("datalens_sparkapplications_create", {"body": NEW_JAR}),
+        effect=Effect.WRITE,
+        exchanges=[
+            (Sent("POST", "rpc/createSparkApplication", json=NEW_JAR), _made("op0000000000022"))
+        ],
+    ),
+    Case(
+        "datalens.sparkapplications.create",
+        args=(SparkApplicationCreate.model_validate(NEW_PYSPARK),),
+        cli=[
+            *("datalens", "sparkapplications", "create", "sc00000000003", "--name", "nightly"),
+            *("--catalogs", '{"catalogId": "cat0000000001"}'),
+            *("--catalogs", '{"catalogId": "cat0000000002"}'),
+            *("--pyspark-application", json.dumps(PYSPARK)),
+        ],
+        mcp=("datalens_sparkapplications_create", {"body": NEW_PYSPARK}),
+        effect=Effect.WRITE,
+        exchanges=[
+            (
+                Sent("POST", "rpc/createSparkApplication", json=NEW_PYSPARK),
+                _made("op0000000000023"),
+            )
+        ],
+    ),
+    Case(
+        "datalens.sparkapplications.create",
+        args=(SparkApplicationCreate.model_validate(NEW_CONNECT),),
+        cli=[
+            *("datalens", "sparkapplications", "create", "sc00000000004"),
+            *("--spark-connect-application", json.dumps(CONNECT)),
+        ],
+        mcp=("datalens_sparkapplications_create", {"body": NEW_CONNECT}),
+        effect=Effect.WRITE,
+        exchanges=[
+            (
+                Sent("POST", "rpc/createSparkApplication", json=NEW_CONNECT),
+                _made("op0000000000024"),
+            )
+        ],
+    ),
     Case(
         "datalens.sparkapplications.list",
         args=(CLUSTER,),

@@ -3624,6 +3624,7 @@ $ ycli datalens sparkapplications [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List the applications of a Spark cluster...
 * `get`: Print one Spark application: its status,...
+* `create`: Make a Spark application on a cluster;...
 * `cancel`: Stop a Spark application; prints the...
 * `log-list`: Print one fragment of an application's...
 
@@ -3682,6 +3683,40 @@ $ ycli datalens sparkapplications get [OPTIONS] CLUSTER_ID
 * `--help`: Show this message and exit.
 
 Experimental in the DataLens API and written from its document: not measured. A cluster nothing knows answers 403 Permission denied, not 404.
+
+### `ycli datalens sparkapplications create`
+
+Make a Spark application on a cluster; prints the operation that makes it.
+
+Give exactly one of the three kinds. --body-file and -F give the request itself
+(`pysparkApplication`, `catalogs`, `name`); a flag wins over them.
+
+**Usage**:
+
+```console
+$ ycli datalens sparkapplications create [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Spark cluster.  [required]
+
+**Options**:
+
+* `--name TEXT`: The application's name.
+* `--catalogs TEXT`: A REST catalog to attach, as a JSON object: {"catalogId": "…"} (repeatable).
+* `--spark-application TEXT`: An application in a JAR, as a JSON object: {"mainJarFileUri": "…", "mainClass": "…", "args": ["…"]}.
+* `--pyspark-application TEXT`: An application in a Python file, as a JSON object: {"mainPythonFileUri": "…", "args": ["…"]}.
+* `--spark-connect-application TEXT`: A Spark Connect application, as a JSON object: {"properties": {"…": "…"}}.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
 
 ### `ycli datalens sparkapplications cancel`
 

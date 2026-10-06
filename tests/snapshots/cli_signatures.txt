@@ -82,6 +82,7 @@ datalens restcatalogs list: --all:BOOLEAN=False --body-file:FILE --cloud-environ
 datalens sharedentries access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens sharedentries access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens sparkapplications cancel: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkapplications create: --body-file:FILE --catalogs:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --profile:TEXT --pyspark-application:TEXT --spark-application:TEXT --spark-connect-application:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sparkapplications get: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sparkapplications list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sparkapplications log-list: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --page-size:INTEGER --page-token:TEXT --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!

@@ -1,14 +1,20 @@
 """`datalens sparkapplications` commands."""
 
+import json
 from typing import Annotated
 
 import typer
 
+from ycli.cli.body_fields import CallerFields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import LakehouseOperation
-from ycli.yandex.datalens.sparkapplications.models import SparkApplication, SparkApplicationLog
+from ycli.yandex.datalens.sparkapplications.models import (
+    SparkApplication,
+    SparkApplicationCreate,
+    SparkApplicationLog,
+)
 from ycli.yandex.models import ItemList
 
 UNMEASURED = (
@@ -62,10 +68,71 @@ def get(
     return datalens.sparkapplications.get(cluster_id, application_id=application_id)
 
 
-@app.command(
-    epilog="Experimental in the DataLens API, written from its document and never called: "
-    "not measured."
+NEVER_CALLED = (
+    "Experimental in the DataLens API, written from its document and never called: not measured."
 )
+
+
+@app.command(epilog=NEVER_CALLED)
+def create(
+    cluster_id: SparkClusterArg,
+    name: Annotated[str | None, typer.Option("--name", help="The application's name.")] = None,
+    catalogs: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--catalogs",
+            help='A REST catalog to attach, as a JSON object: {"catalogId": "…"} (repeatable).',
+        ),
+    ] = None,
+    spark_application: Annotated[
+        str | None,
+        typer.Option(
+            "--spark-application",
+            help="An application in a JAR, as a JSON object: "
+            '{"mainJarFileUri": "…", "mainClass": "…", "args": ["…"]}.',
+        ),
+    ] = None,
+    pyspark_application: Annotated[
+        str | None,
+        typer.Option(
+            "--pyspark-application",
+            help="An application in a Python file, as a JSON object: "
+            '{"mainPythonFileUri": "…", "args": ["…"]}.',
+        ),
+    ] = None,
+    spark_connect_application: Annotated[
+        str | None,
+        typer.Option(
+            "--spark-connect-application",
+            help='A Spark Connect application, as a JSON object: {"properties": {"…": "…"}}.',
+        ),
+    ] = None,
+    *,
+    caller: CallerFields,
+    datalens: DataLensClient,
+) -> LakehouseOperation:
+    """Make a Spark application on a cluster; prints the operation that makes it.
+
+    Give exactly one of the three kinds. --body-file and -F give the request itself
+    (`pysparkApplication`, `catalogs`, `name`); a flag wins over them.
+    """
+    # The body is a union of three kinds: the file and -F are merged before it is validated.
+    kinds = {
+        "sparkApplication": spark_application,
+        "pysparkApplication": pyspark_application,
+        "sparkConnectApplication": spark_connect_application,
+    }
+    given = {
+        "clusterId": cluster_id,
+        "name": name,
+        "catalogs": [json.loads(item) for item in catalogs] if catalogs else None,
+        **{field: None if value is None else json.loads(value) for field, value in kinds.items()},
+    }
+    body = caller.over({field: value for field, value in given.items() if value is not None})
+    return datalens.sparkapplications.create(SparkApplicationCreate.model_validate(body))
+
+
+@app.command(epilog=NEVER_CALLED)
 def cancel(
     cluster_id: SparkClusterArg,
     application_id: ApplicationOption,

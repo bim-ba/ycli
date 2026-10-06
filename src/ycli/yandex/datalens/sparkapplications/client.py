@@ -13,7 +13,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from ycli.yandex.datalens.models import LakehouseOperation
-    from ycli.yandex.datalens.sparkapplications.models import SparkApplicationLog
+    from ycli.yandex.datalens.sparkapplications.models import (
+        SparkApplicationCreate,
+        SparkApplicationLog,
+    )
 
 
 class SparkApplicationsClient(Resource):
@@ -68,6 +71,34 @@ class SparkApplicationsClient(Resource):
             'nightly'
         """
         return self._session.send(endpoints.get(cluster_id, application_id=application_id))
+
+    def create(self, body: SparkApplicationCreate) -> LakehouseOperation:
+        """``createSparkApplication`` — make a Spark application (not measured, never called).
+
+        The request is one of three kinds, told apart by the field that holds the application:
+        ``sparkApplication`` (a JAR), ``pysparkApplication`` (a Python file) or
+        ``sparkConnectApplication``.
+
+        Args:
+            body: The application to make: the cluster, a name, the catalogs to attach and
+                exactly one of the three kinds.
+
+        Returns:
+            The operation that makes it.
+
+        Examples:
+            >>> from ycli.yandex.datalens.sparkapplications.models import SparkApplicationCreate
+            >>> new = SparkApplicationCreate.model_validate(
+            ...     {
+            ...         "clusterId": "sc00000000001",
+            ...         "name": "nightly",
+            ...         "pysparkApplication": {"mainPythonFileUri": "s3a://bucket/jobs/nightly.py"},
+            ...     }
+            ... )
+            >>> datalens.sparkapplications.create(new).id
+            'op0000000000022'
+        """
+        return self._session.send(endpoints.create(body))
 
     def cancel(self, cluster_id: str, *, application_id: str) -> LakehouseOperation:
         """``cancelSparkApplication`` — stop a Spark application (not measured, never called).
