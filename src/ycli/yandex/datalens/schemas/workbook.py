@@ -9,16 +9,6 @@ from ycli.yandex.models import APIModel, RequestBody
 from . import shared
 
 
-class Meta(APIModel):
-    """Metadata associated with the workbook."""
-
-    import_id: str | None = Field(
-        default=None,
-        alias="importId",
-        description="ID of the workbook import operation.",
-    )
-
-
 class CreateWorkbookArgs(RequestBody):
     collection_id: str | None = Field(
         default=None,
@@ -27,44 +17,6 @@ class CreateWorkbookArgs(RequestBody):
     )
     title: str = Field(..., description="Title of the workbook.")
     description: str | None = Field(default=None, description="Description of the workbook.")
-
-
-class Workbook(APIModel):
-    workbook_id: str | None = Field(
-        default=None,
-        alias="workbookId",
-        description="Unique identifier of the workbook.",
-    )
-    collection_id: str | None = Field(
-        default=None,
-        alias="collectionId",
-        description="ID of the collection the workbook belongs to.",
-    )
-    title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
-    tenant_id: str | None = Field(
-        default=None, alias="tenantId", description="ID of the DataLens tenant."
-    )
-    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
-    created_by: str | None = Field(
-        default=None,
-        alias="createdBy",
-        description="ID of the user who created the workbook.",
-    )
-    created_at: str | None = Field(
-        default=None, alias="createdAt", description="Creation timestamp."
-    )
-    updated_by: str | None = Field(
-        default=None,
-        alias="updatedBy",
-        description="ID of the user who last updated the workbook.",
-    )
-    updated_at: str | None = Field(
-        default=None, alias="updatedAt", description="Last update timestamp."
-    )
-    status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
-        default=None, description="Status of the workbook."
-    )
 
 
 class DeleteWorkbookArgs(RequestBody):
@@ -173,16 +125,34 @@ class ListWorkbookAccessBindingsArgs(RequestBody):
     )
 
 
-class DeleteWorkbooksResponse(APIModel):
-    workbooks: list[Workbook] | None = Field(default=None, description="Deleted workbooks.")
+class CreateWorkbookResultMeta(APIModel):
+    """Metadata associated with the workbook."""
+
+    import_id: str | None = Field(
+        default=None,
+        alias="importId",
+        description="ID of the workbook import operation.",
+    )
 
 
-class GetWorkbooksByIdsResponse(RootModel[list[Workbook]], hide_input_in_errors=True):
-    root: list[Workbook]
+class WorkbookMeta(APIModel):
+    """Metadata associated with the workbook."""
+
+    import_id: str | None = Field(
+        default=None,
+        alias="importId",
+        description="ID of the workbook import operation.",
+    )
 
 
-class MoveWorkbooksResponse(APIModel):
-    workbooks: list[Workbook] | None = Field(default=None, description="Moved workbooks.")
+class GetWorkbookResultMeta(APIModel):
+    """Metadata associated with the workbook."""
+
+    import_id: str | None = Field(
+        default=None,
+        alias="importId",
+        description="ID of the workbook import operation.",
+    )
 
 
 class GetWorkbookResultPermissions(APIModel):
@@ -223,6 +193,16 @@ class GetWorkbookResultPermissions(APIModel):
     )
     delete: bool | None = Field(
         default=None, description="Indicates if the workbook can be deleted."
+    )
+
+
+class GetWorkbooksListResultWorkbooksItemMeta(APIModel):
+    """Metadata associated with the workbook."""
+
+    import_id: str | None = Field(
+        default=None,
+        alias="importId",
+        description="ID of the workbook import operation.",
     )
 
 
@@ -317,7 +297,7 @@ class CreateWorkbookResult(APIModel):
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    meta: CreateWorkbookResultMeta | None = None
     created_by: str | None = Field(
         default=None,
         alias="createdBy",
@@ -340,6 +320,44 @@ class CreateWorkbookResult(APIModel):
     operation: shared.DatalensOperation | None = None
 
 
+class Workbook(APIModel):
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="Unique identifier of the workbook.",
+    )
+    collection_id: str | None = Field(
+        default=None,
+        alias="collectionId",
+        description="ID of the collection the workbook belongs to.",
+    )
+    title: str | None = Field(default=None, description="Title of the workbook.")
+    description: str | None = Field(default=None, description="Description of the workbook.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
+    )
+    meta: WorkbookMeta | None = None
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the workbook.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="ID of the user who last updated the workbook.",
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
+        default=None, description="Status of the workbook."
+    )
+
+
 class GetWorkbookResult(APIModel):
     workbook_id: str | None = Field(
         default=None,
@@ -356,7 +374,7 @@ class GetWorkbookResult(APIModel):
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    meta: GetWorkbookResultMeta | None = None
     created_by: str | None = Field(
         default=None,
         alias="createdBy",
@@ -480,6 +498,18 @@ class GetWorkbookEntriesArgs(RequestBody):
     filters: GetWorkbookEntriesArgsFilters | None = None
 
 
+class DeleteWorkbooksResponse(APIModel):
+    workbooks: list[Workbook] | None = Field(default=None, description="Deleted workbooks.")
+
+
+class GetWorkbooksByIdsResponse(RootModel[list[Workbook]], hide_input_in_errors=True):
+    root: list[Workbook]
+
+
+class MoveWorkbooksResponse(APIModel):
+    workbooks: list[Workbook] | None = Field(default=None, description="Moved workbooks.")
+
+
 class GetWorkbooksListResultWorkbooksItem(APIModel):
     workbook_id: str | None = Field(
         default=None,
@@ -496,7 +526,7 @@ class GetWorkbooksListResultWorkbooksItem(APIModel):
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    meta: GetWorkbooksListResultWorkbooksItemMeta | None = None
     created_by: str | None = Field(
         default=None,
         alias="createdBy",

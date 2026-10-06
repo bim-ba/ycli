@@ -657,7 +657,12 @@ def test_an_rpc_method_takes_the_fields_of_its_request_as_arguments():
         domain, resource, operation = found.case.operation.split(".")
         method = getattr(getattr(clients[domain], resource), operation)
         body = found.endpoint.json
-        assert body is None or isinstance(body, RequestBody | RootModel), found.case.operation
+        # An envelope is closed (``RequestBody``), or a union taken whole, or a generated
+        # model whose document itself leaves the envelope open (``updateQLChart``).
+        open_by_document = isinstance(body, APIModel) and _is_generated(type(body))
+        assert body is None or isinstance(body, RequestBody | RootModel) or open_by_document, (
+            found.case.operation
+        )
         if off := _rpc_arguments_off(method, body, found.pagination):
             offenders[found.case.operation] = off
     assert seen, "no RPC operation was looked at"

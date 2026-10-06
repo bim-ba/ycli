@@ -291,7 +291,8 @@ def _keep_whole_numbers(spec: dict[str, Any]) -> int:
 def _spread_unions(spec: dict[str, Any]) -> int:
     """Write "these fields and one of those" as "one of those, each with these fields"; count them.
 
-    ``allOf: [{name}, {anyOf: [A, B]}]`` becomes ``anyOf: [{name, ...A}, {name, ...B}]``. The
+    ``allOf: [{name}, {anyOf: [A, B]}]`` becomes ``anyOf: [{name, ...A}, {name, ...B}]``, whether
+    the union is written in place or referred to by name, with a discriminator or without. The
     generator does the same, but names every class it makes after the property and numbers them in
     the order it meets them (``ParamModel7``), so a schema added elsewhere would rename them. Each
     member written out here is an object in place, and gets its name from where it stands.
@@ -308,10 +309,16 @@ def _spread_unions(spec: dict[str, Any]) -> int:
         members = schema.get("allOf")
         if not isinstance(members, list):
             continue
-        unions = [member for member in members if "anyOf" in member or "oneOf" in member]
-        parts = objects([member for member in members if member not in unions])
-        # A union that names its members by a mapping keeps them as the schemas they are.
-        if len(unions) != 1 or parts is None or "discriminator" in unions[0]:
+        # The union is written in place or referred to by name: the same thing said twice.
+        unions: list[dict[str, Any]] = []
+        rest: list[dict[str, Any]] = []
+        for member in members:
+            found = _target(spec, member) or member
+            (unions if "anyOf" in found or "oneOf" in found else rest).append(
+                found if "anyOf" in found or "oneOf" in found else member
+            )
+        parts = objects(rest)
+        if len(unions) != 1 or parts is None:
             continue
         (union,) = unions
         key = "anyOf" if "anyOf" in union else "oneOf"
@@ -328,7 +335,11 @@ def _spread_unions(spec: dict[str, Any]) -> int:
                 ]
             variants.append(merged)
         del schema["allOf"]
-        schema.update({name: value for name, value in union.items() if name != key})
+        schema.update({name: copy.deepcopy(value) for name, value in union.items() if name != key})
+        # The members are new objects, so a mapping to the old ones no longer holds: each
+        # member carries its tag itself, and the discriminator finds it there.
+        if isinstance(schema.get("discriminator"), dict):
+            schema["discriminator"].pop("mapping", None)
         schema[key] = variants
         spread += 1
     return spread
@@ -598,6 +609,35 @@ def _open_value_sets(spec: dict[str, Any], keep: set[int]) -> None:
             schema["anyOf"] = [closed, {"type": "string"}]
 
 
+def _join_envelope_parts(spec: dict[str, Any]) -> int:
+    """Write a request envelope given in parts ("all of these") as one object; return how many.
+
+    ``createWizardChart`` takes its own fields and the fields every entry is placed by, and
+    the document writes that as two parts. The generator makes a class that inherits one part,
+    and it is not seen as an envelope: it stays open, and its fields are not the arguments of
+    the operation (#371). Joined, it is an envelope like any other. A part that is not a plain
+    object (a union) leaves the envelope as it is.
+    """
+    joined = 0
+    for _, _, kind, holder in _bodies(spec):
+        envelope = _target(spec, holder["schema"])
+        if kind != "Request" or envelope is None or "allOf" not in envelope:
+            continue
+        aimed = [_target(spec, part) for part in envelope["allOf"]]
+        parts = [part for part in aimed if part is not None and "properties" in part]
+        if len(parts) != len(aimed):
+            continue
+        properties: dict[str, Any] = {}
+        required: list[str] = []
+        for part in parts:
+            properties.update(copy.deepcopy(part["properties"]))
+            required += [name for name in part.get("required", []) if name not in required]
+        del envelope["allOf"]
+        envelope.update({"type": "object", "properties": properties, "required": required})
+        joined += 1
+    return joined
+
+
 def _close_only_requests(spec: dict[str, Any]) -> None:
     """Only the envelope of a request refuses an unknown field; a reply is read as it comes.
 
@@ -674,9 +714,11 @@ def _name_every_object(spec: dict[str, Any]) -> None:
         for suffix, child, holder, key in list(_children(schema)):
             if "$ref" in child:
                 continue
-            # A member of ``allOf`` is a part of this object, not an object of its own.
+            # A member of ``allOf`` is a part of this object, not an object of its own. An
+            # object made of parts is one, though: left unnamed, the generator would call it
+            # ``Entry``, ``EntryModel``, ``EntryModel1`` in the order it meets them.
             part = holder is schema.get("allOf")
-            if "properties" in child and not part:
+            if ("properties" in child or "allOf" in child) and not part:
                 named = unique(name + suffix)
                 schemas[named] = child
                 holder[key] = {"$ref": _REF + named}
@@ -735,7 +777,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         A copy with no generator directives and no defaults, in which a set of values has one
         order wherever it stands, a number is read whole
         or fractional as it comes, "these fields and one of
-        those" is written as its members, a reply's union of objects that nothing tells apart is
+        those" is written as its members, a request envelope given in parts is one object,
+        a reply's union of objects that nothing tells apart is
         one object, a union's discriminator is
         required in its members, a union of objects a reply reaches has a spare open member,
         a set of string values is open, nothing else is required
@@ -775,6 +818,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     _type_secrets(spec)
     _keep_whole_numbers(spec)
     _spread_unions(spec)
+    _join_envelope_parts(spec)
     _merge_agreeing_replies(spec)
     tags = _require_discriminators(spec)
     _spare_members(spec, tags)

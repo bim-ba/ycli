@@ -2,12 +2,11 @@
 
 from typing import Any, Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-from .shared import EntryLocationIdentifiers
 
 
 class GetEditorChartArgs(RequestBody):
@@ -147,13 +146,13 @@ class GetEditorChartResultPermissions(APIModel):
     )
 
 
-class CreateEditorTableNodeEntryAnnotation(APIModel):
+class CreateEditorChartArgsEntryVariant1Annotation(APIModel):
     """Annotation information."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class CreateEditorTableNodeEntryData(APIModel):
+class CreateEditorChartArgsEntryVariant1Data(APIModel):
     meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
     params: str | None = Field(default=None, description="Configuration from the Params tab.")
     sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
@@ -165,13 +164,13 @@ class CreateEditorTableNodeEntryData(APIModel):
     )
 
 
-class CreateEditorGravityChartsNodeEntryAnnotation(APIModel):
+class CreateEditorChartArgsEntryVariant2Annotation(APIModel):
     """Annotation information."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class CreateEditorGravityChartsNodeEntryData(APIModel):
+class CreateEditorChartArgsEntryVariant2Data(APIModel):
     meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
     params: str | None = Field(default=None, description="Configuration from the Params tab.")
     sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
@@ -183,13 +182,13 @@ class CreateEditorGravityChartsNodeEntryData(APIModel):
     )
 
 
-class CreateEditorMarkdownNodeEntryAnnotation(APIModel):
+class CreateEditorChartArgsEntryVariant3Annotation(APIModel):
     """Annotation information."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class CreateEditorMarkdownNodeEntryData(APIModel):
+class CreateEditorChartArgsEntryVariant3Data(APIModel):
     meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
     params: str | None = Field(default=None, description="Configuration from the Params tab.")
     sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
@@ -197,13 +196,13 @@ class CreateEditorMarkdownNodeEntryData(APIModel):
     prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
-class CreateEditorAdvancedChartNodeEntryAnnotation(APIModel):
+class CreateEditorChartArgsEntryVariant4Annotation(APIModel):
     """Annotation information."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class CreateEditorAdvancedChartNodeEntryData(APIModel):
+class CreateEditorChartArgsEntryVariant4Data(APIModel):
     meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
     params: str | None = Field(default=None, description="Configuration from the Params tab.")
     sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
@@ -211,13 +210,13 @@ class CreateEditorAdvancedChartNodeEntryData(APIModel):
     prepare: str | None = Field(default=None, description="Configuration from the Prepare tab.")
 
 
-class CreateEditorSelectorNodeEntryAnnotation(APIModel):
+class CreateEditorChartArgsEntryVariant5Annotation(APIModel):
     """Annotation information."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class CreateEditorSelectorNodeEntryData(APIModel):
+class CreateEditorChartArgsEntryVariant5Data(APIModel):
     meta: str | None = Field(default=None, description="Configuration from the Meta tab.")
     params: str | None = Field(default=None, description="Configuration from the Params tab.")
     sources: str | None = Field(default=None, description="Configuration from the Sources tab.")
@@ -570,95 +569,6 @@ class CreateEditorChartResult(APIModel):
     ) = None
 
 
-class CreateEditorTableNodeEntry(APIModel):
-    meta: dict[str, Any] | None = Field(
-        default=None, description="Metadata associated with the entry."
-    )
-    links: dict[str, str] | None = Field(default=None, description="Link information.")
-    annotation: CreateEditorTableNodeEntryAnnotation | None = None
-    type: Literal["table_node"] = Field(
-        ..., description="For Table Editor charts takes value: table_node"
-    )
-    data: CreateEditorTableNodeEntryData | None = None
-
-
-class CreateEditorGravityChartsNodeEntry(APIModel):
-    meta: dict[str, Any] | None = Field(
-        default=None, description="Metadata associated with the entry."
-    )
-    links: dict[str, str] | None = Field(default=None, description="Link information.")
-    annotation: CreateEditorGravityChartsNodeEntryAnnotation | None = None
-    type: Literal["d3_node"] = Field(..., description="For Gravity UI Charts takes value: d3_node")
-    data: CreateEditorGravityChartsNodeEntryData | None = None
-
-
-class CreateEditorMarkdownNodeEntry(APIModel):
-    meta: dict[str, Any] | None = Field(
-        default=None, description="Metadata associated with the entry."
-    )
-    links: dict[str, str] | None = Field(default=None, description="Link information.")
-    annotation: CreateEditorMarkdownNodeEntryAnnotation | None = None
-    type: Literal["markdown_node"] = Field(
-        ..., description="For Markdown Editor charts takes value: markdown_node"
-    )
-    data: CreateEditorMarkdownNodeEntryData | None = None
-
-
-class CreateEditorAdvancedChartNodeEntry(APIModel):
-    meta: dict[str, Any] | None = Field(
-        default=None, description="Metadata associated with the entry."
-    )
-    links: dict[str, str] | None = Field(default=None, description="Link information.")
-    annotation: CreateEditorAdvancedChartNodeEntryAnnotation | None = None
-    type: Literal["advanced-chart_node"] = Field(
-        ..., description="For Advanced Editor charts takes value: advanced-chart_node"
-    )
-    data: CreateEditorAdvancedChartNodeEntryData | None = None
-
-
-class CreateEditorSelectorNodeEntry(APIModel):
-    meta: dict[str, Any] | None = Field(
-        default=None, description="Metadata associated with the entry."
-    )
-    links: dict[str, str] | None = Field(default=None, description="Link information.")
-    annotation: CreateEditorSelectorNodeEntryAnnotation | None = None
-    type: Literal["control_node"] = Field(
-        ..., description="For Editor JS selectors takes value: control_node"
-    )
-    data: CreateEditorSelectorNodeEntryData | None = None
-
-
-class Entry(CreateEditorTableNodeEntry, EntryLocationIdentifiers):
-    pass
-
-
-class EntryModel(CreateEditorGravityChartsNodeEntry, EntryLocationIdentifiers):
-    pass
-
-
-class EntryModel1(CreateEditorMarkdownNodeEntry, EntryLocationIdentifiers):
-    pass
-
-
-class EntryModel2(CreateEditorAdvancedChartNodeEntry, EntryLocationIdentifiers):
-    pass
-
-
-class EntryModel3(CreateEditorSelectorNodeEntry, EntryLocationIdentifiers):
-    pass
-
-
-class EntryModel4(
-    RootModel[Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3],
-    hide_input_in_errors=True,
-):
-    root: Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3
-
-
-class CreateEditorChartArgs(RequestBody):
-    entry: EntryModel4
-
-
 class UpdateEditorChartResult(APIModel):
     entry: (
         EditorTableNode
@@ -768,3 +678,126 @@ class UpdateEditorChartArgs(RequestBody):
         | UpdateEditorSelectorNodeEntry
     ) = Field(..., discriminator="type")
     mode: Literal["save", "publish"] | str = Field(..., description="Editor chart update mode.")
+
+
+class CreateEditorChartArgsEntryVariant1(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    links: dict[str, str] | None = Field(default=None, description="Link information.")
+    annotation: CreateEditorChartArgsEntryVariant1Annotation | None = None
+    type: Literal["table_node"] = Field(
+        ..., description="For Table Editor charts takes value: table_node"
+    )
+    data: CreateEditorChartArgsEntryVariant1Data | None = None
+
+
+class CreateEditorChartArgsEntryVariant2(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    links: dict[str, str] | None = Field(default=None, description="Link information.")
+    annotation: CreateEditorChartArgsEntryVariant2Annotation | None = None
+    type: Literal["d3_node"] = Field(..., description="For Gravity UI Charts takes value: d3_node")
+    data: CreateEditorChartArgsEntryVariant2Data | None = None
+
+
+class CreateEditorChartArgsEntryVariant3(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    links: dict[str, str] | None = Field(default=None, description="Link information.")
+    annotation: CreateEditorChartArgsEntryVariant3Annotation | None = None
+    type: Literal["markdown_node"] = Field(
+        ..., description="For Markdown Editor charts takes value: markdown_node"
+    )
+    data: CreateEditorChartArgsEntryVariant3Data | None = None
+
+
+class CreateEditorChartArgsEntryVariant4(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    links: dict[str, str] | None = Field(default=None, description="Link information.")
+    annotation: CreateEditorChartArgsEntryVariant4Annotation | None = None
+    type: Literal["advanced-chart_node"] = Field(
+        ..., description="For Advanced Editor charts takes value: advanced-chart_node"
+    )
+    data: CreateEditorChartArgsEntryVariant4Data | None = None
+
+
+class CreateEditorChartArgsEntryVariant5(APIModel):
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    links: dict[str, str] | None = Field(default=None, description="Link information.")
+    annotation: CreateEditorChartArgsEntryVariant5Annotation | None = None
+    type: Literal["control_node"] = Field(
+        ..., description="For Editor JS selectors takes value: control_node"
+    )
+    data: CreateEditorChartArgsEntryVariant5Data | None = None
+
+
+class CreateEditorChartArgs(RequestBody):
+    entry: (
+        CreateEditorChartArgsEntryVariant1
+        | CreateEditorChartArgsEntryVariant2
+        | CreateEditorChartArgsEntryVariant3
+        | CreateEditorChartArgsEntryVariant4
+        | CreateEditorChartArgsEntryVariant5
+    ) = Field(..., discriminator="type")

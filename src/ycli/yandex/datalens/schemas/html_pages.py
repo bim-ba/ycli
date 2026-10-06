@@ -6,8 +6,6 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 
-from .shared import EntryLocationIdentifiers
-
 
 class GetHtmlPageArgs(RequestBody):
     entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to retrieve.")
@@ -199,9 +197,20 @@ class UpdateHtmlPageArgsVariant2(APIModel):
     )
 
 
-class CreateHtmlPageArgs(EntryLocationIdentifiers):
-    content: str | None = Field(default=None, description="HTML content of the page.")
+class CreateHtmlPageArgs(RequestBody):
+    content: str = Field(..., description="HTML content of the page.")
     annotation: CreateHtmlPageArgsAnnotation | None = None
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
 
 
 class GetHtmlPageResult(APIModel):
