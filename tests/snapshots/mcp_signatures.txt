@@ -14,6 +14,7 @@ datalens_collections_update(collection_id:string!, description:string|null=None,
 datalens_entrylocks_create(data:object!, entry_id:string!)
 datalens_entrylocks_delete(entry_id:string!, params:object!)
 datalens_entrylocks_extend(data:object!, entry_id:string!)
+datalens_members_list(filter:string|null=None, language:string|string|null=None, limit:integer|null=None, search:string|null=None, tab_id:string|string|null=None)
 datalens_tenant_details_get()
 datalens_workbooks_access_bindings_list(get_inherited_bindings:boolean|null=None, limit:integer|null=None, workbook_id:string!)
 datalens_workbooks_access_bindings_update(deltas:array!, workbook_id:string!)
