@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.95.2 (2026-10-06)
+
+### Bug Fixes
+
+- **mcp**: A comment id may be a number, and an entity search needs no body
+  ([`8a63333`](https://github.com/bim-ba/ycli/commit/8a63333f3a6d9dd5f098178f4d46e73745899acb))
+
+### Build System
+
+- Re-lock uv.lock for 0.95.1
+  ([`22b3ab5`](https://github.com/bim-ba/ycli/commit/22b3ab5f31a839fa609612e8089d98c48b925306))
+
+
 ## v0.95.1 (2026-10-06)
 
 ### Bug Fixes
