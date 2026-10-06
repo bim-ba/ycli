@@ -745,12 +745,13 @@ from the ``id`` an async trigger returned (e.g. the ``answers_export`` tool or
 
 Runs of a form's integrations (one per answer and integration), across pages.
 
-Capped at the configured item cap unless ``limit`` is given. Read one run's context,
-response and error with ``notifications_get``.
+Give ``survey_id``: without it the API answers 404 Not Found, and the other filters only
+narrow that form's runs. Capped at the configured item cap unless ``limit`` is given. Read
+one run's context, response and error with ``notifications_get``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `survey_id` | string or null |  | Only this form's runs (24-char hex). |
+| `survey_id` | string or null |  | The form whose runs to list (24-char hex); without it, 404. |
 | `hook_id` | integer or null |  | Only this integration group. |
 | `subscription_id` | integer or null |  | Only this integration. |
 | `answer_id` | integer or null |  | Only runs for this answer. |

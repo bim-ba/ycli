@@ -25,7 +25,8 @@ app = typer.Typer(
 @app.command("list")
 def list_(
     survey_id: Annotated[
-        str | None, typer.Option(help="Only this form's runs (24-char hex id).")
+        str | None,
+        typer.Option(help="The form whose runs to list (24-char hex id); without it, 404."),
     ] = None,
     hook_id: Annotated[int | None, typer.Option(help="Only this integration group.")] = None,
     subscription_id: Annotated[int | None, typer.Option(help="Only this integration.")] = None,
@@ -61,7 +62,11 @@ def list_(
     config: AppConfig,
     forms: FormsClient,
 ) -> ItemList[Notification]:
-    """List integration runs, filtered (auto-paginated; --all for everything)."""
+    """List a form's integration runs, filtered (auto-paginated; --all for everything).
+
+    Give --survey-id: without it the API answers 404 Not Found, and the other filters only
+    narrow that form's runs.
+    """
     cap = config.http.cap(limit, all_=all_)
     return forms.notifications.list(
         survey_id=survey_id,
