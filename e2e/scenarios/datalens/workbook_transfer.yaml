@@ -1,0 +1,69 @@
+# A workbook exported and imported: a workbook holding one empty dataset is exported as one
+# document, and a second workbook is made from that document. Both commands wait for what they
+# started. Run by hand only (the README says how): CI has no token DataLens takes.
+name: datalens/workbook-transfer
+steps:
+  - id: collection
+    run: datalens collections create --title "${RUN} transfer"
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: workbook
+    run: datalens workbooks create --title "${RUN} source" --collection-id ${collection}
+    save:
+      workbook: workbookId
+    cleanup: datalens workbooks delete ${workbook}
+  - id: dataset
+    # Something to export: a workbook with nothing in it says little.
+    run: >-
+      datalens datasets create --name "${RUN} dataset" --workbook-id ${workbook}
+      --dataset '{"sources": [], "result_schema": []}'
+    save:
+      dataset: id
+    cleanup: datalens datasets delete ${dataset}
+  - id: export
+    run: datalens workbookexports start ${workbook}
+    expect:
+      status: success
+      progress: 100
+    save:
+      export: exportId
+    reads:
+      - datalens workbookexports status-get ${export}
+  - id: exported
+    run: datalens workbookexports result-get ${export}
+    expect:
+      exportId: ${export}
+      status: success
+      "length(keys(data.export.entries.dataset))": 1
+    save:
+      data: to_string(data)
+  - id: export-cancel
+    # An export that is over is cancelled all the same.
+    run: datalens workbookexports cancel ${export}
+    expect:
+      exportId: ${export}
+  - id: import
+    run: >-
+      datalens workbookimports start --data ${data} --title "${RUN} imported"
+      --collection-id ${collection} --description Imported
+    expect:
+      status: success
+    save:
+      import: importId
+      imported: workbookId
+    cleanup: datalens workbooks delete ${imported}
+    reads:
+      - datalens workbookimports status-get ${import}
+  - id: imported-holds-the-dataset
+    run: datalens workbooks entries-list ${imported} --scope dataset
+    expect:
+      "length(@)": 1
+  - id: delete
+    # A collection goes with the workbooks in it and what they hold.
+    run: datalens collections delete ${collection}
+    disarms: [collection, workbook, dataset, import]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0

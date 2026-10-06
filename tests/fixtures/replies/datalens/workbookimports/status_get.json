@@ -1,0 +1,10 @@
+{
+  "body": {
+    "importId": "<importId>",
+    "progress": 0,
+    "status": "pending",
+    "workbookId": "<workbookId>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

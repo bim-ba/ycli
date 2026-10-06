@@ -50,3 +50,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## charts
 
 ::: ycli.yandex.datalens.charts.client.ChartsClient
+
+## workbookexports
+
+::: ycli.yandex.datalens.workbookexports.client.WorkbookExportsClient
+
+## workbookimports
+
+::: ycli.yandex.datalens.workbookimports.client.WorkbookImportsClient
