@@ -80,12 +80,9 @@ def list_global(
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
     """List org-wide worklog via GET /worklog (createdAt filters need --created-by)."""
-    created_at = [
-        f"{prefix}:{value}"
-        for prefix, value in (("from", created_from), ("to", created_to))
-        if value is not None
-    ]
-    return tracker.worklog.list_global(created_by=created_by, created_at=created_at or None)
+    return tracker.worklog.list_global(
+        created_by=created_by, created_from=created_from, created_to=created_to
+    )
 
 
 @app.command()

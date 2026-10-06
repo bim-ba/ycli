@@ -475,7 +475,8 @@ functions in `endpoints.py`, `cli.py` and `mcp.py` are `import_` and `list_`.
 One tool has no command of its own name, because one command serves two tools
 (`tracker_entities_comments_list_relative` beside `tracker entities comments list --relative`,
 marked `# violation(arch-1)` above the tool), and two tools share one operation: `tracker_issues_list` and `tracker_issues_search` both call
-`issues.search`.
+`issues.search`. The first is the short way to the most common request and is marked
+`# violation(naming)` above the tool (#432).
 
 **Who holds this.** The tests hold what a machine reads without judgment: one name on every
 surface, no synonym in a name, and a method named exactly `get` that does not return a list.
