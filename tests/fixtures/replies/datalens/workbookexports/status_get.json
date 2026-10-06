@@ -1,0 +1,10 @@
+{
+  "body": {
+    "exportId": "<exportId>",
+    "notifications": [],
+    "progress": 0,
+    "status": "pending"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

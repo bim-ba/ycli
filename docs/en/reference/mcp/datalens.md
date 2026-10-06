@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-47 tools.
+53 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -640,3 +640,79 @@ reached answers with an error.
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `params` | object or null |  | Values for the chart's parameters, by name: one value or several. |
+
+## `datalens_workbookexports_start`
+
+*Start DataLens workbook export* · write
+
+Start exporting a workbook and return the id of the export.
+
+The export runs on its own: ask ``workbookexports_status_get`` until ``status`` is
+``success``, then ``workbookexports_result_get`` for the document.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+
+## `datalens_workbookexports_status_get`
+
+*Get DataLens workbook export status* · read-only
+
+How far an export is: ``pending``, ``success`` or ``error``, and the progress in percent.
+
+``notifications`` holds what the export has to say about an entry: id, level, message.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `export_id` | string | yes | Export id, from ``workbookexports_start``. |
+
+## `datalens_workbookexports_result_get`
+
+*Get DataLens workbook export result* · read-only
+
+The exported workbook: every entry it holds, as one document.
+
+``data`` is what ``workbookimports_start`` takes. An export that is not over, or was
+cancelled, answers 409 Conflict.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `export_id` | string | yes | Export id, from ``workbookexports_start``. |
+
+## `datalens_workbookexports_cancel`
+
+*Cancel DataLens workbook export* · idempotent write
+
+Stop an export; cancelling one that is over, or twice, answers the same.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `export_id` | string | yes | Export id, from ``workbookexports_start``. |
+
+## `datalens_workbookimports_start`
+
+*Start DataLens workbook import* · write
+
+Start making a workbook from an export; returns the ids of the import and the workbook.
+
+The workbook exists at once and is filled as the import runs: ask
+``workbookimports_status_get`` until ``status`` is ``success``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `data` | object | yes | The ``data`` of ``workbookexports_result_get``: ``export``, ``hash``. |
+| `title` | string | yes | The title of the new workbook. |
+| `collection_id` | string or null |  | The collection to make it in; the root when left out. |
+| `description` | string or null |  | The description of the new workbook. |
+
+## `datalens_workbookimports_status_get`
+
+*Get DataLens workbook import status* · read-only
+
+How far an import is: ``pending``, ``success`` or ``error``, and the progress in percent.
+
+``notifications`` holds what the import has to say about an entry: id, level, message.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `import_id` | string | yes | Import id, from ``workbookimports_start``. |

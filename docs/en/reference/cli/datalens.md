@@ -32,6 +32,8 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `connections`: DataLens connections.
 * `datasets`: DataLens datasets.
 * `charts`: DataLens charts.
+* `workbookexports`: Exports of a DataLens workbook.
+* `workbookimports`: Imports of a DataLens workbook.
 
 ## `ycli datalens auth`
 
@@ -1497,6 +1499,201 @@ $ ycli datalens charts data-get [OPTIONS] CHART_ID
 **Options**:
 
 * `--params TEXT`: Values for the chart's parameters, as a JSON object: {"year": "2026", "city": ["Moscow", "Kazan"]}.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens workbookexports`
+
+Exports of a DataLens workbook.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookexports [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `start`: Export a workbook (async): prints the...
+* `status-get`: Print how far an export is: pending,...
+* `result-get`: Print the exported workbook; its `data` is...
+* `cancel`: Stop an export; one that is over answers...
+
+### `ycli datalens workbookexports start`
+
+Export a workbook (async): prints the export's final status, or with --no-wait its id.
+
+`workbookexports result-get EXPORT_ID` then prints the exported workbook.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookexports start [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbookexports status-get`
+
+Print how far an export is: pending, success or error, with its notifications.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookexports status-get [OPTIONS] EXPORT_ID
+```
+
+**Arguments**:
+
+* `EXPORT_ID`: Export id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbookexports result-get`
+
+Print the exported workbook; its `data` is what `workbookimports start` takes.
+
+An export that is not over, or was cancelled, answers 409.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookexports result-get [OPTIONS] EXPORT_ID
+```
+
+**Arguments**:
+
+* `EXPORT_ID`: Export id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbookexports cancel`
+
+Stop an export; one that is over answers the same.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookexports cancel [OPTIONS] EXPORT_ID
+```
+
+**Arguments**:
+
+* `EXPORT_ID`: Export id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens workbookimports`
+
+Imports of a DataLens workbook.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookimports [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `start`: Make a workbook from an export (async):...
+* `status-get`: Print how far an import is: pending,...
+
+### `ycli datalens workbookimports start`
+
+Make a workbook from an export (async): prints the import's final status.
+
+With --no-wait it prints the ids of the import and of the workbook at once.
+
+`ycli datalens workbookexports result-get EXPORT_ID | jq '{data}' > export.json` writes
+the file --body-file takes here.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookimports start [OPTIONS]
+```
+
+**Options**:
+
+* `--data TEXT`: The `data` of an export's result, as a JSON object; --body-file gives it under `data`.
+* `--title TEXT`: The title of the new workbook.
+* `--collection-id TEXT`: The collection to make it in; the root if not.
+* `--description TEXT`: The description of the new workbook.
+* `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbookimports status-get`
+
+Print how far an import is: pending, success or error, with its notifications.
+
+**Usage**:
+
+```console
+$ ycli datalens workbookimports status-get [OPTIONS] IMPORT_ID
+```
+
+**Arguments**:
+
+* `IMPORT_ID`: Import id.  [required]
+
+**Options**:
+
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

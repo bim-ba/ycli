@@ -18,6 +18,8 @@ from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
 from ycli.yandex.datalens.members.client import MembersClient
 from ycli.yandex.datalens.permissions.client import PermissionsClient
 from ycli.yandex.datalens.tenant.client import TenantClient
+from ycli.yandex.datalens.workbookexports.client import WorkbookExportsClient
+from ycli.yandex.datalens.workbookimports.client import WorkbookImportsClient
 from ycli.yandex.datalens.workbooks.client import WorkbooksClient
 
 
@@ -46,3 +48,5 @@ class DataLensClient(DomainClient):
         self.connections = ConnectionsClient(session=session)
         self.datasets = DatasetsClient(session=session)
         self.charts = ChartsClient(session=session)
+        self.workbookexports = WorkbookExportsClient(session=session)
+        self.workbookimports = WorkbookImportsClient(session=session)

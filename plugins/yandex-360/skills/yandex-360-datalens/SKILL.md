@@ -2,20 +2,21 @@
 name: yandex-360-datalens
 metadata:
   category: workflow
-description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, the data of a chart, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
+description: Use when reading or changing Yandex DataLens through ycli — collections and workbooks, what they hold, creating, moving and deleting them, exporting a workbook and importing it as a new one, the roles on them, finding entries anywhere with their relations, revisions and permissions, renaming and locking an entry, connections to data sources, datasets and their rows, the data of a chart, the members of the organization, which DataLens instance the credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. Charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. Charts and dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
 - Finding a collection or a workbook: listing the root and descending
 - Listing what a workbook holds: its connections, datasets, charts and dashboards
 - Creating, renaming, moving or deleting collections and workbooks
+- Exporting everything a workbook holds as one document, and making a new workbook from it
 - Seeing or changing who has which role on a collection or a workbook
 - Finding an entry anywhere by kind or name, what it uses and what uses it, its revisions
 - Checking what you may do with entries, workbooks and collections
@@ -86,6 +87,9 @@ DataLens differs from the other services in both credentials:
 | Revisions of an entry | `uv run ycli datalens entries revisions-list <entry_id>` | `datalens_entries_revisions_list` |
 | What you may do with entries | `uv run ycli datalens entries permissions-get <entry_id>…` | `datalens_entries_permissions_get` |
 | What you may do with many entries, workbooks and collections | `uv run ycli datalens permissions get-bulk --entry-id … --workbook-id … --collection-id …` | `datalens_permissions_get_bulk` |
+| How far an export of a workbook is | `uv run ycli datalens workbookexports status-get <export_id>` | `datalens_workbookexports_status_get` |
+| The exported workbook, as one document | `uv run ycli datalens workbookexports result-get <export_id>` | `datalens_workbookexports_result_get` |
+| How far an import is | `uv run ycli datalens workbookimports status-get <import_id>` | `datalens_workbookimports_status_get` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -119,6 +123,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Move one or several workbooks | `uv run ycli datalens workbooks move <workbook_id> [--collection-id <id>]` · `move-bulk <id> <id>…` | `datalens_workbooks_move` · `datalens_workbooks_move_bulk` |
 | Delete one or several workbooks | `uv run ycli datalens workbooks delete <workbook_id>` · `delete-bulk <id> <id>…` | `datalens_workbooks_delete` · `datalens_workbooks_delete_bulk` |
 | Give or take away roles on a workbook | `uv run ycli datalens workbooks access-bindings-update <workbook_id> --delta '<json>'…` | `datalens_workbooks_access_bindings_update` |
+| Start exporting a workbook | `uv run ycli datalens workbookexports start <workbook_id>` | `datalens_workbookexports_start` |
+| Stop an export | `uv run ycli datalens workbookexports cancel <export_id>` | `datalens_workbookexports_cancel` |
+| Make a workbook from an export | `uv run ycli datalens workbookimports start --body-file export.json --title … [--collection-id <id>]` | `datalens_workbookimports_start` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
 | Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
@@ -131,6 +138,8 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
 
 **No parent is the root.** Leave `--parent-id` / `parent_id` (a collection) or `--collection-id` / `collection_id` (a workbook) out to create in the root or to move there: `move <id>` with no destination moves it to the root.
+
+**A workbook is exported and imported in steps.** `workbookexports start` answers an export id at once; ask `workbookexports status-get` until `status` is `success` (`pending` before, `error` if it failed), then `workbookexports result-get`. Its `data` (the `export` and its `hash`, together) is what `workbookimports start` takes: `… result-get <export_id> | jq '{data}' > export.json`, then `workbookimports start --body-file export.json --title …`. The new workbook exists at once and is filled as the import runs; `workbookimports status-get` says when it is done. The result of an export that is not over, or was cancelled, answers 409; an id nothing knows answers 404.
 
 **Deleting a collection or a workbook deletes what it holds**: nested collections, workbooks and their entries. The reply lists what was deleted.
 

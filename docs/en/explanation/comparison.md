@@ -11,7 +11,7 @@ Several tools connect an agent or a terminal to Yandex Tracker, Wiki and Forms. 
 
 | Project | Services | MCP tools | Writes | Reads-only mode | Tools that carry read / write hints |
 |---|---|---|---|---|---|
-| ycli | Tracker, Wiki, Forms; DataLens in progress | 370: Tracker 187, Wiki 56, Forms 78, DataLens 47, and `status_get`, `schema_get` | yes | `ycli mcp start --read-only` | all |
+| ycli | Tracker, Wiki, Forms; DataLens in progress | 376: Tracker 187, Wiki 56, Forms 78, DataLens 53, and `status_get`, `schema_get` | yes | `ycli mcp start --read-only` | all |
 | Yandex Tracker MCP server | Tracker | 72 | yes | not documented | 72 of 72 |
 | Yandex Wiki MCP server | Wiki | 33 | yes | not documented; a token with only the `wiki:read` scope cannot write | 0 of 33 |
 | Yandex Forms MCP server | Forms | 18 | yes | not documented | 0 of 18 |
@@ -19,7 +19,7 @@ Several tools connect an agent or a terminal to Yandex Tracker, Wiki and Forms. 
 | aikts/yandex-tracker-mcp 0.10.0 | Tracker | 55 by default, 94 with `TRACKER_ENTITIES_ENABLED` | yes | `TRACKER_READ_ONLY`, 35 tools | 55 of 55 |
 | n-r-w/yandex-mcp v1.0.3 | Tracker, Wiki | 23: Tracker 18, Wiki 5 | no | always | not checked |
 
-A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 380 operations of the four APIs, and each is also a command and a Python method.
+A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 386 operations of the four APIs, and each is also a command and a Python method.
 
 ## How you get and run it
 

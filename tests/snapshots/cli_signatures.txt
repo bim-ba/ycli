@@ -38,6 +38,12 @@ datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=Fals
 datalens members list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --language:TEXT --limit:INTEGER RANGE --profile:TEXT --search:TEXT --tab-id:TEXT --yes:BOOLEAN=False
 datalens permissions get-bulk: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --entry-id:TEXT --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens workbookexports cancel: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
+datalens workbookexports result-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
+datalens workbookexports start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
+datalens workbookexports status-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
+datalens workbookimports start: --body-file:FILE --collection-id:TEXT --data:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False
+datalens workbookimports status-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False IMPORT_ID:TEXT!
 datalens workbooks access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
 datalens workbooks access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
 datalens workbooks create: --body-file:FILE --collection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --title:TEXT! --yes:BOOLEAN=False

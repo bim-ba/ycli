@@ -1,6 +1,32 @@
 {
   "body": {
-    "entries": []
+    "entries": [
+      {
+        "collectionId": null,
+        "createdAt": "<createdAt>",
+        "createdBy": "<createdBy>",
+        "displayKey": "<displayKey>",
+        "entryId": "<entryId>",
+        "hidden": false,
+        "isFavorite": false,
+        "isLocked": false,
+        "key": "<key>",
+        "meta": {
+          "<key-1>": "<key-1>",
+          "<key-2>": "<key-2>"
+        },
+        "mirrored": false,
+        "publishedId": "<publishedId>",
+        "revId": "<revId>",
+        "savedId": "<savedId>",
+        "scope": "dataset",
+        "tenantId": "<tenantId>",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "updatedBy": "<updatedBy>",
+        "workbookId": "<workbookId>"
+      }
+    ]
   },
   "status": 200,
   "unknown_keys": 0
