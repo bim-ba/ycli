@@ -4,6 +4,8 @@ from fastmcp import FastMCP
 
 from ycli.yandex.datalens.audit.mcp import mcp as audit_mcp
 from ycli.yandex.datalens.charts.mcp import mcp as charts_mcp
+from ycli.yandex.datalens.cloudenvironments.mcp import mcp as cloudenvironments_mcp
+from ycli.yandex.datalens.cloudenvironmentstorage.mcp import mcp as cloudenvironmentstorage_mcp
 from ycli.yandex.datalens.collections.mcp import mcp as collections_mcp
 from ycli.yandex.datalens.connections.mcp import mcp as connections_mcp
 from ycli.yandex.datalens.datasets.mcp import mcp as datasets_mcp
@@ -49,4 +51,6 @@ mcp.mount(sharedentries_mcp)
 mcp.mount(audit_mcp)
 mcp.mount(sqlqueries_mcp)
 mcp.mount(licensing_mcp)
+mcp.mount(cloudenvironments_mcp)
+mcp.mount(cloudenvironmentstorage_mcp)
 mcp.mount(mcp_resources_mcp)

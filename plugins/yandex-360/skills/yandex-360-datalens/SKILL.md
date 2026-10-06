@@ -22,6 +22,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - the roles on a shared entry
 - the audit (reads)
 - saved SQL queries (experimental in the API; written from its document, not measured)
+- cloud environments and their storage bucket (experimental in the API; the listing measured, the rest written from the document and never called)
 - the members of the organization and the details of the DataLens instance (reads)
 - the licences (seats) of the instance: reads measured; giving a licence and setting the limit written from the document, never called
 
@@ -117,6 +118,8 @@ DataLens differs from the other services in both credentials:
 | One saved SQL query (experimental) | `uv run ycli datalens sqlqueries get <sql_query_id>` | `datalens_sqlqueries_get` |
 | Who holds a licence (a seat) | `uv run ycli datalens licensing licenses-list [--status active] [--user-ids <id>]… [--all]` | `datalens_licensing_licenses_list` |
 | How many licences there may be, and how many are active | `uv run ycli datalens licensing limit-get` | `datalens_licensing_limit_get` |
+| The cloud environments of the instance (experimental) | `uv run ycli datalens cloudenvironments list [--filter 'status="READY"'] [--all]` · `get <id>` | `datalens_cloudenvironments_list` · `datalens_cloudenvironments_get` |
+| What a cloud environment's bucket holds (experimental) | `uv run ycli datalens cloudenvironmentstorage bucket-objects-list <cloud_environment_id> [--prefix …]` · `bucket-object-metadata-get <id> --path …` | `datalens_cloudenvironmentstorage_bucket_objects_list` · `…_bucket_object_metadata_get` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -197,6 +200,8 @@ An operation takes the fields of its request as arguments, under one name on eve
 **A shared entry lies in a collection, not in a workbook.** A connection or a dataset created with `--collection-id` (and no `--workbook-id`) is one: workbooks may use it, and it has roles of its own, `datalens.sharedEntries.*` (`admin`, `viewer`), changed by deltas as on a collection. `sharedentries access-bindings-list` of an entry that lies in a workbook, or of an id nothing knows, answers an empty list, not an error. A change of roles answers an operation that may not be done yet (`done: false`): read the roles again to see it.
 
 **The audit is asked with a start time.** `audit entries-updates-list` requires `--from` (ISO-8601 with its zone) and lists every entry changed since, deleted ones included (`isDeleted`), with who changed it. `audit entry-permissions-get` answers by entry id: `permissions` (`execute`, `read`, `edit`, `admin`), or `error` for an entry that does not exist; the user's id is the one `createdBy` of an entry gives.
+
+**Cloud environments are experimental, and all but their listing is not measured.** A cloud environment is a cloud and a subnet DataLens runs clusters in, with a storage bucket. `cloudenvironments list` is measured (an instance with none answers an empty list; a filter is `field="value"` over `name`, `cloud_id`, `status`, `created_by_id`, the quotes included). `cloudenvironments create`, `update` and `delete` make and change resources in a cloud, which may be billed: they are written from the published document and were never called; ask the person before any of them. Each answers an operation that is not done yet. The four `cloudenvironmentstorage` commands (the paths in the bucket, the size of an object, a signed link to read or to put one) are written from the document too; a signed link works for whoever holds it. An id nothing knows answers 403 Permission denied, not 404.
 
 **A licence is a seat DataLens bills for.** Yandex's pricing counts the seats of the instance (the number of seats times the cost of one), so `licensing licenses-assign` and `licensing limit-set` change what the organization pays: ask the person before either. Both are written from the published document and were never called. The reads are measured: `licenses-list` answers whose each licence is, its type (`creator` or `viewer`) and whether it is active; `limit-get` answers the limit in force with the count of active licences, and `next: null` when no change is set.
 

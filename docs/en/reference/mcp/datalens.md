@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-90 tools.
+99 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1234,3 +1234,136 @@ from the DataLens document and never called: not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `value` | integer | yes | The most licences the instance may hold. |
+
+## `datalens_cloudenvironments_list`
+
+*List DataLens cloud environments* · read-only
+
+The cloud environments of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``cloud_id``, ``status`` or ``created_by_id``. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `limit` | integer or null |  | Max environments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_cloudenvironments_get`
+
+*Get DataLens cloud environment* · read-only
+
+One cloud environment: its cloud, its subnet, its status and its storage.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_cloudenvironments_create`
+
+*Create DataLens cloud environment* · write
+
+Make a cloud environment and return the operation that makes it.
+
+It creates resources in a cloud, which may be billed: ask the person before calling.
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `name` | string | yes | The environment's name. |
+| `cloud_id` | string | yes | The cloud to make it in. |
+| `subnet_id` | string | yes | The subnet it uses. |
+| `description` | string or null |  | A description. |
+| `security_group_ids` | array of string or null |  | The security groups the environment uses. |
+| `storage` | object or null |  | The settings of its storage bucket; no bucket when left out. |
+
+## `datalens_cloudenvironments_update`
+
+*Update DataLens cloud environment* · idempotent write
+
+Change the fields given of a cloud environment and return the operation.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+| `name` | string or null |  | A new name. |
+| `description` | string or null |  | A new description; an empty one clears it. |
+| `security_group_ids` | array of string or null |  | The security groups the environment uses. |
+| `storage` | object or null |  | New settings of its storage bucket. |
+
+## `datalens_cloudenvironments_delete`
+
+*Delete DataLens cloud environment* · destructive write
+
+Delete a cloud environment and return the operation that deletes it.
+
+Experimental in the DataLens API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Id of the cloud environment. |
+
+## `datalens_cloudenvironmentstorage_bucket_objects_list`
+
+*List the objects of a DataLens storage bucket* · read-only
+
+The paths of the objects in a cloud environment's storage bucket, auto-paginated.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `prefix` | string or null |  | Only the paths that start with this. |
+| `limit` | integer or null |  | Max paths to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_cloudenvironmentstorage_bucket_object_metadata_get`
+
+*Get the metadata of a DataLens bucket object* · read-only
+
+The size of an object, in bytes as a string, and when it last changed.
+
+Experimental in the DataLens API and written from its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+
+## `datalens_cloudenvironmentstorage_bucket_download_url_create`
+
+*Create a download link for a DataLens bucket object* · read-only
+
+A signed link to read one object of the bucket.
+
+The link works for whoever holds it, for a time, and it comes in this tool's result: hand
+it to the person and do not repeat it. Experimental in the DataLens API and written from
+its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+
+## `datalens_cloudenvironmentstorage_bucket_upload_url_create`
+
+*Create an upload link for a DataLens bucket object* · write
+
+A signed link to put one object into the bucket.
+
+The link works for whoever holds it, for a time, and it comes in this tool's result: hand
+it to the person and do not repeat it. Experimental in the DataLens API and written from
+its document: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
+| `path` | string | yes | The path of the object in the bucket. |
+| `size` | string | yes | The size of the object in bytes, as a string. |
+| `content_md5` | string | yes | The MD5 digest of the content: 16 bytes, base64-encoded. |
