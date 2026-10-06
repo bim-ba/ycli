@@ -1,7 +1,5 @@
 """Every MCP tool has a description and an output schema."""
 
-from __future__ import annotations
-
 import asyncio
 
 from tests.architecture.scanners import _probe_tools

@@ -19,8 +19,6 @@ Examples:
     5.0
 """
 
-from __future__ import annotations
-
 import enum
 import os
 import re

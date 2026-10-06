@@ -1,0 +1,13 @@
+{
+  "body": {
+    "dlpEnabled": false,
+    "foldersEnabled": false,
+    "orgId": "<orgId>",
+    "settings": {
+      "defaultColorPaletteId": "<defaultColorPaletteId>"
+    },
+    "tenantId": "<tenantId>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

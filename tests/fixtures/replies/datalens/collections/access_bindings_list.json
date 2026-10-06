@@ -1,0 +1,23 @@
+{
+  "body": {
+    "nextPageToken": "<nextPageToken>",
+    "subjectsWithBindings": [
+      {
+        "accessBindings": [
+          {
+            "inheritedFrom": null,
+            "roleId": "<roleId>"
+          }
+        ],
+        "inheritedAccessBindings": [],
+        "subjectClaims": {
+          "email": "<email>",
+          "sub": "<sub>",
+          "subType": "USER_ACCOUNT"
+        }
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

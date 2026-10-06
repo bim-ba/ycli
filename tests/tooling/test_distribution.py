@@ -5,8 +5,6 @@ pyproject.toml). A pin that PSR cannot match goes stale silently and ships a plu
 entry or a Docker tag that points at an old release, so this fails the build instead.
 """
 
-from __future__ import annotations
-
 import json
 import re
 import tomllib

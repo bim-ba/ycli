@@ -1,0 +1,40 @@
+{
+  "body": {
+    "collections": {},
+    "entries": {},
+    "workbooks": {
+      "<key-1>": {
+        "permissions": {
+          "<unknown-1>": false,
+          "copy": true,
+          "delete": true,
+          "embed": true,
+          "limitedView": true,
+          "listAccessBindings": true,
+          "move": true,
+          "publish": true,
+          "update": true,
+          "updateAccessBindings": true,
+          "view": true
+        }
+      },
+      "<key-2>": {
+        "permissions": {
+          "<unknown-1>": false,
+          "copy": true,
+          "delete": true,
+          "embed": true,
+          "limitedView": true,
+          "listAccessBindings": true,
+          "move": true,
+          "publish": true,
+          "update": true,
+          "updateAccessBindings": true,
+          "view": true
+        }
+      }
+    }
+  },
+  "status": 200,
+  "unknown_keys": 2
+}

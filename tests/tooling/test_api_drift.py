@@ -5,8 +5,6 @@ compares them with what the contract cases send. The network is never touched he
 runs against ``httpx2.MockTransport``.
 """
 
-from __future__ import annotations
-
 import doctest
 import io
 import json

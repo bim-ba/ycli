@@ -5,8 +5,6 @@ is its JSON schema without prose (titles, descriptions, examples); classes of on
 share a shape must be one class, or a group in ``SAME_SHAPE`` with the reason they are not.
 """
 
-from __future__ import annotations
-
 import importlib
 import json
 import pkgutil

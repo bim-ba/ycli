@@ -9,8 +9,6 @@ Usage::
     uv run --only-group docs scripts/check_theme_override.py
 """
 
-from __future__ import annotations
-
 import hashlib
 from importlib.resources import files
 

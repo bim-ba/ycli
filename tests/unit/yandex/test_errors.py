@@ -1,7 +1,5 @@
 """Typed SDK errors: a core session raises the right class on each non-2xx status."""
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 import pytest
