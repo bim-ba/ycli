@@ -714,6 +714,7 @@ class Direct1(APIModel):
     ui_settings: str | None = None
     valid: bool | None = None
     virtual: Any | None = None
+    mode: Literal["direct"]
     calc_mode: Literal["direct"]
 
 
@@ -911,24 +912,6 @@ class Uuid(APIModel):
     value: str | None = None
 
 
-class OtherKindBySourceTypeSnake(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    source_type: str | None = Field(default=None, description="The kind.")
-
-
-class OtherKindByNativeTypeClassNameSnake(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    native_type_class_name: str | None = Field(default=None, description="The kind.")
-
-
-class OtherKindByCalcModeSnake(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    calc_mode: str | None = Field(default=None, description="The kind.")
-
-
 class GetDatasetRequest(RequestBody):
     dataset_id: str = Field(..., alias="datasetId")
     workbook_id: str | None = Field(default=None, alias="workbookId")
@@ -1038,9 +1021,9 @@ class ComponentErrorList(APIModel):
 
 
 class ConditionPartGeneric(
-    RootModel[Direct | Formula | ResultField | OtherKindByCalcModeSnake], hide_input_in_errors=True
+    RootModel[Direct | Formula | ResultField | shared.OtherKind], hide_input_in_errors=True
 ):
-    root: Direct | Formula | ResultField | OtherKindByCalcModeSnake
+    root: Direct | Formula | ResultField | shared.OtherKind
 
 
 class FieldInterDependencyInfo(APIModel):
@@ -1071,7 +1054,7 @@ class OneOfNativeType(
         | ClickhouseDatetimewithtzNativeType
         | ClickhouseDatetime64NativeType
         | ClickhouseDatetime64withtzNativeType
-        | OtherKindByNativeTypeClassNameSnake
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -1083,14 +1066,14 @@ class OneOfNativeType(
         | ClickhouseDatetimewithtzNativeType
         | ClickhouseDatetime64NativeType
         | ClickhouseDatetime64withtzNativeType
-        | OtherKindByNativeTypeClassNameSnake
+        | shared.OtherKind
     )
 
 
 class ParameterValueConstraint(
-    RootModel[Regex | Default | shared.OtherKindByType], hide_input_in_errors=True
+    RootModel[Regex | Default | shared.OtherKind], hide_input_in_errors=True
 ):
-    root: Regex | Default | shared.OtherKindByType
+    root: Regex | Default | shared.OtherKind
 
 
 class RLS2ConfigEntry(APIModel):
@@ -1273,6 +1256,7 @@ class Value(
         | ArrayInt
         | ArrayFloat
         | TreeStr
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -1293,7 +1277,8 @@ class Value(
         | ArrayInt
         | ArrayFloat
         | TreeStr
-    ) = Field(..., discriminator="type")
+        | shared.OtherKind
+    )
 
 
 class YDBSUBSELECT(APIModel):
@@ -2543,9 +2528,9 @@ class PROMQL1(APIModel):
 
 
 class ResultSchemaSchemaGeneric(
-    RootModel[Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake], hide_input_in_errors=True
+    RootModel[Direct1 | Formula2 | Parameter1 | shared.OtherKind], hide_input_in_errors=True
 ):
-    root: Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake
+    root: Direct1 | Formula2 | Parameter1 | shared.OtherKind
 
 
 class UpdateField(APIModel):
@@ -2666,6 +2651,7 @@ class DataSource(
         | YDBSUBSELECT1
         | YQTABLE1
         | YQSUBSELECT1
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -2712,7 +2698,8 @@ class DataSource(
         | YDBSUBSELECT1
         | YQTABLE1
         | YQSUBSELECT1
-    ) = Field(..., discriminator="source_type")
+        | shared.OtherKind
+    )
 
 
 class DataSourceStrict(
@@ -2759,7 +2746,7 @@ class DataSourceStrict(
         | YDBSUBSELECT
         | YQTABLE
         | YQSUBSELECT
-        | OtherKindBySourceTypeSnake
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -2806,7 +2793,7 @@ class DataSourceStrict(
         | YDBSUBSELECT
         | YQTABLE
         | YQSUBSELECT
-        | OtherKindBySourceTypeSnake
+        | shared.OtherKind
     )
 
 
@@ -2913,6 +2900,7 @@ class Action(
         | UpdateSetting
         | UpdateDescription
         | UpdateCacheInvalidationSource
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -2938,7 +2926,8 @@ class Action(
         | UpdateSetting
         | UpdateDescription
         | UpdateCacheInvalidationSource
-    ) = Field(..., discriminator="action")
+        | shared.OtherKind
+    )
 
 
 class DatasetValidate(APIModel):

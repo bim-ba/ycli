@@ -3,12 +3,15 @@
 import json
 
 import pytest
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from ycli.cli.errors import format_cli_error
+from ycli.yandex.datalens.charts.models import EditorChartCreate, EditorChartUpdate
+from ycli.yandex.datalens.schemas.shared import OtherKind
 from ycli.yandex.errors import YandexClientError
+from ycli.yandex.models import WIRE
 
 DATA = "https://api.datalens.tech/rpc/getChartData"
 # Two refusals measured live (2026-10-06): a source that cannot be reached, and a pivot table.
@@ -112,3 +115,12 @@ def test_a_request_with_nothing_to_hold_says_which_field_it_lacks(api, argv):
     assert isinstance(result.exception, ValidationError) and api.calls == []
     said = format_cli_error(result.exception)
     assert "data: is required" in said or "entry: is required" in said
+
+
+@pytest.mark.parametrize("union", [EditorChartCreate, EditorChartUpdate])
+def test_an_editor_chart_of_a_kind_the_document_does_not_know_is_sent_as_given(union):
+    """#444: the SDK and the tool take a kind added later, as the command does."""
+    given = {"type": "new_node", "name": "Top", "key": "v"}
+    chart = TypeAdapter(union).validate_python(given)
+    assert type(chart) is OtherKind
+    assert chart.model_dump(context=WIRE) == given

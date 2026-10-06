@@ -55,24 +55,6 @@ class DeleteWizardChartArgs(RequestBody):
     chart_id: str = Field(..., alias="chartId")
 
 
-class OtherKindByTitle(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    title: str | None = Field(default=None, description="The kind.")
-
-
-class OtherKindByColorType(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    color_type: str | None = Field(default=None, alias="colorType", description="The kind.")
-
-
-class OtherKindByMode(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    mode: str | None = Field(default=None, description="The kind.")
-
-
 class DeleteWizardChartResponse(APIModel):
     pass
 
@@ -5092,7 +5074,7 @@ class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIMode
     thresholds: (
         WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5143,7 +5125,7 @@ class WizardFieldSchemaVariant1ColumnSettings(APIModel):
         WizardFieldSchemaVariant1ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant1ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant1ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5162,7 +5144,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settin
     thresholds: (
         WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5217,7 +5199,7 @@ class WizardFieldSchemaVariant1FieldsItemColumnSettings(APIModel):
         WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5236,7 +5218,7 @@ class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIMode
     thresholds: (
         WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5287,7 +5269,7 @@ class WizardFieldSchemaVariant2ColumnSettings(APIModel):
         WizardFieldSchemaVariant2ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant2ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant2ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5306,7 +5288,7 @@ class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings(APIMode
     thresholds: (
         WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5357,7 +5339,7 @@ class WizardFieldSchemaVariant3ColumnSettings(APIModel):
         WizardFieldSchemaVariant3ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant3ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant3ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5376,7 +5358,7 @@ class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings(APIMode
     thresholds: (
         WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5427,7 +5409,7 @@ class WizardFieldSchemaVariant4ColumnSettings(APIModel):
         WizardFieldSchemaVariant4ColumnSettingsWidthVariant1
         | WizardFieldSchemaVariant4ColumnSettingsWidthVariant2
         | WizardFieldSchemaVariant4ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5446,7 +5428,7 @@ class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1Settings(AP
     thresholds: (
         WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5497,7 +5479,7 @@ class WizardLabelsItemSchemaVariant1ColumnSettings(APIModel):
         WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant1
         | WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant2
         | WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5516,7 +5498,7 @@ class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1S
     thresholds: (
         WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5573,7 +5555,7 @@ class WizardLabelsItemSchemaVariant1FieldsItemColumnSettings(APIModel):
         WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant1
         | WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant2
         | WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5592,7 +5574,7 @@ class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1Settings(AP
     thresholds: (
         WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5643,7 +5625,7 @@ class WizardLabelsItemSchemaVariant2ColumnSettings(APIModel):
         WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant1
         | WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant2
         | WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5662,7 +5644,7 @@ class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1Settings(AP
     thresholds: (
         WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5713,7 +5695,7 @@ class WizardLabelsItemSchemaVariant3ColumnSettings(APIModel):
         WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant1
         | WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant2
         | WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5732,7 +5714,7 @@ class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1Settings(AP
     thresholds: (
         WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5783,7 +5765,7 @@ class WizardLabelsItemSchemaVariant4ColumnSettings(APIModel):
         WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant1
         | WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant2
         | WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5802,7 +5784,7 @@ class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1Setti
     thresholds: (
         WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5857,7 +5839,7 @@ class WizardSortItemSchemaVariant2Variant1ColumnSettings(APIModel):
         WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant1
         | WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant2
         | WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -5876,7 +5858,7 @@ class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1Setti
     thresholds: (
         WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
         | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -5931,7 +5913,7 @@ class WizardSortItemSchemaVariant2Variant2ColumnSettings(APIModel):
         WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant1
         | WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant2
         | WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant3
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Table column width settings.")
     horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
@@ -8035,7 +8017,7 @@ class WizardFieldSchemaVariant1BarsSettings(APIModel):
         WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8049,7 +8031,7 @@ class WizardFieldSchemaVariant1BarsSettings(APIModel):
     scale: (
         WizardFieldSchemaVariant1BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant1BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8069,7 +8051,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettings(APIModel):
         WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8083,7 +8065,7 @@ class WizardFieldSchemaVariant1FieldsItemBarsSettings(APIModel):
     scale: (
         WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant1
         | WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8103,7 +8085,7 @@ class WizardFieldSchemaVariant2BarsSettings(APIModel):
         WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8117,7 +8099,7 @@ class WizardFieldSchemaVariant2BarsSettings(APIModel):
     scale: (
         WizardFieldSchemaVariant2BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant2BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8137,7 +8119,7 @@ class WizardFieldSchemaVariant3BarsSettings(APIModel):
         WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8151,7 +8133,7 @@ class WizardFieldSchemaVariant3BarsSettings(APIModel):
     scale: (
         WizardFieldSchemaVariant3BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant3BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8171,7 +8153,7 @@ class WizardFieldSchemaVariant4BarsSettings(APIModel):
         WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2
         | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8185,7 +8167,7 @@ class WizardFieldSchemaVariant4BarsSettings(APIModel):
     scale: (
         WizardFieldSchemaVariant4BarsSettingsScaleVariant1
         | WizardFieldSchemaVariant4BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8205,7 +8187,7 @@ class WizardLabelsItemSchemaVariant1BarsSettings(APIModel):
         WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1
         | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant2
         | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8219,7 +8201,7 @@ class WizardLabelsItemSchemaVariant1BarsSettings(APIModel):
     scale: (
         WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant1
         | WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8239,7 +8221,7 @@ class WizardLabelsItemSchemaVariant1FieldsItemBarsSettings(APIModel):
         WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1
         | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2
         | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8253,7 +8235,7 @@ class WizardLabelsItemSchemaVariant1FieldsItemBarsSettings(APIModel):
     scale: (
         WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant1
         | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8273,7 +8255,7 @@ class WizardLabelsItemSchemaVariant2BarsSettings(APIModel):
         WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1
         | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant2
         | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8287,7 +8269,7 @@ class WizardLabelsItemSchemaVariant2BarsSettings(APIModel):
     scale: (
         WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant1
         | WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8307,7 +8289,7 @@ class WizardLabelsItemSchemaVariant3BarsSettings(APIModel):
         WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1
         | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant2
         | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8321,7 +8303,7 @@ class WizardLabelsItemSchemaVariant3BarsSettings(APIModel):
     scale: (
         WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant1
         | WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8341,7 +8323,7 @@ class WizardLabelsItemSchemaVariant4BarsSettings(APIModel):
         WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1
         | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant2
         | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8355,7 +8337,7 @@ class WizardLabelsItemSchemaVariant4BarsSettings(APIModel):
     scale: (
         WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant1
         | WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8375,7 +8357,7 @@ class WizardSortItemSchemaVariant2Variant1BarsSettings(APIModel):
         WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1
         | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant2
         | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8389,7 +8371,7 @@ class WizardSortItemSchemaVariant2Variant1BarsSettings(APIModel):
     scale: (
         WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant1
         | WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8409,7 +8391,7 @@ class WizardSortItemSchemaVariant2Variant2BarsSettings(APIModel):
         WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1
         | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant2
         | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant3
-        | OtherKindByColorType
+        | shared.OtherKind
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
     show_labels: bool | None = Field(
@@ -8423,7 +8405,7 @@ class WizardSortItemSchemaVariant2Variant2BarsSettings(APIModel):
     scale: (
         WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant1
         | WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant2
-        | OtherKindByMode
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
     show_bars_in_totals: bool | None = Field(
@@ -8930,7 +8912,7 @@ class WizardSortItemSchema(
         WizardSortItemSchemaVariant1
         | WizardSortItemSchemaVariant2Variant1
         | WizardSortItemSchemaVariant2Variant2
-        | OtherKindByTitle
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -8938,7 +8920,7 @@ class WizardSortItemSchema(
         WizardSortItemSchemaVariant1
         | WizardSortItemSchemaVariant2Variant1
         | WizardSortItemSchemaVariant2Variant2
-        | OtherKindByTitle
+        | shared.OtherKind
     )
 
 
@@ -10362,7 +10344,7 @@ class WizardV1GeolayerLayerSchema(
         | WizardV1GeolayerLayerSchemaVariant3
         | WizardV1GeolayerLayerSchemaVariant4
         | WizardV1GeolayerLayerSchemaVariant5
-        | shared.OtherKindByType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -10372,7 +10354,7 @@ class WizardV1GeolayerLayerSchema(
         | WizardV1GeolayerLayerSchemaVariant3
         | WizardV1GeolayerLayerSchemaVariant4
         | WizardV1GeolayerLayerSchemaVariant5
-        | shared.OtherKindByType
+        | shared.OtherKind
     )
 
 
@@ -10381,7 +10363,7 @@ class WizardV1CombinedChartLayerSchema(
         WizardV1CombinedChartLayerSchemaVariant1
         | WizardV1CombinedChartLayerSchemaVariant2
         | WizardV1CombinedChartLayerSchemaVariant3
-        | shared.OtherKindByType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -10389,7 +10371,7 @@ class WizardV1CombinedChartLayerSchema(
         WizardV1CombinedChartLayerSchemaVariant1
         | WizardV1CombinedChartLayerSchemaVariant2
         | WizardV1CombinedChartLayerSchemaVariant3
-        | shared.OtherKindByType
+        | shared.OtherKind
     )
 
 
@@ -10443,7 +10425,7 @@ class WizardV1ConfigSchema(APIModel):
         | WizardV1ConfigSchemaVisualizationVariant15
         | WizardV1ConfigSchemaVisualizationVariant16
         | WizardV1ConfigSchemaVisualizationVariant17
-        | shared.OtherKindByType
+        | shared.OtherKind
         | None
     ) = Field(default=None, description="Chart visualization configuration.")
 

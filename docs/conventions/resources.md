@@ -53,7 +53,7 @@ DataLens publishes one OpenAPI document with about 600 schemas, and its objects 
 write by hand, so `scripts/gen_datalens_models.py` generates them into
 `src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
 are met by the script, not by an editor: before the generator runs it rewrites the document so
-that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), every other union of objects a reply reaches has a spare open member and no discriminator (#391: a kind the document does not list, or a known kind with a field of another type, is read as `OtherKind…`, every key kept as it came and the tag as plain text; a union only a request reaches stays strict), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
+that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), every other union of kinds has one spare open member and no discriminator (#391, #444: a kind the document does not list, or a known kind with a field of another type, is read and is sent as `OtherKind`, an empty open class that keeps every key as it came; only a request's union whose members nothing tells apart is left as it is, having no kind to be unknown), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
 and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
@@ -429,7 +429,9 @@ check of its own to say it. A reply that does not fit its model is another error
   body is masked too. A generated model types as secrets what its specification marks
   `writeOnly`, with the names the generator adds and removes, each with its reason
   (`_SECRET_MAPS`, `_NOT_SECRETS`). The help of a command that takes a secret says to give it
-  in `--body-file`.
+  in `--body-file`. The type holds for a body that fits its kind: one that falls to the spare
+  class (`OtherKind`, a connection of a kind the document lacks) keeps its secret as plain
+  text in `repr` and in a dump; a dry run and the text of an error mask it all the same (#444).
 - A secret in a reply is the result of the operation and is printed as it came: the private
   key that `datalens embeddingsecrets create` returns once is a plain string in the CLI, the
   MCP tool and the SDK alike (#448). `SecretStr` is for a secret in a request. The command,

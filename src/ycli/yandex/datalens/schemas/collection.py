@@ -216,12 +216,6 @@ class ListCollectionAccessBindingsArgs(RequestBody):
     )
 
 
-class OtherKindByEntity(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    entity: str | None = Field(default=None, description="The kind.")
-
-
 class GetCollectionsByIdsResponse(RootModel[list[Collection]], hide_input_in_errors=True):
     root: list[Collection]
 
@@ -723,7 +717,7 @@ class GetStructureItemsResult(APIModel):
             GetStructureItemsResultItemsItemVariant1
             | GetStructureItemsResultItemsItemVariant2
             | StructureItemEntry
-            | OtherKindByEntity
+            | shared.OtherKind
         ]
         | None
     ) = Field(default=None, description="List of collection content items.")

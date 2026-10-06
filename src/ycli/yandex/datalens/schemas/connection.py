@@ -1200,6 +1200,7 @@ class ConnectionCreate(
         | UsageAnalyticsLight
         | Ydb
         | Yq
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -1233,7 +1234,8 @@ class ConnectionCreate(
         | UsageAnalyticsLight
         | Ydb
         | Yq
-    ) = Field(..., discriminator="type")
+        | shared.OtherKind
+    )
 
 
 class ConnectionUpdate(
@@ -2071,7 +2073,7 @@ class ConnectionRead(
         | UsageAnalyticsLight1
         | Ydb1
         | Yq1
-        | shared.OtherKindByType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -2105,5 +2107,5 @@ class ConnectionRead(
         | UsageAnalyticsLight1
         | Ydb1
         | Yq1
-        | shared.OtherKindByType
+        | shared.OtherKind
     )
