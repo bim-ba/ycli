@@ -5,11 +5,16 @@
     // project .mcp.json's "yandex" entry). The canon names the credentials through
     // `envVars`; the gitignored `.rulesync.local/mcp.jsonc` overlay carries the literal
     // values, so the generated configs need no launch environment.
+    // `tool_input_schema_max_bytes` is Codex's own key (#372): it cuts the input schema of a
+    // tool over 5,000 bytes, and ten of ours stay over it with their descriptions stripped. rulesync passes
+    // the key through; Claude Code reads past it, opencode's file does not get it.
+    // An overlay's entry replaces this one whole: a machine that has one repeats the key there.
     "yandex-360": {
       "type": "stdio",
       "command": "uvx",
       "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"],
-      "envVars": ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]
+      "envVars": ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"],
+      "tool_input_schema_max_bytes": 16384
     }
   }
 }
