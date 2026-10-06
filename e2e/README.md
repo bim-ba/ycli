@@ -80,7 +80,7 @@ The repository is public, so a reply is scrubbed before it is written (`scrub.py
 | any other key, and every key of an object no model reads | `<unknown-N>`, numbered in the order of the names; a key of a map (`dict[str, X]`) becomes `<key-N>` |
 | a string the model lists as a `Literal` or enum value there | kept |
 | any other string | `<key>`; a date becomes one constant |
-| a boolean, `null`, a number below 100 000 under a key that names no identifier | kept |
+| a boolean, `null`, a number below 100 000 under a key that is known and names no identifier | kept |
 | any other number | 1 |
 | a list | one item per distinct shape |
 
