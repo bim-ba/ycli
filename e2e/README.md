@@ -92,6 +92,8 @@ A fixture also counts the keys its model does not know (`unknown_keys`); the off
 
 While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures. `--record-pause SECONDS` (1 by default) is the wait before each command: a command in this process follows the one before faster than Tracker settles after a write, and on a day when Tracker answers slowly a longer pause (2.5) is what makes the run pass. Record a whole service, not one scenario: the fullest reply is picked among the replies of one run, so a run of one scenario overwrites a fixture another scenario filled better.
 
+Before a write is tried on something that already exists, read the whole state it can touch, not only the part you mean to change, and keep it: an undo is checked against that. A revoke is not always the inverse of its grant (in Tracker, taking a user out of a queue's `read` took it out of `write` too).
+
 ## Janitor
 
 A failed cleanup or a cancelled job can leave objects behind. The janitor closes open Tracker issues in the sandbox queue and deletes Wiki pages and Forms surveys whose name carries a run stamp older than the cutoff, at most `--max` per call, and prints each object it touches:
