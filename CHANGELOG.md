@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.95.1 (2026-10-06)
+
+### Bug Fixes
+
+- **forms**: The four question tools of the MCP server answer again
+  ([`f07efcc`](https://github.com/bim-ba/ycli/commit/f07efcc9f859d580bed2b6318097e0e686fcf4f3))
+
+### Build System
+
+- Re-lock uv.lock for 0.95.0
+  ([`aa34731`](https://github.com/bim-ba/ycli/commit/aa34731ed41b8839b4d75f8c51a328f20378fead))
+
+
 ## v0.95.0 (2026-10-06)
 
 ### Build System
