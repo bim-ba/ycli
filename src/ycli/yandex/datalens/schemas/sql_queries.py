@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -354,7 +354,7 @@ class SqlQuery(APIModel):
         alias="workbookId",
         description="ID of the workbook containing the SQL query.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection containing the SQL query.",
@@ -365,7 +365,7 @@ class SqlQuery(APIModel):
     saved_id: str | None = Field(
         default=None, alias="savedId", description="ID of the saved SQL query revision."
     )
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published SQL query revision.",
@@ -408,7 +408,7 @@ class SqlQuery(APIModel):
         description="ID of the tenant that owns the SQL query.",
     )
     hidden: bool | None = Field(default=None, description="Whether the SQL query is hidden.")
-    version: int | float | None = Field(
+    version: Annotated[int | float | None, NoDropNull()] = Field(
         default=None, description="Schema version of the SQL query."
     )
     links: dict[str, Any] | None = Field(

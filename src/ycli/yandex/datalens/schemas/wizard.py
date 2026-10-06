@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -10435,7 +10435,9 @@ class WizardV1(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     created_at: str | None = Field(
         default=None, alias="createdAt", description="Creation timestamp."
     )
@@ -10452,13 +10454,13 @@ class WizardV1(APIModel):
         default=None, alias="revId", description="Version ID for the Wizard chart."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     tenant_id: str | None = Field(default=None, alias="tenantId", description="Tenant ID.")
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the Wizard chart belongs to.",
@@ -10479,7 +10481,7 @@ class WizardV1(APIModel):
         | str
         | None
     ) = None
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     links: dict[str, Any] | None = Field(default=None, description="Link information.")

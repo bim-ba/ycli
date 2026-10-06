@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, Field, RootModel, SecretStr
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -505,7 +505,7 @@ class Monitoring(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     delegation_is_set: bool | None = None
@@ -1063,7 +1063,7 @@ class Ydb(APIModel):
     auth_type: Literal["anonymous", "password", "oauth"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -1122,7 +1122,7 @@ class Yq(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -1641,7 +1641,7 @@ class Monitoring1(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     delegation_is_set: bool | None = None
@@ -1987,7 +1987,7 @@ class Ydb1(APIModel):
     auth_type: Literal["anonymous", "password", "oauth"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -2021,7 +2021,7 @@ class Yq1(APIModel):
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    cloud_id: str | None = None
+    cloud_id: Annotated[str | None, NoDropNull()] = None
     collection_id: str | None = None
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None

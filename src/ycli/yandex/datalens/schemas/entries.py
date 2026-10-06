@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -184,7 +184,9 @@ class GetEntriesRelationsEntry(APIModel):
     entry_id: str | None = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    key: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Key identifier of the entry."
+    )
     scope: shared.EntryScope | None = None
     type: str | None = Field(
         default=None,
@@ -194,15 +196,15 @@ class GetEntriesRelationsEntry(APIModel):
         default=None, alias="createdAt", description="Creation timestamp."
     )
     public: bool | None = Field(default=None, description="Indicates if the entry is public.")
-    tenant_id: str | None = Field(
+    tenant_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the entry belongs to.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",

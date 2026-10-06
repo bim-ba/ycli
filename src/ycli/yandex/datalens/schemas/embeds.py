@@ -1,5 +1,6 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
+
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody

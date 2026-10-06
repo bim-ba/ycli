@@ -4,10 +4,12 @@ The specification is not committed, so nothing here reads it: the pipeline's own
 tested on a small document, and the committed files are held to be what the script last wrote.
 """
 
+import difflib
 import importlib
 import json
 import re
 import shutil
+from pathlib import Path
 
 import pytest
 from scripts import gen_datalens_models as gen
@@ -892,3 +894,56 @@ def test_a_connection_of_a_kind_nobody_knows_is_sent_and_its_secret_is_not_typed
     fits = ConnectionCreate.model_validate({"type": "clickhouse", "password": secret})
     assert secret not in repr(fits) and secret not in fits.model_dump_json()
     assert "password" in secret_keys(ConnectionCreate)  # what a dry run masks by
+
+
+def test_a_field_required_and_nullable_is_marked_to_go_out_as_null():
+    """Both sides of the rule on a small document; the mark reaches the generated class."""
+    nested = {
+        "type": "object",
+        "required": ["interval", "title"],
+        "properties": {
+            "interval": {"type": ["number", "null"]},  # required and may be null: marked
+            "title": {"type": "string"},  # required, never null: no mark
+            "hint": {"type": ["string", "null"]},  # may be null, not required: no mark
+            "limit": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
+        },
+    }
+    nested["required"].append("limit")  # a union with null counts as nullable too
+    document = _connection_document({"settings": nested})
+    schemas = gen.prepare(document)["components"]["schemas"]
+    settings = schemas["things.CreateThingRequestSettings"]["properties"]
+    assert {name for name, field in settings.items() if field.get(gen._KEEPS_NULL)} == {
+        "interval",
+        "limit",
+    }
+    # The field stays optional to give and to read: only the mark says what to send.
+    assert (
+        "required" not in schemas["things.CreateThingRequestSettings"]
+        or not (schemas["things.CreateThingRequestSettings"]["required"])
+    )
+    module = gen.generate(document)["things.py"]
+    # The class carries a typed mark; the key of the prepared document does not reach it.
+    assert "interval: Annotated[int | float | None, NoDropNull()] = None" in module
+    assert "limit: Annotated[int | None, NoDropNull()] = None" in module
+    assert "x-ycli" not in module and "json_schema_extra" not in module
+    assert "title: str | None = None" in module
+
+
+def test_the_model_template_is_the_generators_own_but_for_what_ycli_adds():
+    """A copy of a template goes stale: it must stay the generator's, plus the marked lines.
+
+    Both sides: with ycli's lines taken out it is the generator's template word for word, and
+    the lines are there.
+    """
+    import datamodel_code_generator
+
+    name = "pydantic_v2/BaseModel.jinja2"
+    upstream = Path(datamodel_code_generator.__file__).parent / "model" / "template" / name
+    theirs = upstream.read_text(encoding="utf-8").splitlines()
+    ours = (gen.TEMPLATES / name).read_text(encoding="utf-8").splitlines()
+    changes = [line for line in difflib.ndiff(theirs, ours) if line[:1] in "+-"]
+    assert [line[2:] for line in changes if line[0] == "-"] == ["    {{ description }}"]
+    added = [line[2:].strip() for line in changes if line[0] == "+"]
+    assert len(added) == 9
+    assert sum(line.startswith("{#- ycli:") for line in added) == 2
+    assert sum("Annotated[{{ field.type_hint }}, NoDropNull()]" in line for line in added) == 2

@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -288,7 +288,7 @@ class CreateFolderResult(APIModel):
     rev_id: str | None = Field(
         default=None, alias="revId", description="ID of the current folder revision."
     )
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="publishedId",
         description="ID of the published folder revision.",
@@ -618,8 +618,9 @@ class DlsPermissionPendingParticipant(APIModel):
         default=None,
         description="Human-readable description of the pending permission request.",
     )
-    extras: DlsPermissionPendingParticipantExtrasVariant2 | None = Field(
-        default=None, description="Additional configuration for the permission request."
+    extras: Annotated[DlsPermissionPendingParticipantExtrasVariant2 | None, NoDropNull()] = Field(
+        default=None,
+        description="Additional configuration for the permission request.",
     )
     kind: Literal["user", "group"] | str | None = Field(
         default=None, description="Participant kind."

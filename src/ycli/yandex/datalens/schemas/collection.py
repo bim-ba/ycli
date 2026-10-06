@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -12,7 +12,7 @@ from . import shared
 class CreateCollectionArgs(RequestBody):
     title: str = Field(..., description="Title of the collection.")
     description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="parentId",
         description="ID of the parent collection in which to create the collection.",
@@ -26,8 +26,10 @@ class Collection(APIModel):
         description="Unique identifier of the collection.",
     )
     title: str | None = Field(default=None, description="Title of the collection.")
-    description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the collection."
+    )
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentId", description="ID of the parent collection."
     )
     tenant_id: str | None = Field(
@@ -105,7 +107,7 @@ class GetCollectionsByIdsArgs(RequestBody):
 
 
 class GetStructureItemsArgs(RequestBody):
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="collectionId",
         description="ID of the collection whose content to retrieve.",
@@ -166,7 +168,7 @@ class MoveCollectionArgs(RequestBody):
     collection_id: str = Field(
         ..., alias="collectionId", description="ID of the collection to move."
     )
-    parent_id: str | None = Field(
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="parentId",
         description="ID of the parent collection to move the collection to.",
@@ -178,7 +180,7 @@ class MoveCollectionsArgs(RequestBody):
     collection_ids: list[str] = Field(
         ..., alias="collectionIds", description="IDs of the collections to move."
     )
-    parent_id: str | None = Field(
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         ...,
         alias="parentId",
         description="ID of the parent collection to move the collections to.",
@@ -483,8 +485,10 @@ class CreateCollectionResult(APIModel):
         description="Unique identifier of the collection.",
     )
     title: str | None = Field(default=None, description="Title of the collection.")
-    description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the collection."
+    )
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentId", description="ID of the parent collection."
     )
     tenant_id: str | None = Field(
@@ -519,8 +523,10 @@ class GetCollectionResult(APIModel):
         description="Unique identifier of the collection.",
     )
     title: str | None = Field(default=None, description="Title of the collection.")
-    description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the collection."
+    )
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentId", description="ID of the parent collection."
     )
     tenant_id: str | None = Field(
@@ -562,7 +568,7 @@ class StructureItemEntry(APIModel):
         alias="updatedBy",
         description="ID of the user who last updated the entry.",
     )
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="workbookId",
         description="ID of the workbook the entry belongs to.",
@@ -597,8 +603,10 @@ class GetCollectionBreadcrumbsResultItem(APIModel):
         description="Unique identifier of the collection.",
     )
     title: str | None = Field(default=None, description="Title of the collection.")
-    description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the collection."
+    )
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentId", description="ID of the parent collection."
     )
     tenant_id: str | None = Field(
@@ -633,8 +641,10 @@ class GetStructureItemsResultItemsItemVariant1(APIModel):
         description="Unique identifier of the collection.",
     )
     title: str | None = Field(default=None, description="Title of the collection.")
-    description: str | None = Field(default=None, description="Description of the collection.")
-    parent_id: str | None = Field(
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the collection."
+    )
+    parent_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="parentId", description="ID of the parent collection."
     )
     tenant_id: str | None = Field(
@@ -671,13 +681,15 @@ class GetStructureItemsResultItemsItemVariant2(APIModel):
         alias="workbookId",
         description="Unique identifier of the workbook.",
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
     title: str | None = Field(default=None, description="Title of the workbook.")
-    description: str | None = Field(default=None, description="Description of the workbook.")
+    description: Annotated[str | None, NoDropNull()] = Field(
+        default=None, description="Description of the workbook."
+    )
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )

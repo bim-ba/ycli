@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, NoDropNull, RequestBody
 
 from . import shared
 
@@ -185,7 +185,7 @@ class ListDirectoryEntry(APIModel):
     type: str | None = Field(
         default=None, description="Type of the entry (e.g., dash, dataset, connection)."
     )
-    meta: dict[str, Any] | None = Field(
+    meta: Annotated[dict[str, Any] | None, NoDropNull()] = Field(
         default=None, description="Metadata associated with the entry."
     )
     created_at: str | None = Field(
@@ -201,7 +201,7 @@ class ListDirectoryEntry(APIModel):
         default=None, alias="updatedBy", description="Last updater of the entry."
     )
     saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(
+    published_id: Annotated[str | None, NoDropNull()] = Field(
         default=None, alias="publishedId", description="Published version ID."
     )
     hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
@@ -213,7 +213,7 @@ class ListDirectoryEntry(APIModel):
     workbook_title: str | None = Field(
         default=None, alias="workbookTitle", description="Workbook name."
     )
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, NoDropNull()] = Field(
         default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",
