@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.98.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.97.0
+  ([`4ed9ca5`](https://github.com/bim-ba/ycli/commit/4ed9ca52e6df53e497fbf6066457cae34d464a6a))
+
+### Features
+
+- **mcp**: Six tools take the request body, as the SDK does
+  ([`6939afd`](https://github.com/bim-ba/ycli/commit/6939afdd9b420a49f687b2af2b848db1d1ec2d28))
+
+### Breaking Changes
+
+- **mcp**: Six MCP tools take `body` instead of separate parameters. wiki_pages_update: was
+  {"page_id", "content", "title"}, is {"page_id", "body": {"title", "content", "redirect",
+  "actuality", "access_policy", "owner"}}, every field of the body optional.
+
+
 ## v0.97.0 (2026-10-06)
 
 ### Bug Fixes
