@@ -1,0 +1,13 @@
+{
+  "body": {
+    "active": false,
+    "body": "<body>",
+    "email_to_address": "<email_to_address>",
+    "follow": false,
+    "id": 1,
+    "subject": "<subject>",
+    "type": "email"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

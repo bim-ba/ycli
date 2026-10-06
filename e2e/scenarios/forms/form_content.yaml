@@ -1,0 +1,185 @@
+# What a form is made of: questions on two pages, the conditions that show a question, a page,
+# the submit button and an integration group, the group with an integration that never fires
+# (both stay inactive, and it is deleted before the form takes an answer), a key set, an image,
+# the form's settings, and an answer submitted and exported. All of it goes with the form.
+name: forms/form-content
+steps:
+  - id: create
+    run: forms surveys create --name "${RUN} survey"
+    save:
+      id: id
+    cleanup: forms surveys delete ${id}
+  - id: first-question
+    run: forms questions create ${id} --type string --label "${RUN} one" --slug one
+    save:
+      one: id
+  - id: second-question
+    run: forms questions create ${id} --type string --label "${RUN} two" --slug two
+    save:
+      two: id
+  - id: third-question
+    run: forms questions create ${id} --type string --label "${RUN} three" --slug three
+    save:
+      three: id
+  - id: question-rename
+    run: forms questions update ${id} ${two} --type string --label "${RUN} two renamed" --no-required
+    expect:
+      label: ${RUN} two renamed
+  - id: question-to-a-new-page
+    run: forms questions move ${id} ${two} --page 2 --create-page --position 1
+  - id: pages
+    run: forms questions list ${id}
+    expect:
+      "length(pages)": 2
+    save:
+      page: pages[1].id
+  - id: question-condition
+    run: >-
+      forms conditions question create ${id} ${two} --operator and --item
+      '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
+    expect:
+      operator: and
+    save:
+      condition: id
+  - id: question-condition-update
+    run: >-
+      forms conditions question update ${id} ${two} ${condition} --operator or --item
+      '{"type": "language", "condition": "eq", "value": "ru"}'
+    expect:
+      operator: or
+  - id: question-conditions-operator
+    run: forms conditions question update-operator ${id} ${two} --operator and
+    expect:
+      operator: and
+  - id: question-condition-delete
+    run: forms conditions question delete ${id} ${two} ${condition}
+  - id: page-condition
+    run: >-
+      forms conditions page create ${id} ${page} --operator and --item
+      '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
+    save:
+      condition: id
+  - id: page-condition-update
+    run: >-
+      forms conditions page update ${id} ${page} ${condition} --operator or --item
+      '{"type": "language", "condition": "eq", "value": "ru"}'
+  - id: page-conditions-operator
+    run: forms conditions page update-operator ${id} ${page} --operator and
+  - id: page-condition-delete
+    run: forms conditions page delete ${id} ${page} ${condition}
+  - id: submit-condition
+    run: >-
+      forms conditions submit create ${id} --operator and --item
+      '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
+    save:
+      condition: id
+  - id: submit-condition-update
+    run: >-
+      forms conditions submit update ${id} ${condition} --operator or --item
+      '{"type": "language", "condition": "eq", "value": "ru"}'
+  - id: submit-conditions-operator
+    run: forms conditions submit update-operator ${id} --operator and
+  - id: submit-condition-delete
+    run: forms conditions submit delete ${id} ${condition}
+  - id: hook
+    run: forms hooks create ${id} --name "${RUN} hook" --inactive
+    expect:
+      active: false
+    save:
+      hook: id
+  - id: hook-condition
+    run: >-
+      forms conditions hook create ${id} ${hook} --operator and --item
+      '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
+    save:
+      condition: id
+  - id: hook-condition-update
+    run: >-
+      forms conditions hook update ${id} ${hook} ${condition} --operator or --item
+      '{"type": "language", "condition": "eq", "value": "ru"}'
+  - id: hook-conditions-operator
+    run: forms conditions hook update-operator ${id} ${hook} --operator and
+  - id: hook-condition-delete
+    run: forms conditions hook delete ${id} ${hook} ${condition}
+  - id: subscription
+    run: forms subscriptions create ${id} ${hook} --body-file ${FILES}/subscription.json
+    expect:
+      active: false
+      type: email
+    save:
+      subscription: id
+  - id: subscription-update
+    run: >-
+      forms subscriptions update ${id} ${hook} ${subscription}
+      --body-file ${FILES}/subscription.json -F 'subject=An answer, again'
+    expect:
+      subject: An answer, again
+      active: false
+  - id: subscription-attach
+    run: forms subscriptions attach ${id} ${hook} ${subscription} ${FILES}/note.txt
+    expect:
+      name: note.txt
+  - id: subscription-delete
+    run: forms subscriptions delete ${id} ${hook} ${subscription}
+  - id: hook-rename
+    run: forms hooks update ${id} ${hook} --name "${RUN} hook renamed" --inactive
+    expect:
+      active: false
+  - id: hook-delete
+    run: forms hooks delete ${id} ${hook}
+  - id: no-integration-left
+    run: forms hooks list ${id}
+    expect:
+      "length(@)": 0
+  - id: keyset
+    run: forms keysets create ${id} --name "${RUN} keys" --total 3 --enabled
+    expect:
+      total: 3
+    save:
+      keyset: id
+  - id: keyset-update
+    run: forms keysets update ${id} ${keyset} --name "${RUN} keys renamed" --total 5 --disabled
+    expect:
+      total: 5
+      is_enabled: false
+  - id: keyset-delete
+    run: forms keysets delete ${id} ${keyset}
+  - id: image
+    run: forms images upload ${id} ${FILES}/square.png
+    save:
+      image: id
+  - id: image-clone
+    # The API takes `name` and ignores it: the clone keeps the name of the original.
+    run: forms images clone ${id} --image-id ${image} --name copy.png
+    expect:
+      "id != `${image}`": true
+  - id: settings
+    run: forms surveys update ${id} --name "${RUN} survey renamed" --max-count 9
+    expect:
+      name: ${RUN} survey renamed
+  - id: open-to-all
+    run: forms access update ${id} --action submit --access public
+  - id: question-delete
+    run: forms questions delete ${id} ${three}
+  - id: publish
+    run: forms surveys publish ${id}
+  - id: answer-check
+    run: forms filling submit ${id} --body-file ${FILES}/answer.json --validate-only
+  - id: answer
+    run: forms filling submit ${id} --body-file ${FILES}/answer.json
+    expect:
+      "length(integrations)": 0
+    save:
+      answer: answer_id
+  - id: answered
+    run: forms answers get --answer-id ${answer}
+    expect:
+      "length(data)": 2
+  - id: export
+    run: forms answers export ${id} --format csv
+    output: text
+    expect:
+      "contains(@, 'first answer')": true
+  - id: delete
+    run: forms surveys delete ${id}
+    disarms: [create]

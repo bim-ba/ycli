@@ -8,11 +8,11 @@ A fixture also counts the keys its model does not know; that number may only go 
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import httpx2
 import pytest
-from e2e.recording import REPLIES, load
+from e2e.recording import REPLIES, load, reply_type
 from e2e.scrub import scrub
 
 from tests.contract import Sibling, load_cases
@@ -77,7 +77,7 @@ def test_a_recorded_reply_is_read_by_the_model_of_its_operation(path: Path, monk
     endpoint = first_endpoint(case, monkeypatch)
     endpoint.parse(_reply(fixture["status"], fixture["body"]))
     # The ratchet: a model may learn a key the API sends, never forget one.
-    unknown = set(scrub(fixture["body"], endpoint.response_type or Any).unknown_keys)
+    unknown = set(scrub(fixture["body"], reply_type(endpoint)).unknown_keys)
     assert len(unknown) <= fixture["unknown_keys"], (
         f"{_operation(path)}: the model no longer knows {sorted(unknown)}"
     )
