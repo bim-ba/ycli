@@ -69,7 +69,7 @@ The repository is public, so a reply is scrubbed before it is written (`scrub.py
 
 A fixture also counts the keys its model does not know (`unknown_keys`); the offline check fails when a model stops knowing a key it knew. Their names, and the reads that failed, go to the file `--record-report` names (outside the repository); the terminal shows numbers only.
 
-While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures. Record a whole service, not one scenario: the fullest reply is picked among the replies of one run, so a run of one scenario overwrites a fixture another scenario filled better.
+While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures. `--record-pause SECONDS` (1 by default) is the wait before each command: a command in this process follows the one before faster than Tracker settles after a write, and on a day when Tracker answers slowly a longer pause (2.5) is what makes the run pass. Record a whole service, not one scenario: the fullest reply is picked among the replies of one run, so a run of one scenario overwrites a fixture another scenario filled better.
 
 ## Janitor
 

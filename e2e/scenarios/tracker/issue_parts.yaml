@@ -39,6 +39,12 @@ steps:
     run: tracker checklists update ${key} ${item} --text "step 2" --no-checked
     expect:
       "checklistItems[0].text": step 2
+  - id: checklist-as-listed
+    run: tracker checklists list ${key}
+    expect:
+      "length(@)": 1
+    save:
+      item: "[0].id"
   - id: checklist-item-delete
     run: tracker checklists delete ${key} ${item}
     expect:

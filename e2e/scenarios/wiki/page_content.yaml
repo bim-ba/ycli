@@ -129,8 +129,7 @@ steps:
     run: wiki comments delete ${id} ${comment}
     expect:
       comments_count: 0
-  # Access goes to someone else only: Wiki refuses to grant a page to its own owner. Written
-  # before a grantee was named: the first run with GRANTEE set is the first run of these steps.
+  # Access goes to someone else only: Wiki refuses to grant a page to its own owner.
   - id: grant
     needs: [GRANTEE]
     run: wiki access create ${id} --role reader --user-uid ${GRANTEE} --inheritance not_inherited

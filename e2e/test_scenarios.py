@@ -27,12 +27,18 @@ def _parameters() -> list[object]:
 
 @pytest.mark.live
 @pytest.mark.parametrize("scenario", _parameters())
-def test_scenario(scenario: Scenario, variables: dict[str, str], recorder: Recorder | None) -> None:
+def test_scenario(
+    scenario: Scenario,
+    variables: dict[str, str],
+    recorder: Recorder | None,
+    request: pytest.FixtureRequest,
+) -> None:
     print(f"RUN={variables['RUN']}")  # shown on failure: every object of this run carries it
     if recorder is None:
         skipped = run_scenario(scenario, CliDriver(), variables)
     else:
-        skipped = run_scenario(scenario, InProcessDriver(), variables, read=recorder.read)
+        driver = InProcessDriver(request.config.getoption("--record-pause"))
+        skipped = run_scenario(scenario, driver, variables, read=recorder.read)
     SKIPPED_STEPS.extend(skipped)
     if len(skipped) == len(scenario.steps):
         pytest.skip("; ".join(skipped))

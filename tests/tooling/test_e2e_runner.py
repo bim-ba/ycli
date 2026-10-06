@@ -182,3 +182,19 @@ def test_the_optional_variables_are_the_ones_the_environment_sets(monkeypatch):
     monkeypatch.setenv("YCLI_E2E_QUEUE_2", "MOVE")
     monkeypatch.setenv("YCLI_E2E_GRANTEE", "")
     assert optional_variables() == {"QUEUE_2": "MOVE"}
+
+
+FOUND = "[?login == '${LOGIN}'] | [0].uid"
+
+
+def test_a_save_expression_may_use_a_variable():
+    """Finding one item of a listing by a value the run was given."""
+    scenario = _scenario(
+        {"id": "find", "run": "tracker users list", "save": {"uid": FOUND}},
+        {"id": "use", "run": "tracker users get ${uid}"},
+    )
+    driver = ScriptedDriver(
+        {"tracker users list": _ok([{"login": "ann", "uid": 1}, {"login": "bob", "uid": 2}])}
+    )
+    run_scenario(scenario, driver, {"LOGIN": "bob"})
+    assert driver.calls[-1] == ["tracker", "users", "get", "2"]

@@ -11,7 +11,8 @@ class Step(BaseModel):
     """One ``ycli -o json --yes <run>`` call and what its output must show.
 
     ``expect`` maps a JMESPath expression to the value it must yield; ``save`` maps a variable
-    name to a JMESPath expression whose value later steps use as ``${name}``. ``cleanup`` is a
+    name to a JMESPath expression whose value later steps use as ``${name}``. Both may use the
+    variables set so far. ``cleanup`` is a
     command registered once the step succeeds and run last-in-first-out when the scenario ends;
     ``disarms`` names earlier steps whose cleanup this step already performed.
 
