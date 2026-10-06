@@ -1,0 +1,24 @@
+{
+  "body": {
+    "created_at": "<created_at>",
+    "file_name": "<file_name>",
+    "file_size": 30,
+    "finished_at": null,
+    "session_id": "<session_id>",
+    "status": "<status>",
+    "storage_type": "<storage_type>",
+    "user": {
+      "affiliation": "<affiliation>",
+      "display_name": "<display_name>",
+      "id": 1,
+      "identity": {
+        "cloud_uid": "<cloud_uid>",
+        "uid": "<uid>"
+      },
+      "is_dismissed": false,
+      "username": "<username>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

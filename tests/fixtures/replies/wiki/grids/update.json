@@ -1,8 +1,6 @@
 {
   "body": {
-    "id": 1,
-    "pages_count": 2,
-    "slug": "<slug>"
+    "revision": "<revision>"
   },
   "status": 200,
   "unknown_keys": 0
