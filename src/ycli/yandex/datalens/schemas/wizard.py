@@ -7,7 +7,6 @@ from pydantic import Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-from .shared import EntryLocationIdentifiers, OtherKind
 
 
 class WizardV1LineShapeSettingsSchema(APIModel):
@@ -21,29 +20,6 @@ class WizardV1LineShapeSettingsSchema(APIModel):
     )
     linejoin: Literal["bevel", "round", "miter", "unset"] | str | None = Field(
         default=None, description="Shape used at line segment joins."
-    )
-
-
-class WizardLabelsItemSchema(APIModel):
-    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
-        default=None,
-        alias="labelPercentageBase",
-        description="Base used to calculate percentage labels.",
-    )
-
-
-class WizardSortItemSchema(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    direction: Literal["ASC", "DESC"] | str | None = Field(
-        default=None, description="Sort direction."
     )
 
 
@@ -942,7 +918,7 @@ class WizardFieldSchemaVariant4HintSettings(APIModel):
     text: str | None = Field(default=None, description="Hint text displayed for the field.")
 
 
-class WizardPseudoFieldSchemaVariant1Formatting(APIModel):
+class WizardLabelsItemSchemaVariant1Formatting(APIModel):
     """Numeric formatting settings for the field."""
 
     format: Literal["number", "percent"] | str | None = Field(
@@ -972,13 +948,13 @@ class WizardPseudoFieldSchemaVariant1Formatting(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
     APIModel
 ):
     mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
@@ -987,7 +963,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsTh
     max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -999,7 +975,7 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(A
     color: str | None = Field(default=None, description="Custom bar color.")
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIModel):
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -1025,18 +1001,18 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(A
     )
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel):
     """Manual bar scale boundaries."""
 
     min: str | None = Field(default=None, description="Manual minimum scale value.")
     max: str | None = Field(default=None, description="Manual maximum scale value.")
 
 
-class WizardPseudoFieldSchemaVariant1SubTotalsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
     enabled: bool | None = Field(
@@ -1044,7 +1020,7 @@ class WizardPseudoFieldSchemaVariant1SubTotalsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
+class WizardLabelsItemSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
     """Discrete palette settings."""
 
     mounted_colors: dict[str, str] | None = Field(
@@ -1055,7 +1031,7 @@ class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIM
     palette: str | None = Field(default=None, description="Color palette identifier.")
 
 
-class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState(APIModel):
+class WizardLabelsItemSchemaVariant1BackgroundSettingsSettingsGradientState(APIModel):
     """Continuous gradient settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -1088,28 +1064,28 @@ class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState(API
     )
 
 
-class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
 
 
-class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
     value: str | None = Field(default=None, description="Column width percentage.")
 
 
-class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
+class WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
     value: str | None = Field(default=None, description="Column width in pixels.")
 
 
-class WizardPseudoFieldSchemaVariant1HintSettings(APIModel):
+class WizardLabelsItemSchemaVariant1HintSettings(APIModel):
     """Field hint settings."""
 
     enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
     text: str | None = Field(default=None, description="Hint text displayed for the field.")
 
 
-class WizardPseudoFieldSchemaVariant2Formatting(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemFormatting(APIModel):
     """Numeric formatting settings for the field."""
 
     format: Literal["number", "percent"] | str | None = Field(
@@ -1139,13 +1115,13 @@ class WizardPseudoFieldSchemaVariant2Formatting(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
     APIModel
 ):
     mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
     APIModel
 ):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
@@ -1154,7 +1130,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsTh
     max: str | None = Field(default=None, description="Upper gradient threshold.")
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings(APIModel):
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -1166,7 +1142,7 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(A
     color: str | None = Field(default=None, description="Custom bar color.")
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings(APIModel):
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -1192,18 +1168,18 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(A
     )
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings(APIModel):
     """Manual bar scale boundaries."""
 
     min: str | None = Field(default=None, description="Manual minimum scale value.")
     max: str | None = Field(default=None, description="Manual maximum scale value.")
 
 
-class WizardPseudoFieldSchemaVariant2SubTotalsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemSubTotalsSettings(APIModel):
     """Subtotal settings."""
 
     enabled: bool | None = Field(
@@ -1211,7 +1187,7 @@ class WizardPseudoFieldSchemaVariant2SubTotalsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState(APIModel):
     """Discrete palette settings."""
 
     mounted_colors: dict[str, str] | None = Field(
@@ -1222,7 +1198,7 @@ class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIM
     palette: str | None = Field(default=None, description="Color palette identifier.")
 
 
-class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState(APIModel):
     """Continuous gradient settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -1255,21 +1231,522 @@ class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState(API
     )
 
 
-class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
 
 
-class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
     value: str | None = Field(default=None, description="Column width percentage.")
 
 
-class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
     value: str | None = Field(default=None, description="Column width in pixels.")
 
 
-class WizardPseudoFieldSchemaVariant2HintSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemHintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardLabelsItemSchemaVariant2Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: int | float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: int | float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: int | float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: int | float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardLabelsItemSchemaVariant2SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
+
+
+class WizardLabelsItemSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardLabelsItemSchemaVariant2BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
+
+
+class WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
+
+
+class WizardLabelsItemSchemaVariant2HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardLabelsItemSchemaVariant3Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: int | float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: int | float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: int | float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: int | float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardLabelsItemSchemaVariant3SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
+
+
+class WizardLabelsItemSchemaVariant3BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardLabelsItemSchemaVariant3BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
+
+
+class WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
+
+
+class WizardLabelsItemSchemaVariant3HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardLabelsItemSchemaVariant4Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: int | float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: int | float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: int | float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: int | float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardLabelsItemSchemaVariant4SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
+
+
+class WizardLabelsItemSchemaVariant4BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardLabelsItemSchemaVariant4BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
+
+
+class WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
+
+
+class WizardLabelsItemSchemaVariant4HintSettings(APIModel):
     """Field hint settings."""
 
     enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
@@ -1295,6 +1772,340 @@ class WizardSortItemSchemaVariant1(APIModel):
         alias="datasetId",
         description="Identifier of the dataset containing the field.",
     )
+
+
+class WizardSortItemSchemaVariant2Variant1Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: int | float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: int | float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: int | float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: int | float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardSortItemSchemaVariant2Variant1SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
+
+
+class WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
+
+
+class WizardSortItemSchemaVariant2Variant1HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardSortItemSchemaVariant2Variant2Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: int | float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str | None = Field(default=None, description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str | None = Field(default=None, description="Upper gradient threshold.")
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: int | float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: int | float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: int | float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardSortItemSchemaVariant2Variant2SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display subtotals for the field."
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str | None = Field(default=None, description="Column width percentage.")
+
+
+class WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str | None = Field(default=None, description="Column width in pixels.")
+
+
+class WizardSortItemSchemaVariant2Variant2HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
 
 
 class WizardV1GeolayerLayerSchemaVariant1LayerSettings(APIModel):
@@ -4263,14 +5074,6 @@ class GetWizardChartV1ResultPermissions(APIModel):
     )
 
 
-class WizardLabelsItemSchemaModel(OtherKind, WizardLabelsItemSchema):
-    pass
-
-
-class WizardSortItemSchemaModel(OtherKindByTitle, WizardSortItemSchema):
-    pass
-
-
 class WizardV1FiltersItemSchemaFilter(APIModel):
     """Filter applied to the field."""
 
@@ -4634,15 +5437,15 @@ class WizardFieldSchemaVariant4ColumnSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
     gradient_type: Literal["2-point", "3-point"] | str | None = Field(
         default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
-        WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
-        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
@@ -4650,36 +5453,36 @@ class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(A
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings | None = None
+    settings: WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant2Settings | None = None
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
     color_type: Literal["two-color"] = Field(
         ...,
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings | None = None
+    settings: WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant3Settings | None = None
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings | None = None
+    settings: WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant2Settings | None = None
 
 
-class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1BackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState | None = (
+    palette_state: WizardLabelsItemSchemaVariant1BackgroundSettingsSettingsPaletteState | None = (
         Field(default=None, alias="paletteState")
     )
-    gradient_state: (
-        WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState | None
-    ) = Field(default=None, alias="gradientState")
+    gradient_state: WizardLabelsItemSchemaVariant1BackgroundSettingsSettingsGradientState | None = (
+        Field(default=None, alias="gradientState")
+    )
     is_continuous: bool | None = Field(
         default=None,
         alias="isContinuous",
@@ -4687,13 +5490,13 @@ class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1ColumnSettings(APIModel):
+class WizardLabelsItemSchemaVariant1ColumnSettings(APIModel):
     """Table column settings."""
 
     width: (
-        WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1
-        | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2
-        | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3
+        WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant1
+        | WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant2
+        | WizardLabelsItemSchemaVariant1ColumnSettingsWidthVariant3
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Table column width settings.")
@@ -4704,15 +5507,15 @@ class WizardPseudoFieldSchemaVariant1ColumnSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings(APIModel):
     """Gradient bar color settings."""
 
     gradient_type: Literal["2-point", "3-point"] | str | None = Field(
         default=None, alias="gradientType", description="Gradient type."
     )
     thresholds: (
-        WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
-        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Thresholds that define the gradient color scale.")
@@ -4720,35 +5523,41 @@ class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(A
     reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2(APIModel):
     color_type: Literal["one-color"] = Field(
         ..., alias="colorType", description="Use one color for all bars."
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings | None = None
+    settings: (
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings | None
+    ) = None
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3(APIModel):
     color_type: Literal["two-color"] = Field(
         ...,
         alias="colorType",
         description="Use separate colors for negative and positive bars.",
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings | None = None
+    settings: (
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings | None
+    ) = None
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant2(APIModel):
     mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings | None = None
+    settings: WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings | None = (
+        None
+    )
 
 
-class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettings(APIModel):
     """Background color configuration."""
 
-    palette_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState | None = (
-        Field(default=None, alias="paletteState")
-    )
+    palette_state: (
+        WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState | None
+    ) = Field(default=None, alias="paletteState")
     gradient_state: (
-        WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState | None
+        WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState | None
     ) = Field(default=None, alias="gradientState")
     is_continuous: bool | None = Field(
         default=None,
@@ -4757,13 +5566,371 @@ class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2ColumnSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemColumnSettings(APIModel):
     """Table column settings."""
 
     width: (
-        WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1
-        | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2
-        | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3
+        WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant1
+        | WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant2
+        | WizardLabelsItemSchemaVariant1FieldsItemColumnSettingsWidthVariant3
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant3Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant2BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardLabelsItemSchemaVariant2BackgroundSettingsSettingsPaletteState | None = (
+        Field(default=None, alias="paletteState")
+    )
+    gradient_state: WizardLabelsItemSchemaVariant2BackgroundSettingsSettingsGradientState | None = (
+        Field(default=None, alias="gradientState")
+    )
+    is_continuous: bool | None = Field(
+        default=None,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant1
+        | WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant2
+        | WizardLabelsItemSchemaVariant2ColumnSettingsWidthVariant3
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant3Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant3BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardLabelsItemSchemaVariant3BackgroundSettingsSettingsPaletteState | None = (
+        Field(default=None, alias="paletteState")
+    )
+    gradient_state: WizardLabelsItemSchemaVariant3BackgroundSettingsSettingsGradientState | None = (
+        Field(default=None, alias="gradientState")
+    )
+    is_continuous: bool | None = Field(
+        default=None,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant1
+        | WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant2
+        | WizardLabelsItemSchemaVariant3ColumnSettingsWidthVariant3
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant3Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant2Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant4BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardLabelsItemSchemaVariant4BackgroundSettingsSettingsPaletteState | None = (
+        Field(default=None, alias="paletteState")
+    )
+    gradient_state: WizardLabelsItemSchemaVariant4BackgroundSettingsSettingsGradientState | None = (
+        Field(default=None, alias="gradientState")
+    )
+    is_continuous: bool | None = Field(
+        default=None,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardLabelsItemSchemaVariant4ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant1
+        | WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant2
+        | WizardLabelsItemSchemaVariant4ColumnSettingsWidthVariant3
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant2Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant3Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant2Settings | None = None
+
+
+class WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: (
+        WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettingsPaletteState | None
+    ) = Field(default=None, alias="paletteState")
+    gradient_state: (
+        WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettingsGradientState | None
+    ) = Field(default=None, alias="gradientState")
+    is_continuous: bool | None = Field(
+        default=None,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant1
+        | WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant2
+        | WizardSortItemSchemaVariant2Variant1ColumnSettingsWidthVariant3
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant2Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant3Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant2Settings | None = None
+
+
+class WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: (
+        WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettingsPaletteState | None
+    ) = Field(default=None, alias="paletteState")
+    gradient_state: (
+        WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettingsGradientState | None
+    ) = Field(default=None, alias="gradientState")
+    is_continuous: bool | None = Field(
+        default=None,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant1
+        | WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant2
+        | WizardSortItemSchemaVariant2Variant2ColumnSettingsWidthVariant3
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Table column width settings.")
@@ -6479,14 +7646,14 @@ class WizardFieldSchemaVariant4BackgroundSettings(APIModel):
     settings: WizardFieldSchemaVariant4BackgroundSettingsSettings | None = None
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings | None = None
+    settings: WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1Settings | None = None
 
 
-class WizardPseudoFieldSchemaVariant1BackgroundSettings(APIModel):
+class WizardLabelsItemSchemaVariant1BackgroundSettings(APIModel):
     """Conditional background settings."""
 
     enabled: bool | None = Field(
@@ -6502,17 +7669,19 @@ class WizardPseudoFieldSchemaVariant1BackgroundSettings(APIModel):
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings | None = None
+    settings: WizardLabelsItemSchemaVariant1BackgroundSettingsSettings | None = None
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1(APIModel):
     color_type: Literal["gradient"] = Field(
         ..., alias="colorType", description="Use a gradient to color bars."
     )
-    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings | None = None
+    settings: (
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings | None
+    ) = None
 
 
-class WizardPseudoFieldSchemaVariant2BackgroundSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettings(APIModel):
     """Conditional background settings."""
 
     enabled: bool | None = Field(
@@ -6528,7 +7697,141 @@ class WizardPseudoFieldSchemaVariant2BackgroundSettings(APIModel):
         alias="settingsId",
         description="Identifier of the background color settings.",
     )
-    settings: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings | None = None
+    settings: WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettingsSettings | None = None
+
+
+class WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant2BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str | None = Field(
+        default=None,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardLabelsItemSchemaVariant2BackgroundSettingsSettings | None = None
+
+
+class WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant3BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str | None = Field(
+        default=None,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardLabelsItemSchemaVariant3BackgroundSettingsSettings | None = None
+
+
+class WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1Settings | None = None
+
+
+class WizardLabelsItemSchemaVariant4BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str | None = Field(
+        default=None,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardLabelsItemSchemaVariant4BackgroundSettingsSettings | None = None
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant1BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str | None = Field(
+        default=None,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardSortItemSchemaVariant2Variant1BackgroundSettingsSettings | None = None
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1Settings | None
+    ) = None
+
+
+class WizardSortItemSchemaVariant2Variant2BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether conditional background coloring is enabled."
+    )
+    color_field_guid: str | None = Field(
+        default=None,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str | None = Field(
+        default=None,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardSortItemSchemaVariant2Variant2BackgroundSettingsSettings | None = None
 
 
 class WizardV1GeolayerLayerSchemaVariant1Filters(APIModel):
@@ -6892,16 +8195,16 @@ class WizardFieldSchemaVariant4BarsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1BarsSettings(APIModel):
     """In-cell bar settings."""
 
     enabled: bool | None = Field(
         default=None, description="Whether to display bars in table cells."
     )
     color_settings: (
-        WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1
-        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2
-        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3
+        WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant1
+        | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant2
+        | WizardLabelsItemSchemaVariant1BarsSettingsColorSettingsVariant3
         | OtherKindByColorType
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
@@ -6914,8 +8217,8 @@ class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
         default=None, description="Bar alignment within table cells."
     )
     scale: (
-        WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant1
-        | WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2
+        WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant1
+        | WizardLabelsItemSchemaVariant1BarsSettingsScaleVariant2
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
@@ -6926,16 +8229,16 @@ class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2BarsSettings(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItemBarsSettings(APIModel):
     """In-cell bar settings."""
 
     enabled: bool | None = Field(
         default=None, description="Whether to display bars in table cells."
     )
     color_settings: (
-        WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1
-        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2
-        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1
+        | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2
+        | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3
         | OtherKindByColorType
         | None
     ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
@@ -6948,8 +8251,178 @@ class WizardPseudoFieldSchemaVariant2BarsSettings(APIModel):
         default=None, description="Bar alignment within table cells."
     )
     scale: (
-        WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant1
-        | WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2
+        WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant1
+        | WizardLabelsItemSchemaVariant1FieldsItemBarsSettingsScaleVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
+    color_settings: (
+        WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant1
+        | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant2
+        | WizardLabelsItemSchemaVariant2BarsSettingsColorSettingsVariant3
+        | OtherKindByColorType
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
+    )
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant1
+        | WizardLabelsItemSchemaVariant2BarsSettingsScaleVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
+    color_settings: (
+        WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant1
+        | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant2
+        | WizardLabelsItemSchemaVariant3BarsSettingsColorSettingsVariant3
+        | OtherKindByColorType
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
+    )
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant1
+        | WizardLabelsItemSchemaVariant3BarsSettingsScaleVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardLabelsItemSchemaVariant4BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
+    color_settings: (
+        WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant1
+        | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant2
+        | WizardLabelsItemSchemaVariant4BarsSettingsColorSettingsVariant3
+        | OtherKindByColorType
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
+    )
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant1
+        | WizardLabelsItemSchemaVariant4BarsSettingsScaleVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant1BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
+    color_settings: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant1
+        | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant2
+        | WizardSortItemSchemaVariant2Variant1BarsSettingsColorSettingsVariant3
+        | OtherKindByColorType
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
+    )
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant1
+        | WizardSortItemSchemaVariant2Variant1BarsSettingsScaleVariant2
+        | OtherKindByMode
+        | None
+    ) = Field(default=None, description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool | None = Field(
+        default=None,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardSortItemSchemaVariant2Variant2BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool | None = Field(
+        default=None, description="Whether to display bars in table cells."
+    )
+    color_settings: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant1
+        | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant2
+        | WizardSortItemSchemaVariant2Variant2BarsSettingsColorSettingsVariant3
+        | OtherKindByColorType
+        | None
+    ) = Field(default=None, alias="colorSettings", description="Bar color settings.")
+    show_labels: bool | None = Field(
+        default=None,
+        alias="showLabels",
+        description="Whether to display values over bars.",
+    )
+    align: Literal["left", "right", "default"] | str | None = Field(
+        default=None, description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant1
+        | WizardSortItemSchemaVariant2Variant2BarsSettingsScaleVariant2
         | OtherKindByMode
         | None
     ) = Field(default=None, description="Scale used to calculate bar lengths.")
@@ -7163,7 +8636,7 @@ class WizardFieldSchemaVariant4(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant1(APIModel):
+class WizardLabelsItemSchemaVariant1FieldsItem(APIModel):
     fake_title: str | None = Field(
         default=None,
         alias="fakeTitle",
@@ -7174,7 +8647,7 @@ class WizardPseudoFieldSchemaVariant1(APIModel):
         alias="markupType",
         description="Markup type used to render field values.",
     )
-    formatting: WizardPseudoFieldSchemaVariant1Formatting | None = None
+    formatting: WizardLabelsItemSchemaVariant1FieldsItemFormatting | None = None
     format: str | None = Field(
         default=None,
         description="Date or datetime format, separate from numeric formatting.",
@@ -7184,19 +8657,117 @@ class WizardPseudoFieldSchemaVariant1(APIModel):
         alias="hideLabelMode",
         description="Whether to hide the field label.",
     )
-    bars_settings: WizardPseudoFieldSchemaVariant1BarsSettings | None = Field(
+    bars_settings: WizardLabelsItemSchemaVariant1FieldsItemBarsSettings | None = Field(
         default=None, alias="barsSettings"
     )
-    sub_totals_settings: WizardPseudoFieldSchemaVariant1SubTotalsSettings | None = Field(
+    sub_totals_settings: WizardLabelsItemSchemaVariant1FieldsItemSubTotalsSettings | None = Field(
         default=None, alias="subTotalsSettings"
     )
-    background_settings: WizardPseudoFieldSchemaVariant1BackgroundSettings | None = Field(
+    background_settings: WizardLabelsItemSchemaVariant1FieldsItemBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    column_settings: WizardPseudoFieldSchemaVariant1ColumnSettings | None = Field(
+    column_settings: WizardLabelsItemSchemaVariant1FieldsItemColumnSettings | None = Field(
         default=None, alias="columnSettings"
     )
-    hint_settings: WizardPseudoFieldSchemaVariant1HintSettings | None = Field(
+    hint_settings: WizardLabelsItemSchemaVariant1FieldsItemHintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str | None = Field(default=None, description="Field identifier.")
+    dataset_id: str | None = Field(
+        default=None,
+        alias="datasetId",
+        description="Identifier of the dataset containing the field.",
+    )
+
+
+class WizardLabelsItemSchemaVariant2(APIModel):
+    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
+        default=None,
+        alias="labelPercentageBase",
+        description="Base used to calculate percentage labels.",
+    )
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardLabelsItemSchemaVariant2Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardLabelsItemSchemaVariant2BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardLabelsItemSchemaVariant2SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardLabelsItemSchemaVariant2BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardLabelsItemSchemaVariant2ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardLabelsItemSchemaVariant2HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str | None = Field(default=None, description="Field identifier.")
+    dataset_id: str | None = Field(
+        default=None,
+        alias="datasetId",
+        description="Identifier of the dataset containing the field.",
+    )
+
+
+class WizardLabelsItemSchemaVariant3(APIModel):
+    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
+        default=None,
+        alias="labelPercentageBase",
+        description="Base used to calculate percentage labels.",
+    )
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardLabelsItemSchemaVariant3Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardLabelsItemSchemaVariant3BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardLabelsItemSchemaVariant3SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardLabelsItemSchemaVariant3BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardLabelsItemSchemaVariant3ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardLabelsItemSchemaVariant3HintSettings | None = Field(
         default=None, alias="hintSettings"
     )
     title: Literal["Measure Names"] = Field(
@@ -7208,7 +8779,12 @@ class WizardPseudoFieldSchemaVariant1(APIModel):
     )
 
 
-class WizardPseudoFieldSchemaVariant2(APIModel):
+class WizardLabelsItemSchemaVariant4(APIModel):
+    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
+        default=None,
+        alias="labelPercentageBase",
+        description="Base used to calculate percentage labels.",
+    )
     fake_title: str | None = Field(
         default=None,
         alias="fakeTitle",
@@ -7219,7 +8795,7 @@ class WizardPseudoFieldSchemaVariant2(APIModel):
         alias="markupType",
         description="Markup type used to render field values.",
     )
-    formatting: WizardPseudoFieldSchemaVariant2Formatting | None = None
+    formatting: WizardLabelsItemSchemaVariant4Formatting | None = None
     format: str | None = Field(
         default=None,
         description="Date or datetime format, separate from numeric formatting.",
@@ -7229,19 +8805,19 @@ class WizardPseudoFieldSchemaVariant2(APIModel):
         alias="hideLabelMode",
         description="Whether to hide the field label.",
     )
-    bars_settings: WizardPseudoFieldSchemaVariant2BarsSettings | None = Field(
+    bars_settings: WizardLabelsItemSchemaVariant4BarsSettings | None = Field(
         default=None, alias="barsSettings"
     )
-    sub_totals_settings: WizardPseudoFieldSchemaVariant2SubTotalsSettings | None = Field(
+    sub_totals_settings: WizardLabelsItemSchemaVariant4SubTotalsSettings | None = Field(
         default=None, alias="subTotalsSettings"
     )
-    background_settings: WizardPseudoFieldSchemaVariant2BackgroundSettings | None = Field(
+    background_settings: WizardLabelsItemSchemaVariant4BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    column_settings: WizardPseudoFieldSchemaVariant2ColumnSettings | None = Field(
+    column_settings: WizardLabelsItemSchemaVariant4ColumnSettings | None = Field(
         default=None, alias="columnSettings"
     )
-    hint_settings: WizardPseudoFieldSchemaVariant2HintSettings | None = Field(
+    hint_settings: WizardLabelsItemSchemaVariant4HintSettings | None = Field(
         default=None, alias="hintSettings"
     )
     title: Literal["Measure Values"] = Field(
@@ -7253,44 +8829,117 @@ class WizardPseudoFieldSchemaVariant2(APIModel):
     )
 
 
-class WizardLabelsItemSchemaModel1(WizardFieldSchemaVariant2, WizardLabelsItemSchema):
-    pass
+class WizardSortItemSchemaVariant2Variant1(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    direction: Literal["ASC", "DESC"] | str | None = Field(
+        default=None, description="Sort direction."
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardSortItemSchemaVariant2Variant1Formatting | None = None
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardSortItemSchemaVariant2Variant1BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardSortItemSchemaVariant2Variant1SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardSortItemSchemaVariant2Variant1BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardSortItemSchemaVariant2Variant1ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardSortItemSchemaVariant2Variant1HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Names"] = Field(
+        ..., description="Title identifying the Measure Names pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["string"] = Field(
+        ..., description="String data type of the Measure Names pseudo-field."
+    )
 
 
-class WizardLabelsItemSchemaModel2(WizardFieldSchemaVariant3, WizardLabelsItemSchema):
-    pass
+class WizardSortItemSchemaVariant2Variant2(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    direction: Literal["ASC", "DESC"] | str | None = Field(
+        default=None, description="Sort direction."
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardSortItemSchemaVariant2Variant2Formatting | None = None
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardSortItemSchemaVariant2Variant2BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardSortItemSchemaVariant2Variant2SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardSortItemSchemaVariant2Variant2BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardSortItemSchemaVariant2Variant2ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardSortItemSchemaVariant2Variant2HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Values"] = Field(
+        ..., description="Title identifying the Measure Values pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["float"] = Field(
+        ..., description="Numeric data type of the Measure Values pseudo-field."
+    )
 
 
-class WizardLabelsItemSchemaModel3(WizardFieldSchemaVariant4, WizardLabelsItemSchema):
-    pass
-
-
-class WizardPseudoFieldSchema(
-    RootModel[WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2 | OtherKindByTitle],
+class WizardSortItemSchema(
+    RootModel[
+        WizardSortItemSchemaVariant1
+        | WizardSortItemSchemaVariant2Variant1
+        | WizardSortItemSchemaVariant2Variant2
+        | OtherKindByTitle
+    ],
     hide_input_in_errors=True,
 ):
-    root: WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2 | OtherKindByTitle
-
-
-class WizardSortItemSchemaModel1(WizardPseudoFieldSchemaVariant1, WizardSortItemSchema):
-    pass
-
-
-class WizardSortItemSchemaModel2(WizardPseudoFieldSchemaVariant2, WizardSortItemSchema):
-    pass
-
-
-class WizardSortItemSchemaModel3(
-    RootModel[WizardSortItemSchemaModel1 | WizardSortItemSchemaModel2 | WizardSortItemSchemaModel],
-    hide_input_in_errors=True,
-):
-    root: WizardSortItemSchemaModel1 | WizardSortItemSchemaModel2 | WizardSortItemSchemaModel
-
-
-class WizardSortItemSchemaModel4(
-    RootModel[WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel3], hide_input_in_errors=True
-):
-    root: WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel3
+    root: (
+        WizardSortItemSchemaVariant1
+        | WizardSortItemSchemaVariant2Variant1
+        | WizardSortItemSchemaVariant2Variant2
+        | OtherKindByTitle
+    )
 
 
 class WizardFieldSchemaVariant1(APIModel):
@@ -7339,10 +8988,61 @@ class WizardFieldSchemaVariant1(APIModel):
     )
 
 
+class WizardLabelsItemSchemaVariant1(APIModel):
+    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
+        default=None,
+        alias="labelPercentageBase",
+        description="Base used to calculate percentage labels.",
+    )
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardLabelsItemSchemaVariant1Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardLabelsItemSchemaVariant1BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardLabelsItemSchemaVariant1SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardLabelsItemSchemaVariant1BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardLabelsItemSchemaVariant1ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardLabelsItemSchemaVariant1HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str | None = Field(default=None, description="Hierarchy identifier.")
+    title: str | None = Field(default=None, description="Hierarchy display title.")
+    data_type: Literal["hierarchy"] = Field(
+        ..., description="Data type identifying this field as a hierarchy."
+    )
+    fields: list[WizardLabelsItemSchemaVariant1FieldsItem] | None = Field(
+        default=None, description="Fields included in the hierarchy."
+    )
+
+
 class WizardV1GeolayerLayerSchemaVariant3Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7350,7 +9050,7 @@ class WizardV1GeolayerLayerSchemaVariant3Sort(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7358,7 +9058,7 @@ class WizardV1CombinedChartLayerSchemaVariant1Sort(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant2Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7366,7 +9066,7 @@ class WizardV1CombinedChartLayerSchemaVariant2Sort(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant3Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7374,7 +9074,7 @@ class WizardV1CombinedChartLayerSchemaVariant3Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant1Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7382,7 +9082,7 @@ class WizardV1ConfigSchemaVisualizationVariant1Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant2Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7390,7 +9090,7 @@ class WizardV1ConfigSchemaVisualizationVariant2Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant3Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7398,7 +9098,7 @@ class WizardV1ConfigSchemaVisualizationVariant3Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant4Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7406,7 +9106,7 @@ class WizardV1ConfigSchemaVisualizationVariant4Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant5Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7414,7 +9114,7 @@ class WizardV1ConfigSchemaVisualizationVariant5Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant6Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7422,7 +9122,7 @@ class WizardV1ConfigSchemaVisualizationVariant6Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant7Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7430,7 +9130,7 @@ class WizardV1ConfigSchemaVisualizationVariant7Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant8Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7438,7 +9138,7 @@ class WizardV1ConfigSchemaVisualizationVariant8Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant9Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7446,7 +9146,7 @@ class WizardV1ConfigSchemaVisualizationVariant9Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant10Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7454,7 +9154,7 @@ class WizardV1ConfigSchemaVisualizationVariant10Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant11Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7462,7 +9162,7 @@ class WizardV1ConfigSchemaVisualizationVariant11Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant14Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7470,7 +9170,7 @@ class WizardV1ConfigSchemaVisualizationVariant14Sort(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant15Sort(APIModel):
     """Sorting configuration."""
 
-    items: list[WizardSortItemSchemaModel4] | None = Field(
+    items: list[WizardSortItemSchema] | None = Field(
         default=None, description="Chart sorting rules."
     )
 
@@ -7494,26 +9194,22 @@ class WizardFieldSchema(
     )
 
 
-class WizardLabelsItemSchemaModel4(WizardFieldSchemaVariant1, WizardLabelsItemSchema):
-    pass
-
-
-class WizardLabelsItemSchemaModel5(
+class WizardLabelsItemSchema(
     RootModel[
-        WizardLabelsItemSchemaModel4
-        | WizardLabelsItemSchemaModel1
-        | WizardLabelsItemSchemaModel2
-        | WizardLabelsItemSchemaModel3
-        | WizardLabelsItemSchemaModel
+        WizardLabelsItemSchemaVariant1
+        | WizardLabelsItemSchemaVariant2
+        | WizardLabelsItemSchemaVariant3
+        | WizardLabelsItemSchemaVariant4
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
     root: (
-        WizardLabelsItemSchemaModel4
-        | WizardLabelsItemSchemaModel1
-        | WizardLabelsItemSchemaModel2
-        | WizardLabelsItemSchemaModel3
-        | WizardLabelsItemSchemaModel
+        WizardLabelsItemSchemaVariant1
+        | WizardLabelsItemSchemaVariant2
+        | WizardLabelsItemSchemaVariant3
+        | WizardLabelsItemSchemaVariant4
+        | shared.OtherKind
     )
 
 
@@ -7546,7 +9242,7 @@ class WizardV1GeolayerLayerSchemaVariant1Colors(APIModel):
 class WizardV1GeolayerLayerSchemaVariant1Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as point labels."
     )
 
@@ -7589,7 +9285,7 @@ class WizardV1GeolayerLayerSchemaVariant2Colors(APIModel):
 class WizardV1GeolayerLayerSchemaVariant2Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as point labels."
     )
 
@@ -7730,7 +9426,7 @@ class WizardV1CombinedChartLayerSchemaVariant1Shapes(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant1Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1CombinedChartLayerSchemaVariant1LabelsSettings | None = None
@@ -7767,7 +9463,7 @@ class WizardV1CombinedChartLayerSchemaVariant2Colors(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant2Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1CombinedChartLayerSchemaVariant2LabelsSettings | None = None
@@ -7804,7 +9500,7 @@ class WizardV1CombinedChartLayerSchemaVariant3Colors(APIModel):
 class WizardV1CombinedChartLayerSchemaVariant3Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1CombinedChartLayerSchemaVariant3LabelsSettings | None = None
@@ -7860,7 +9556,7 @@ class WizardV1ConfigSchemaVisualizationVariant1Shapes(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant1Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant1LabelsSettings | None = None
@@ -7905,7 +9601,7 @@ class WizardV1ConfigSchemaVisualizationVariant2Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant2Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant2LabelsSettings | None = None
@@ -7958,7 +9654,7 @@ class WizardV1ConfigSchemaVisualizationVariant3Segments(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant3Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant3LabelsSettings | None = None
@@ -7995,7 +9691,7 @@ class WizardV1ConfigSchemaVisualizationVariant4Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant4Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant4LabelsSettings | None = None
@@ -8040,7 +9736,7 @@ class WizardV1ConfigSchemaVisualizationVariant5Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant5Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant5LabelsSettings | None = None
@@ -8085,7 +9781,7 @@ class WizardV1ConfigSchemaVisualizationVariant6Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant6Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant6LabelsSettings | None = None
@@ -8122,7 +9818,7 @@ class WizardV1ConfigSchemaVisualizationVariant7Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant7Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as data labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant7LabelsSettings | None = None
@@ -8157,7 +9853,7 @@ class WizardV1ConfigSchemaVisualizationVariant8Colors(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant8Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as stage labels."
     )
     settings: WizardV1ConfigSchemaVisualizationVariant8LabelsSettings | None = None
@@ -8247,7 +9943,7 @@ class WizardV1ConfigSchemaVisualizationVariant10Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant10Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as slice labels."
     )
 
@@ -8281,7 +9977,7 @@ class WizardV1ConfigSchemaVisualizationVariant11Measures(APIModel):
 class WizardV1ConfigSchemaVisualizationVariant11Labels(APIModel):
     """Data label configuration."""
 
-    items: list[WizardLabelsItemSchemaModel5] | None = Field(
+    items: list[WizardLabelsItemSchema] | None = Field(
         default=None, description="Fields whose values are displayed as slice labels."
     )
 
@@ -8835,6 +10531,17 @@ class CreateWizardChartV1Result(APIModel):
     entry: WizardV1 | None = None
 
 
-class CreateWizardChartV1Args(EntryLocationIdentifiers):
-    data: WizardV1ConfigSchema | None = None
+class CreateWizardChartV1Args(RequestBody):
+    data: WizardV1ConfigSchema
     annotation: shared.EntryAnnotationArg | None = None
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )

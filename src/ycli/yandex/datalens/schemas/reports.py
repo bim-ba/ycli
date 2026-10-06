@@ -7,7 +7,6 @@ from pydantic import Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 from . import shared
-from .shared import EntryLocationIdentifiers
 
 
 class EntryAnnotation(APIModel):
@@ -298,25 +297,7 @@ class ReportTabItemV2Variant6DataGroupItemVariant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model5 | None = None
-
-
-class ReportTabItemV2Variant6DataGroupItemVariant2(APIModel):
-    title: str | None = Field(default=None, description="Control title.")
-    id: str | None = Field(default=None, description="Control identifier.")
-    namespace: Literal["default"] = Field(..., description="Control namespace.")
-    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
-        default=None,
-        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
-    )
-    placement_mode: Literal["auto", "%", "px"] | str | None = Field(
-        default=None, alias="placementMode", description="Control placement mode."
-    )
-    width: str | None = Field(default=None, description="Control width.")
-    source_type: Literal["manual"] = Field(
-        ..., alias="sourceType", description="Manual control source type."
-    )
-    source: shared.DashControlSourceManualV2Model5 | None = None
+    source: shared.DashControlSourceDatasetV2 | None = None
 
 
 class ReportTabItemV2Variant7Data(APIModel):
@@ -514,6 +495,50 @@ class ReportTabItemV2Variant4(APIModel):
     data: ReportTabItemV2Variant4Data | None = None
 
 
+class ReportTabItemV2Variant6DataGroupItemVariant2(APIModel):
+    title: str | None = Field(default=None, description="Control title.")
+    id: str | None = Field(default=None, description="Control identifier.")
+    namespace: Literal["default"] = Field(..., description="Control namespace.")
+    defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
+        default=None,
+        description='Selected values keyed by source.datasetFieldId for dataset controls or source.fieldName for manual controls. For a date or date range control with no selected value, keep the field key with an empty string value (e.g. {"fieldId": ""}); do not omit the key or use an empty defaults object. Prefix nonempty values with __<lowercase operation>_ when source.operation is set; leave empty values unprefixed.',
+    )
+    placement_mode: Literal["auto", "%", "px"] | str | None = Field(
+        default=None, alias="placementMode", description="Control placement mode."
+    )
+    width: str | None = Field(default=None, description="Control width.")
+    source_type: Literal["manual"] = Field(
+        ..., alias="sourceType", description="Manual control source type."
+    )
+    source: shared.DashControlSourceManualV2 | None = None
+
+
+class ReportTabItemV2Variant7(APIModel):
+    id: str | None = Field(default=None, description="Dashboard item identifier.")
+    namespace: Literal["default"] = Field(..., description="Item namespace.")
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
+        default=None, alias="defaultOrderId", description="Default item order."
+    )
+    type: Literal["neuro_widget"] = Field(..., description="Insight widget item type.")
+    data: ReportTabItemV2Variant7Data | None = None
+
+
+class ReportTabItemV2Variant2(APIModel):
+    id: str | None = Field(default=None, description="Dashboard item identifier.")
+    namespace: Literal["default"] = Field(..., description="Item namespace.")
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
+        default=None, alias="defaultOrderId", description="Default item order."
+    )
+    data: ReportTabItemV2Variant2Data | None = None
+    type: Literal["title"] = Field(..., description="Title item type.")
+
+
 class ReportTabItemV2Variant6Data(APIModel):
     """Control group item data."""
 
@@ -553,32 +578,6 @@ class ReportTabItemV2Variant6Data(APIModel):
         ]
         | None
     ) = Field(default=None, description="Controls in the group.")
-
-
-class ReportTabItemV2Variant7(APIModel):
-    id: str | None = Field(default=None, description="Dashboard item identifier.")
-    namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: int | float | None = Field(
-        default=None, alias="orderId", description="Current item order."
-    )
-    default_order_id: int | float | None = Field(
-        default=None, alias="defaultOrderId", description="Default item order."
-    )
-    type: Literal["neuro_widget"] = Field(..., description="Insight widget item type.")
-    data: ReportTabItemV2Variant7Data | None = None
-
-
-class ReportTabItemV2Variant2(APIModel):
-    id: str | None = Field(default=None, description="Dashboard item identifier.")
-    namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: int | float | None = Field(
-        default=None, alias="orderId", description="Current item order."
-    )
-    default_order_id: int | float | None = Field(
-        default=None, alias="defaultOrderId", description="Default item order."
-    )
-    data: ReportTabItemV2Variant2Data | None = None
-    type: Literal["title"] = Field(..., description="Title item type.")
 
 
 class ReportTabItemV2Variant6(APIModel):
@@ -703,11 +702,22 @@ class CreateReportV2Result(APIModel):
     permissions: shared.EntryPermissions | None = None
 
 
-class CreateReportV2Args(EntryLocationIdentifiers):
-    data: ReportDataV2 | None = None
-    meta: ReportMetaV2 | None = None
+class CreateReportV2Args(RequestBody):
+    data: ReportDataV2
+    meta: ReportMetaV2 | None
     annotation: shared.EntryAnnotationArg | None = None
     include_permissions: bool | None = Field(default=None, alias="includePermissions")
+    key: str | None = Field(
+        default=None, description="Entry key when creating the entry in a folder."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook where the entry should be created.",
+    )
+    name: str | None = Field(
+        default=None, description="Entry name when creating the entry in a workbook."
+    )
 
 
 class UpdateReportV2Result(APIModel):

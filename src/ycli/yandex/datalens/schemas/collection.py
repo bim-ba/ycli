@@ -431,7 +431,7 @@ class GetStructureItemsResultItemsItemVariant1Permissions(APIModel):
     )
 
 
-class Meta(APIModel):
+class GetStructureItemsResultItemsItemVariant2Meta(APIModel):
     """Metadata associated with the workbook."""
 
     import_id: str | None = Field(
@@ -687,7 +687,7 @@ class GetStructureItemsResultItemsItemVariant2(APIModel):
     tenant_id: str | None = Field(
         default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    meta: GetStructureItemsResultItemsItemVariant2Meta | None = None
     created_by: str | None = Field(
         default=None,
         alias="createdBy",
