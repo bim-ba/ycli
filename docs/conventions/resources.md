@@ -543,3 +543,4 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | An `Annotated` alias is defined once | `tests/architecture/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |
+| A three-valued boolean option is a `--x/--no-x` pair ([section 6](#6-writing-a-client-and-its-cli-commands)) | `tests/architecture/test_conventions.py::test_a_three_valued_boolean_option_is_declared_as_a_pair` |
