@@ -1,21 +1,38 @@
 ---
 name: yandex-360-datalens
 description: >-
-  Use when reading or changing Yandex DataLens through ycli — collections and
-  workbooks, what they hold, creating, moving and deleting them, exporting a
-  workbook and importing it as a new one, embedding an entry on another site,
-  the roles on them, finding entries anywhere with their relations, revisions
-  and permissions, renaming and locking an entry, connections to data sources,
-  datasets and their rows, charts and their data, reports, the members of the
-  organization, which DataLens instance the credentials reach, and how to sign
-  in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the
-  DataLensClient SDK.
+  Use when reading or changing Yandex DataLens through ycli — collections,
+  workbooks and the entries they hold (connections, datasets, charts, reports,
+  dashboards and the rest), the roles on them, the export and import of a
+  workbook, embedding, the audit, the members of the organization, and how to
+  sign in to DataLens — via the `ycli datalens` CLI, the `datalens_*` MCP tools,
+  or the DataLensClient SDK.
 ---
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; the embeds of an entry and the keys for embedding that sign them; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes; reports, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section, and this skill grows with each one. Wrapped today, reads and writes unless said otherwise (one line a section):
+
+- collections (the folders that hold workbooks) and workbooks
+- the export of a workbook as one document and its import as a new workbook
+- entries as such: finding them, their relations, revisions and permissions, renaming, locks
+- connections
+- datasets, with their rows
+- charts built in the wizard, in QL and in the editor, and the data of a saved chart
+- reports
+- the embeds of an entry and the keys for embedding that sign them
+- the roles on a shared entry
+- the audit (reads)
+- saved SQL queries (experimental in the API; written from its document, not measured)
+- cloud environments and their storage bucket (experimental in the API; the listing measured, the rest written from the document and never called)
+- REST catalogs and Lakehouse operations (experimental in the API; the listing of catalogs measured, the rest written from the document and never called)
+- Trino clusters and their resource presets (experimental in the API; the listing of clusters measured, the rest written from the document and never called)
+- Spark applications: listing, reading, making, cancelling one and reading its log (experimental in the API; written from the document, not measured)
+- the members of the organization and the details of the DataLens instance (reads)
+- the licences (seats) of the instance: reads measured; giving a licence and setting the limit written from the document, never called
+
+Not wrapped yet: dashboards are found and listed as entries, but their content is not opened or changed.
 
 ## When to use
 
@@ -24,7 +41,8 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Creating, renaming, moving or deleting collections and workbooks
 - Exporting everything a workbook holds as one document, and making a new workbook from it
 - Listing, creating, changing or deleting the embeds of a chart or a dashboard, and the keys for embedding of a workbook
-- Seeing or changing who has which role on a collection or a workbook
+- Seeing or changing who has which role on a collection, a workbook or a shared entry
+- Asking the audit which entries changed in a period, and what one user may do with an entry
 - Finding an entry anywhere by kind or name, what it uses and what uses it, its revisions
 - Checking what you may do with entries, workbooks and collections
 - Renaming an entry, or locking it while you edit
@@ -100,6 +118,19 @@ DataLens differs from the other services in both credentials:
 | How far an import is | `uv run ycli datalens workbookimports status-get <import_id>` | `datalens_workbookimports_status_get` |
 | Keys for embedding of a workbook (never the private key) | `uv run ycli datalens embeddingsecrets list <workbook_id>` · `get <embedding_secret_id>` | `datalens_embeddingsecrets_list` · `datalens_embeddingsecrets_get` |
 | Where an entry is embedded | `uv run ycli datalens embeds list <entry_id>` | `datalens_embeds_list` |
+| Who has which role on a shared entry | `uv run ycli datalens sharedentries access-bindings-list <entry_id> [--get-inherited-bindings]` | `datalens_sharedentries_access_bindings_list` |
+| Entries changed in a period (deleted ones too) | `uv run ycli datalens audit entries-updates-list --from 2026-10-01T00:00:00Z [--to …] [--all]` | `datalens_audit_entries_updates_list` |
+| What one user may do with entries | `uv run ycli datalens audit entry-permissions-get <entry_id>… --user-id <user_id>` | `datalens_audit_entry_permissions_get` |
+| One saved SQL query (experimental) | `uv run ycli datalens sqlqueries get <sql_query_id>` | `datalens_sqlqueries_get` |
+| Who holds a licence (a seat) | `uv run ycli datalens licensing licenses-list [--status active] [--user-ids <id>]… [--all]` | `datalens_licensing_licenses_list` |
+| How many licences there may be, and how many are active | `uv run ycli datalens licensing limit-get` | `datalens_licensing_limit_get` |
+| The cloud environments of the instance (experimental) | `uv run ycli datalens cloudenvironments list [--filter 'status="READY"'] [--all]` · `get <id>` | `datalens_cloudenvironments_list` · `datalens_cloudenvironments_get` |
+| What a cloud environment's bucket holds (experimental) | `uv run ycli datalens cloudenvironmentstorage bucket-objects-list <cloud_environment_id> [--prefix …]` · `bucket-object-metadata-get <id> --path …` | `datalens_cloudenvironmentstorage_bucket_objects_list` · `…_bucket_object_metadata_get` |
+| The REST catalogs of the instance (experimental) | `uv run ycli datalens restcatalogs list [--cloud-environment-id <id>] [--all]` | `datalens_restcatalogs_list` |
+| How far a Lakehouse operation is (experimental) | `uv run ycli datalens lakehouseoperations get <operation_id>` | `datalens_lakehouseoperations_get` |
+| The Trino clusters of the instance (experimental) | `uv run ycli datalens trinoclusters list [--collection-id <id>] [--all]` · `get <id>` | `datalens_trinoclusters_list` · `datalens_trinoclusters_get` |
+| The sizes a Trino cluster's machines may have (experimental) | `uv run ycli datalens trinoclusters resource-presets-list <cloud_environment_id>` · `resource-preset-get <id> --cloud-environment-id <id>` | `datalens_trinoclusters_resource_presets_list` · `…_resource_preset_get` |
+| The applications of a Spark cluster, and the log of one (experimental) | `uv run ycli datalens sparkapplications list <cluster_id>` · `get <cluster_id> --application-id <id>` · `log-list <cluster_id> --application-id <id> [--page-token …]` | `datalens_sparkapplications_list` · `…_get` · `…_log_list` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -145,6 +176,13 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Embed an entry | `uv run ycli datalens embeds create --title … --embedding-secret-id <id> --entry-id <id> --public-params-mode --settings '{}'` | `datalens_embeds_create` |
 | Save an embed as given | `uv run ycli datalens embeds update <embed_id> --title … --embedding-secret-id <id> --no-public-params-mode --settings '{}' [--unsigned-params …]` | `datalens_embeds_update` |
 | Delete an embed | `uv run ycli datalens embeds delete <embed_id>` | `datalens_embeds_delete` |
+| Give or take away roles on a shared entry | `uv run ycli datalens sharedentries access-bindings-update <entry_id> --delta '<json>'…` | `datalens_sharedentries_access_bindings_update` |
+| Save a SQL query in a workbook (experimental) | `uv run ycli datalens sqlqueries create --workbook-id <id> --name … --connection-id <id> --query '…'` | `datalens_sqlqueries_create` |
+| Save a SQL query anew | `uv run ycli datalens sqlqueries update <sql_query_id> --connection-id <id> --query '…'` | `datalens_sqlqueries_update` |
+| Run a saved SQL query | `uv run ycli datalens sqlqueries run <sql_query_id> [--params '{"since": "2026-10-01"}']` | `datalens_sqlqueries_run` |
+| Delete a saved SQL query | `uv run ycli datalens sqlqueries delete <sql_query_id>` | `datalens_sqlqueries_delete` |
+| Give users a licence (billed; not measured) | `uv run ycli datalens licensing licenses-assign <user_id>…` | `datalens_licensing_licenses_assign` |
+| Set how many licences there may be (billed; not measured) | `uv run ycli datalens licensing limit-set <value>` | `datalens_licensing_limit_set` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
 | Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
@@ -164,11 +202,27 @@ An operation takes the fields of its request as arguments, under one name on eve
 
 **No parent is the root.** Leave `--parent-id` / `parent_id` (a collection) or `--collection-id` / `collection_id` (a workbook) out to create in the root or to move there: `move <id>` with no destination moves it to the root.
 
-**A workbook is exported and imported in steps.** `workbookexports start` answers an export id at once; ask `workbookexports status-get` until `status` is `success` (`pending` before, `error` if it failed), then `workbookexports result-get`. Its `data` (the `export` and its `hash`, together) is what `workbookimports start` takes: `… result-get <export_id> | jq '{data}' > export.json`, then `workbookimports start --body-file export.json --title …`. The new workbook exists at once and is filled as the import runs; `workbookimports status-get` says when it is done. The result of an export that is not over, or was cancelled, answers 409; an id nothing knows answers 404.
+**A workbook is exported and imported in steps.** `workbookexports start` answers an export id at once; ask `workbookexports status-get` until `status` is `success` (`pending` before, `error` if it failed), then `workbookexports result-get`. Its `data` (the `export` and its `hash`, together) is what `workbookimports start` takes: `… result-get <export_id> | jq '{data}' > export.json`, then `workbookimports start --body-file export.json --title …`. The new workbook exists at once and is filled as the import runs; `workbookimports status-get` says when it is done. A cancelled export ends with the status `error` and the notification `WORKBOOK_EXPORT_CANCELLED`; cancelling one that is over changes nothing. The result of an export that is not over, or was cancelled, answers 409; an id nothing knows answers 404.
 
 **After an import, give the connections their secrets again.** A password or a token is not in the exported document: the status of the export and of the import carries a notification for each connection (`NOTIF.WB_EXPORT.CONN.CHECK_CREDENTIALS`, `NOTIF.WB_IMPORT.CONN.CHECK_CREDENTIALS`), and the imported connection works once `connections update` has given it the secret.
 
 **Write the exported document to a file, do not read it.** A workbook with a dashboard exports to hundreds of kilobytes (287 KB for 27 entries, measured): redirect `workbookexports result-get` to a file and hand the file to `workbookimports start --body-file`; an agent that takes the document into its context spends it on nothing.
+
+**A shared entry lies in a collection, not in a workbook.** A connection or a dataset created with `--collection-id` (and no `--workbook-id`) is one: workbooks may use it, and it has roles of its own, `datalens.sharedEntries.*` (`admin`, `viewer`), changed by deltas as on a collection. `sharedentries access-bindings-list` of an entry that lies in a workbook, or of an id nothing knows, answers an empty list, not an error. A change of roles answers an operation that may not be done yet (`done: false`): read the roles again to see it.
+
+**The audit is asked with a start time.** `audit entries-updates-list` requires `--from` (ISO-8601 with its zone) and lists every entry changed since, deleted ones included (`isDeleted`), with who changed it. `audit entry-permissions-get` answers by entry id: `permissions` (`execute`, `read`, `edit`, `admin`), or `error` for an entry that does not exist; the user's id is the one `createdBy` of an entry gives.
+
+**Cloud environments are experimental, and all but their listing is not measured.** A cloud environment is a cloud and a subnet DataLens runs clusters in, with a storage bucket. `cloudenvironments list` is measured (an instance with none answers an empty list; a filter is `field="value"` over `name`, `cloud_id`, `status`, `created_by_id`, the quotes included). `cloudenvironments create`, `update` and `delete` make and change resources in a cloud, which may be billed: they are written from the published document and were never called; ask the person before any of them. Each answers an operation that is not done yet. The four `cloudenvironmentstorage` commands (the paths in the bucket, the size of an object, a signed link to read or to put one) are written from the document too; a signed link works for whoever holds it. An id nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+**Spark applications are experimental, and not measured.** Every command takes the Spark cluster (without it the API answers 400; a cluster nothing knows answers 403, not 404), and the owner's instance has none, so the section is written from the published document. `sparkapplications log-list` answers one fragment of the log and the token of the next: give it back as `--page-token` to read on. `sparkapplications create` takes exactly one of three kinds, `--spark-application` (a JAR), `--pyspark-application` (a Python file) or `--spark-connect-application`, each a JSON object; over MCP the kind is the field of `body` that holds the application (`sparkApplication`, `pysparkApplication`, `sparkConnectApplication`). `create` and `cancel` were never called: ask the person before either.
+
+**Trino clusters are experimental, and billed while they run.** `trinoclusters list` is measured (an instance with none answers an empty list). Everything else is written from the published document and was never called: `create`, `start`, `stop`, `delete`, `catalog-create` and `catalog-delete` make or change cloud resources; ask the person before any of them. Each answers an operation to follow with `lakehouseoperations get`. The resource presets are read for a cloud environment, which is required (without it the API answers 400). An id nothing knows answers 403 Permission denied, not 404; a collection nothing knows, given to `list`, answered 500.
+
+**REST catalogs and Lakehouse operations are experimental too.** `restcatalogs list` is measured (an instance with none answers an empty list). `restcatalogs create` makes a bucket in a cloud, which may be billed: written from the document, never called; ask the person first. It answers an operation, as making a cloud environment does: `lakehouseoperations get <operation_id>` says whether it is `done`, and then its `error` or its `response`.
+
+**A licence is a seat DataLens bills for.** Yandex's pricing counts the seats of the instance (the number of seats times the cost of one), so `licensing licenses-assign` and `licensing limit-set` change what the organization pays: ask the person before either. Both are written from the published document and were never called. The reads are measured: `licenses-list` answers whose each licence is, its type (`creator` or `viewer`) and whether it is active; `limit-get` answers the limit in force with the count of active licences, and `next: null` when no change is set.
+
+**Saved SQL queries are experimental, and not measured.** DataLens marks the whole section experimental; ycli wraps it from the published document, and no reply of it was checked against the service. An organization whose SQL editor is off answers `403 SQL_EDITOR_NOT_ALLOWED` to every call. A query runs over a connection to PostgreSQL, ClickHouse, MySQL, Greenplum or Trino; `sqlqueries run` runs the text as it is saved, so a text that changes data changes it. `sqlqueries update` takes the connection and the text every time.
 
 **The private key of a key for embedding is given once.** `embeddingsecrets create` answers the id and the private key; `get` and `list` never return the key again, so write it to a file at once (`-o json … > secret.json`, a file nobody else reads) and do not paste it anywhere. Through MCP the key comes in the tool's result, into the agent's context: hand it over at once and do not repeat it.
 
@@ -190,7 +244,7 @@ The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` 
 
 **A connection is its kind.** `type` (`clickhouse`, `postgres`, `gsheets`, `json_api`… 29 kinds) says which fields it takes; over MCP read them with `schema_get(service="datalens", name="ConnectionCreate")`, then the definition of the kind. `connections get` answers with the kind in `db_type` and never with the password or the token. A connection to Google Sheets cannot be created through the API (`type: gsheets` answers 400 "This connection type is not editable"): make it in the DataLens interface, where its kind is `gsheets_v2`, then read it and build datasets on it here.
 
-**Give a secret in a file.** A password or a token goes in `--body-file` (a file outside the repository, mode 600), not in `-F` or `--data`: a command line stays in the shell history. `--dry-run` prints a secret as `***`, and a model prints it as `**********`; only the request itself carries it.
+**Give a secret in a file.** A password or a token comes from a file outside the repository, mode 600: in `--body-file`, or as one field with `-F password=@secret.txt`. Typed after `-F` or in `--data` it stays in the shell history. Write the file of one field with no line break at its end (`printf %s 'secret' > secret.txt`), or the break goes out with the secret. `--dry-run` prints a secret as `***`, and a model prints it as `**********`; only the request itself carries it.
 
 **A dataset is changed whole.** Read it with `datasets get`, change `dataset` (sources, `result_schema`, filters), and send it back as `data.dataset` of `datasets update`; `--body-file` holds it under `data`. Try the change with `datasets validate` first: it saves nothing and answers `code`, `message` and `dataset_errors`. Read the dataset again after every save: content of an older revision is refused (`ERR.DS_API.DATASET_REVISION_MISMATCH`). A source or a field of a kind ycli does not know comes and goes back as it is. Over MCP the body is read with `schema_get(service="datalens", name="DatasetUpdate")`.
 

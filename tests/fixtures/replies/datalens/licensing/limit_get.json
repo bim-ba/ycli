@@ -1,0 +1,14 @@
+{
+  "body": {
+    "current": {
+      "<unknown-1>": 1,
+      "activeLicensesCount": 1,
+      "startedAt": "<startedAt>",
+      "type": "regular",
+      "value": 1
+    },
+    "next": null
+  },
+  "status": 200,
+  "unknown_keys": 1
+}

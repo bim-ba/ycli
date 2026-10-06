@@ -121,5 +121,5 @@ class CallerFields:
         self.taken = True
         body_file = self.options.get("body_file")
         from_file = _read(Path(body_file)) if body_file else {}
-        from_fields = parse_fields(self.options.get("field"), nested=True)
+        from_fields = parse_fields(self.options.get("field"), structured=True)
         return laid_under(body, laid_under(from_fields, from_file))

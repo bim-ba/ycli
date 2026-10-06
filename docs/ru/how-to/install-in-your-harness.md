@@ -258,7 +258,10 @@ Windsurf теперь называется Devin Desktop; оба его аген
     args = ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"]
     env_vars = ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]
     startup_timeout_sec = 60   # при первом запуске uvx скачивает пакет
+    tool_input_schema_max_bytes = 16384   # Codex урезает схему инструмента больше 5000 байт
     ```
+
+    Без последней строки Codex убирает описания и глубоко вложенные поля из схем крупных инструментов (создание формы, рабочего процесса, датасета).
 
 === "Команда"
 
@@ -266,9 +269,9 @@ Windsurf теперь называется Devin Desktop; оба его аген
     codex mcp add yandex-360 -- uvx --from 'yandex-cli[mcp]' ycli mcp start
     ```
 
-    Затем добавьте строки `env_vars` и `startup_timeout_sec` выше в запись, которую команда создала: `--env` сохранил бы сам токен.
+    Затем добавьте строки `env_vars`, `startup_timeout_sec` и `tool_input_schema_max_bytes` выше в запись, которую команда создала: `--env` сохранил бы сам токен, а для двух других у команды нет опции.
 
-Проверка: `codex mcp list` показывает `yandex-360` как `enabled`. После изменений перезапустите Codex. *Проверено в Codex 0.159.2 на 2026-10-03: он принимает файл, а команда создаёт запись. Сеанс не запускался.*
+Проверка: `codex mcp list` показывает `yandex-360` как `enabled`. После изменений перезапустите Codex. *Проверено в Codex 0.159.2 на 2026-10-03: он принимает файл, а команда создаёт запись. Строка `tool_input_schema_max_bytes` проверена в Codex 0.160.0 на 2026-10-07: файл принимается. Сеанс не запускался.*
 
 ## Gemini CLI { #gemini-cli }
 
@@ -390,7 +393,7 @@ npx skills add bim-ba/ycli/plugins/yandex-360
 | Что нужно | Что написать |
 |---|---|
 | самый новый релиз при каждом запуске | `uvx --from 'yandex-cli[mcp]@latest' ycli mcp start` |
-| одна фиксированная версия | `uvx --from 'yandex-cli[mcp]==0.104.0' ycli mcp start` |
+| одна фиксированная версия | `uvx --from 'yandex-cli[mcp]==0.113.1' ycli mcp start` |
 | один раз обновить копию | `uvx --refresh-package yandex-cli --from 'yandex-cli[mcp]' ycli --version` |
 
 ## Если не работает { #if-it-does-not-work }

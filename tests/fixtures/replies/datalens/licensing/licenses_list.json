@@ -1,0 +1,24 @@
+{
+  "body": {
+    "licenses": [
+      {
+        "<unknown-1>": false,
+        "<unknown-2>": null,
+        "createdAt": "<createdAt>",
+        "createdBy": "<createdBy>",
+        "expiresAt": null,
+        "isActive": true,
+        "lastLoginAt": "<lastLoginAt>",
+        "licenseId": "<licenseId>",
+        "licenseType": "creator",
+        "meta": {},
+        "tenantId": "<tenantId>",
+        "updatedAt": "<updatedAt>",
+        "updatedBy": "<updatedBy>",
+        "userId": "<userId>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 2
+}

@@ -47,7 +47,7 @@ CASES = [
             )
         ],
     ),
-    # Still running, with a notification about an entry (its keys are the document's).
+    # Still running, with a notification about an entry.
     Case(
         "datalens.workbookexports.status_get",
         args=("exp0000000003",),

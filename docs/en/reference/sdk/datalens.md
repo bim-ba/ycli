@@ -70,3 +70,43 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## embeddingsecrets
 
 ::: ycli.yandex.datalens.embeddingsecrets.client.EmbeddingSecretsClient
+
+## sharedentries
+
+::: ycli.yandex.datalens.sharedentries.client.SharedEntriesClient
+
+## audit
+
+::: ycli.yandex.datalens.audit.client.AuditClient
+
+## sqlqueries
+
+::: ycli.yandex.datalens.sqlqueries.client.SqlQueriesClient
+
+## licensing
+
+::: ycli.yandex.datalens.licensing.client.LicensingClient
+
+## cloudenvironments
+
+::: ycli.yandex.datalens.cloudenvironments.client.CloudEnvironmentsClient
+
+## cloudenvironmentstorage
+
+::: ycli.yandex.datalens.cloudenvironmentstorage.client.CloudEnvironmentStorageClient
+
+## restcatalogs
+
+::: ycli.yandex.datalens.restcatalogs.client.RestCatalogsClient
+
+## lakehouseoperations
+
+::: ycli.yandex.datalens.lakehouseoperations.client.LakehouseOperationsClient
+
+## trinoclusters
+
+::: ycli.yandex.datalens.trinoclusters.client.TrinoClustersClient
+
+## sparkapplications
+
+::: ycli.yandex.datalens.sparkapplications.client.SparkApplicationsClient

@@ -61,3 +61,19 @@ def test_wait_gives_up_after_the_configured_seconds(api, monkeypatch):
     assert isinstance(res.exception, YandexTimeoutError)
     assert str(res.exception) == "operation did not finish within 1 s"
     assert slept == [0.5, 0.5]
+
+
+def test_the_field_option_of_a_bulk_change_is_parsed_as_the_common_one(api, tmp_path):
+    """#412: one ``-F`` everywhere: ``key=@file`` is the file's text, ``key[sub]`` nests."""
+    held = tmp_path / "summary.txt"
+    held.write_text("From a file")
+    api.add("POST", f"{BASE}/bulkchange/_update", json={"id": "1ab", "status": "COMPLETE"})
+    fields = ["-F", f"summary=@{held}", "-F", "tags[add][]=late", "-F", 'followers="@ann"']
+    argv = ["tracker", "issues", "update-bulk", "--issue", "TEST-1", "--no-wait", *fields]
+    res = CliRunner().invoke(cli.app, argv)
+    assert res.exit_code == 0, res.output
+    assert api.body()["values"] == {
+        "summary": "From a file",
+        "tags": {"add": ["late"]},
+        "followers": "@ann",
+    }

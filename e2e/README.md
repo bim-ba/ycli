@@ -39,6 +39,12 @@ A second scenario, `datalens/workbook-transfer`, exports a workbook holding one 
 
 A third, `datalens/embedding`, gives a workbook a key for embedding, embeds an entry with it, and deletes both. The private key the API returns is never written anywhere: a recording keeps `<privateKey>` in its place.
 
+A fourth, `datalens/shared-entries-and-audit`, makes a dataset in a collection (a shared entry), adds a role on it to the caller and takes it back, and asks the audit what changed and what the caller may do.
+
+A fifth, `datalens/licensing`, only reads: who holds a licence and how many there may be. The writes of that section are billed and are never run.
+
+A sixth, `datalens/cloud-environments`, only lists the cloud environments, the REST catalogs and the Trino clusters; making any of them creates cloud resources and is never run.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

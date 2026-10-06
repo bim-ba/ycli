@@ -1,0 +1,32 @@
+{
+  "body": {
+    "entries": [
+      {
+        "collectionId": null,
+        "entryId": "<entryId>",
+        "isDeleted": false,
+        "key": null,
+        "parentFolderId": null,
+        "scope": "dataset",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "userId": "<userId>",
+        "workbookId": "<workbookId>"
+      },
+      {
+        "collectionId": "<collectionId>",
+        "entryId": "<entryId>",
+        "isDeleted": false,
+        "key": null,
+        "parentFolderId": null,
+        "scope": "dataset",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "userId": "<userId>",
+        "workbookId": null
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

@@ -41,6 +41,21 @@
       "template_enabled": false
     },
     "id": "<id>",
+    "operation": {
+      "<unknown-1>": {
+        "<unknown-1>": 1,
+        "<unknown-2>": "<unknown-2>"
+      },
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": false,
+      "<unknown-5>": "<unknown-5>",
+      "<unknown-6>": {},
+      "<unknown-7>": {
+        "<unknown-1>": 1,
+        "<unknown-2>": "<unknown-2>"
+      }
+    },
     "options": {
       "<unknown-1>": false,
       "connections": {
@@ -116,5 +131,5 @@
     "savedId": "<savedId>"
   },
   "status": 200,
-  "unknown_keys": 3
+  "unknown_keys": 4
 }
