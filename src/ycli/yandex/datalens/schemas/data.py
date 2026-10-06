@@ -17,6 +17,12 @@ class GetChartDataArgs(RequestBody):
     )
 
 
+class OtherKindByChartType(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    chart_type: str | None = Field(default=None, alias="chartType", description="The kind.")
+
+
 class GetWizardChartDataResultResultsItemSchemaItem(APIModel):
     name: str | None = None
     guid: str | None = Field(default=None, description="Field GUID, when provided by the source.")
@@ -227,8 +233,16 @@ class GetEditorChartDataResult(APIModel):
 
 
 class GetChartDataResult(
-    RootModel[GetWizardChartDataResult | GetQLChartDataResult | GetEditorChartDataResult]
+    RootModel[
+        GetWizardChartDataResult
+        | GetQLChartDataResult
+        | GetEditorChartDataResult
+        | OtherKindByChartType
+    ]
 ):
-    root: GetWizardChartDataResult | GetQLChartDataResult | GetEditorChartDataResult = Field(
-        ..., discriminator="chart_type"
+    root: (
+        GetWizardChartDataResult
+        | GetQLChartDataResult
+        | GetEditorChartDataResult
+        | OtherKindByChartType
     )

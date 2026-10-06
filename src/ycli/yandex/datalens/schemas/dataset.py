@@ -9,6 +9,8 @@ from pydantic import AwareDatetime, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 
+from . import shared
+
 
 class AvatarBase(APIModel):
     id: str | None = None
@@ -911,6 +913,24 @@ class Uuid(APIModel):
     value: str | None = None
 
 
+class OtherKindBySourceTypeSnake(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    source_type: str | None = Field(default=None, description="The kind.")
+
+
+class OtherKindByNativeTypeClassNameSnake(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    native_type_class_name: str | None = Field(default=None, description="The kind.")
+
+
+class OtherKindByCalcModeSnake(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    calc_mode: str | None = Field(default=None, description="The kind.")
+
+
 class GetDatasetRequest(RequestBody):
     dataset_id: str = Field(..., alias="datasetId")
     workbook_id: str | None = Field(default=None, alias="workbookId")
@@ -1019,8 +1039,8 @@ class ComponentErrorList(APIModel):
     items: list[ComponentErrorPack] | None = None
 
 
-class ConditionPartGeneric(RootModel[Direct | Formula | ResultField]):
-    root: Direct | Formula | ResultField = Field(..., discriminator="calc_mode")
+class ConditionPartGeneric(RootModel[Direct | Formula | ResultField | OtherKindByCalcModeSnake]):
+    root: Direct | Formula | ResultField | OtherKindByCalcModeSnake
 
 
 class FieldInterDependencyInfo(APIModel):
@@ -1051,6 +1071,7 @@ class OneOfNativeType(
         | ClickhouseDatetimewithtzNativeType
         | ClickhouseDatetime64NativeType
         | ClickhouseDatetime64withtzNativeType
+        | OtherKindByNativeTypeClassNameSnake
     ]
 ):
     root: (
@@ -1061,11 +1082,12 @@ class OneOfNativeType(
         | ClickhouseDatetimewithtzNativeType
         | ClickhouseDatetime64NativeType
         | ClickhouseDatetime64withtzNativeType
-    ) = Field(..., discriminator="native_type_class_name")
+        | OtherKindByNativeTypeClassNameSnake
+    )
 
 
-class ParameterValueConstraint(RootModel[Regex | Default]):
-    root: Regex | Default = Field(..., discriminator="type")
+class ParameterValueConstraint(RootModel[Regex | Default | shared.OtherKindByType]):
+    root: Regex | Default | shared.OtherKindByType
 
 
 class RLS2ConfigEntry(APIModel):
@@ -2516,8 +2538,10 @@ class PROMQL1(APIModel):
     virtual: Any | None = None
 
 
-class ResultSchemaSchemaGeneric(RootModel[Direct1 | Formula2 | Parameter1]):
-    root: Direct1 | Formula2 | Parameter1 = Field(..., discriminator="calc_mode")
+class ResultSchemaSchemaGeneric(
+    RootModel[Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake]
+):
+    root: Direct1 | Formula2 | Parameter1 | OtherKindByCalcModeSnake
 
 
 class UpdateField(APIModel):
@@ -2730,6 +2754,7 @@ class DataSourceStrict(
         | YDBSUBSELECT
         | YQTABLE
         | YQSUBSELECT
+        | OtherKindBySourceTypeSnake
     ]
 ):
     root: (
@@ -2775,7 +2800,8 @@ class DataSourceStrict(
         | YDBSUBSELECT
         | YQTABLE
         | YQSUBSELECT
-    ) = Field(..., discriminator="source_type")
+        | OtherKindBySourceTypeSnake
+    )
 
 
 class DatasetContentInternal(APIModel):

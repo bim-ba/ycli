@@ -127,6 +127,7 @@ def test_the_specification_is_prepared_for_ycli_rules():
         "charts.ChartMeta2TagsItem",
         "charts.GetChartRequest",
         "charts.Line",
+        "charts.OtherKindByType",
         "charts.Pie",
         "charts.UpdateChartArgs",
         "dashboards.DeleteArgs",
@@ -145,16 +146,23 @@ def test_the_specification_is_prepared_for_ycli_rules():
     }
     assert chart["managedBy"] == {"anyOf": [{"enum": ["user", "system", None]}, {"type": "string"}]}
     assert chart["kind"] == {"type": "string", "enum": ["wizard"]}
-    # A union's tag stays closed even with several values, and its members always carry it.
+    # A union a reply reaches is read softly: the tag the discriminator mapped to a member
+    # is written into it and required, the discriminator goes, a spare open member is added.
     assert schemas["charts.Line"] == {
         "type": "object",
-        "properties": {"type": {"type": "string", "enum": ["line", "area"]}},
+        "properties": {"type": {"type": "string", "enum": ["line"]}},
         "required": ["type"],
     }
     assert schemas["charts.Pie"]["required"] == ["type"]
-    assert chart["config"]["discriminator"]["mapping"] == {
-        "line": REF + "charts.Line",
-        "pie": REF + "charts.Pie",
+    assert chart["config"] == {
+        "anyOf": [
+            {"$ref": REF + "charts.Line"},
+            {"$ref": REF + "charts.Pie"},
+            {"$ref": REF + "charts.OtherKindByType"},
+        ]
+    }
+    assert schemas["charts.OtherKindByType"]["properties"] == {
+        "type": {"type": "string", "description": "The kind."}
     }
     # An object written in place is named from its place; a name already taken is not reused.
     assert chart["meta"] == {"$ref": REF + "charts.ChartMeta2"}
@@ -207,7 +215,7 @@ def test_the_small_specification_becomes_modules_that_follow_the_rules():
     assert 'mode: Literal["save", "publish"] | str | None = None' in charts
     assert 'managed_by: Literal["user", "system"] | str | None = Field(' in charts
     assert 'kind: Literal["wizard"] | None = None' in charts
-    # The generator writes a union member's tag from the mapping; it is never widened.
+    # A union member's tag is the one its mapping gave it; it is never widened.
     assert 'type: Literal["line"]\n' in charts and 'type: Literal["pie"]\n' in charts
     assert "meta: ChartMeta2 | None = None" in charts and "class ChartMeta2TagsItem" in charts
     # The envelope the document leaves open is not closed by ycli.
@@ -575,3 +583,97 @@ def test_the_measured_permission_replies_are_read():
     )
     assert bulk.model_dump(exclude_none=True)["entries"] == {"e": {"error": "NOT_FOUND"}}
     assert bulk.model_dump(exclude_none=True)["workbooks"] == {"w": {"permissions": {}}}
+
+
+def _kind(value: str, tag: str = "kind") -> dict:
+    """An object of the kind ``value``: its tag has that one value, its ``size`` a type of its own.
+
+    Members that agreed on every field would be one object (``_merge_agreeing_replies``).
+    """
+    size = {"type": "integer"} if value == "a" else {"type": "string"}
+    return {"type": "object", "properties": {tag: {"const": value}, "size": size}}
+
+
+def _kinds_document(reply: dict, request: dict | None = None, shared: dict | None = None) -> dict:
+    """A document whose ``getThing`` answers ``reply`` and takes ``request``."""
+    taken = {"type": "object", "properties": {"filter": request or {"type": "string"}}}
+    given = {"type": "object", "properties": {"item": reply}}
+    return {
+        "paths": {"/rpc/getThing": _operation(taken, given)},
+        "components": {"schemas": shared or {}},
+    }
+
+
+def test_a_union_a_reply_reaches_gets_a_spare_member_and_a_request_union_stays_strict():
+    """Both sides (#391): a reply reads a kind the document does not know, a request does not."""
+    reply = {"oneOf": [_kind("a"), _kind("b")]}
+    request = {"oneOf": [_kind("a"), _kind("b")]}
+    schemas = gen.prepare(_kinds_document(reply, request))["components"]["schemas"]
+    read = schemas["things.GetThingResponse"]["properties"]["item"]["anyOf"]
+    assert len(read) == 3 and read[-1] == {"$ref": REF + "things.OtherKindByKind"}
+    assert schemas["things.OtherKindByKind"] == {
+        "type": "object",
+        "description": "A kind the specification does not describe: kept as it came.",
+        "properties": {"kind": {"type": "string", "description": "The kind."}},
+    }
+    sent = schemas["things.GetThingRequest"]["properties"]["filter"]
+    assert len(sent["oneOf"]) == 2 and "anyOf" not in sent
+
+
+def test_a_union_a_request_and_a_reply_share_is_read_softly_both_ways():
+    """An object read, changed and sent back holds the kind it came with."""
+    shared = {"Item": {"oneOf": [_kind("a"), _kind("b")]}}
+    document = _kinds_document({"$ref": REF + "Item"}, {"$ref": REF + "Item"}, shared)
+    schemas = gen.prepare(document)["components"]["schemas"]
+    assert schemas["things.Item"]["anyOf"][-1] == {"$ref": REF + "things.OtherKindByKind"}
+
+
+def test_the_spare_member_names_the_tag_only_where_the_union_has_one():
+    """No field tells these members apart, and two spellings of a tag are two classes."""
+    plain = {"type": "object", "properties": {"size": {"type": "boolean"}}}
+    untold = gen.prepare(_kinds_document({"anyOf": [plain, _kind("a")]}))["components"]["schemas"]
+    assert untold["things.OtherKind"] == {
+        "type": "object",
+        "description": "A kind the specification does not describe: kept as it came.",
+    }
+    snake = {"oneOf": [_kind("a", "source_type"), _kind("b", "source_type")]}
+    assert (
+        "things.OtherKindBySourceTypeSnake"
+        in (gen.prepare(_kinds_document(snake))["components"]["schemas"])
+    )
+    # A value that is no object, or one object alone, is no union of kinds: left as it is.
+    alone = gen.prepare(_kinds_document({"anyOf": [_kind("a"), {"type": "string"}]}))
+    assert not [name for name in alone["components"]["schemas"] if "OtherKind" in name]
+
+
+def test_a_name_of_the_document_that_the_spare_member_needs_stops_the_run():
+    taken = {"OtherKindByKind": {"type": "object", "properties": {"x": {"type": "string"}}}}
+    reply = {"oneOf": [_kind("a"), _kind("b")]}
+    with pytest.raises(SystemExit, match="'OtherKindByKind' already"):
+        gen.prepare(_kinds_document(reply, shared=taken))
+
+
+def test_the_measured_kinds_the_document_does_not_know_are_read():
+    """Measured: a dataset's source of the kind ``CH_FROZEN_SOURCE``, which no list names."""
+    from ycli.yandex.datalens.schemas.collection import GetStructureItemsResult
+    from ycli.yandex.datalens.schemas.dataset import DataSourceStrict
+
+    frozen = {"id": "s1", "source_type": "CH_FROZEN_SOURCE", "parameters": {"db": "x"}}
+    read = DataSourceStrict.model_validate(frozen).root
+    assert type(read).__name__ == "OtherKindBySourceTypeSnake"
+    assert read.source_type == "CH_FROZEN_SOURCE"
+    assert read.model_dump(exclude_none=True) == frozen  # sent back as it came
+    # A kind the document knows is read as its own class...
+    known = DataSourceStrict.model_validate({**frozen, "source_type": "CH_TABLE"}).root
+    assert type(known).__name__ == "CHTABLE"
+    # ...unless a field of it comes of another type than the document says: read all the same.
+    odd = DataSourceStrict.model_validate({"source_type": "CH_TABLE", "valid": {"no": 1}}).root
+    assert type(odd).__name__ == "OtherKindBySourceTypeSnake"
+    # The items of a collection: a kind added tomorrow does not fail the page.
+    page = GetStructureItemsResult.model_validate(
+        {"items": [{"entity": "workbook", "workbookId": "w1"}, {"entity": "folder", "id": "f1"}]}
+    )
+    assert [type(item).__name__ for item in page.items or []] == [
+        "GetStructureItemsResultItemsItemVariant2",
+        "OtherKindByEntity",
+    ]

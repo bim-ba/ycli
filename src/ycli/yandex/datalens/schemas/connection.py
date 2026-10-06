@@ -8,6 +8,8 @@ from pydantic import AwareDatetime, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 
+from . import shared
+
 
 class ConnectionCreateResponse(APIModel):
     id: str | None = None
@@ -2069,6 +2071,7 @@ class ConnectionRead(
         | UsageAnalyticsLight1
         | Ydb1
         | Yq1
+        | shared.OtherKindByType
     ]
 ):
     root: (
@@ -2101,4 +2104,5 @@ class ConnectionRead(
         | UsageAnalyticsLight1
         | Ydb1
         | Yq1
-    ) = Field(..., discriminator="type")
+        | shared.OtherKindByType
+    )

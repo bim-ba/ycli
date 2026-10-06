@@ -89,7 +89,7 @@ DataLens differs from the other services in both credentials:
 
 **An entry's `scope` is its kind**: `connection`, `dataset`, `widget` (a chart), `dash`, `report`. `entries-list` takes `--order-by '{"field": "name", "direction": "asc"}'` and `--filters '{"name": "sales"}'` as JSON objects.
 
-**Content is mixed.** `content-list` returns collections, workbooks and entries in one list; `entity` says which (`collection`, `workbook`, `entry`). The root has no id: leave the id out (MCP: `collection_id` null).
+**Content is mixed.** `content-list` returns collections, workbooks and entries in one list; `entity` says which (`collection`, `workbook`, `entry`); a kind DataLens adds later comes as it is, with its own `entity`. The root has no id: leave the id out (MCP: `collection_id` null).
 
 ---
 
