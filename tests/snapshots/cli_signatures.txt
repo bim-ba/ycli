@@ -2,6 +2,8 @@ api: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT -
 auth login: --body-file:FILE --device-name:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --implicit:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False
 auth profiles: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens audit entries-updates-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --from:TEXT! --limit:INTEGER RANGE --profile:TEXT --to:TEXT --yes:BOOLEAN=False
+datalens audit entry-permissions-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --user-id:TEXT! --yes:BOOLEAN=False ENTRY_IDS:TEXT!
 datalens auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens charts data-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT --profile:TEXT --yes:BOOLEAN=False CHART_ID:TEXT!
 datalens charts editor create: --body-file:FILE --dry-run:BOOLEAN=False --entry:TEXT --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
@@ -61,6 +63,8 @@ datalens reports create: --annotation:TEXT --body-file:FILE --data:TEXT --dry-ru
 datalens reports delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens reports get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens reports update: --annotation:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --meta:TEXT --mode:TEXT! --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens sharedentries access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens sharedentries access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens workbookexports cancel: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!
 datalens workbookexports result-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False EXPORT_ID:TEXT!

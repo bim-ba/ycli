@@ -72,5 +72,8 @@ def result_get(
 def cancel(
     export_id: ExportID, client: DataLensClient = Depends(datalens_client)
 ) -> WorkbookExportCancelled:
-    """Stop an export; cancelling one that is over, or twice, answers the same."""
+    """Stop an export: its status becomes ``error``, with ``WORKBOOK_EXPORT_CANCELLED``.
+
+    An export that is over stays as it ended, and the call answers the same.
+    """
     return client.workbookexports.cancel(export_id)

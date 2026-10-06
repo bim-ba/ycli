@@ -37,6 +37,8 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `workbookimports`: Imports of a DataLens workbook.
 * `embeds`: DataLens embeds.
 * `embeddingsecrets`: DataLens keys for embedding.
+* `sharedentries`: DataLens shared entries: connections and...
+* `audit`: DataLens audit.
 
 ## `ycli datalens auth`
 
@@ -2047,7 +2049,7 @@ $ ycli datalens workbookexports [OPTIONS] COMMAND [ARGS]...
 * `start`: Export a workbook (async): prints the...
 * `status-get`: Print how far an export is: pending,...
 * `result-get`: Print the exported workbook; its `data` is...
-* `cancel`: Stop an export; one that is over answers...
+* `cancel`: Stop an export: its status becomes error,...
 
 ### `ycli datalens workbookexports start`
 
@@ -2129,7 +2131,9 @@ $ ycli datalens workbookexports result-get [OPTIONS] EXPORT_ID
 
 ### `ycli datalens workbookexports cancel`
 
-Stop an export; one that is over answers the same.
+Stop an export: its status becomes error, with WORKBOOK_EXPORT_CANCELLED.
+
+An export that is over stays as it ended, and the command answers the same.
 
 **Usage**:
 
@@ -2464,6 +2468,145 @@ $ ycli datalens embeddingsecrets delete [OPTIONS] EMBEDDING_SECRET_ID
 
 **Options**:
 
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens sharedentries`
+
+DataLens shared entries: connections and datasets that lie in a collection.
+
+**Usage**:
+
+```console
+$ ycli datalens sharedentries [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `access-bindings-list`: List who has which role on a shared entry...
+* `access-bindings-update`: Give or take away roles on a shared entry;...
+
+### `ycli datalens sharedentries access-bindings-list`
+
+List who has which role on a shared entry (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens sharedentries access-bindings-list [OPTIONS] ENTRY_ID
+```
+
+**Arguments**:
+
+* `ENTRY_ID`: Entry id.  [required]
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens sharedentries access-bindings-update`
+
+Give or take away roles on a shared entry; the roles not named stay as they are.
+
+**Usage**:
+
+```console
+$ ycli datalens sharedentries access-bindings-update [OPTIONS] ENTRY_ID
+```
+
+**Arguments**:
+
+* `ENTRY_ID`: Entry id.  [required]
+
+**Options**:
+
+* `--delta TEXT`: A role to add or remove, as a JSON object of the API docs: {"action": "ADD", "accessBinding": {"roleId": ..., "subject": {"id": ..., "type": ...}}} (repeatable).  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens audit`
+
+DataLens audit.
+
+**Usage**:
+
+```console
+$ ycli datalens audit [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `entries-updates-list`: List the entries changed in a period,...
+* `entry-permissions-get`: Print what one user may do with each...
+
+### `ycli datalens audit entries-updates-list`
+
+List the entries changed in a period, deleted ones too (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens audit entries-updates-list [OPTIONS]
+```
+
+**Options**:
+
+* `--from TEXT`: The start of the period: an ISO-8601 time with its zone.  [required]
+* `--to TEXT`: The end of the period.
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens audit entry-permissions-get`
+
+Print what one user may do with each entry: execute, read, edit, admin.
+
+**Usage**:
+
+```console
+$ ycli datalens audit entry-permissions-get [OPTIONS] ENTRY_ID...
+```
+
+**Arguments**:
+
+* `ENTRY_ID...`: Entry ids.  [required]
+
+**Options**:
+
+* `--user-id TEXT`: The user's id, as `createdBy` of an entry gives it.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
