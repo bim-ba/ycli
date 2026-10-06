@@ -161,8 +161,25 @@ def test_the_model_checks_bite():
     assert [name.rsplit(".", 1)[-1] for name in _own_list_classes(probes)] == ["Names"]
 
 
-def _undiscriminated_unions(schema: Any, path: str = "$") -> list[str]:
-    """Paths of ``anyOf`` / ``oneOf`` with two or more object branches and no discriminator."""
+def _generated_classes() -> frozenset[str]:
+    """The names of the classes of the generated layer (``GENERATED``)."""
+    return frozenset(
+        name
+        for home in GENERATED
+        for module in sorted((SRC / "ycli" / home).glob("*.py"))
+        for name in re.findall(r"^class (\w+)", module.read_text(encoding="utf-8"), re.MULTILINE)
+    )
+
+
+def _undiscriminated_unions(
+    schema: Any, path: str = "$", *, generated: frozenset[str] = frozenset()
+) -> list[str]:
+    """Paths of ``anyOf`` / ``oneOf`` with two or more object branches and no discriminator.
+
+    A union whose every object branch is a class named in ``generated`` is not one of them:
+    the generated layer reads a union softly, with a spare open member and no discriminator
+    (docs/conventions/resources.md, "Generated models").
+    """
     found: list[str] = []
     if isinstance(schema, dict):
         for key in ("anyOf", "oneOf"):
@@ -171,22 +188,26 @@ def _undiscriminated_unions(schema: Any, path: str = "$") -> list[str]:
                 for branch in schema.get(key, [])
                 if "$ref" in branch or branch.get("type") == "object"
             ]
-            if len(objects) >= 2 and "discriminator" not in schema:
+            layer = all(
+                branch.get("$ref", "").rsplit("/", 1)[-1] in generated for branch in objects
+            )
+            if len(objects) >= 2 and "discriminator" not in schema and not layer:
                 found.append(path)
         for key, value in schema.items():
-            found += _undiscriminated_unions(value, f"{path}.{key}")
+            found += _undiscriminated_unions(value, f"{path}.{key}", generated=generated)
     elif isinstance(schema, list):
         for index, value in enumerate(schema):
-            found += _undiscriminated_unions(value, f"{path}[{index}]")
+            found += _undiscriminated_unions(value, f"{path}[{index}]", generated=generated)
     return found
 
 
 def test_every_union_a_tool_returns_is_discriminated():
     """Section 5: fastmcp rebuilds an undiscriminated union as its first matching member."""
+    generated = _generated_classes()
     offenders = {
         tool.name: paths
         for tool in asyncio.run(tools_with_output_schemas())
-        if (paths := _undiscriminated_unions(tool.output_schema))
+        if (paths := _undiscriminated_unions(tool.output_schema, generated=generated))
     }
     assert offenders == {}
 
@@ -198,6 +219,12 @@ def test_the_union_check_bites():
     ]
     assert _undiscriminated_unions({"oneOf": members, "discriminator": {"propertyName": "t"}}) == []
     assert _undiscriminated_unions({"anyOf": [{"$ref": "#/$defs/A"}, {"type": "null"}]}) == []
+    # Both sides of the generated layer: a union of its classes alone is left to it, and one
+    # hand-written member brings the union back under the rule.
+    layer = frozenset({"A", "B"})
+    assert _undiscriminated_unions({"anyOf": members}, generated=layer) == []
+    assert _undiscriminated_unions({"anyOf": members}, generated=frozenset({"A"})) == ["$"]
+    assert {"ContentPage", "OtherKindByEntity"} & _generated_classes() == {"OtherKindByEntity"}
 
 
 # Models that both build a request body and read a reply. A reply keeps what Yandex adds, so

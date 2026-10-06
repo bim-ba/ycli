@@ -53,7 +53,7 @@ DataLens publishes one OpenAPI document with about 600 schemas, and its objects 
 write by hand, so `scripts/gen_datalens_models.py` generates them into
 `src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
 are met by the script, not by an editor: before the generator runs it rewrites the document so
-that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
+that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), every other union of objects a reply reaches has a spare open member and no discriminator (#391: a kind the document does not list, or a known kind with a field of another type, is read as `OtherKind…`, every key kept as it came and the tag as plain text; a union only a request reaches stays strict), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
 and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
@@ -338,6 +338,12 @@ QuestionCreate = Annotated[
 
 The CLI/SDK path carries the native model instance and is unaffected; only the MCP
 `result.data` reconstruction depends on the schema being self-describing.
+
+A union whose members are all classes of the generated layer is outside this rule
+(`_generated_classes` in `tests/architecture/test_conventions.py`): it is read softly, with a
+spare open member in place of the discriminator ("Generated models", #391). Its members
+still require their tag, so a value fits one of them at most, and `structuredContent` is
+what DataLens sent; one hand-written member puts the union back under the rule.
 
 ---
 

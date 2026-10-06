@@ -186,6 +186,28 @@ class WorkbookTransferNotification(APIModel):
     details: Any | None = Field(default=None, description="Additional notification details.")
 
 
+class OtherKind(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+
+class OtherKindByType(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    type: str | None = Field(default=None, description="The kind.")
+
+
+class OtherKindBySourceType(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    source_type: str | None = Field(default=None, alias="sourceType", description="The kind.")
+
+
+class OtherKindByElementType(APIModel):
+    """A kind the specification does not describe: kept as it came."""
+
+    element_type: str | None = Field(default=None, alias="elementType", description="The kind.")
+
+
 class DatalensOperationCreatedAt(APIModel):
     """Operation creation timestamp."""
 
@@ -624,6 +646,7 @@ class DashControlElementV2(
         | DashControlElementV2Variant2
         | DashControlElementV2Variant3
         | DashControlElementV2Variant4
+        | OtherKindByElementType
     ]
 ):
     root: (
@@ -631,6 +654,7 @@ class DashControlElementV2(
         | DashControlElementV2Variant2
         | DashControlElementV2Variant3
         | DashControlElementV2Variant4
+        | OtherKindByElementType
     )
 
 
@@ -663,11 +687,19 @@ class DashControlSourceDatasetV2Model3(
 
 
 class DashControlSourceDatasetV2Model4(
+    OtherKindByElementType,
+    DashControlSourceDatasetV2,
+):
+    """Dataset control source."""
+
+
+class DashControlSourceDatasetV2Model5(
     RootModel[
         DashControlSourceDatasetV2Model
         | DashControlSourceDatasetV2Model1
         | DashControlSourceDatasetV2Model2
         | DashControlSourceDatasetV2Model3
+        | DashControlSourceDatasetV2Model4
     ]
 ):
     """Dataset control source."""
@@ -677,6 +709,7 @@ class DashControlSourceDatasetV2Model4(
         | DashControlSourceDatasetV2Model1
         | DashControlSourceDatasetV2Model2
         | DashControlSourceDatasetV2Model3
+        | DashControlSourceDatasetV2Model4
     ) = Field(..., description="Dataset control source.")
 
 
@@ -726,11 +759,19 @@ class DashControlSourceManualV2Model3(
 
 
 class DashControlSourceManualV2Model4(
+    OtherKindByElementType,
+    DashControlSourceManualV2,
+):
+    """Manual control source."""
+
+
+class DashControlSourceManualV2Model5(
     RootModel[
         DashControlSourceManualV2Model
         | DashControlSourceManualV2Model1
         | DashControlSourceManualV2Model2
         | DashControlSourceManualV2Model3
+        | DashControlSourceManualV2Model4
     ]
 ):
     """Manual control source."""
@@ -740,6 +781,7 @@ class DashControlSourceManualV2Model4(
         | DashControlSourceManualV2Model1
         | DashControlSourceManualV2Model2
         | DashControlSourceManualV2Model3
+        | DashControlSourceManualV2Model4
     ) = Field(..., description="Manual control source.")
 
 
