@@ -6,7 +6,7 @@ description: >-
   workbook and importing it as a new one, embedding an entry on another site,
   the roles on them, finding entries anywhere with their relations, revisions
   and permissions, renaming and locking an entry, connections to data sources,
-  datasets and their rows, charts and their data, the members of the
+  datasets and their rows, charts and their data, reports, the members of the
   organization, which DataLens instance the credentials reach, and how to sign
   in to it — via the `ycli datalens` CLI, the `datalens_*` MCP tools, or the
   DataLensClient SDK.
@@ -17,7 +17,7 @@ metadata:
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; the embeds of an entry and the keys for embedding that sign them; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks) and workbooks, reads and writes, with the export of a workbook as one document and its import as a new workbook; the embeds of an entry and the keys for embedding that sign them; entries as such (finding them, their relations, revisions and permissions, renaming, locks); connections and datasets, reads and writes, with the rows of a dataset and the data of a saved chart; the members of the organization; and the details of the DataLens instance. charts built in the wizard, in QL and in the editor, reads and writes; reports, reads and writes. Dashboards are found and listed as entries but their content is not opened or changed yet; this skill grows with each section.
 
 ## When to use
 
@@ -109,8 +109,11 @@ DataLens differs from the other services in both credentials:
 | Check a dataset or a change to it, saving nothing | `uv run ycli datalens datasets validate <dataset_id> --body-file change.json` | `datalens_datasets_validate` |
 | The data a saved chart shows, as tables | `uv run ycli datalens charts data-get <chart_id> [--params '{"year": "2026"}']` | `datalens_charts_data_get` |
 | One chart, by how it is built | `uv run ycli datalens charts wizard get <chart_id>` · `charts ql get <chart_id>` · `charts editor get <chart_id>` | `datalens_charts_wizard_get` · `datalens_charts_ql_get` · `datalens_charts_editor_get` |
+| One report: its slides and what stands on them | `uv run ycli datalens reports get <entry_id>` | `datalens_reports_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
+
+**Saving a report through the API loses part of it (measured, 2026-10-06).** `reports update` and `reports create` do not keep the `layout` of the elements of a slide (it comes back `null`) and drop part of `settings` (`autoupdateInterval`, `globalParams`, `loadPriority`, `maxConcurrentRequests`, `silentLoading`), `showInTOC` of an element and `autoHeight` of a tab: DataLens drops them without a word, though ycli sends them. A report saved this way loses where its elements stood. Do not update an existing report without telling the person first; a dashboard has no such loss.
 
 **An entry's `scope` is its kind**: `connection`, `dataset`, `widget` (a chart), `dash`, `report`. `entries-list` takes `--order-by '{"field": "name", "direction": "asc"}'` and `--filters '{"name": "sales"}'` as JSON objects.
 
@@ -154,6 +157,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Create a chart | `uv run ycli datalens charts wizard create --workbook-id <id> --name … --body-file chart.json` · `charts ql create --template ql …` · `charts editor create --body-file chart.json` | `datalens_charts_wizard_create` · `datalens_charts_ql_create` · `datalens_charts_editor_create` |
 | Save a chart as given | `uv run ycli datalens charts wizard update <chart_id> --mode save --body-file chart.json` · `charts ql update <entry_id> --template ql --mode save …` · `charts editor update --mode save --body-file chart.json` | `datalens_charts_wizard_update` · `datalens_charts_ql_update` · `datalens_charts_editor_update` |
 | Delete a chart | `uv run ycli datalens charts wizard delete <chart_id>` · `charts ql delete` · `charts editor delete` | `datalens_charts_wizard_delete` · `datalens_charts_ql_delete` · `datalens_charts_editor_delete` |
+| Create a report (at least one slide) | `uv run ycli datalens reports create --workbook-id <id> --name … --meta null --body-file report.json` | `datalens_reports_create` |
+| Save a report (loses the layout of slide elements: ask first) | `uv run ycli datalens reports update <entry_id> --mode save --body-file report.json` | `datalens_reports_update` |
+| Delete a report | `uv run ycli datalens reports delete <entry_id>` | `datalens_reports_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
