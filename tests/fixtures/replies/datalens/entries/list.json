@@ -1,0 +1,87 @@
+{
+  "body": {
+    "entries": [
+      {
+        "annotation": null,
+        "collectionId": null,
+        "collectionTitle": null,
+        "createdAt": "<createdAt>",
+        "createdBy": "<createdBy>",
+        "entryId": "<entryId>",
+        "hidden": false,
+        "isFavorite": false,
+        "isLocked": false,
+        "key": "<key>",
+        "meta": {
+          "<key-1>": 0,
+          "<key-2>": "<key-2>",
+          "<key-3>": 11,
+          "<key-4>": 0
+        },
+        "name": "<name>",
+        "publishedId": "<publishedId>",
+        "savedId": "<savedId>",
+        "scope": "dataset",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "updatedBy": "<updatedBy>",
+        "workbookId": "<workbookId>",
+        "workbookTitle": "<workbookTitle>"
+      },
+      {
+        "annotation": null,
+        "collectionId": null,
+        "collectionTitle": null,
+        "createdAt": "<createdAt>",
+        "createdBy": "<createdBy>",
+        "entryId": "<entryId>",
+        "hidden": false,
+        "isFavorite": false,
+        "isLocked": false,
+        "key": "<key>",
+        "meta": {
+          "<key-1>": "<key-1>",
+          "<key-2>": 0,
+          "<key-3>": "<key-3>",
+          "<key-4>": 11,
+          "<key-5>": 0
+        },
+        "name": "<name>",
+        "publishedId": "<publishedId>",
+        "savedId": "<savedId>",
+        "scope": "dataset",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "updatedBy": "<updatedBy>",
+        "workbookId": "<workbookId>",
+        "workbookTitle": "<workbookTitle>"
+      },
+      {
+        "annotation": null,
+        "collectionId": null,
+        "collectionTitle": null,
+        "createdAt": "<createdAt>",
+        "createdBy": "<createdBy>",
+        "entryId": "<entryId>",
+        "hidden": false,
+        "isFavorite": false,
+        "isLocked": false,
+        "key": "<key>",
+        "meta": {
+          "<key-1>": "<key-1>"
+        },
+        "name": "<name>",
+        "publishedId": "<publishedId>",
+        "savedId": "<savedId>",
+        "scope": "dataset",
+        "type": "<type>",
+        "updatedAt": "<updatedAt>",
+        "updatedBy": "<updatedBy>",
+        "workbookId": "<workbookId>",
+        "workbookTitle": "<workbookTitle>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 1
+}

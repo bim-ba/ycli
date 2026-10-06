@@ -1,0 +1,138 @@
+# Collections and workbooks of DataLens: made, renamed, nested, moved one by one and in bulk,
+# a role added to the caller and taken back, and all of it deleted. Run by hand only (the
+# README says how): CI has no token DataLens takes.
+#
+# Not here yet: `entries rename` and the three `entrylocks` commands. They need an entry of the
+# run's own, and nothing ycli wraps can make one in a temporary workbook. When `datasets create`
+# and `datasets delete` are in, this scenario makes an empty dataset in its workbook and these
+# four steps are added. Entries that exist already are only read.
+name: datalens/collections-and-workbooks
+steps:
+  - id: instance
+    run: datalens tenant details-get
+    expect:
+      "orgId != null": true
+  - id: collection
+    run: datalens collections create --title "${RUN} collection"
+    expect:
+      title: ${RUN} collection
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: inner
+    run: datalens collections create --title "${RUN} inner"
+    save:
+      inner: collectionId
+    cleanup: datalens collections delete ${inner}
+  - id: third
+    run: datalens collections create --title "${RUN} third"
+    save:
+      third: collectionId
+    cleanup: datalens collections delete ${third}
+  - id: collection-rename
+    run: datalens collections update ${collection} --title "${RUN} collection renamed"
+    expect:
+      title: ${RUN} collection renamed
+  - id: nest
+    run: datalens collections move ${inner} --parent-id ${collection}
+    expect:
+      parentId: ${collection}
+  - id: nest-in-bulk
+    run: datalens collections move-bulk ${third} --parent-id ${collection}
+    expect:
+      "length(collections)": 1
+  - id: who-may
+    # The one subject of a collection just made is whoever made it.
+    run: datalens collections access-bindings-list ${collection}
+    expect:
+      "length(@)": 1
+    save:
+      subject: "[0].subjectClaims.sub"
+  - id: collection-role
+    # DataLens lets the caller add a role to itself on top of the one it has.
+    run: >-
+      datalens collections access-bindings-update ${collection} --delta
+      '{"action": "ADD", "accessBinding": {"roleId": "datalens.collections.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+  - id: collection-role-back
+    run: >-
+      datalens collections access-bindings-update ${collection} --delta
+      '{"action": "REMOVE", "accessBinding": {"roleId": "datalens.collections.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+  - id: workbook
+    run: datalens workbooks create --title "${RUN} workbook" --collection-id ${collection} --description First
+    expect:
+      collectionId: ${collection}
+    save:
+      workbook: workbookId
+    cleanup: datalens workbooks delete ${workbook}
+  - id: other
+    run: datalens workbooks create --title "${RUN} workbook, other" --collection-id ${collection}
+    save:
+      other: workbookId
+    cleanup: datalens workbooks delete ${other}
+  - id: workbook-rename
+    run: datalens workbooks update ${workbook} --title "${RUN} workbook renamed"
+    expect:
+      title: ${RUN} workbook renamed
+  - id: workbook-move
+    run: datalens workbooks move ${workbook} --collection-id ${inner}
+    expect:
+      collectionId: ${inner}
+  - id: workbook-move-in-bulk
+    run: datalens workbooks move-bulk ${other} --collection-id ${inner}
+    expect:
+      "length(workbooks)": 1
+  - id: workbook-role
+    run: >-
+      datalens workbooks access-bindings-update ${workbook} --delta
+      '{"action": "ADD", "accessBinding": {"roleId": "datalens.workbooks.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+  - id: workbook-role-back
+    run: >-
+      datalens workbooks access-bindings-update ${workbook} --delta
+      '{"action": "REMOVE", "accessBinding": {"roleId": "datalens.workbooks.viewer",
+      "subject": {"id": "${subject}", "type": "userAccount"}}}'
+  - id: laid-out
+    run: datalens workbooks list --collection-id ${inner}
+    expect:
+      "length(@)": 2
+    reads:
+      - datalens collections get ${collection}
+      - datalens collections list-by-ids ${collection} ${inner}
+      - datalens collections breadcrumbs-list ${inner}
+      - datalens collections content-list ${collection}
+      - datalens collections permissions-get-root
+      - datalens workbooks get ${workbook}
+      - datalens workbooks list-by-ids ${workbook} ${other}
+      - datalens workbooks entries-list ${workbook}
+      - datalens workbooks access-bindings-list ${workbook} --get-inherited-bindings
+      - datalens permissions get-bulk --workbook-id ${workbook} --workbook-id ${other}
+      - datalens members list --limit 2
+  - id: an-entry-that-exists
+    # Read only: an entry somebody made, never changed by this scenario.
+    run: datalens entries list --scope dataset --limit 1
+    expect:
+      "length(@)": 1
+    save:
+      entry: "[0].entryId"
+    reads:
+      - datalens entries relations-list ${entry} --link-direction from
+      - datalens entries revisions-list ${entry} --limit 2
+      - datalens entries permissions-get ${entry}
+  - id: workbook-delete
+    run: datalens workbooks delete ${workbook}
+    disarms: [workbook]
+  - id: workbook-delete-in-bulk
+    run: datalens workbooks delete-bulk ${other}
+    disarms: [other]
+  - id: collection-delete
+    run: datalens collections delete ${third}
+    disarms: [third]
+  - id: collections-delete-in-bulk
+    run: datalens collections delete-bulk ${inner} ${collection}
+    disarms: [inner, collection]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0
