@@ -32,6 +32,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `connections`: DataLens connections.
 * `datasets`: DataLens datasets.
 * `charts`: DataLens charts.
+* `dashboards`: DataLens dashboards.
 * `reports`: DataLens reports.
 * `workbookexports`: Exports of a DataLens workbook.
 * `workbookimports`: Imports of a DataLens workbook.
@@ -1895,6 +1896,128 @@ $ ycli datalens charts editor delete [OPTIONS] CHART_ID
 
 **Options**:
 
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens dashboards`
+
+DataLens dashboards.
+
+**Usage**:
+
+```console
+$ ycli datalens dashboards [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `get`: Print one dashboard: its tabs and what...
+* `create`: Create a dashboard from --entry or...
+* `update`: Save a dashboard as given; `entryId` in...
+* `delete`: Delete a dashboard.
+
+### `ycli datalens dashboards get`
+
+Print one dashboard: its tabs and what stands on them.
+
+A real dashboard is large (100 KB and more): redirect the output to a file to work with it.
+
+**Usage**:
+
+```console
+$ ycli datalens dashboards get [OPTIONS] DASHBOARD_ID
+```
+
+**Arguments**:
+
+* `DASHBOARD_ID`: Dashboard id.  [required]
+
+**Options**:
+
+* `--rev-id TEXT`: The revision to read; the current by default.
+* `--include-permissions / --no-include-permissions`: Also say what you may do with the dashboard.
+* `--include-links / --no-include-links`: Also say what the dashboard is linked to.
+* `--include-favorite / --no-include-favorite`: Also say whether the dashboard is a favourite.
+* `--branch TEXT`: Which version of it to read: saved or published.
+* `--workbook-id TEXT`: The workbook the dashboard lies in.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens dashboards create`
+
+Create a dashboard from --entry or --body-file.
+
+**Usage**:
+
+```console
+$ ycli datalens dashboards create [OPTIONS]
+```
+
+**Options**:
+
+* `--entry TEXT`: The dashboard, as a JSON object; --body-file gives it under `entry`.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens dashboards update`
+
+Save a dashboard as given; `entryId` in the entry says which.
+
+**Usage**:
+
+```console
+$ ycli datalens dashboards update [OPTIONS]
+```
+
+**Options**:
+
+* `--mode TEXT`: Keep the dashboard as a draft, or publish it. Known values: save, publish.  [required]
+* `--entry TEXT`: The dashboard, as a JSON object; --body-file gives it under `entry`.
+* `--lock-token TEXT`: The token of the lock held on it, when it is locked.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens dashboards delete`
+
+Delete a dashboard.
+
+**Usage**:
+
+```console
+$ ycli datalens dashboards delete [OPTIONS] DASHBOARD_ID
+```
+
+**Arguments**:
+
+* `DASHBOARD_ID`: Dashboard id.  [required]
+
+**Options**:
+
+* `--lock-token TEXT`: The token of the lock held on it, when it is locked.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
