@@ -1,0 +1,40 @@
+{
+  "body": {
+    "calendar": {
+      "id": 1
+    },
+    "columns": [
+      {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      }
+    ],
+    "country": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>"
+    },
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "estimateBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>"
+    },
+    "id": 1,
+    "name": "<name>",
+    "self": "<self>",
+    "updatedAt": "<updatedAt>",
+    "useRanking": false,
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

@@ -1,0 +1,29 @@
+{
+  "body": {
+    "archived": true,
+    "board": {
+      "display": "<display>",
+      "id": "<id>",
+      "self": "<self>"
+    },
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "endDate": "<endDate>",
+    "endDateTime": "<endDateTime>",
+    "id": 1,
+    "name": "<name>",
+    "self": "<self>",
+    "startDate": "<startDate>",
+    "startDateTime": "<startDateTime>",
+    "status": "<status>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

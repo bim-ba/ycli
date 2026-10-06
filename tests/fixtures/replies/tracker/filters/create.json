@@ -1,0 +1,44 @@
+{
+  "body": {
+    "favorite": false,
+    "id": 1,
+    "name": "<name>",
+    "owner": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
+    "permissions": {
+      "READ": {
+        "groups": [
+          {
+            "display": "<display>",
+            "id": "<id>",
+            "self": "<self>"
+          }
+        ],
+        "roles": [],
+        "users": []
+      },
+      "WRITE": {
+        "groups": [],
+        "roles": [],
+        "users": [
+          {
+            "cloudUid": "<cloudUid>",
+            "display": "<display>",
+            "id": "<id>",
+            "passportUid": 1,
+            "self": "<self>"
+          }
+        ]
+      }
+    },
+    "query": "<query>",
+    "self": "<self>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

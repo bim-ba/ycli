@@ -1,0 +1,42 @@
+{
+  "body": {
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "direction": "<direction>",
+    "id": 1,
+    "object": {
+      "application": {
+        "id": "<id>",
+        "name": "<name>",
+        "self": "<self>",
+        "type": "<type>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "type": {
+      "id": "<id>",
+      "inward": "<inward>",
+      "outward": "<outward>",
+      "self": "<self>"
+    },
+    "updatedAt": "<updatedAt>",
+    "updatedBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    }
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

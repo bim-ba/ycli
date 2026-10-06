@@ -1,5 +1,9 @@
 {
-  "body": [],
+  "body": [
+    {
+      "type": "<type>"
+    }
+  ],
   "status": 200,
   "unknown_keys": 0
 }

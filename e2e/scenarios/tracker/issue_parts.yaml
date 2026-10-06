@@ -1,0 +1,103 @@
+# What hangs on an issue: attachments, a checklist, a comment that is edited, reacted to and
+# deleted, a link to another issue, a link to an outside application, a worklog record, and
+# two changes of both issues at once. The issues end closed in the sandbox queue.
+name: tracker/issue-parts
+steps:
+  - id: first
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} parts"
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: second
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} parts, linked"
+    save:
+      other: key
+    cleanup: tracker transitions execute ${other} close --field resolution=fixed
+  - id: attach
+    run: tracker attachments upload ${key} ${FILES}/note.txt --rename-to kept.txt
+    expect:
+      name: kept.txt
+    save:
+      file: id
+  - id: attached
+    run: tracker attachments get ${key} ${file}
+    expect:
+      name: kept.txt
+  - id: attachment-delete
+    run: tracker attachments delete ${key} ${file}
+  - id: temporary-file
+    run: tracker attachments upload-temp ${FILES}/note.txt --rename-to scratch.txt
+    expect:
+      name: scratch.txt
+  - id: checklist
+    run: tracker checklists create ${key} --text "step 1" --checked
+    expect:
+      "length(checklistItems)": 1
+    save:
+      item: checklistItems[0].id
+  - id: checklist-item
+    run: tracker checklists update ${key} ${item} --text "step 2" --no-checked
+    expect:
+      "checklistItems[0].text": step 2
+  - id: checklist-item-delete
+    run: tracker checklists delete ${key} ${item}
+    expect:
+      "length(checklistItems)": 0
+  - id: checklist-again
+    run: tracker checklists create ${key} --text "step 3"
+  - id: checklist-clear
+    run: tracker checklists clear ${key}
+    expect:
+      "length(checklistItems)": 0
+  - id: comment
+    run: tracker comments create ${key} --text "note ${RUN}"
+    save:
+      comment: id
+  - id: comment-update
+    run: tracker comments update ${key} ${comment} --text "note ${RUN}, fixed"
+    expect:
+      text: note ${RUN}, fixed
+  - id: comment-reaction
+    run: tracker comments reactions-create ${key} ${comment} HEART
+  - id: comment-delete
+    run: tracker comments delete ${key} ${comment}
+  - id: link
+    run: tracker links create ${key} relates ${other}
+    expect:
+      object.key: ${other}
+    save:
+      link: id
+  - id: link-delete
+    run: tracker links delete ${key} ${link}
+  - id: remote-link
+    run: tracker remotelinks create ${key} --key group/project/-/issues/1 --origin com.gitlab --relationship relates
+    save:
+      remote: id
+  - id: remote-link-delete
+    run: tracker remotelinks delete ${key} ${remote}
+  - id: worklog
+    run: tracker worklog create ${key} --duration PT2H --start 2026-10-01T10:00:00.000+0300 --comment pairing
+    expect:
+      duration: PT2H
+    save:
+      record: id
+  - id: worklog-update
+    run: tracker worklog update ${key} ${record} --duration PT45M --comment trimmed
+    expect:
+      duration: PT45M
+  - id: worklog-delete
+    run: tracker worklog delete ${key} ${record}
+  - id: tag-both
+    run: >-
+      tracker issues update-bulk --issue ${key} --issue ${other} -F 'tags={"add": ["e2e"]}'
+  - id: tagged
+    run: tracker issues get ${other}
+    expect:
+      "contains(tags, 'e2e')": true
+  - id: close-both
+    run: tracker issues transition-bulk close --issue ${key} --issue ${other} -F resolution=fixed
+    disarms: [first, second]
+  - id: closed
+    run: tracker issues get ${other}
+    expect:
+      status: closed
