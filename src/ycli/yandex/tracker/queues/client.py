@@ -177,7 +177,10 @@ class QueuesClient(Resource):
     def permissions_update(self, queue_id: str, body: QueuePermissionsUpdate) -> QueuePermissions:
         """Manage queue access from a typed ``QueuePermissionsUpdate`` body.
 
-        Returns the queue's effective ``QueuePermissions`` after the change.
+        Returns the queue's effective ``QueuePermissions`` after the change. A removal is not
+        always the inverse of an addition: taking a user out of ``read`` took it out of
+        ``write`` too (seen once, 2026-10-06). Adding a member that is there already changes
+        nothing.
 
         Args:
             queue_id: The queue's key or numeric id.
