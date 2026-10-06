@@ -42,6 +42,7 @@ from xml.etree import ElementTree
 import httpx2
 import stamina
 import yaml
+from pydantic import TypeAdapter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -951,21 +952,9 @@ def dump(operations: list[Operation]) -> str:
     return "[\n" + ",\n".join(rows) + "\n]\n"
 
 
+_OPERATIONS: TypeAdapter[list[Operation]] = TypeAdapter(list[Operation])
+
+
 def load(service: str) -> list[Operation]:
     """The committed snapshot of ``service``."""
-    rows = json.loads((SNAPSHOTS / f"{service}.json").read_text(encoding="utf-8"))
-    return [
-        Operation(
-            method=row["method"],
-            path=row["path"],
-            query=tuple(row.get("query", ())),
-            request=tuple(row.get("request", ())),
-            response=tuple(row.get("response", ())),
-            page=row.get("page", ""),
-            base=row.get("base", ""),
-            name=row.get("name", ""),
-            group=row.get("group", ""),
-            source=row.get("source", ""),
-        )
-        for row in rows
-    ]
+    return _OPERATIONS.validate_json((SNAPSHOTS / f"{service}.json").read_bytes())
