@@ -175,13 +175,12 @@ class PageDetails(APIModel):
 
     ``content``, ``attributes``, ``owner``, ``access_policy``, ``access_lists``, ``breadcrumbs``,
     ``redirect`` and ``actuality`` come back only when named in ``fields``; ``active_revision``
-    only when the page was asked for at a past revision. ``owner_username`` walks
-    ``owner.user.username`` defensively.
+    only when the page was asked for at a past revision.
 
     Examples:
         >>> PageDetails.model_validate(
         ...     {"id": 42, "slug": "data/x", "title": "X", "owner": {"user": {"username": "ivan"}}}
-        ... ).owner_username
+        ... ).owner.user.username
         'ivan'
     """
 
@@ -219,11 +218,6 @@ class PageDetails(APIModel):
         default=None,
         description="The past revision shown, when the page was asked for with ``revision_id``.",
     )
-
-    @property
-    def owner_username(self) -> str | None:
-        """The owner's username, or ``None`` when the page has no owner or the owner no user."""
-        return self.owner.user.username if self.owner and self.owner.user else None
 
 
 class GridRef(APIModel):
