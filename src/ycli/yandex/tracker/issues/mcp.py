@@ -31,7 +31,6 @@ from ycli.yandex.tracker.issues.models import (
     IssueUpdate,
     ScrollClear,
     ScrollType,
-    count_body,
     filter_body,
 )
 
@@ -51,6 +50,8 @@ def get(
     return client.issues.get(issue_key, expand=expand, fields=fields)
 
 
+# violation(naming): a second tool on issues.search, the short way to the most common request;
+# the full search is tracker_issues_search
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"})
 def list_(
     queue: Annotated[str | None, Field(description="Queue key, e.g. QUEUE.")] = None,
@@ -80,9 +81,9 @@ def list_(
     return client.issues.search(body, limit=config.http.cap(limit))
 
 
-@mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"})
+@mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues"})
 def search(
-    query: Annotated[str, Field(description="TQL query, e.g. ``Queue: QUEUE Status: open``.")],
+    body: IssueSearch,
     limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
     expand: Expand = None,
     scroll_type: Annotated[
@@ -98,13 +99,15 @@ def search(
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Issue]:
-    """Issues matching a TQL query string, auto-paginated.
+    """Issues matching a query-language string or a filter, auto-paginated.
 
-    Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
-    query or raise ``limit``.
+    ``body.query`` is a TQL string, ``body.filter`` a field → value object. Returns at most
+    ``limit`` issues; exactly ``limit`` back means more may match — refine the search or raise
+    ``limit``. E.g. ``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
+    ``{"body": {"filter": {"queue": "QUEUE", "assignee": "ann"}}}``.
     """
     return client.issues.search(
-        IssueSearch(query=query),
+        body,
         limit=config.http.cap(limit),
         expand=expand,
         scroll_type=scroll_type,
@@ -114,21 +117,13 @@ def search(
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"})
-def count(
-    query: Annotated[
-        str | None, Field(description="TQL query; takes precedence over ``queue`` / ``status``.")
-    ] = None,
-    queue: Annotated[str | None, Field(description="Queue key to count issues in.")] = None,
-    status: Annotated[str | None, Field(description="Status key to count issues in.")] = None,
-    client: TrackerClient = Depends(tracker_client),
-) -> int:
-    """Count of issues matching a TQL query or filters.
+def count(body: IssueSearch, client: TrackerClient = Depends(tracker_client)) -> int:
+    """Count of issues matching a query-language string or a filter.
 
-    Pass ``query`` for a TQL query string (takes precedence over filters), or pass
-    ``queue``/``status`` to filter by those fields.  With no arguments the API counts
-    every issue in the org.
+    ``body.query`` is a TQL string, ``body.filter`` a field → value object; an empty ``body``
+    counts every issue the caller can see. E.g.
+    ``{"body": {"filter": {"queue": "QUEUE", "status": "open"}}}``.
     """
-    body = count_body(query=query, queue=queue, status=status)
     return client.issues.count(body=body)
 
 

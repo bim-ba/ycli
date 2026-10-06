@@ -55,28 +55,14 @@ def list_(
 
 @mcp.tool(name="worklog_search", annotations={**RO, "title": "Search Tracker worklog"})
 def search(
-    created_by: Annotated[
-        str | None, Field(description="Login or id of the record author to filter by.")
-    ] = None,
-    created_from: Annotated[
-        str | None, Field(description="Start of the creation-time range (``YYYY-MM-DDThh:mm:ss``).")
-    ] = None,
-    created_to: Annotated[
-        str | None, Field(description="End of the creation-time range (``YYYY-MM-DDThh:mm:ss``).")
-    ] = None,
-    client: TrackerClient = Depends(tracker_client),
+    body: WorklogSearch, client: TrackerClient = Depends(tracker_client)
 ) -> ItemList[Worklog]:
     """Org-wide worklog entries filtered by author and/or a creation-time range.
 
-    Unlike ``worklog_list`` (one issue), this searches every issue's worklog. Pass
-    ``created_by`` to scope to a user and ``created_from`` / ``created_to`` for a time window;
-    all are optional.
+    Unlike ``worklog_list`` (one issue), this searches every issue's worklog. ``body.createdBy``
+    scopes to a user and ``body.createdAt`` to a time window; both are optional. E.g.
+    ``{"body": {"createdBy": "ann", "createdAt": {"from": "2026-01-01T00:00:00"}}}``.
     """
-    period = {"from": created_from, "to": created_to}
-    given = created_from is not None or created_to is not None
-    body = WorklogSearch.model_validate(
-        {"createdBy": created_by, "createdAt": period if given else None}
-    )
     return client.worklog.search(body)
 
 
@@ -100,12 +86,9 @@ def list_global(
 
     A lighter sibling of ``worklog_search``; every filter is optional.
     """
-    created_at = [
-        f"{prefix}:{value}"
-        for prefix, value in (("from", created_from), ("to", created_to))
-        if value is not None
-    ]
-    return client.worklog.list_global(created_by=created_by, created_at=created_at or None)
+    return client.worklog.list_global(
+        created_by=created_by, created_from=created_from, created_to=created_to
+    )
 
 
 @mcp.tool(

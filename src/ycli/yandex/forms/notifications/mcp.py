@@ -14,7 +14,6 @@ from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
     NotificationDetails,
-    NotificationFilter,
     NotificationStatus,
 )
 from ycli.yandex.models import ItemList, SortDirection
@@ -71,20 +70,18 @@ def list_(
     """
     cap = config.http.cap(limit)
     return client.notifications.list(
-        NotificationFilter(
-            survey_id=survey_id,
-            hook_id=hook_id,
-            subscription_id=subscription_id,
-            answer_id=answer_id,
-            status=status,
-            created_since=created_since,
-            created_until=created_until,
-            finished_since=finished_since,
-            finished_until=finished_until,
-            visible=visible,
-            integration_type=integration_type,
-            ordering=ordering,
-        ),
+        survey_id=survey_id,
+        hook_id=hook_id,
+        subscription_id=subscription_id,
+        answer_id=answer_id,
+        status=status,
+        created_since=created_since,
+        created_until=created_until,
+        finished_since=finished_since,
+        finished_until=finished_until,
+        visible=visible,
+        integration_type=integration_type,
+        ordering=ordering,
         limit=cap,
     )
 

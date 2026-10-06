@@ -294,6 +294,9 @@ moves none of them.
 
 Delete a workbook with everything it holds: connections, datasets, charts, dashboards.
 
+Deleting a workbook that is already deleted answers 500, not 404: after a server error,
+read the workbook before deleting it again.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |

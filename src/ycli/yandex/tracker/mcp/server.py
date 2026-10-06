@@ -43,8 +43,9 @@ mcp = FastMCP(
     "tracker",
     instructions=(
         "Yandex Tracker (reads and writes). Reference issues by key (e.g. QUEUE-123). "
-        "issues_search / issues_count take a TQL query string; issues_list takes structured "
-        "filters (queue/status/assignee/epic/type). Write tools carry honest annotations: "
+        "issues_search / issues_count take a body with a TQL query string or a filter; "
+        "issues_list takes structured filters (queue/status/assignee/epic/type). Write tools "
+        "carry honest annotations: "
         "readOnlyHint=false plus destructiveHint/idempotentHint per operation — check them "
         "before mutating; destructive tools delete data irreversibly."
     ),

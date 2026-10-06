@@ -9,6 +9,71 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.99.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.98.0
+  ([`d044b26`](https://github.com/bim-ba/ycli/commit/d044b26b78b96586b439240ba7d143e38e6ee42c))
+
+### Refactoring
+
+- Two SDK listings take the arguments their command and tool take
+  ([`a1ef1f0`](https://github.com/bim-ba/ycli/commit/a1ef1f06db31050946543cbab54ef392dcb6d9f8))
+
+### Breaking Changes
+
+- Two SDK methods change their arguments. TrackerClient.worklog.list_global: was (created_by,
+  created_at=["from:<time>", "to:<time>"]), is (created_by, created_from, created_to). A bare
+  `created_at="<time>"`, which the API does not document, can no longer be sent.
+  FormsClient.notifications.list: was (filters=NotificationFilter(...), limit=), is keyword
+  arguments survey_id, hook_id, subscription_id, answer_id, status, created_since, created_until,
+  finished_since, finished_until, visible, integration_type, ordering, limit.
+
+
+## v0.98.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.97.0
+  ([`4ed9ca5`](https://github.com/bim-ba/ycli/commit/4ed9ca52e6df53e497fbf6066457cae34d464a6a))
+
+### Features
+
+- **mcp**: Six tools take the request body, as the SDK does
+  ([`6939afd`](https://github.com/bim-ba/ycli/commit/6939afdd9b420a49f687b2af2b848db1d1ec2d28))
+
+### Breaking Changes
+
+- **mcp**: Six MCP tools take `body` instead of separate parameters. wiki_pages_update: was
+  {"page_id", "content", "title"}, is {"page_id", "body": {"title", "content", "redirect",
+  "actuality", "access_policy", "owner"}}, every field of the body optional.
+
+
+## v0.97.0 (2026-10-06)
+
+### Bug Fixes
+
+- **forms**: The value of an API key and the secret of a variable are SecretStr
+  ([`be1c6a2`](https://github.com/bim-ba/ycli/commit/be1c6a241400bb813cf2361e826250dc81da1e29))
+
+### Build System
+
+- Re-lock uv.lock for 0.96.0
+  ([`a5c0482`](https://github.com/bim-ba/ycli/commit/a5c04822eb707ce03ee6357b5005b3b8a6c4223e))
+
+### Documentation
+
+- **datalens**: Deleting a workbook twice answers 500, and the docs say so
+  ([`cedb8af`](https://github.com/bim-ba/ycli/commit/cedb8af6d01978941f4068753eb479798c6127b1))
+
+### Breaking Changes
+
+- **forms**: In the SDK `SurveyAPIKey.value` and `SubscriptionVariable.secret` are
+  `pydantic.SecretStr`, not `str`. A plain string is still taken when a model is built from data;
+  read the value with `.get_secret_value()`.
+
+
 ## v0.96.0 (2026-10-06)
 
 ### Build System

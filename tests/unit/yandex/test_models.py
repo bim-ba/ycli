@@ -174,3 +174,19 @@ def test_a_generated_connection_keeps_its_secret_out_of_everything_but_the_reque
         with pytest.raises(ValidationError) as refused:
             ConnectionCreate.model_validate(refused_body)
         assert SECRET not in str(refused.value)
+
+
+def test_the_secrets_of_forms_reach_the_request_and_nothing_else():
+    """An API key of a form and the secret of a subscription's variable (#388)."""
+    from ycli.yandex.forms.subscriptions.models import SubscriptionVariable
+    from ycli.yandex.forms.surveys.models import SurveyAPIKey
+    from ycli.yandex.models import secret_keys
+
+    key = SurveyAPIKey.model_validate({"name": "crm", "value": SECRET})
+    assert key.model_dump(mode="json", context=WIRE) == {"name": "crm", "value": SECRET}
+    variable = SubscriptionVariable.model_validate({"id": "v1", "type": "x", "secret": SECRET})
+    assert variable.model_dump(mode="json", context=WIRE)["secret"] == SECRET
+    for model in (key, variable):
+        assert SECRET not in model.model_dump_json() and SECRET not in repr(model)
+    assert secret_keys(SurveyAPIKey) == {"value"}
+    assert secret_keys(SubscriptionVariable) == {"secret"}

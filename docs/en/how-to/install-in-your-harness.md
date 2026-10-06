@@ -390,7 +390,7 @@ npx skills add bim-ba/ycli/plugins/yandex-360
 | You want | Write |
 |---|---|
 | the newest release on every start | `uvx --from 'yandex-cli[mcp]@latest' ycli mcp start` |
-| one fixed version | `uvx --from 'yandex-cli[mcp]==0.96.0' ycli mcp start` |
+| one fixed version | `uvx --from 'yandex-cli[mcp]==0.99.0' ycli mcp start` |
 | to refresh the copy once | `uvx --refresh-package yandex-cli --from 'yandex-cli[mcp]' ycli --version` |
 
 ## If it does not work

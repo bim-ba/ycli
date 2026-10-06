@@ -316,7 +316,10 @@ CASES = [
             "--content",
             "# New",
         ],
-        mcp=("wiki_pages_create", {"slug": "eng/new", "title": "New page", "content": "# New"}),
+        mcp=(
+            "wiki_pages_create",
+            {"body": {"slug": "eng/new", "title": "New page", "content": "# New"}},
+        ),
         exchanges=[
             (
                 Sent(
@@ -341,7 +344,10 @@ CASES = [
             "--title",
             "Renamed",
         ],
-        mcp=("wiki_pages_update", {"page_id": 4402, "content": "# Rewritten", "title": "Renamed"}),
+        mcp=(
+            "wiki_pages_update",
+            {"page_id": 4402, "body": {"content": "# Rewritten", "title": "Renamed"}},
+        ),
         exchanges=[
             (
                 Sent("POST", "pages/4402", json={"content": "# Rewritten", "title": "Renamed"}),
@@ -354,11 +360,25 @@ CASES = [
         "wiki.pages.update",
         args=(4403, PageUpdate.model_validate({"content": "# Body only"})),
         cli=["wiki", "pages", "update", "4403", "--content", "# Body only"],
-        mcp=("wiki_pages_update", {"page_id": 4403, "content": "# Body only"}),
+        mcp=("wiki_pages_update", {"page_id": 4403, "body": {"content": "# Body only"}}),
         exchanges=[
             (
                 Sent("POST", "pages/4403", json={"content": "# Body only"}),
                 Reply(json=_page(4403, "eng/body")),
+            )
+        ],
+        effect=Effect.IDEMPOTENT_WRITE,
+    ),
+    # The title alone: the text of the page is not sent again.
+    Case(
+        "wiki.pages.update",
+        args=(4407, PageUpdate.model_validate({"title": "Only the title"})),
+        cli=None,
+        mcp=("wiki_pages_update", {"page_id": 4407, "body": {"title": "Only the title"}}),
+        exchanges=[
+            (
+                Sent("POST", "pages/4407", json={"title": "Only the title"}),
+                Reply(json=_page(4407, "eng/titled")),
             )
         ],
         effect=Effect.IDEMPOTENT_WRITE,
@@ -1042,9 +1062,7 @@ CASES = [
         mcp=(
             "wiki_pages_create",
             {
-                "slug": "eng/quiet",
-                "title": "Quiet page",
-                "content": "# Quiet",
+                "body": {"slug": "eng/quiet", "title": "Quiet page", "content": "# Quiet"},
                 "fields": "content",
                 "is_silent": True,
             },
@@ -1081,7 +1099,7 @@ CASES = [
             "wiki_pages_update",
             {
                 "page_id": 4406,
-                "content": "# Merged",
+                "body": {"content": "# Merged"},
                 "fields": "content",
                 "is_silent": True,
                 "allow_merge": True,
