@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, RootModel
@@ -74,9 +72,7 @@ class UpdateQLChartArgs(APIModel):
     model_config = ConfigDict(
         extra="allow",
     )
-    __annotations__ = {
-        "__pydantic_extra__": dict[str, Any],
-    }
+    __pydantic_extra__: dict[str, Any]
     entry_id: str = Field(..., alias="entryId")
     template: Literal["ql"]
     annotation: shared.EntryAnnotationArg | None = None

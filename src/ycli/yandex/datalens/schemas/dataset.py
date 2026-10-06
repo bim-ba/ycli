@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from datetime import date
 from typing import Any, Literal
 
@@ -2867,7 +2865,7 @@ class DatasetRead(APIModel):
 
 class DatasetUpdate(APIModel):
     dataset: DatasetContentInternal | None = None
-    mode: Literal["publish", "save"] | str | None = None
+    mode: Literal["save", "publish"] | str | None = None
     options: Options | None = None
     published_id: str | None = Field(default=None, alias="publishedId")
     rev_id: str | None = Field(default=None, alias="revId")

@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import ConfigDict, Field
@@ -15,9 +13,7 @@ class CurrentTenantDetailsSettings(APIModel):
     model_config = ConfigDict(
         extra="allow",
     )
-    __annotations__ = {
-        "__pydantic_extra__": dict[str, Any],
-    }
+    __pydantic_extra__: dict[str, Any]
     data_export_prohibited: bool | None = Field(
         default=None,
         alias="dataExportProhibited",

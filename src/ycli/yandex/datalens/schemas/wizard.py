@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field, RootModel
@@ -2139,7 +2137,7 @@ class WizardV1ConfigSchemaSourcesUpdatesItemField(APIModel):
     type: Literal["DIMENSION", "MEASURE", "PSEUDO", "PARAMETER"] | str | None = Field(
         default=None, description="Field role in the chart."
     )
-    calc_mode: Literal["formula", "direct", "parameter"] | str | None = Field(
+    calc_mode: Literal["direct", "formula", "parameter"] | str | None = Field(
         default=None, description="Field calculation mode."
     )
     formula: str | None = Field(default=None, description="Formula used to calculate the field.")
