@@ -932,7 +932,10 @@ Returns the restored queue.
 Replace access rules on a Tracker queue (grant/revoke read/write/create/grant rights).
 
 Each right block takes ``users``/``groups``/``roles`` arrays; omitted blocks stay
-unchanged. Returns the resulting permission set.
+unchanged. Returns the resulting permission set. A removal is not always the inverse of an
+addition: taking a user out of ``read`` took it out of ``write`` too (seen once,
+2026-10-06), so read the returned set after a removal. Adding a member that is there
+already changes nothing.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
