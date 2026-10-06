@@ -60,3 +60,32 @@ steps:
   - id: workflow-delete
     run: tracker workflows delete ${workflow}
     disarms: [workflow]
+  # The permissions of the queue, by a call that changes nothing: the account is added to a
+  # scope it is in already, and its permissions are read before and after and must be the
+  # same. A real grant is not undone by its revoke here: taking a user out of `read` takes it
+  # out of `write` too (seen once, 2026-10-06), and the account has rights on this queue.
+  - id: permission-subject
+    needs: [GRANTEE]
+    run: tracker users list
+    save:
+      subject: "[?passportUid == `${GRANTEE}`] | [0].uid"
+  - id: permissions-before
+    needs: [GRANTEE]
+    # If this fails the sandbox changed: the account is no longer in `write`, and the next
+    # step would grant for real. Put it back by hand before running again.
+    run: tracker queues user-permissions-get ${QUEUE} ${subject}
+    expect:
+      "length(permissions.WRITE.users[?id == '${subject}'])": 1
+    save:
+      before: to_string(permissions)
+  - id: permissions-same
+    needs: [GRANTEE]
+    run: >-
+      tracker queues permissions-update ${QUEUE} --write '{"users": {"add": ["${subject}"]}}'
+    expect:
+      "length(write.users[?id == '${subject}'])": 1
+  - id: permissions-after
+    needs: [GRANTEE]
+    run: tracker queues user-permissions-get ${QUEUE} ${subject}
+    expect:
+      "to_string(permissions)": ${before}
