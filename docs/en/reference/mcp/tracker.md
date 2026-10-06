@@ -47,16 +47,18 @@ filters or raise ``limit``.
 
 ## `tracker_issues_search`
 
-*Search Tracker issues (TQL)* · read-only
+*Search Tracker issues* · read-only
 
-Issues matching a TQL query string, auto-paginated.
+Issues matching a query-language string or a filter, auto-paginated.
 
-Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
-query or raise ``limit``.
+``body.query`` is a TQL string, ``body.filter`` a field → value object. Returns at most
+``limit`` issues; exactly ``limit`` back means more may match — refine the search or raise
+``limit``. E.g. ``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
+``{"body": {"filter": {"queue": "QUEUE", "assignee": "ann"}}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `query` | string | yes | TQL query, e.g. ``Queue: QUEUE Status: open``. |
+| `body` | object | yes | Typed request body for ``POST /issues/_search`` and ``POST /issues/_count``. Give ``query`` (the query language) or ``filter`` (field name → value); a body with neither matches every issue the caller can see. ``extra="allow"`` passes the API's other keys (``keys``, ``queue``, ``order``) through. |
 | `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `scroll_type` | `sorted` · `unsorted` or string or null |  | Scroll through the results (no 10 000 cap). |
@@ -67,17 +69,15 @@ query or raise ``limit``.
 
 *Count Tracker issues* · read-only
 
-Count of issues matching a TQL query or filters.
+Count of issues matching a query-language string or a filter.
 
-Pass ``query`` for a TQL query string (takes precedence over filters), or pass
-``queue``/``status`` to filter by those fields.  With no arguments the API counts
-every issue in the org.
+``body.query`` is a TQL string, ``body.filter`` a field → value object; an empty ``body``
+counts every issue the caller can see. E.g.
+``{"body": {"filter": {"queue": "QUEUE", "status": "open"}}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `query` | string or null |  | TQL query; takes precedence over ``queue`` / ``status``. |
-| `queue` | string or null |  | Queue key to count issues in. |
-| `status` | string or null |  | Status key to count issues in. |
+| `body` | object | yes | Typed request body for ``POST /issues/_search`` and ``POST /issues/_count``. Give ``query`` (the query language) or ``filter`` (field name → value); a body with neither matches every issue the caller can see. ``extra="allow"`` passes the API's other keys (``keys``, ``queue``, ``order``) through. |
 
 ## `tracker_issues_suggest`
 
@@ -409,15 +409,13 @@ creation-time range) use ``worklog_search`` instead.
 
 Org-wide worklog entries filtered by author and/or a creation-time range.
 
-Unlike ``worklog_list`` (one issue), this searches every issue's worklog. Pass
-``created_by`` to scope to a user and ``created_from`` / ``created_to`` for a time window;
-all are optional.
+Unlike ``worklog_list`` (one issue), this searches every issue's worklog. ``body.createdBy``
+scopes to a user and ``body.createdAt`` to a time window; both are optional. E.g.
+``{"body": {"createdBy": "ann", "createdAt": {"from": "2026-01-01T00:00:00"}}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `created_by` | string or null |  | Login or id of the record author to filter by. |
-| `created_from` | string or null |  | Start of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
-| `created_to` | string or null |  | End of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
+| `body` | object | yes | Typed request body for ``POST /worklog/_search``: by author, by creation time, or both. |
 
 ## `tracker_worklog_list_global`
 

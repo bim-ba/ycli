@@ -9,6 +9,74 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.100.1 (2026-10-06)
+
+### Bug Fixes
+
+- **wiki**: Pages update changes a title without the text sent again
+  ([`97c3cbf`](https://github.com/bim-ba/ycli/commit/97c3cbfbfa8ae8b2a97c88663809830a757fc3bf))
+
+### Build System
+
+- Re-lock uv.lock for 0.100.0
+  ([`fbcee49`](https://github.com/bim-ba/ycli/commit/fbcee495ea7d4d504f9343aa1ea1198c95143f81))
+
+
+## v0.100.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.99.0
+  ([`ba90940`](https://github.com/bim-ba/ycli/commit/ba909407ab9679219b7b2afaf6a4b5acc99d5ae9))
+
+### Features
+
+- **datalens**: Datasets are read, created, saved, checked and deleted, with their rows
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`c98982c`](https://github.com/bim-ba/ycli/commit/c98982c3087e62322474a2ea5128a19530524f20))
+
+
+## v0.99.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.98.0
+  ([`d044b26`](https://github.com/bim-ba/ycli/commit/d044b26b78b96586b439240ba7d143e38e6ee42c))
+
+### Refactoring
+
+- Two SDK listings take the arguments their command and tool take
+  ([`a1ef1f0`](https://github.com/bim-ba/ycli/commit/a1ef1f06db31050946543cbab54ef392dcb6d9f8))
+
+### Breaking Changes
+
+- Two SDK methods change their arguments. TrackerClient.worklog.list_global: was (created_by,
+  created_at=["from:<time>", "to:<time>"]), is (created_by, created_from, created_to). A bare
+  `created_at="<time>"`, which the API does not document, can no longer be sent.
+  FormsClient.notifications.list: was (filters=NotificationFilter(...), limit=), is keyword
+  arguments survey_id, hook_id, subscription_id, answer_id, status, created_since, created_until,
+  finished_since, finished_until, visible, integration_type, ordering, limit.
+
+
+## v0.98.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.97.0
+  ([`4ed9ca5`](https://github.com/bim-ba/ycli/commit/4ed9ca52e6df53e497fbf6066457cae34d464a6a))
+
+### Features
+
+- **mcp**: Six tools take the request body, as the SDK does
+  ([`6939afd`](https://github.com/bim-ba/ycli/commit/6939afdd9b420a49f687b2af2b848db1d1ec2d28))
+
+### Breaking Changes
+
+- **mcp**: Six MCP tools take `body` instead of separate parameters. wiki_pages_update: was
+  {"page_id", "content", "title"}, is {"page_id", "body": {"title", "content", "redirect",
+  "actuality", "access_policy", "owner"}}, every field of the body optional.
+
+
 ## v0.97.0 (2026-10-06)
 
 ### Bug Fixes

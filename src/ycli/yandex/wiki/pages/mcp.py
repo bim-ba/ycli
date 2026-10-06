@@ -32,8 +32,6 @@ from ycli.yandex.wiki.pages.models import (
     PageRef,
     PageRevision,
     PageUpdate,
-    SearchFilters,
-    SearchOrder,
     SearchPage,
     SearchRequest,
 )
@@ -185,29 +183,19 @@ def descendants_list_by_id(
 
 @mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"})
 def create(
-    slug: Annotated[
-        str,
-        Field(
-            description="Target slug, e.g. ``data/x``. Treat it as permanent (a move breaks links)."
-        ),
-    ],
-    title: Annotated[str, Field(description="Page title.")],
-    content: Annotated[str, Field(description="Page body in YFM markdown.")],
+    body: PageCreate,
     fields: PageReplyFields = None,
     is_silent: Silent = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
-    """Create a wiki page at ``slug`` (``POST /pages``).
+    """Create a wiki page at ``body.slug`` (``POST /pages``).
 
     Treat the slug as permanent: ``pages_move`` can rename the page later, but the old address
     then answers 404 and links to it break, so pick the slug carefully. Returns the created page
-    (its numeric ``id`` drives the id-based tools and every subsequent write).
+    (its numeric ``id`` drives the id-based tools and every subsequent write). E.g.
+    ``{"body": {"slug": "data/x", "title": "X", "content": "# X"}}``.
     """
-    return client.pages.create(
-        body=PageCreate(slug=slug, title=title, content=content),
-        fields=fields,
-        is_silent=is_silent,
-    )
+    return client.pages.create(body=body, fields=fields, is_silent=is_silent)
 
 
 @mcp.tool(
@@ -216,8 +204,7 @@ def create(
 )
 def update(
     page_id: Annotated[int, Field(description="Numeric id of the page to update.")],
-    content: Annotated[str, Field(description="New page body in YFM markdown (full replace).")],
-    title: Annotated[str | None, Field(description="New title (unchanged when omitted).")] = None,
+    body: PageUpdate,
     fields: PageReplyFields = None,
     is_silent: Silent = None,
     allow_merge: Annotated[
@@ -226,15 +213,16 @@ def update(
     ] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
-    """Replace a wiki page's body (and optionally its title) by numeric id.
+    """Change a wiki page by numeric id: only the fields set in ``body`` change.
 
-    This REPLACES the whole body — to add to an existing page use ``pages_append``
+    ``body.content`` REPLACES the whole text — to add to an existing page use ``pages_append``
     instead. The Wiki API updates via POST, not PATCH (PATCH returns 405); the SDK already
-    handles that quirk. Repeating the same call yields the same page state (idempotent).
+    handles that quirk. Repeating the same call yields the same page state (idempotent). E.g.
+    ``{"page_id": 7, "body": {"title": "New name"}}``.
     """
     return client.pages.update(
         page_id=page_id,
-        body=PageUpdate(content=content, title=title),
+        body=body,
         fields=fields,
         is_silent=is_silent,
         allow_merge=allow_merge,
@@ -391,39 +379,15 @@ def backlinks_list(
 
 
 @mcp.tool(name="pages_search", annotations={**RO, "title": "Search Wiki"})
-def search(
-    text: Annotated[str, Field(description="Text to search for.")],
-    filters: Annotated[
-        SearchFilters | None,
-        Field(
-            description="Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), "
-            "``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and "
-            "``show_obsolete``."
-        ),
-    ] = None,
-    order_by: Annotated[SearchOrder | None, Field(description="How to sort the hits.")] = None,
-    highlight: Annotated[
-        bool | None, Field(description="Wrap the matches in ``<em>`` tags in title and content.")
-    ] = None,
-    limit: Annotated[int | None, Field(description="Hits per page.")] = None,
-    cursor: Annotated[
-        int | None, Field(description="Number of the result page to fetch, from 1.")
-    ] = None,
-    client: WikiClient = Depends(wiki_client),
-) -> SearchPage:
+def search(body: SearchRequest, client: WikiClient = Depends(wiki_client)) -> SearchPage:
     """Full-text search over wiki pages and files; returns one page of hits.
 
     Each hit has the page ``slug`` (read it with ``pages_get``), ``title``, a ``content``
-    snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
-    ``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
-    empty page. A new page can take seconds to appear in the index.
+    snippet, the ``type`` and ``modified_at``. ``body.filters`` narrows the search by ``type``,
+    ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both
+    ``from`` and ``to``) and ``show_obsolete``. For the next page pass ``next_cursor`` back as
+    ``body.cursor``; stop at the first page without hits, because ``next_cursor`` stays set
+    after an empty page. A new page can take seconds to appear in the index. E.g.
+    ``{"body": {"query": "roadmap", "limit": 5}}``.
     """
-    request = SearchRequest(
-        query=text,
-        filters=filters,
-        cursor=cursor,
-        limit=limit,
-        order_by=order_by,
-        highlight=highlight,
-    )
-    return client.pages.search(request)
+    return client.pages.search(body)

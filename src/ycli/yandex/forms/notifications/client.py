@@ -7,9 +7,12 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.notifications import endpoints
 from ycli.yandex.forms.notifications.models import Notification, NotificationFilter
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from ycli.yandex.forms.models import IntegrationType, RunStatus
     from ycli.yandex.forms.notifications.models import (
         NotificationAction,
         NotificationDetails,
@@ -21,29 +24,68 @@ class NotificationsClient(Resource):
     """List, inspect, restart and cancel the runs of a form's integrations."""
 
     def list(
-        self, filters: NotificationFilter | None = None, *, limit: int | None = None
+        self,
+        *,
+        survey_id: str | None = None,
+        hook_id: int | None = None,
+        subscription_id: int | None = None,
+        answer_id: int | None = None,
+        status: Sequence[RunStatus] | None = None,
+        created_since: str | None = None,
+        created_until: str | None = None,
+        finished_since: str | None = None,
+        finished_until: str | None = None,
+        visible: bool | None = None,
+        integration_type: IntegrationType | None = None,
+        ordering: SortDirection | None = None,
+        limit: int | None = None,
     ) -> ItemList[Notification]:
         """``GET /notifications`` → runs matching every filter given, at most ``limit``.
 
+        The API answers 404 Not Found to a listing without ``survey_id``, whatever else is given,
+        though its reference marks no filter as required (seen on 2026-10-06): the other
+        filters narrow the runs of that form.
+
         Args:
-            filters: Which runs to return; ``None`` returns the runs of every form.
+            survey_id: The form whose runs to list; without it the API answers 404.
+            hook_id: Only runs of this integration group.
+            subscription_id: Only runs of this integration.
+            answer_id: Only runs triggered by this answer.
+            status: Only runs in any of these states.
+            created_since: ISO-8601 time: created at or after.
+            created_until: ISO-8601 time: created at or before.
+            finished_since: ISO-8601 time: finished at or after.
+            finished_until: ISO-8601 time: finished at or before.
+            visible: Only visible (``True``) or only hidden (``False``) runs.
+            integration_type: Only runs of this integration type.
+            ordering: ``asc`` (oldest first, the API's default) or ``desc``.
             limit: The most runs to return; ``None`` returns every run.
 
         Returns:
             The matching runs.
 
         Examples:
-            >>> from ycli.yandex.forms.notifications.models import NotificationFilter
             >>> runs = forms.notifications.list(
-            ...     NotificationFilter(
-            ...         survey_id="686d0a1b2c3d4e5f000000f0", status=["error", "pending"]
-            ...     ),
-            ...     limit=500,
+            ...     survey_id="686d0a1b2c3d4e5f000000f0", status=["error", "pending"], limit=500
             ... )
             >>> [run.id for run in runs.root]
             [9001, 9002, 9003]
         """
-        paged = endpoints.list_(filters or NotificationFilter())
+        filters = NotificationFilter(
+            survey_id=survey_id,
+            hook_id=hook_id,
+            subscription_id=subscription_id,
+            answer_id=answer_id,
+            status=None if status is None else list(status),
+            created_since=created_since,
+            created_until=created_until,
+            finished_since=finished_since,
+            finished_until=finished_until,
+            visible=visible,
+            integration_type=integration_type,
+            ordering=ordering,
+        )
+        paged = endpoints.list_(filters)
         return ItemList[Notification](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, notification_id: int) -> NotificationDetails:

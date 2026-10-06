@@ -191,8 +191,11 @@ def create(
 @app.command()
 def update(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
-    title: Annotated[str | None, typer.Option(help="New title (optional).")] = None,
+    content: Annotated[
+        str | None,
+        typer.Option(help='New Markdown body, replacing the whole one — pass "$(cat file.md)".'),
+    ] = None,
+    title: Annotated[str | None, typer.Option(help="New title.")] = None,
     fields: ReplyFieldsOption = None,
     is_silent: SilentOption = None,
     allow_merge: Annotated[
@@ -205,7 +208,7 @@ def update(
     *,
     wiki: WikiClient,
 ) -> PageDetails:
-    """Update a wiki page by id (POST /pages/{id})."""
+    """Update a wiki page by id (POST /pages/{id}): only what is given changes."""
     return wiki.pages.update(
         page_id=page_id,
         body=PageUpdate(content=content, title=title),

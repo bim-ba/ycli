@@ -82,9 +82,10 @@ CASES = [
         mcp=(
             "tracker_worklog_search",
             {
-                "created_by": "veikus",
-                "created_from": "2018-06-06T00:00:00",
-                "created_to": "2018-06-07T00:00:00",
+                "body": {
+                    "createdBy": "veikus",
+                    "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
+                }
             },
         ),
         exchanges=[
@@ -106,14 +107,14 @@ CASES = [
         "tracker.worklog.search",
         args=(WorklogSearch.model_validate({}),),
         cli=["tracker", "worklog", "search"],
-        mcp=("tracker_worklog_search", {}),
+        mcp=("tracker_worklog_search", {"body": {}}),
         exchanges=[(Sent("POST", "worklog/_search", json={}), Reply(json=[]))],
         effect=Effect.READ,
     ),
-    # The CLI repeats createdAt for each end of the range.
+    # createdAt is sent once for each end of the range.
     Case(
         "tracker.worklog.list_global",
-        kwargs={"created_by": "alice", "created_at": ["from:2019-01-01", "to:2019-02-01"]},
+        kwargs={"created_by": "alice", "created_from": "2019-01-01", "created_to": "2019-02-01"},
         cli=[
             "tracker",
             "worklog",
@@ -140,14 +141,28 @@ CASES = [
             )
         ],
     ),
+    # One end alone.
     Case(
         "tracker.worklog.list_global",
-        kwargs={"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
-        cli=None,
-        mcp=None,
+        kwargs={"created_by": "bob", "created_from": "2020-03-04T05:06:07"},
+        cli=[
+            "tracker",
+            "worklog",
+            "list-global",
+            "--created-by",
+            "bob",
+            "--created-from",
+            "2020-03-04T05:06:07",
+        ],
+        mcp=(
+            "tracker_worklog_list_global",
+            {"created_by": "bob", "created_from": "2020-03-04T05:06:07"},
+        ),
         exchanges=[
             (
-                Sent("GET", "worklog", {"createdBy": "bob", "createdAt": "2020-03-04T05:06:07"}),
+                Sent(
+                    "GET", "worklog", {"createdBy": "bob", "createdAt": "from:2020-03-04T05:06:07"}
+                ),
                 Reply(json=[{"id": 652, "duration": "PT1H"}]),
             )
         ],

@@ -3,14 +3,13 @@
 Examples:
     >>> search({"createdBy": "alice"}).effect
     <Effect.READ: 'read'>
-    >>> list_global("alice", ["from:2018-06-06", "to:2018-06-07"]).params["createdAt"]
+    >>> list_global("alice", "2018-06-06", "2018-06-07").params["createdAt"]
     ['from:2018-06-06', 'to:2018-06-07']
 """
 
 from __future__ import annotations
 
 from http import HTTPMethod
-from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
@@ -22,9 +21,6 @@ from ycli.yandex.tracker.worklog.models import (
     WorklogSearch,
     WorklogUpdate,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 PAGE_SIZE = 100
 
@@ -56,10 +52,12 @@ def search(body: WorklogSearch) -> Endpoint[ItemList[Worklog]]:
 
 
 def list_global(
-    created_by: str | None, created_at: Sequence[str] | str | None
+    created_by: str | None, created_from: str | None, created_to: str | None
 ) -> Endpoint[ItemList[Worklog]]:
-    """``GET /worklog``; a list ``created_at`` repeats ``createdAt`` (``from:…``, ``to:…``)."""
-    params = {"createdBy": created_by, "createdAt": created_at}
+    """``GET /worklog``; each end of the range is one ``createdAt`` (``from:…``, ``to:…``)."""
+    ends = (("from", created_from), ("to", created_to))
+    created_at = [f"{end}:{value}" for end, value in ends if value is not None]
+    params = {"createdBy": created_by, "createdAt": created_at or None}
     return Endpoint(HTTPMethod.GET, "worklog", ItemList[Worklog], params=params)
 
 

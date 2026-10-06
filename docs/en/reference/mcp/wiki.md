@@ -108,17 +108,16 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 
 *Create Wiki page* · write
 
-Create a wiki page at ``slug`` (``POST /pages``).
+Create a wiki page at ``body.slug`` (``POST /pages``).
 
 Treat the slug as permanent: ``pages_move`` can rename the page later, but the old address
 then answers 404 and links to it break, so pick the slug carefully. Returns the created page
-(its numeric ``id`` drives the id-based tools and every subsequent write).
+(its numeric ``id`` drives the id-based tools and every subsequent write). E.g.
+``{"body": {"slug": "data/x", "title": "X", "content": "# X"}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `slug` | string | yes | Target slug, e.g. ``data/x``. Treat it as permanent (a move breaks links). |
-| `title` | string | yes | Page title. |
-| `content` | string | yes | Page body in YFM markdown. |
+| `body` | object | yes | Typed request body for ``POST /pages``: a new page at ``slug``. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
 | `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
 
@@ -126,17 +125,17 @@ then answers 404 and links to it break, so pick the slug carefully. Returns the 
 
 *Update Wiki page* · idempotent write
 
-Replace a wiki page's body (and optionally its title) by numeric id.
+Change a wiki page by numeric id: only the fields set in ``body`` change.
 
-This REPLACES the whole body — to add to an existing page use ``pages_append``
+``body.content`` REPLACES the whole text — to add to an existing page use ``pages_append``
 instead. The Wiki API updates via POST, not PATCH (PATCH returns 405); the SDK already
-handles that quirk. Repeating the same call yields the same page state (idempotent).
+handles that quirk. Repeating the same call yields the same page state (idempotent). E.g.
+``{"page_id": 7, "body": {"title": "New name"}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to update. |
-| `content` | string | yes | New page body in YFM markdown (full replace). |
-| `title` | string or null |  | New title (unchanged when omitted). |
+| `body` | object | yes | Typed request body for ``POST /pages/{id}``: only the fields set are changed. A page's address is not among them: :class:`PageMove` renames or relocates a page. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
 | `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
 | `allow_merge` | boolean or null |  | Merge with a concurrent edit (3-way merge) instead of failing. |
@@ -245,18 +244,16 @@ may change it.
 Full-text search over wiki pages and files; returns one page of hits.
 
 Each hit has the page ``slug`` (read it with ``pages_get``), ``title``, a ``content``
-snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
-``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
-empty page. A new page can take seconds to appear in the index.
+snippet, the ``type`` and ``modified_at``. ``body.filters`` narrows the search by ``type``,
+``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both
+``from`` and ``to``) and ``show_obsolete``. For the next page pass ``next_cursor`` back as
+``body.cursor``; stop at the first page without hits, because ``next_cursor`` stays set
+after an empty page. A new page can take seconds to appear in the index. E.g.
+``{"body": {"query": "roadmap", "limit": 5}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `text` | string | yes | Text to search for. |
-| `filters` | object or null |  | Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and ``show_obsolete``. |
-| `order_by` | `relevancy` · `creation_date` · `modified_date` or string or null |  | How to sort the hits. |
-| `highlight` | boolean or null |  | Wrap the matches in ``<em>`` tags in title and content. |
-| `limit` | integer or null |  | Hits per page. |
-| `cursor` | integer or null |  | Number of the result page to fetch, from 1. |
+| `body` | object | yes | Body of ``POST /search``: the query, filters and one page of the results. |
 
 ## `wiki_access_create`
 

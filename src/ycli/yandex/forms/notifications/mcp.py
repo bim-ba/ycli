@@ -14,7 +14,6 @@ from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
     NotificationDetails,
-    NotificationFilter,
     NotificationStatus,
 )
 from ycli.yandex.models import ItemList, SortDirection
@@ -32,7 +31,8 @@ NotificationID = Annotated[
 )
 def list_(
     survey_id: Annotated[
-        str | None, Field(description="Only this form's runs (24-char hex).")
+        str | None,
+        Field(description="The form whose runs to list (24-char hex); without it, 404."),
     ] = None,
     hook_id: Annotated[int | None, Field(description="Only this integration group.")] = None,
     subscription_id: Annotated[int | None, Field(description="Only this integration.")] = None,
@@ -66,25 +66,24 @@ def list_(
 ) -> ItemList[Notification]:
     """Runs of a form's integrations (one per answer and integration), across pages.
 
-    Capped at the configured item cap unless ``limit`` is given. Read one run's context,
-    response and error with ``notifications_get``.
+    Give ``survey_id``: without it the API answers 404 Not Found, and the other filters only
+    narrow that form's runs. Capped at the configured item cap unless ``limit`` is given. Read
+    one run's context, response and error with ``notifications_get``.
     """
     cap = config.http.cap(limit)
     return client.notifications.list(
-        NotificationFilter(
-            survey_id=survey_id,
-            hook_id=hook_id,
-            subscription_id=subscription_id,
-            answer_id=answer_id,
-            status=status,
-            created_since=created_since,
-            created_until=created_until,
-            finished_since=finished_since,
-            finished_until=finished_until,
-            visible=visible,
-            integration_type=integration_type,
-            ordering=ordering,
-        ),
+        survey_id=survey_id,
+        hook_id=hook_id,
+        subscription_id=subscription_id,
+        answer_id=answer_id,
+        status=status,
+        created_since=created_since,
+        created_until=created_until,
+        finished_since=finished_since,
+        finished_until=finished_until,
+        visible=visible,
+        integration_type=integration_type,
+        ordering=ordering,
         limit=cap,
     )
 

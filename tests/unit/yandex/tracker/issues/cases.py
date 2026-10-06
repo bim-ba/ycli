@@ -55,7 +55,7 @@ CASES = [
         args=(IssueSearch.model_validate({"query": "Queue: DE"}),),
         kwargs={"limit": 3},
         cli=["tracker", "issues", "search", "Queue: DE", "--limit", "3"],
-        mcp=("tracker_issues_search", {"query": "Queue: DE", "limit": 3}),
+        mcp=("tracker_issues_search", {"body": {"query": "Queue: DE"}, "limit": 3}),
         exchanges=[
             (
                 Sent(
@@ -66,11 +66,34 @@ CASES = [
         ],
         effect=Effect.READ,
     ),
+    # By a filter on a field the short listing has no parameter for.
+    Case(
+        "tracker.issues.search",
+        args=(IssueSearch.model_validate({"filter": {"queue": "DE", "priority": "critical"}}),),
+        kwargs={"limit": 4},
+        cli=None,
+        mcp=(
+            "tracker_issues_search",
+            {"body": {"filter": {"queue": "DE", "priority": "critical"}}, "limit": 4},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "issues/_search",
+                    {"page": "1", "perPage": "4"},
+                    {"filter": {"queue": "DE", "priority": "critical"}},
+                ),
+                Reply(json=[ISSUE]),
+            )
+        ],
+        effect=Effect.READ,
+    ),
     Case(
         "tracker.issues.count",
         args=(IssueSearch.model_validate({"filter": {"queue": "DE", "status": "open"}}),),
         cli=["tracker", "issues", "count", "--queue", "DE", "--status", "open"],
-        mcp=("tracker_issues_count", {"queue": "DE", "status": "open"}),
+        mcp=("tracker_issues_count", {"body": {"filter": {"queue": "DE", "status": "open"}}}),
         exchanges=[
             (
                 Sent("POST", "issues/_count", json={"filter": {"queue": "DE", "status": "open"}}),
@@ -173,7 +196,7 @@ CASES = [
         "tracker.issues.count",
         args=(IssueSearch.model_validate({"query": "Queue: DE AND Status: open"}),),
         cli=["tracker", "issues", "count", "--query", "Queue: DE AND Status: open"],
-        mcp=("tracker_issues_count", {"query": "Queue: DE AND Status: open"}),
+        mcp=("tracker_issues_count", {"body": {"query": "Queue: DE AND Status: open"}}),
         exchanges=[
             (
                 Sent("POST", "issues/_count", json={"query": "Queue: DE AND Status: open"}),
@@ -353,7 +376,7 @@ CASES += [
         mcp=(
             "tracker_issues_search",
             {
-                "query": "Queue: BIG",
+                "body": {"query": "Queue: BIG"},
                 "expand": "transitions",
                 "scroll_type": "sorted",
                 "per_scroll": 2,

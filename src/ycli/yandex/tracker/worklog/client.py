@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog import endpoints
@@ -14,9 +12,6 @@ from ycli.yandex.tracker.worklog.models import (
     WorklogSearch,
     WorklogUpdate,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 
 class WorklogClient(Resource):
@@ -75,27 +70,30 @@ class WorklogClient(Resource):
         return self._session.send(endpoints.search(body))
 
     def list_global(
-        self, created_by: str | None = None, created_at: Sequence[str] | str | None = None
+        self,
+        created_by: str | None = None,
+        created_from: str | None = None,
+        created_to: str | None = None,
     ) -> ItemList[Worklog]:
         """``GET /worklog?createdBy=…&createdAt=from:…&createdAt=to:…`` → org-wide worklog.
 
-        ``created_at`` is a list of ``from:<ts>`` / ``to:<ts>`` strings (repeated ``createdAt``
-        query params). Distinct from :meth:`list`, which is scoped to a single issue.
+        Distinct from :meth:`list`, which is scoped to a single issue.
 
         Args:
             created_by: Only entries created by this user.
-            created_at: ``from:<ts>`` / ``to:<ts>`` strings bounding the creation time.
+            created_from: Only entries created at or after this time.
+            created_to: Only entries created at or before this time.
 
         Returns:
             The organisation's matching worklog entries.
 
         Examples:
             >>> tracker.worklog.list_global(
-            ...     created_by="alice", created_at=["from:2019-01-01", "to:2019-02-01"]
+            ...     created_by="alice", created_from="2019-01-01", created_to="2019-02-01"
             ... ).root[0].duration
             'P3W'
         """
-        return self._session.send(endpoints.list_global(created_by, created_at))
+        return self._session.send(endpoints.list_global(created_by, created_from, created_to))
 
     def create(self, issue_key: str, body: WorklogCreate) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
