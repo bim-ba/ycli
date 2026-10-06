@@ -1,7 +1,6 @@
 """DataLens workbook models: the public names of the generated classes this resource uses."""
 
-from typing import Literal
-
+from ycli.yandex.datalens.models import EntryScope
 from ycli.yandex.datalens.schemas.workbook import CreateWorkbookResult as WorkbookCreated
 from ycli.yandex.datalens.schemas.workbook import DeleteWorkbooksResponse as WorkbooksDeleted
 from ycli.yandex.datalens.schemas.workbook import GetWorkbookEntriesArgsFilters as EntriesFilters
@@ -15,22 +14,6 @@ from ycli.yandex.datalens.schemas.workbook import (
 )
 from ycli.yandex.datalens.schemas.workbook import MoveWorkbooksResponse as WorkbooksMoved
 from ycli.yandex.datalens.schemas.workbook import Workbook
-
-#: What kind of entry a workbook holds.
-EntryScope = (
-    Literal[
-        "dash",
-        "report",
-        "widget",
-        "dataset",
-        "folder",
-        "connection",
-        "compute",
-        "artifact",
-        "sql_query",
-    ]
-    | str
-)
 
 __all__ = [
     "EntriesFilters",

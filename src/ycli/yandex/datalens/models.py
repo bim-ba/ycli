@@ -7,12 +7,28 @@ from ycli.yandex.datalens.schemas.shared import ListAccessBindingsResult as Acce
 from ycli.yandex.datalens.schemas.shared import SubjectWithBindings
 from ycli.yandex.datalens.schemas.shared import USAccessBindingDelta as AccessBindingDelta
 
+#: What kind an entry is.
+EntryScope = (
+    Literal[
+        "dash",
+        "report",
+        "widget",
+        "dataset",
+        "folder",
+        "connection",
+        "compute",
+        "artifact",
+        "sql_query",
+    ]
+    | str
+)
 #: What a listing of collections or workbooks is sorted by.
 OrderField = Literal["title", "createdAt", "updatedAt"] | str
 
 __all__ = [
     "AccessBindingDelta",
     "AccessBindingsPage",
+    "EntryScope",
     "Operation",
     "OrderField",
     "SubjectWithBindings",

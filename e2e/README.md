@@ -31,7 +31,16 @@ uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |
 | `steps[].cleanup` | command run when the scenario ends, newest first, even after a failure |
 | `steps[].disarms` | earlier step ids whose cleanup this step already did |
+| `steps[].needs` | variables only the owner of the organization can give (below); while one is not set the step is skipped, and the run lists what it skipped |
 | `steps[].reads` | commands that only read, run right after the step and only by a recording run (below) |
+
+Some steps need something a run must not make or pick for itself. Each is an environment variable, and a step that needs one that is not set is skipped:
+
+| Variable (in a scenario) | What it names |
+|---|---|
+| `YCLI_E2E_GRANTEE` (`${GRANTEE}`) | the Yandex uid of someone else to grant access to; nobody is granted anything without it |
+| `YCLI_E2E_QUEUE_2` (`${QUEUE_2}`) | a second sandbox queue: issues are moved into it, and it is deleted and restored |
+| `YCLI_E2E_LOCAL_FIELD` (`${LOCAL_FIELD}`), `YCLI_E2E_TRIGGER` (`${TRIGGER}`) | a local field and a trigger kept in the sandbox queue for a run to edit; the API cannot delete either, so a run does not create its own |
 
 Every object a run creates is named after `${RUN}` = `e2e-<unix seconds>-<4 hex>`. Tracker issues cannot be deleted through the API, so issue scenarios end with the issue closed in the sandbox queue.
 
@@ -60,7 +69,7 @@ The repository is public, so a reply is scrubbed before it is written (`scrub.py
 
 A fixture also counts the keys its model does not know (`unknown_keys`); the offline check fails when a model stops knowing a key it knew. Their names, and the reads that failed, go to the file `--record-report` names (outside the repository); the terminal shows numbers only.
 
-While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures.
+While the `reads` of a step run, the command gets `--dry-run` and the network seam refuses, before sending, any request whose endpoint does not declare the effect `read`. `--record-to DIR` writes somewhere else than the committed fixtures. Record a whole service, not one scenario: the fullest reply is picked among the replies of one run, so a run of one scenario overwrites a fixture another scenario filled better.
 
 ## Janitor
 

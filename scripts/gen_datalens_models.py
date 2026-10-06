@@ -249,6 +249,133 @@ def _spread_unions(spec: dict[str, Any]) -> int:
     return spread
 
 
+def _reply_schemas(spec: dict[str, Any]) -> tuple[dict[int, dict[str, Any]], set[int]]:
+    """Every schema a reply reaches, by identity, and the identities a request reaches."""
+
+    def reached(kind: str) -> dict[int, dict[str, Any]]:
+        found: dict[int, dict[str, Any]] = {}
+        pending = [holder["schema"] for _, _, held, holder in _bodies(spec) if held == kind]
+        while pending:
+            for schema in _schemas(pending.pop()):
+                if id(schema) not in found:
+                    found[id(schema)] = schema
+                    aimed = _target(spec, schema)
+                    if aimed is not None and aimed is not schema:
+                        pending.append(aimed)
+        return found
+
+    return reached("Response"), set(reached("Request"))
+
+
+def _values(schema: dict[str, Any]) -> list[Any] | None:
+    """The one value ``schema`` names, in a list, or ``None`` when it names more or none."""
+    if "const" in schema:
+        return [schema["const"]]
+    values = schema.get("enum")
+    return values if isinstance(values, list) and len(values) == 1 else None
+
+
+def _kind(schema: dict[str, Any]) -> str:
+    """What a field holds, for comparing it between the members of a union.
+
+    The description is no part of it, and a field with one value is a field of that value's
+    type: ``{"const": true}`` and ``{"type": "boolean"}`` are the same kind.
+
+    Examples:
+        >>> _kind({"const": True, "description": "Locked."}) == _kind({"type": "boolean"})
+        True
+        >>> _kind({"enum": ["auto"]}) == _kind({"enum": ["fixed"]}) == _kind({"type": "string"})
+        True
+        >>> _kind({"type": "string"}) == _kind({"type": "object", "properties": {}})
+        False
+    """
+    values = _values(schema)
+    if values is not None:
+        types = {bool: "boolean", str: "string", int: "integer", float: "number"}
+        return json.dumps({"type": types.get(type(values[0]), "null")})
+    return json.dumps({key: value for key, value in schema.items() if key != "description"})
+
+
+def _merged_field(schemas: list[dict[str, Any]]) -> dict[str, Any]:
+    """One field for the schemas the members of a union give it, all of one kind.
+
+    A member that names the type gives the field as it is. Members that name one value each
+    give the set of those values, open to any string (a set of several is opened with every
+    other set of the document, a single value here): the field told the members apart, and
+    in one object it is a value like any other, which the API may add to. The description is
+    the first member's.
+
+    Examples:
+        >>> _merged_field([{"const": True, "description": "Locked."}, {"type": "boolean"}])
+        {'type': 'boolean', 'description': 'Locked.'}
+        >>> _merged_field([{"enum": ["auto"]}, {"enum": ["fixed"]}])
+        {'type': 'string', 'enum': ['auto', 'fixed']}
+        >>> _merged_field([{"enum": ["NOT_FOUND"]}])
+        {'anyOf': [{'enum': ['NOT_FOUND']}, {'type': 'string'}]}
+    """
+    said = {key: schemas[0][key] for key in ("description",) if key in schemas[0]}
+    plain = next((schema for schema in schemas if _values(schema) is None), None)
+    if plain is not None:
+        return {**{key: value for key, value in plain.items() if key != "description"}, **said}
+    values = list(dict.fromkeys(value for schema in schemas for value in _values(schema) or []))
+    if not all(isinstance(value, str) for value in values):
+        return {**json.loads(_kind(schemas[0])), **said}
+    if len(values) > 1:  # a set of several values is opened with every other such set
+        return {**said, "type": "string", "enum": values}
+    return {**said, "anyOf": [{"enum": values}, {"type": "string"}]}
+
+
+def _merge_agreeing_replies(spec: dict[str, Any]) -> int:
+    """Read a reply's union of objects that nothing tells apart as one object; return how many.
+
+    ``{permissions} or {error}`` has no discriminator and, since nothing is required, no way to
+    choose a member: a value fits both. Where every field the members share is of one kind
+    (:func:`_kind`), the union says no more than one object with the fields of all of them, and
+    that is what is generated (:func:`_merged_field`).
+
+    Two kinds of union stay as they are. One whose members give a name two different types
+    (the parameters of an SQL query, the items of a collection): merged, the field would have
+    no type. And one a request reaches: there the merged object would let through the fields of
+    two members at once.
+    """
+    merged = 0
+    # A merged object holds copies of its members' fields, and a union inside one of them is
+    # met again in the copy: pass over the document until a pass merges nothing.
+    while (passed := _merge_pass(spec)) > 0:
+        merged += passed
+    return merged
+
+
+def _merge_pass(spec: dict[str, Any]) -> int:
+    """One pass of :func:`_merge_agreeing_replies`: how many unions it merged."""
+    replies, requests = _reply_schemas(spec)
+    merged = 0
+    for found, schema in replies.items():
+        key = next((key for key in ("oneOf", "anyOf") if key in schema), None)
+        if key is None or found in requests or "discriminator" in schema:
+            continue
+        # A member that is ``null`` only says the value may be absent, as every field may.
+        members = [
+            aimed
+            for member in schema[key]
+            if (aimed := _target(spec, member)) and aimed.get("type") != "null"
+        ]
+        if len(members) < 2 or not all("properties" in member for member in members):
+            continue
+        fields: dict[str, list[dict[str, Any]]] = {}
+        for member in members:
+            for name, value in member["properties"].items():
+                fields.setdefault(name, []).append(value)
+        if all(len({_kind(value) for value in given}) == 1 for given in fields.values()):
+            del schema[key]
+            properties = {
+                name: copy.deepcopy(_merged_field(given)) for name, given in fields.items()
+            }
+            schema.update({"type": "object", "properties": properties})
+            merged += 1
+    return merged
+
+
 def _require_discriminators(spec: dict[str, Any]) -> set[int]:
     """Make each union's discriminator a required property of its members; return those nodes.
 
@@ -424,7 +551,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     Returns:
         A copy with no generator directives and no defaults, in which a number is read whole
         or fractional as it comes, "these fields and one of
-        those" is written as its members, a union's discriminator is
+        those" is written as its members, a reply's union of objects that nothing tells apart is
+        one object, a union's discriminator is
         required in its members, a set of string values is open, nothing else is required
         below the top level of a request, only a request envelope is closed to unknown fields,
         every object has a name made from its place, a schema no
@@ -460,6 +588,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     _plain(spec)
     _keep_whole_numbers(spec)
     _spread_unions(spec)
+    _merge_agreeing_replies(spec)
     tags = _require_discriminators(spec)
     _open_value_sets(spec, keep=tags)
     _require_only_kinds(spec, keep=tags)

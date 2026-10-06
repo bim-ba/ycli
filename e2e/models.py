@@ -18,6 +18,11 @@ class Step(BaseModel):
     ``reads`` are commands that only read, run right after the step, while what it made still
     exists, and only by a run that records replies (``pytest e2e --record``): each adds the
     reply of one more operation, and none may change the server.
+
+    ``needs`` names variables only the owner of the organization can give (``QUEUE_2``,
+    ``GRANTEE``; ``e2e/settings.py``): while one is not set the step is skipped, with its
+    cleanup and its reads, and the run says so. A step that uses what a skipped step saved
+    needs the same variable.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -32,6 +37,7 @@ class Step(BaseModel):
     cleanup: str | None = None
     disarms: tuple[str, ...] = ()
     reads: tuple[str, ...] = ()
+    needs: tuple[str, ...] = ()
 
 
 class Scenario(BaseModel):

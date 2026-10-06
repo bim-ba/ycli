@@ -19,3 +19,4 @@ DeltaOption = Annotated[
         '"accessBinding": {"roleId": ..., "subject": {"id": ..., "type": ...}}} (repeatable).',
     ),
 ]
+EntryIDArg = Annotated[str, typer.Argument(metavar="ENTRY_ID", help="Entry id.")]

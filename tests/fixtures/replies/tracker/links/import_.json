@@ -1,0 +1,46 @@
+{
+  "body": {
+    "<unknown-1>": {},
+    "assignee": null,
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "direction": "<direction>",
+    "hidden": null,
+    "id": 1,
+    "object": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "status": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "type": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": "<unknown-4>"
+    },
+    "updatedAt": "<updatedAt>",
+    "updatedBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    }
+  },
+  "status": 201,
+  "unknown_keys": 2
+}

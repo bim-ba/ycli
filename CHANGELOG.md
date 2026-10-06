@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.91.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.90.0
+  ([`3b09d13`](https://github.com/bim-ba/ycli/commit/3b09d132d90f0cef1b429ddf2ede8c77aca88c63))
+
+### Features
+
+- **datalens**: Entries are found, their relations, revisions and permissions read
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`78b9b1f`](https://github.com/bim-ba/ycli/commit/78b9b1f96a66eb0bc0516d166d41f65c2e326c5d))
+
+### Testing
+
+- **e2e**: Live scenarios write what hangs on an issue, a board, a queue and a project
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`af4d9c8`](https://github.com/bim-ba/ycli/commit/af4d9c863c2b1c7bfbbae3eed6a074fe0b416f3a))
+
+
 ## v0.90.0 (2026-10-06)
 
 ### Build System
