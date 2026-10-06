@@ -18,6 +18,23 @@ uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 
 `--no-cov` is required: the repository's pytest options enforce coverage of `ycli`, which runs in a subprocess here. `-n 0` keeps the live scenarios serial instead of the four parallel workers the unit suite uses. `YCLI_E2E_QUEUE` overrides the Tracker sandbox queue (default `YCLIPAGE`).
 
+A scenario runs when the environment holds what the profile of its service takes, and is skipped with the reason otherwise: Tracker, Wiki and Forms take the pair above; DataLens takes neither.
+
+## DataLens: by hand only
+
+DataLens takes an IAM token of Yandex Cloud and a Cloud organization, and no OAuth token; ycli refuses two tokens at once, so its scenarios are a run of their own, without `.env`. There is no nightly run for it: CI has no token DataLens takes (the service account has no DataLens seat, and a person's token is not kept in the secrets).
+
+```bash
+unset YANDEX_ID_OAUTH_TOKEN YANDEX_ID_ORGANIZATION_ID
+export YANDEX_CLOUD_IAM_TOKEN=$(yc iam create-token)      # once per shell; it lives 12 hours
+export YANDEX_CLOUD_ORGANIZATION_ID=bpfbl73plaftcqukf7uu  # the owner's organization: put your own
+export YCLI_E2E=1
+uv run pytest e2e --no-cov -n 0 --service datalens            # the scenarios
+uv run pytest e2e --no-cov -n 0 --service datalens --record   # and record the replies
+```
+
+The token is a person's: it reaches every organization that person is in, and only `YANDEX_CLOUD_ORGANIZATION_ID` picks the one the scenarios work in. They make a collection, nest two more and two workbooks in it, and delete all of it; entries that exist already are only read.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

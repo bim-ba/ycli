@@ -69,6 +69,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # DataLens is not here: CI has no token it takes. The service account has no DataLens
+        # seat, and a person's token is not kept in the secrets. Its scenarios run by hand.
         service: ${{ fromJSON(github.event_name == 'pull_request' && '["all"]' || '["tracker", "wiki", "forms"]') }}
     name: live (${{ matrix.service }})
     runs-on: ubuntu-latest

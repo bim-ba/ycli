@@ -1,0 +1,32 @@
+{
+  "body": {
+    "collectionId": "<collectionId>",
+    "createdAt": "<createdAt>",
+    "createdBy": "<createdBy>",
+    "description": "<description>",
+    "meta": {},
+    "operation": {
+      "createdAt": {
+        "nanos": 1,
+        "seconds": "<seconds>"
+      },
+      "createdBy": "<createdBy>",
+      "description": "<description>",
+      "done": false,
+      "id": "<id>",
+      "metadata": {},
+      "modifiedAt": {
+        "nanos": 1,
+        "seconds": "<seconds>"
+      }
+    },
+    "status": "active",
+    "tenantId": "<tenantId>",
+    "title": "<title>",
+    "updatedAt": "<updatedAt>",
+    "updatedBy": "<updatedBy>",
+    "workbookId": "<workbookId>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

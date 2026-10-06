@@ -1,7 +1,5 @@
 """ARCH-1 — Surface parity (see ARCHITECTURE.md)."""
 
-from __future__ import annotations
-
 import ast
 import asyncio
 import builtins

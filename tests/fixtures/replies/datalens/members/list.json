@@ -1,0 +1,86 @@
+{
+  "body": {
+    "members": [
+      {
+        "<unknown-1>": null,
+        "<unknown-2>": null,
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>",
+        "<unknown-5>": "<unknown-5>",
+        "<unknown-6>": "<unknown-6>",
+        "createdAt": null,
+        "email": "<email>",
+        "familyName": "<familyName>",
+        "givenName": "<givenName>",
+        "group": {
+          "<unknown-1>": false,
+          "<unknown-2>": true
+        },
+        "name": "<name>",
+        "picture": "<picture>",
+        "preferredUsername": "<preferredUsername>",
+        "sub": "<sub>",
+        "subType": "GROUP"
+      },
+      {
+        "<unknown-1>": null,
+        "<unknown-2>": null,
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>",
+        "<unknown-5>": "<unknown-5>",
+        "<unknown-6>": "<unknown-6>",
+        "createdAt": null,
+        "email": "<email>",
+        "familyName": "<familyName>",
+        "givenName": "<givenName>",
+        "name": "<name>",
+        "picture": "<picture>",
+        "pictureData": "<pictureData>",
+        "preferredUsername": "<preferredUsername>",
+        "sub": "<sub>",
+        "subType": "USER_ACCOUNT"
+      },
+      {
+        "<unknown-1>": null,
+        "<unknown-2>": null,
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>",
+        "<unknown-5>": "<unknown-5>",
+        "<unknown-6>": "<unknown-6>",
+        "createdAt": null,
+        "email": "<email>",
+        "familyName": "<familyName>",
+        "givenName": "<givenName>",
+        "name": "<name>",
+        "picture": "<picture>",
+        "preferredUsername": "<preferredUsername>",
+        "sub": "<sub>",
+        "subType": "SERVICE_ACCOUNT"
+      },
+      {
+        "<unknown-1>": null,
+        "<unknown-2>": {
+          "<unknown-1>": 1,
+          "<unknown-2>": "<unknown-2>"
+        },
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>",
+        "<unknown-5>": "<unknown-5>",
+        "<unknown-6>": "<unknown-6>",
+        "createdAt": null,
+        "email": "<email>",
+        "familyName": "<familyName>",
+        "givenName": "<givenName>",
+        "name": "<name>",
+        "picture": "<picture>",
+        "pictureData": "<pictureData>",
+        "preferredUsername": "<preferredUsername>",
+        "sub": "<sub>",
+        "subType": "USER_ACCOUNT"
+      }
+    ],
+    "nextPageToken": "<nextPageToken>"
+  },
+  "status": 200,
+  "unknown_keys": 8
+}

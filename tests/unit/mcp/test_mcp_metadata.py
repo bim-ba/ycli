@@ -1,7 +1,5 @@
 """Every MCP tool carries the read/idempotent/open-world hints + a title; servers have instructions."""  # noqa: E501
 
-from __future__ import annotations
-
 import asyncio
 from typing import Annotated, Any
 

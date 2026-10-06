@@ -1,7 +1,5 @@
 """The rules of ``docs/conventions/resources.md`` that the ARCH checks do not cover."""
 
-from __future__ import annotations
-
 import ast
 import asyncio
 import importlib

@@ -1,7 +1,5 @@
 """ARCH-8 — Typed boundaries (see ARCHITECTURE.md)."""
 
-from __future__ import annotations
-
 import ast
 import functools
 from pathlib import Path

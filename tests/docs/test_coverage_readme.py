@@ -6,8 +6,6 @@ embedded in ``README.md`` between the ``COVERAGE:START`` / ``COVERAGE:END`` mark
 the generator's output, so the tables cannot silently fall out of sync with the code.
 """
 
-from __future__ import annotations
-
 import importlib.util
 import re
 import sys
