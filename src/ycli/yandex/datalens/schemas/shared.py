@@ -137,24 +137,6 @@ class OtherKind(APIModel):
     """A kind the specification does not describe: kept as it came."""
 
 
-class OtherKindByType(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    type: str | None = Field(default=None, description="The kind.")
-
-
-class OtherKindBySourceType(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    source_type: str | None = Field(default=None, alias="sourceType", description="The kind.")
-
-
-class OtherKindByElementType(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    element_type: str | None = Field(default=None, alias="elementType", description="The kind.")
-
-
 class DatalensOperationCreatedAt(APIModel):
     """Operation creation timestamp."""
 
@@ -751,7 +733,7 @@ class DashControlSourceDatasetV2(
         | DashControlSourceDatasetV2Variant2
         | DashControlSourceDatasetV2Variant3
         | DashControlSourceDatasetV2Variant4
-        | OtherKindByElementType
+        | OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -760,7 +742,7 @@ class DashControlSourceDatasetV2(
         | DashControlSourceDatasetV2Variant2
         | DashControlSourceDatasetV2Variant3
         | DashControlSourceDatasetV2Variant4
-        | OtherKindByElementType
+        | OtherKind
     ) = Field(..., description="Dataset control source.")
 
 
@@ -1195,7 +1177,7 @@ class DashControlSourceManualV2(
         | DashControlSourceManualV2Variant2
         | DashControlSourceManualV2Variant3
         | DashControlSourceManualV2Variant4
-        | OtherKindByElementType
+        | OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -1204,7 +1186,7 @@ class DashControlSourceManualV2(
         | DashControlSourceManualV2Variant2
         | DashControlSourceManualV2Variant3
         | DashControlSourceManualV2Variant4
-        | OtherKindByElementType
+        | OtherKind
     ) = Field(..., description="Manual control source.")
 
 

@@ -782,7 +782,7 @@ Create a chart of the editor and return it with its id.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `entry` | any | yes | The new chart: where it lies, its kind (`type`) and its code. |
+| `entry` | object or object or object or object or object or object | yes | The new chart: where it lies, its kind (`type`) and its code. |
 
 ## `datalens_charts_editor_update`
 
@@ -792,7 +792,7 @@ Save a chart of the editor as given.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `entry` | any | yes | The chart to save: its `entryId`, its kind (`type`) and its code. |
+| `entry` | object or object or object or object or object or object | yes | The chart to save: its `entryId`, its kind (`type`) and its code. |
 | `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
 
 ## `datalens_charts_editor_delete`

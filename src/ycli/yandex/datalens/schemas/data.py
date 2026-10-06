@@ -6,6 +6,8 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 
+from . import shared
+
 
 class GetChartDataArgs(RequestBody):
     chart_id: str = Field(..., alias="chartId", description="Saved chart ID.")
@@ -13,12 +15,6 @@ class GetChartDataArgs(RequestBody):
         default=None,
         description="Chart parameters, including table pagination. Saved chart settings apply.",
     )
-
-
-class OtherKindByChartType(APIModel):
-    """A kind the specification does not describe: kept as it came."""
-
-    chart_type: str | None = Field(default=None, alias="chartType", description="The kind.")
 
 
 class GetWizardChartDataResultResultsItemSchemaItem(APIModel):
@@ -235,7 +231,7 @@ class GetChartDataResult(
         GetWizardChartDataResult
         | GetQLChartDataResult
         | GetEditorChartDataResult
-        | OtherKindByChartType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -243,5 +239,5 @@ class GetChartDataResult(
         GetWizardChartDataResult
         | GetQLChartDataResult
         | GetEditorChartDataResult
-        | OtherKindByChartType
+        | shared.OtherKind
     )

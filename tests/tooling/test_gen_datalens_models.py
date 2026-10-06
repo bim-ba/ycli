@@ -128,7 +128,7 @@ def test_the_specification_is_prepared_for_ycli_rules():
         "charts.ChartMeta2TagsItem",
         "charts.GetChartRequest",
         "charts.Line",
-        "charts.OtherKindByType",
+        "charts.OtherKind",
         "charts.Pie",
         "charts.UpdateChartArgs",
         "dashboards.DeleteArgs",
@@ -159,11 +159,12 @@ def test_the_specification_is_prepared_for_ycli_rules():
         "anyOf": [
             {"$ref": REF + "charts.Line"},
             {"$ref": REF + "charts.Pie"},
-            {"$ref": REF + "charts.OtherKindByType"},
+            {"$ref": REF + "charts.OtherKind"},
         ]
     }
-    assert schemas["charts.OtherKindByType"]["properties"] == {
-        "type": {"type": "string", "description": "The kind."}
+    assert schemas["charts.OtherKind"] == {
+        "type": "object",
+        "description": "A kind the specification does not describe: kept as it came.",
     }
     # An object written in place is named from its place; a name already taken is not reused.
     assert chart["meta"] == {"$ref": REF + "charts.ChartMeta2"}
@@ -620,20 +621,33 @@ def _kinds_document(reply: dict, request: dict | None = None, shared: dict | Non
     }
 
 
-def test_a_union_a_reply_reaches_gets_a_spare_member_and_a_request_union_stays_strict():
-    """Both sides (#391): a reply reads a kind the document does not know, a request does not."""
+def test_a_union_of_kinds_gets_a_spare_member_in_a_reply_and_in_a_request():
+    """A kind the document does not know is read (#391) and is sent (#444)."""
     reply = {"oneOf": [_kind("a"), _kind("b")]}
     request = {"oneOf": [_kind("a"), _kind("b")]}
     schemas = gen.prepare(_kinds_document(reply, request))["components"]["schemas"]
     read = schemas["things.GetThingResponse"]["properties"]["item"]["anyOf"]
-    assert len(read) == 3 and read[-1] == {"$ref": REF + "things.OtherKindByKind"}
-    assert schemas["things.OtherKindByKind"] == {
+    assert len(read) == 3 and read[-1] == {"$ref": REF + "things.OtherKind"}
+    # The spare class is empty: it declares no field, not even the tag, and keeps every key.
+    assert schemas["things.OtherKind"] == {
         "type": "object",
         "description": "A kind the specification does not describe: kept as it came.",
-        "properties": {"kind": {"type": "string", "description": "The kind."}},
     }
-    sent = schemas["things.GetThingRequest"]["properties"]["filter"]
-    assert len(sent["oneOf"]) == 2 and "anyOf" not in sent
+    sent = schemas["things.GetThingRequest"]["properties"]["filter"]["anyOf"]
+    assert len(sent) == 3 and sent[-1] == {"$ref": REF + "things.OtherKind"}
+
+
+def test_a_request_union_that_nothing_tells_apart_is_left_as_it_is():
+    """Both sides: with no kind to be unknown, a spare member would let every object fit."""
+    plain = {"type": "object", "properties": {"size": {"type": "boolean"}}}
+    other = {"type": "object", "properties": {"size": {"type": "string"}}}
+    untold = {"anyOf": [plain, other]}
+    schemas = gen.prepare(_kinds_document({"type": "string"}, untold))["components"]["schemas"]
+    sent = schemas["things.GetThingRequest"]["properties"]["filter"]["anyOf"]
+    assert len(sent) == 2 and not [name for name in schemas if "OtherKind" in name]
+    # The same union in a reply is read softly, as before.
+    read = gen.prepare(_kinds_document(untold))["components"]["schemas"]
+    assert "things.OtherKind" in read
 
 
 def test_a_union_a_request_and_a_reply_share_is_read_softly_both_ways():
@@ -641,31 +655,25 @@ def test_a_union_a_request_and_a_reply_share_is_read_softly_both_ways():
     shared = {"Item": {"oneOf": [_kind("a"), _kind("b")]}}
     document = _kinds_document({"$ref": REF + "Item"}, {"$ref": REF + "Item"}, shared)
     schemas = gen.prepare(document)["components"]["schemas"]
-    assert schemas["things.Item"]["anyOf"][-1] == {"$ref": REF + "things.OtherKindByKind"}
+    assert schemas["things.Item"]["anyOf"][-1] == {"$ref": REF + "things.OtherKind"}
 
 
-def test_the_spare_member_names_the_tag_only_where_the_union_has_one():
-    """No field tells these members apart, and two spellings of a tag are two classes."""
+def test_every_union_of_kinds_falls_back_to_the_one_spare_class():
+    """Whatever tells the members apart, or nothing at all: one empty class for all."""
     plain = {"type": "object", "properties": {"size": {"type": "boolean"}}}
-    untold = gen.prepare(_kinds_document({"anyOf": [plain, _kind("a")]}))["components"]["schemas"]
-    assert untold["things.OtherKind"] == {
-        "type": "object",
-        "description": "A kind the specification does not describe: kept as it came.",
-    }
     snake = {"oneOf": [_kind("a", "source_type"), _kind("b", "source_type")]}
-    assert (
-        "things.OtherKindBySourceTypeSnake"
-        in (gen.prepare(_kinds_document(snake))["components"]["schemas"])
-    )
+    for reply in ({"anyOf": [plain, _kind("a")]}, snake):
+        schemas = gen.prepare(_kinds_document(reply))["components"]["schemas"]
+        assert [name for name in schemas if "OtherKind" in name] == ["things.OtherKind"]
     # A value that is no object, or one object alone, is no union of kinds: left as it is.
     alone = gen.prepare(_kinds_document({"anyOf": [_kind("a"), {"type": "string"}]}))
     assert not [name for name in alone["components"]["schemas"] if "OtherKind" in name]
 
 
 def test_a_name_of_the_document_that_the_spare_member_needs_stops_the_run():
-    taken = {"OtherKindByKind": {"type": "object", "properties": {"x": {"type": "string"}}}}
+    taken = {"OtherKind": {"type": "object", "properties": {"x": {"type": "string"}}}}
     reply = {"oneOf": [_kind("a"), _kind("b")]}
-    with pytest.raises(SystemExit, match="'OtherKindByKind' already"):
+    with pytest.raises(SystemExit, match="'OtherKind' already"):
         gen.prepare(_kinds_document(reply, shared=taken))
 
 
@@ -676,22 +684,22 @@ def test_the_measured_kinds_the_document_does_not_know_are_read():
 
     frozen = {"id": "s1", "source_type": "CH_FROZEN_SOURCE", "parameters": {"db": "x"}}
     read = DataSourceStrict.model_validate(frozen).root
-    assert type(read).__name__ == "OtherKindBySourceTypeSnake"
-    assert read.source_type == "CH_FROZEN_SOURCE"
+    assert type(read).__name__ == "OtherKind"
+    assert read.model_dump()["source_type"] == "CH_FROZEN_SOURCE"
     assert read.model_dump(exclude_none=True) == frozen  # sent back as it came
     # A kind the document knows is read as its own class...
     known = DataSourceStrict.model_validate({**frozen, "source_type": "CH_TABLE"}).root
     assert type(known).__name__ == "CHTABLE"
     # ...unless a field of it comes of another type than the document says: read all the same.
     odd = DataSourceStrict.model_validate({"source_type": "CH_TABLE", "valid": {"no": 1}}).root
-    assert type(odd).__name__ == "OtherKindBySourceTypeSnake"
+    assert type(odd).__name__ == "OtherKind"
     # The items of a collection: a kind added tomorrow does not fail the page.
     page = GetStructureItemsResult.model_validate(
         {"items": [{"entity": "workbook", "workbookId": "w1"}, {"entity": "folder", "id": "f1"}]}
     )
     assert [type(item).__name__ for item in page.items or []] == [
         "GetStructureItemsResultItemsItemVariant2",
-        "OtherKindByEntity",
+        "OtherKind",
     ]
 
 
@@ -756,7 +764,8 @@ def test_a_generated_root_model_does_not_quote_its_input_in_an_error():
     ]
     assert roots and all("hide_input_in_errors=True" in root for root in roots)
     with pytest.raises(ValidationError) as refused:
-        ConnectionCreate.model_validate({"type": "nope", "password": "S3cret-value"})
+        # No union of kinds refuses an object any more (#444): a value that is no object does.
+        ConnectionCreate.model_validate(["S3cret-value"])
     assert "S3cret-value" not in str(refused.value)
 
 
@@ -839,3 +848,47 @@ def test_no_class_of_the_layer_is_named_by_the_code_generator():
         "ReplaceConnectionModel",
         "UpdateFieldModel",
     ]
+
+
+def test_a_kind_the_document_does_not_know_is_sent_as_it_was_given():
+    """Measured (#444): DataLens takes a source of the kind ``GSHEETS_V2``; ycli refused it."""
+    from ycli.yandex.datalens.schemas.dataset import DatasetValidate
+    from ycli.yandex.models import WIRE
+
+    source = {"source_type": "GSHEETS_V2", "id": "s1", "parameters": {"sheet": "Sales"}}
+    tried = {"updates": [{"action": "add_source", "source": source}]}
+    built = DatasetValidate.model_validate(tried)
+    assert built.model_dump(mode="json", context=WIRE) == tried  # nothing lost on the way
+    # The other side: a kind the document knows is still built as its own class, with its
+    # fields checked by their types; the spare one is taken only when its own does not fit.
+    known = {"updates": [{"action": "add_source", "source": {"source_type": "CH_TABLE"}}]}
+    update = DatasetValidate.model_validate(known).updates
+    assert update is not None
+    added = update[0].root
+    assert type(added).__name__ == "AddSource"
+    assert type(getattr(added, "source").root).__name__.startswith("CHTABLE")  # noqa: B009
+
+
+def test_a_connection_of_a_kind_nobody_knows_is_sent_and_its_secret_is_not_typed():
+    """What #444 costs, written down: the spare class is empty, so a password in it is text.
+
+    A connection of a kind the document lacks, or of a known kind with a field of another
+    type, goes to DataLens as given. ``repr`` and a dump of it print the password; a dry run
+    and the text of an error still do not (``tests/unit/yandex/datalens/connections``).
+    """
+    from ycli.yandex.datalens.schemas.connection import ConnectionCreate
+    from ycli.yandex.models import WIRE, secret_keys
+
+    secret = "S3cret-value"
+    for body in (
+        {"type": "gsheets_v9", "name": "x", "password": secret},  # a kind not in the document
+        {"type": "clickhouse", "port": "not a number", "password": secret},  # a field mistyped
+    ):
+        built = ConnectionCreate.model_validate(body)
+        assert type(built.root).__name__ == "OtherKind"
+        assert built.model_dump(mode="json", context=WIRE) == body
+        assert secret in repr(built) and secret in built.model_dump_json()
+    # A body that fits its kind keeps the guarantee of #388.
+    fits = ConnectionCreate.model_validate({"type": "clickhouse", "password": secret})
+    assert secret not in repr(fits) and secret not in fits.model_dump_json()
+    assert "password" in secret_keys(ConnectionCreate)  # what a dry run masks by

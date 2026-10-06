@@ -700,18 +700,12 @@ class DashDataV2Settings(APIModel):
 
 class DashControlV2(
     RootModel[
-        DashControlV2Variant1
-        | DashControlV2Variant2
-        | DashControlV2Variant3
-        | shared.OtherKindBySourceType
+        DashControlV2Variant1 | DashControlV2Variant2 | DashControlV2Variant3 | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
     root: (
-        DashControlV2Variant1
-        | DashControlV2Variant2
-        | DashControlV2Variant3
-        | shared.OtherKindBySourceType
+        DashControlV2Variant1 | DashControlV2Variant2 | DashControlV2Variant3 | shared.OtherKind
     ) = Field(..., description="Control item data.")
 
 
@@ -733,18 +727,10 @@ class DashTabControlItemV2(APIModel):
 
 
 class DashGroupControlItemV2(
-    RootModel[
-        DashGroupControlItemV2Variant1
-        | DashGroupControlItemV2Variant2
-        | shared.OtherKindBySourceType
-    ],
+    RootModel[DashGroupControlItemV2Variant1 | DashGroupControlItemV2Variant2 | shared.OtherKind],
     hide_input_in_errors=True,
 ):
-    root: (
-        DashGroupControlItemV2Variant1
-        | DashGroupControlItemV2Variant2
-        | shared.OtherKindBySourceType
-    )
+    root: DashGroupControlItemV2Variant1 | DashGroupControlItemV2Variant2 | shared.OtherKind
 
 
 class DashGroupControlV2(APIModel):
@@ -813,10 +799,10 @@ class DashTabGroupControlItemV2(APIModel):
 
 
 class DashGlobalItemV2(
-    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType],
+    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKind],
     hide_input_in_errors=True,
 ):
-    root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType
+    root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKind
 
 
 class DashTabItemV2Variant1(APIModel):
@@ -893,7 +879,7 @@ class DashTabItemV2(
         | DashTabItemV2Variant5
         | DashTabControlItemV2
         | DashTabGroupControlItemV2
-        | shared.OtherKindByType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -905,7 +891,7 @@ class DashTabItemV2(
         | DashTabItemV2Variant5
         | DashTabControlItemV2
         | DashTabGroupControlItemV2
-        | shared.OtherKindByType
+        | shared.OtherKind
     )
 
 

@@ -574,7 +574,7 @@ class ReportTabItemV2Variant6Data(APIModel):
         list[
             ReportTabItemV2Variant6DataGroupItemVariant1
             | ReportTabItemV2Variant6DataGroupItemVariant2
-            | shared.OtherKindBySourceType
+            | shared.OtherKind
         ]
         | None
     ) = Field(default=None, description="Controls in the group.")
@@ -602,7 +602,7 @@ class ReportTabItemV2(
         | ReportTabItemV2Variant5
         | ReportTabItemV2Variant6
         | ReportTabItemV2Variant7
-        | shared.OtherKindByType
+        | shared.OtherKind
     ],
     hide_input_in_errors=True,
 ):
@@ -614,7 +614,7 @@ class ReportTabItemV2(
         | ReportTabItemV2Variant5
         | ReportTabItemV2Variant6
         | ReportTabItemV2Variant7
-        | shared.OtherKindByType
+        | shared.OtherKind
     )
 
 

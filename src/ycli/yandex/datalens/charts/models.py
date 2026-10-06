@@ -1,6 +1,6 @@
 """DataLens chart models: the public names of the generated classes this resource uses."""
 
-from typing import Annotated, Any
+from typing import Any
 
 from pydantic import Field
 
@@ -25,30 +25,32 @@ from ycli.yandex.datalens.schemas.ql import CreateQLChartResponse as QLChartCrea
 from ycli.yandex.datalens.schemas.ql import UpdateQLChartArgsData as QLChartChange
 from ycli.yandex.datalens.schemas.ql import UpdateQLChartResponse as QLChartSaved
 from ycli.yandex.datalens.schemas.shared import EntryAnnotationArg as EntryAnnotation
+from ycli.yandex.datalens.schemas.shared import OtherKind
 from ycli.yandex.datalens.schemas.wizard import CreateWizardChartV1Result as WizardChartCreated
 from ycli.yandex.datalens.schemas.wizard import GetWizardChartV1Result as WizardChart
 from ycli.yandex.datalens.schemas.wizard import UpdateWizardV1Result as WizardChartSaved
 from ycli.yandex.datalens.schemas.wizard import WizardV1ConfigSchema as WizardChartData
 from ycli.yandex.models import APIModel
 
-#: An Editor chart to create: `type` says which of the five kinds it is.
-EditorChartCreate = Annotated[
+#: An Editor chart to create: `type` says which of the five kinds it is; a kind the
+#: specification does not list is sent as it was given (#444).
+EditorChartCreate = (
     CreateEditorChartArgsEntryVariant1
     | CreateEditorChartArgsEntryVariant2
     | CreateEditorChartArgsEntryVariant3
     | CreateEditorChartArgsEntryVariant4
-    | CreateEditorChartArgsEntryVariant5,
-    Field(discriminator="type"),
-]
+    | CreateEditorChartArgsEntryVariant5
+    | OtherKind
+)
 #: An Editor chart to save, by its `entryId`: `type` says which kind it is.
-EditorChartUpdate = Annotated[
+EditorChartUpdate = (
     UpdateEditorTableNodeEntry
     | UpdateEditorGravityChartsNodeEntry
     | UpdateEditorMarkdownNodeEntry
     | UpdateEditorAdvancedChartNodeEntry
-    | UpdateEditorSelectorNodeEntry,
-    Field(discriminator="type"),
-]
+    | UpdateEditorSelectorNodeEntry
+    | OtherKind
+)
 
 
 class QLChart(APIModel):

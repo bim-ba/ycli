@@ -546,7 +546,7 @@ class GetEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-        | shared.OtherKindByType
+        | shared.OtherKind
         | None
     ) = None
     is_favorite: bool | None = Field(
@@ -564,7 +564,7 @@ class CreateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-        | shared.OtherKindByType
+        | shared.OtherKind
         | None
     ) = None
 
@@ -576,7 +576,7 @@ class UpdateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
-        | shared.OtherKindByType
+        | shared.OtherKind
         | None
     ) = None
 
@@ -676,7 +676,8 @@ class UpdateEditorChartArgs(RequestBody):
         | UpdateEditorMarkdownNodeEntry
         | UpdateEditorAdvancedChartNodeEntry
         | UpdateEditorSelectorNodeEntry
-    ) = Field(..., discriminator="type")
+        | shared.OtherKind
+    )
     mode: Literal["save", "publish"] | str = Field(..., description="Editor chart update mode.")
 
 
@@ -800,4 +801,5 @@ class CreateEditorChartArgs(RequestBody):
         | CreateEditorChartArgsEntryVariant3
         | CreateEditorChartArgsEntryVariant4
         | CreateEditorChartArgsEntryVariant5
-    ) = Field(..., discriminator="type")
+        | shared.OtherKind
+    )

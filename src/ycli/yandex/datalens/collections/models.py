@@ -20,8 +20,8 @@ from ycli.yandex.datalens.schemas.collection import (
     GetStructureItemsResultItemsItemVariant2 as ContentWorkbook,
 )
 from ycli.yandex.datalens.schemas.collection import MoveCollectionsResponse as CollectionsMoved
-from ycli.yandex.datalens.schemas.collection import OtherKindByEntity as ContentOther
 from ycli.yandex.datalens.schemas.collection import StructureItemEntry as ContentEntry
+from ycli.yandex.datalens.schemas.shared import OtherKind as ContentOther
 
 #: Which kinds of items the content of a collection lists.
 ContentMode = Literal["all", "onlyCollections", "onlyWorkbooks", "onlyEntries"] | str

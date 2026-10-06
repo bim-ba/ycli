@@ -222,7 +222,7 @@ def test_the_union_check_bites():
     layer = frozenset({"A", "B"})
     assert _undiscriminated_unions({"anyOf": members}, generated=layer) == []
     assert _undiscriminated_unions({"anyOf": members}, generated=frozenset({"A"})) == ["$"]
-    assert {"ContentPage", "OtherKindByEntity"} & _generated_classes() == {"OtherKindByEntity"}
+    assert {"ContentPage", "OtherKind"} & _generated_classes() == {"OtherKind"}
 
 
 # Models that both build a request body and read a reply. A reply keeps what Yandex adds, so
@@ -329,7 +329,10 @@ def test_a_request_body_is_closed_or_listed_with_its_reason():
     """
     bodies, replies = _model_roles()
     assert _open_bodies(bodies, replies) == sorted(api_drift.OPEN_BODIES)
-    assert sorted(_name(model) for model in bodies & replies) == sorted(BODY_AND_REPLY)
+    # A class of a generated layer keeps that layer's own rule: its one spare class is a
+    # member of unions of requests and of replies alike.
+    both = [model for model in bodies & replies if not _is_generated(model)]
+    assert sorted(_name(model) for model in both) == sorted(BODY_AND_REPLY)
     closed_replies = sorted(_name(model) for model in replies if issubclass(model, RequestBody))
     assert closed_replies == [], "a reply model that refuses unknown fields"
 

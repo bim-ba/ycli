@@ -3,12 +3,10 @@
 import json
 
 import pytest
-from pydantic import ValidationError
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.unit.yandex.datalens.connections.cases import NEW, NEW_FILE
-from ycli.cli.errors import format_cli_error
 
 DRY = ["-o", "json", "--dry-run", "datalens", "connections"]
 
@@ -49,21 +47,19 @@ def test_the_fields_to_change_come_from_data_or_from_field_flags(api, argv):
     assert _planned(*argv) == {"connectionId": "con1", "data": {"host": "db2", "password": "***"}}
 
 
-def test_a_connection_with_no_body_is_refused_before_anything_is_sent(api):
-    """The body is a union by ``type``: without one there is nothing to build."""
-    result = CliRunner().invoke(cli.app, ["datalens", "connections", "create"])
-    assert isinstance(result.exception, ValidationError)
-    assert "needs `type` to tell which kind it is" in format_cli_error(result.exception)
+def test_a_connection_with_no_kind_is_for_datalens_to_refuse(api):
+    """#444: ycli sends a kind it does not know, so a body with no ``type`` goes out as well."""
+    assert _planned("create", "-F", "name=x") == {"name": "x"}
     assert api.calls == []
 
 
-def test_a_kind_that_does_not_exist_is_refused_without_quoting_the_body(api):
-    result = CliRunner().invoke(
-        cli.app, ["datalens", "connections", "create", "--body-file", NEW_FILE, "-F", "type=nope"]
-    )
-    assert isinstance(result.exception, ValidationError)
-    said = format_cli_error(result.exception) + str(result.exception)
-    assert "nope" in said and NEW["password"] not in said
+def test_a_kind_the_document_does_not_know_goes_out_with_its_secret_masked(api):
+    """#444: DataLens answers for a kind ycli does not know; a dry run still masks the password.
+
+    Before, such a connection was refused by ycli before anything was sent.
+    """
+    planned = _planned("create", "--body-file", NEW_FILE, "-F", "type=nope")
+    assert planned == {**NEW, "type": "nope", "password": "***"}
     assert api.calls == []
 
 
