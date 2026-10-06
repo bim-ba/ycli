@@ -58,7 +58,13 @@ def update(
     survey_id: SurveyIDArg,
     keyset_id: KeysetIDArg,
     name: Annotated[str, typer.Option(help="Key set name (required — replaces the record).")],
-    total: Annotated[int, typer.Option(help="Number of keys (required — replaces the record).")],
+    total: Annotated[
+        int,
+        typer.Option(
+            help="Number of keys (required — replaces the record); the API refuses a number "
+            "smaller than the set has now."
+        ),
+    ],
     enabled: Annotated[bool, typer.Option("--enabled/--disabled", help="Active flag (required).")],
     *,
     forms: FormsClient,

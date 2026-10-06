@@ -39,7 +39,9 @@ def clone(
     image_id: Annotated[
         int | None, typer.Option("--image-id", help="Id of the image to clone.")
     ] = None,
-    name: Annotated[str | None, typer.Option(help="File name for the clone.")] = None,
+    name: Annotated[
+        str | None, typer.Option(help=ImageClone.model_fields["name"].description)
+    ] = None,
     link: Annotated[
         list[str] | None,
         typer.Option("--link", help="SIZE=URL of the image to clone (repeatable)."),
