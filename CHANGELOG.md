@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.87.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.86.0
+  ([`ab8e41f`](https://github.com/bim-ba/ycli/commit/ab8e41fa935e7accee0ecf83f4186deb59c15118))
+
+### Features
+
+- **wiki**: The reply models name the fields Wiki sends, and a closed issue its resolution
+  ([#377](https://github.com/bim-ba/ycli/pull/377),
+  [`6211ed4`](https://github.com/bim-ba/ycli/commit/6211ed4b1ea366d9c0d13158309b9b0e9c465e06))
+
+
 ## v0.86.0 (2026-10-05)
 
 ### Build System
