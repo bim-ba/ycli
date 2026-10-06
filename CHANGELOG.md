@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.106.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.105.0
+  ([`7d8c964`](https://github.com/bim-ba/ycli/commit/7d8c964bac06953d47431ba1b298e1861d4b575f))
+
+### Chores
+
+- **docs**: The comparison pages include their numbers as generated fragments, and the DataLens
+  skill lists its sections
+  ([`1614614`](https://github.com/bim-ba/ycli/commit/161461495f11bb9605cfc2a06b2782c7af299803))
+
+### Features
+
+- **datalens**: Saved SQL queries are read, saved, run and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`bfb4b1e`](https://github.com/bim-ba/ycli/commit/bfb4b1e80a7361ecdd4f3424e72099471e3b7f23))
+
+
 ## v0.105.0 (2026-10-06)
 
 ### Build System
