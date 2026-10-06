@@ -1,7 +1,7 @@
 import pytest
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 
-from ycli.yandex.models import Ack, APIModel, DisplayStr, KeyStr, RequestBody, _extract
+from ycli.yandex.models import WIRE, Ack, APIModel, DisplayStr, KeyStr, RequestBody, _extract
 
 
 def test_a_reply_keeps_a_field_the_model_does_not_declare():
@@ -82,3 +82,95 @@ def test_ack_removed():
 
 def test_ack_cleared():
     assert Ack.cleared("search scroll resources") == Ack(detail="cleared search scroll resources")
+
+
+SECRET = "S3cret-value"
+
+
+class _Login(RequestBody):
+    user: str
+    password: SecretStr | None = None
+
+
+class _Source(RequestBody):
+    host: str
+    login: _Login
+    spares: list[_Login] | None = None
+    headers: dict[str, SecretStr] | None = None
+    tokens: list[SecretStr] | None = None
+
+
+def _source() -> _Source:
+    # A caller gives a secret as the plain string it is.
+    return _Source.model_validate(
+        {
+            "host": "db",
+            "login": {"user": "reader", "password": SECRET},
+            "spares": [{"user": "second", "password": SECRET}],
+            "headers": {"Authorization": SECRET},
+            "tokens": [SECRET],
+        }
+    )
+
+
+def test_a_request_carries_a_secret_as_it_is_and_nothing_else_does():
+    """#388, both sides: the value goes out in a request body; every other view masks it."""
+    source = _source()
+    assert source.model_dump(mode="json", context=WIRE) == {
+        "host": "db",
+        "login": {"user": "reader", "password": SECRET},
+        "spares": [{"user": "second", "password": SECRET}],
+        "headers": {"Authorization": SECRET},
+        "tokens": [SECRET],
+    }
+    for seen in (
+        source.model_dump_json(),  # what a command prints and a tool returns
+        repr(source.model_dump()),
+        repr(source),
+        str(source),
+    ):
+        assert SECRET not in seen and "**********" in seen
+    assert source.login.password is not None
+    assert source.login.password.get_secret_value() == SECRET  # the SDK reads it on purpose
+
+
+def test_a_secret_left_out_of_a_dump_is_not_put_back():
+    wire = _source().model_dump(mode="json", context=WIRE, exclude={"headers", "tokens"})
+    assert "headers" not in wire and wire["login"]["password"] == SECRET
+    assert _Login(user="reader").model_dump(mode="json", context=WIRE) == {"user": "reader"}
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"host": "db", "login": {"user": "reader", "password": {"value": SECRET}}},
+        {"host": "db", "login": {"user": 1, "password": SECRET}},
+        {"host": "db", "login": {"user": "reader", "password": SECRET}, "typo": SECRET},
+    ],
+)
+def test_an_error_about_a_body_does_not_quote_the_body(body):
+    """A value that fails validation is raw: no ``SecretStr`` has been built to mask it."""
+    with pytest.raises(ValidationError) as refused:
+        _Source.model_validate(body)
+    assert SECRET not in str(refused.value)
+    assert refused.value.errors()[0]["loc"]  # the field is still named
+
+
+def test_a_generated_connection_keeps_its_secret_out_of_everything_but_the_request():
+    """A member of a union, and the union refused by its tag before any secret is built."""
+    from ycli.yandex.datalens.schemas.connection import ConnectionCreate, UpdateConnectionRequest
+
+    new = {"type": "clickhouse", "name": "Sales", "host": "db", "password": SECRET}
+    made = ConnectionCreate.model_validate(new)
+    assert made.model_dump(mode="json", context=WIRE) == new
+    assert SECRET not in made.model_dump_json() and SECRET not in repr(made)
+    change = UpdateConnectionRequest.model_validate(
+        {"connectionId": "c1", "data": {"secret_headers": {"Authorization": SECRET}}}
+    )
+    sent = change.model_dump(mode="json", context=WIRE)
+    assert sent["data"]["secret_headers"] == {"Authorization": SECRET}
+    assert SECRET not in change.model_dump_json()
+    for refused_body in ({**new, "type": "nope"}, {"name": "Sales", "password": SECRET}):
+        with pytest.raises(ValidationError) as refused:
+            ConnectionCreate.model_validate(refused_body)
+        assert SECRET not in str(refused.value)

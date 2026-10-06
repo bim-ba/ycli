@@ -1,0 +1,4 @@
+- [Команды CLI (англ.)](https://ycli.savaznatnov.dev/reference/cli/tracker/)
+- [MCP-инструменты (англ.)](https://ycli.savaznatnov.dev/reference/mcp/tracker/)
+- [Python SDK (англ.)](https://ycli.savaznatnov.dev/reference/sdk/tracker/)
+- [Гид для агента (англ.)](https://ycli.savaznatnov.dev/reference/mcp/prompts-and-resources/#guides): MCP-ресурс `ycli://tracker/guide`

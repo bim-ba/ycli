@@ -1,0 +1,4 @@
+- [Команды CLI (англ.)](https://ycli.savaznatnov.dev/reference/cli/wiki/)
+- [MCP-инструменты (англ.)](https://ycli.savaznatnov.dev/reference/mcp/wiki/)
+- [Python SDK (англ.)](https://ycli.savaznatnov.dev/reference/sdk/wiki/)
+- [Гид для агента (англ.)](https://ycli.savaznatnov.dev/reference/mcp/prompts-and-resources/#guides): MCP-ресурс `ycli://wiki/guide`

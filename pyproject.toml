@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.91.0"
+version = "0.94.0"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
@@ -214,6 +214,8 @@ runtime-evaluated-base-classes = [
 # Only the shipped package must document every public name; the rest keeps the format rules.
 "tests/**/*.py" = ["ANN", "D1", "TID251"]
 "scripts/**/*.py" = ["D1", "TID251"]
+# The Russian site's sentences: a short Russian word is not a Latin one mistyped.
+"scripts/gen_services.py" = ["RUF001"]
 "e2e/**/*.py" = ["TID251"]
 "src/ycli/settings.py" = ["TID251"]
 "{e2e,docs,.claude}/**/*.py" = ["D1"]

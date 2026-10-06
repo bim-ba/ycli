@@ -79,6 +79,20 @@ TITLES = {
     "forms": ("Forms", "Формы", "Форм"),
     "datalens": ("DataLens", "DataLens", "DataLens"),
 }
+# The character, not a `:shortcode:`: the site would load a shortcode as an image from a CDN.
+EMOJI = {
+    "tracker": "📋",
+    "wiki": "📖",
+    "forms": "📝",
+    "datalens": "📊",
+}
+# What a service is, in one line, on the Russian site; the English line is `Service.help`.
+SUMMARIES_RU = {
+    "tracker": "Задачи, очереди, доски, спринты, поля, автоматизация.",
+    "wiki": "Страницы, динамические таблицы, комментарии, вложения.",
+    "forms": "Опросы, вопросы, ответы, публикация.",
+    "datalens": "Воркбуки, подключения, датасеты, чарты, дашборды.",
+}
 # The preview README shows above the tables, regenerated with them.
 COVERAGE_SVG = ROOT / "docs" / "assets" / "coverage.svg"
 COVERAGE_SVG_URL = "https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/coverage.svg"

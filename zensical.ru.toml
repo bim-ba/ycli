@@ -2,7 +2,7 @@
 
 [project]
 site_name = "ycli"
-site_description = "Яндекс 360 (Трекер, Вики, Формы) из CLI, MCP-сервера и Python SDK."
+site_description = "Бизнес-сервисы Яндекса (Трекер, Вики, Формы, DataLens) из CLI, MCP-сервера и Python SDK."
 site_url = "https://ycli.savaznatnov.dev/ru/"
 repo_url = "https://github.com/bim-ba/ycli"
 repo_name = "bim-ba/ycli"
@@ -14,6 +14,12 @@ extra_css = ["assets/vendor/termynal/termynal.css"]
 extra_javascript = ["assets/vendor/termynal/termynal.js", "assets/javascripts/site.js"]
 nav = [
   { "Главная" = "index.md" },
+  { "Сервисы" = [
+    "services/tracker.md",
+    "services/wiki.md",
+    "services/forms.md",
+    "services/datalens.md",
+  ] },
   { "Обучение" = [
     "tutorials/first-steps.md",
   ] },
@@ -111,9 +117,10 @@ alternate_style = true
 
 [project.plugins.llmstxt]
 full_output = "llms-full.txt"
-markdown_description = "ycli управляет Яндекс Трекером, Вики и Формами из командной строки, MCP-сервера для ИИ-агентов и Python SDK. У каждой операции одно имя на всех способах."
+markdown_description = "ycli открывает сервисы Яндекса (Трекер, Вики, Формы, DataLens) из командной строки, MCP-сервера для ИИ-агентов и Python SDK. У каждой операции одно имя на всех способах."
 
 [project.plugins.llmstxt.sections]
+"Сервисы" = ["services/*.md"]
 "Обучение" = ["tutorials/*.md"]
 "Руководства" = ["how-to/*.md"]
 "Справочник" = ["reference/*.md"]

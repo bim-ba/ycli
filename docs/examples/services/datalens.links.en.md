@@ -1,0 +1,4 @@
+- [CLI commands](../reference/cli/datalens.md)
+- [MCP tools](../reference/mcp/datalens.md)
+- [Python SDK](../reference/sdk/datalens.md)
+- [Guide for an agent](../reference/mcp/prompts-and-resources.md#guides): the MCP resource `ycli://datalens/guide`

@@ -183,6 +183,49 @@ def _plain(spec: dict[str, Any]) -> None:
             del schema[key]
 
 
+# A value the document marks ``writeOnly`` is sent and never read back: a password, a token.
+# Two names it leaves unmarked hold credentials all the same, and two it marks hold none (#388).
+_SECRET_MAPS = {
+    "secret_headers": "the headers of an API connection that carry its credentials",
+    "extra_credentials": "the credentials a connection passes on to its source",
+}
+_NOT_SECRETS = {
+    "dir_path": "the folder a connection is created in: a path, shown wherever it is read",
+    "ssl_ca": "a certificate authority's certificate: public by its nature",
+}
+
+
+def _type_secrets(spec: dict[str, Any]) -> int:
+    """Give every secret of the document the type of one; return how many fields got it.
+
+    A string the document marks ``writeOnly`` becomes a ``password`` string, which the
+    generator writes as ``SecretStr``: its value is masked wherever the model is printed
+    (``repr``, an error, a command's output) and goes out as it is only in a request
+    (``ycli.yandex.models.APIModel``). The values of a map of ``_SECRET_MAPS`` are secrets
+    the same way; the names in it are not. A field of ``_NOT_SECRETS`` loses the mark.
+    """
+    typed = 0
+    for schema in list(_every_schema(spec)):
+        for name, field in schema.get("properties", {}).items():
+            if not isinstance(field, dict):
+                continue
+            marked = field.pop("writeOnly", False)
+            values = field.get("additionalProperties")
+            if name in _SECRET_MAPS and isinstance(values, dict):
+                # The document allows ``null`` for the map and for a value. The generator types
+                # the values only of a plain object, and a field not given is ``None`` anyway.
+                field["type"] = "object"
+                values.update({"type": "string", "format": "password"})
+                typed += 1
+            elif marked and name not in _NOT_SECRETS:
+                kinds = field.get("type")
+                if "string" not in (kinds if isinstance(kinds, list) else [kinds]):
+                    raise SystemExit(f"the secret {name!r} is no string: {field}")
+                field["format"] = "password"
+                typed += 1
+    return typed
+
+
 def _keep_whole_numbers(spec: dict[str, Any]) -> int:
     """Read a ``number`` as a whole number or a fraction, whichever it is; return how many.
 
@@ -398,6 +441,104 @@ def _require_discriminators(spec: dict[str, Any]) -> set[int]:
     return tags
 
 
+def _tag(union: dict[str, Any], members: list[dict[str, Any]]) -> str | None:
+    """The field that tells the members of ``union`` apart, or ``None`` when none does.
+
+    It is the discriminator the document names, else the first field that has one value in
+    every member and a different one in each (``entity`` of an item of a collection).
+
+    Examples:
+        >>> entry = {"properties": {"scope": {"enum": ["x"]}, "entity": {"enum": ["entry"]}}}
+        >>> book = {"properties": {"scope": {"enum": ["x"]}, "entity": {"enum": ["workbook"]}}}
+        >>> _tag({}, [entry, book])
+        'entity'
+        >>> _tag({"discriminator": {"propertyName": "type"}}, [entry, book])
+        'type'
+        >>> _tag({}, [entry, {"properties": {"title": {"type": "string"}}}]) is None
+        True
+    """
+    discriminator = union.get("discriminator")
+    if isinstance(discriminator, dict):
+        return discriminator["propertyName"]
+    for name in members[0]["properties"]:
+        told = [_values(member["properties"].get(name, {})) for member in members]
+        if all(told) and len({json.dumps(values) for values in told}) == len(members):
+            return name
+    return None
+
+
+def _write_tags(spec: dict[str, Any], union: dict[str, Any], tags: set[int]) -> None:
+    """Write into each member of ``union`` the tag its discriminator maps to it.
+
+    A member may leave its tag to the mapping, or name it as any string. Without the
+    discriminator nothing else says which kind the member is, so the mapping is written into
+    the member: a required field with the values that lead to it, added to ``tags``.
+    """
+    discriminator = union["discriminator"]
+    name = discriminator["propertyName"]
+    told: dict[int, tuple[dict[str, Any], list[str]]] = {}
+    for value, ref in discriminator.get("mapping", {}).items():
+        aimed = _target(spec, {"$ref": ref})
+        if aimed is not None:
+            told.setdefault(id(aimed), (aimed, []))[1].append(value)
+    for aimed, values in told.values():
+        field = aimed.setdefault("properties", {}).setdefault(name, {})
+        said = {key: field[key] for key in ("description",) if key in field}
+        field.clear()
+        field.update({**said, "type": "string", "enum": values})
+        tags.add(id(field))
+        if name not in aimed.setdefault("required", []):
+            aimed["required"].append(name)
+
+
+def _spare_members(spec: dict[str, Any], tags: set[int]) -> int:
+    """Give every union of objects a reply reaches a spare open member; return how many.
+
+    The document is wrong about what DataLens sends: a source of a dataset comes with a kind
+    it does not list, a field with a type it does not name. A union of closed kinds refuses
+    the whole reply for one such object. So the union is read softly (#391): a value that
+    fits no member is the spare one, an open object that keeps every key as it came and
+    names the tag, where the union has one (:func:`_tag`), as plain text.
+
+    The discriminator goes with it: a discriminated union refuses an unknown tag before any
+    member is tried. Its members still require their tag (:func:`_write_tags`), so a value
+    fits one member at most, and the spare, which declares the tag alone, is chosen only when
+    none fits. A union only a request reaches stays as it is: there an unknown kind is a
+    mistake of the caller.
+    """
+    replies, _ = _reply_schemas(spec)
+    schemas = spec["components"]["schemas"]
+    spared = 0
+    for union in replies.values():
+        key = next((key for key in ("oneOf", "anyOf") if key in union), None)
+        if key is None:
+            continue
+        members = [
+            aimed
+            for member in union[key]
+            if (aimed := _target(spec, member)) and "properties" in aimed
+        ]
+        if len(members) < 2:
+            continue
+        tag = _tag(union, members)
+        # ``sourceType`` and ``source_type`` are two tags of the document: two spare classes.
+        name = "OtherKind" + (f"By{_pascal(tag)}{'Snake' * ('_' in tag)}" if tag else "")
+        spare: dict[str, Any] = {
+            "type": "object",
+            "description": "A kind the specification does not describe: kept as it came.",
+        }
+        if tag:
+            spare["properties"] = {tag: {"type": "string", "description": "The kind."}}
+        if schemas.setdefault(name, spare) != spare:
+            raise SystemExit(f"the specification has a schema named {name!r} already")
+        if isinstance(union.get("discriminator"), dict):
+            _write_tags(spec, union, tags)
+            del union["discriminator"]
+        union["anyOf"] = [*union.pop(key), {"$ref": _REF + name}]
+        spared += 1
+    return spared
+
+
 def _open_value_sets(spec: dict[str, Any], keep: set[int]) -> None:
     """A closed set of several string values also takes any string, except a union's tag.
 
@@ -553,7 +694,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         or fractional as it comes, "these fields and one of
         those" is written as its members, a reply's union of objects that nothing tells apart is
         one object, a union's discriminator is
-        required in its members, a set of string values is open, nothing else is required
+        required in its members, a union of objects a reply reaches has a spare open member,
+        a set of string values is open, nothing else is required
         below the top level of a request, only a request envelope is closed to unknown fields,
         every object has a name made from its place, a schema no
         operation reaches is gone, and each schema is named ``<section>.<Name>``.
@@ -586,10 +728,12 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _type_secrets(spec)
     _keep_whole_numbers(spec)
     _spread_unions(spec)
     _merge_agreeing_replies(spec)
     tags = _require_discriminators(spec)
+    _spare_members(spec, tags)
     _open_value_sets(spec, keep=tags)
     _require_only_kinds(spec, keep=tags)
     _close_only_requests(spec)
@@ -620,6 +764,36 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         f"{section[name]}.{name}": schema for name, schema in schemas.items()
     }
     return spec
+
+
+_QUIET = "hide_input_in_errors"
+
+
+def _quiet_root_models(text: str) -> str:
+    r"""Make every ``RootModel`` of a module keep its input out of the text of its errors.
+
+    A value that fails validation is quoted in the error, and the value may be a connection
+    with its password: a union is refused by its tag before any ``SecretStr`` is built. The
+    models take the setting from ``APIModel``; a ``RootModel`` has no such base, so it is
+    given in the class statement, which needs no import.
+
+    Examples:
+        >>> _quiet_root_models("class Kind(RootModel[A | B]):\n    root: A | B\n")
+        'class Kind(RootModel[A | B], hide_input_in_errors=True):\n    root: A | B\n'
+        >>> _quiet_root_models(_quiet_root_models("class Kind(RootModel[A]):\n    root: A\n"))
+        'class Kind(RootModel[A], hide_input_in_errors=True):\n    root: A\n'
+    """
+    lines = text.splitlines(keepends=True)
+    for node in ast.parse(text).body:
+        if not isinstance(node, ast.ClassDef) or any(key.arg == _QUIET for key in node.keywords):
+            continue
+        for base in node.bases:
+            root = base.value if isinstance(base, ast.Subscript) else base
+            if isinstance(root, ast.Name) and root.id == "RootModel":
+                last = node.bases[-1]
+                row, column = (last.end_lineno or 0) - 1, last.end_col_offset or 0
+                lines[row] = f"{lines[row][:column]}, {_QUIET}=True{lines[row][column:]}"
+    return "".join(lines)
 
 
 def finish(text: str) -> str:
@@ -662,7 +836,7 @@ def finish(text: str) -> str:
         text = text.replace(
             _MODELS_IMPORT, "from ycli.yandex.models import APIModel, RequestBody\n"
         )
-    return text
+    return _quiet_root_models(text)
 
 
 def _ruff(text: str, name: str) -> str:

@@ -549,8 +549,9 @@ class GetEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
+        | shared.OtherKindByType
         | None
-    ) = Field(default=None, discriminator="type")
+    ) = None
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
@@ -566,8 +567,9 @@ class CreateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
+        | shared.OtherKindByType
         | None
-    ) = Field(default=None, discriminator="type")
+    ) = None
 
 
 class CreateEditorTableNodeEntry(APIModel):
@@ -648,7 +650,10 @@ class EntryModel3(CreateEditorSelectorNodeEntry, EntryLocationIdentifiers):
     pass
 
 
-class EntryModel4(RootModel[Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3]):
+class EntryModel4(
+    RootModel[Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3],
+    hide_input_in_errors=True,
+):
     root: Entry | EntryModel | EntryModel1 | EntryModel2 | EntryModel3
 
 
@@ -663,8 +668,9 @@ class UpdateEditorChartResult(APIModel):
         | EditorMarkdownNode
         | EditorAdvancedChartNode
         | EditorSelectorNode
+        | shared.OtherKindByType
         | None
-    ) = Field(default=None, discriminator="type")
+    ) = None
 
 
 class UpdateEditorTableNodeEntry(APIModel):

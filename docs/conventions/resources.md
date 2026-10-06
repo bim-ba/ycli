@@ -53,7 +53,7 @@ DataLens publishes one OpenAPI document with about 600 schemas, and its objects 
 write by hand, so `scripts/gen_datalens_models.py` generates them into
 `src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
 are met by the script, not by an editor: before the generator runs it rewrites the document so
-that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
+that a reply is read openly, a union of objects in a reply that nothing tells apart is one object (where every field its members share is of one type), every other union of objects a reply reaches has a spare open member and no discriminator (#391: a kind the document does not list, or a known kind with a field of another type, is read as `OtherKind…`, every key kept as it came and the tag as plain text; a union only a request reaches stays strict), no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
 and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
@@ -339,6 +339,12 @@ QuestionCreate = Annotated[
 The CLI/SDK path carries the native model instance and is unaffected; only the MCP
 `result.data` reconstruction depends on the schema being self-describing.
 
+A union whose members are all classes of the generated layer is outside this rule
+(`_generated_classes` in `tests/architecture/test_conventions.py`): it is read softly, with a
+spare open member in place of the discriminator ("Generated models", #391). Its members
+still require their tag, so a value fits one of them at most, and `structuredContent` is
+what DataLens sent; one hand-written member puts the union back under the rule.
+
 ---
 
 ## 6. Writing a client and its CLI commands
@@ -410,6 +416,20 @@ check of its own to say it. A reply that does not fit its model is another error
   declares a default it applies by itself, and where the API requires a value the option is
   required. No `x or None` on a value the caller gave: an empty string or a `False` is a value.
   A place that departs from this on purpose is marked `# violation(as-given): <reason>`.
+- A secret in a request body (a password, a token: sent, never read back) is a `SecretStr`,
+  and a map of secrets is `dict[str, SecretStr]`. A caller gives the plain string and reads it
+  back with `.get_secret_value()`. pydantic masks it wherever the model is printed (`repr`, a
+  dump, a command's output, a tool's reply); it goes out as its own value in one place, the
+  dump of a request body (`APIModel._as_sent` under `WIRE`). A value that fails validation is
+  raw, so no model quotes its input in the text of an error (`hide_input_in_errors` on
+  `APIModel` and on every generated `RootModel`); the error still names the field. `--dry-run`
+  prints `***` under every key that the request's model types as a secret (`secret_keys`), at
+  any depth and whoever gave it (a flag, `-F`, `--body-file`): `PlannedRequest.of` (#388). That
+  mask goes by the key's name within one request, so a field of the same name elsewhere in the
+  body is masked too. A generated model types as secrets what its specification marks
+  `writeOnly`, with the names the generator adds and removes, each with its reason
+  (`_SECRET_MAPS`, `_NOT_SECRETS`). The help of a command that takes a secret says to give it
+  in `--body-file`.
 - Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
   field that has no flag of its own (#354). They are declared once, beside `--yes` and
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the

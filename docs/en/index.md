@@ -1,13 +1,15 @@
 ---
-description: "ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server for AI agents and a Python SDK."
+description: "ycli drives Yandex Tracker, Wiki, Forms and DataLens from a command line, an MCP server for AI agents and a Python SDK."
 ---
 
 # ycli
 
-**Yandex 360 for people and for agents.** Tracker, Wiki and Forms from a command line, an MCP server and Python: one tool, and one name for each operation everywhere.
+--8<-- "docs/examples/services/slogan.en.md"
 
 [Get started](tutorials/first-steps.md){ .md-button .md-button--primary }
 [Connect your AI client](how-to/install-in-your-harness.md){ .md-button }
+
+--8<-- "docs/examples/services/cards.en.md"
 
 ## From install to a working call
 

@@ -1,8 +1,6 @@
 """DataLens collection models: the public names of the generated classes this resource uses."""
 
-from typing import Annotated, Literal
-
-from pydantic import Field
+from typing import Literal
 
 from ycli.yandex.datalens.schemas.collection import Collection
 from ycli.yandex.datalens.schemas.collection import CreateCollectionResult as CollectionCreated
@@ -22,14 +20,14 @@ from ycli.yandex.datalens.schemas.collection import (
     GetStructureItemsResultItemsItemVariant2 as ContentWorkbook,
 )
 from ycli.yandex.datalens.schemas.collection import MoveCollectionsResponse as CollectionsMoved
+from ycli.yandex.datalens.schemas.collection import OtherKindByEntity as ContentOther
 from ycli.yandex.datalens.schemas.collection import StructureItemEntry as ContentEntry
 
 #: Which kinds of items the content of a collection lists.
 ContentMode = Literal["all", "onlyCollections", "onlyWorkbooks", "onlyEntries"] | str
-#: One item of a collection: a collection, a workbook or an entry.
-ContentItem = Annotated[
-    ContentCollection | ContentWorkbook | ContentEntry, Field(discriminator="entity")
-]
+#: One item of a collection: a collection, a workbook, an entry, or a kind ycli does not
+#: know yet, kept as it came (`entity` says which).
+ContentItem = ContentCollection | ContentWorkbook | ContentEntry | ContentOther
 
 __all__ = [
     "Collection",
@@ -42,6 +40,7 @@ __all__ = [
     "ContentEntry",
     "ContentItem",
     "ContentMode",
+    "ContentOther",
     "ContentPage",
     "ContentWorkbook",
     "RootPermissions",

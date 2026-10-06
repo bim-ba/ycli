@@ -9,6 +9,71 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.94.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.93.0
+  ([`6e8d432`](https://github.com/bim-ba/ycli/commit/6e8d432e1cff6eb73b4a8f6c1d3b025d51a33735))
+
+### Documentation
+
+- Service cards on the home page and an overview page for each service
+  ([#383](https://github.com/bim-ba/ycli/pull/383),
+  [`8069a3b`](https://github.com/bim-ba/ycli/commit/8069a3b69d2bb082be701c4cc5571b2902e8d658))
+
+### Features
+
+- **datalens**: A secret of a request is a SecretStr, masked wherever it is printed
+  ([#388](https://github.com/bim-ba/ycli/pull/388),
+  [`53abece`](https://github.com/bim-ba/ycli/commit/53abecef0fecbca198b5126a494bf924d257a456))
+
+
+## v0.93.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.92.0
+  ([`0606c33`](https://github.com/bim-ba/ycli/commit/0606c33c4524e99229f03ca715a2cc1a1d8e08f5))
+
+### Features
+
+- **datalens**: A kind the specification does not list is read as it came
+  ([#391](https://github.com/bim-ba/ycli/pull/391),
+  [`99554cf`](https://github.com/bim-ba/ycli/commit/99554cf078bcc853db0626a9df6e13af08b65b1c))
+
+
+## v0.92.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.91.0
+  ([`9a784b3`](https://github.com/bim-ba/ycli/commit/9a784b3f5851f08e05cf63f574b252139d8b767c))
+
+### Documentation
+
+- **datalens**: The skill names everything ycli wraps today
+  ([`3656c64`](https://github.com/bim-ba/ycli/commit/3656c642f98a08125b700e643016a8be637ea0f7))
+
+### Features
+
+- **tracker**: The user of an absence is the user of the directory, and a file names its comment
+  ([`5164aa1`](https://github.com/bim-ba/ycli/commit/5164aa1c0de9bb6de9a1d0d8fa7c3e4abd7103f3))
+
+### Testing
+
+- **e2e**: A step may wait for what only the owner can name, and imports and absences are written
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`3c98f06`](https://github.com/bim-ba/ycli/commit/3c98f06e14770a44e6cda729ff2fb26835a4d875))
+
+### Breaking Changes
+
+- **tracker**: SDK: `ycli.yandex.tracker.gaps.models.GapUser` is gone; the `user` of a `Gap` and of
+  a `UserGaps` is `ycli.yandex.tracker.models.User`. `tracker gaps create` and `gaps search` print
+  three more keys of the user (`groups`, `welcomeMailSent`, `position`), `null` or `[]` when the API
+  leaves them out.
+
+
 ## v0.91.0 (2026-10-06)
 
 ### Build System

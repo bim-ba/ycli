@@ -1,0 +1,4 @@
+- [Команды CLI (англ.)](https://ycli.savaznatnov.dev/reference/cli/datalens/)
+- [MCP-инструменты (англ.)](https://ycli.savaznatnov.dev/reference/mcp/datalens/)
+- [Python SDK (англ.)](https://ycli.savaznatnov.dev/reference/sdk/datalens/)
+- [Гид для агента (англ.)](https://ycli.savaznatnov.dev/reference/mcp/prompts-and-resources/#guides): MCP-ресурс `ycli://datalens/guide`

@@ -1,0 +1,4 @@
+- [CLI commands](../reference/cli/forms.md)
+- [MCP tools](../reference/mcp/forms.md)
+- [Python SDK](../reference/sdk/forms.md)
+- [Guide for an agent](../reference/mcp/prompts-and-resources.md#guides): the MCP resource `ycli://forms/guide`

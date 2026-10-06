@@ -22,7 +22,7 @@ class GetDashboardV2Args(RequestBody):
     workbook_id: str | None = Field(default=None, alias="workbookId")
 
 
-class DashMetaV2(RootModel[dict[str, Any] | None]):
+class DashMetaV2(RootModel[dict[str, Any] | None], hide_input_in_errors=True):
     root: dict[str, Any] | None
 
 
@@ -248,7 +248,7 @@ class DashControlV2Variant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model4 | None = None
+    source: shared.DashControlSourceDatasetV2Model5 | None = None
 
 
 class DashControlV2Variant2(APIModel):
@@ -277,7 +277,7 @@ class DashControlV2Variant2(APIModel):
     source_type: Literal["manual"] = Field(
         ..., alias="sourceType", description="Manual control source type."
     )
-    source: shared.DashControlSourceManualV2Model4 | None = None
+    source: shared.DashControlSourceManualV2Model5 | None = None
 
 
 class DashControlV2Variant3(APIModel):
@@ -334,7 +334,7 @@ class DashGroupControlItemV2Variant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model4 | None = None
+    source: shared.DashControlSourceDatasetV2Model5 | None = None
 
 
 class DashGroupControlItemV2Variant2(APIModel):
@@ -362,7 +362,7 @@ class DashGroupControlItemV2Variant2(APIModel):
     source_type: Literal["manual"] = Field(
         ..., alias="sourceType", description="Manual control source type."
     )
-    source: shared.DashControlSourceManualV2Model4 | None = None
+    source: shared.DashControlSourceManualV2Model5 | None = None
 
 
 class DashTabItemV2Variant1DataBackgroundSettings(APIModel):
@@ -424,11 +424,20 @@ class DashDataV2SettingsWidgetsSettings(APIModel):
 
 
 class DashControlV2(
-    RootModel[DashControlV2Variant1 | DashControlV2Variant2 | DashControlV2Variant3]
+    RootModel[
+        DashControlV2Variant1
+        | DashControlV2Variant2
+        | DashControlV2Variant3
+        | shared.OtherKindBySourceType
+    ],
+    hide_input_in_errors=True,
 ):
-    root: DashControlV2Variant1 | DashControlV2Variant2 | DashControlV2Variant3 = Field(
-        ..., description="Control item data."
-    )
+    root: (
+        DashControlV2Variant1
+        | DashControlV2Variant2
+        | DashControlV2Variant3
+        | shared.OtherKindBySourceType
+    ) = Field(..., description="Control item data.")
 
 
 class DashTabControlItemV2(APIModel):
@@ -449,9 +458,18 @@ class DashTabControlItemV2(APIModel):
 
 
 class DashGroupControlItemV2(
-    RootModel[DashGroupControlItemV2Variant1 | DashGroupControlItemV2Variant2]
+    RootModel[
+        DashGroupControlItemV2Variant1
+        | DashGroupControlItemV2Variant2
+        | shared.OtherKindBySourceType
+    ],
+    hide_input_in_errors=True,
 ):
-    root: DashGroupControlItemV2Variant1 | DashGroupControlItemV2Variant2
+    root: (
+        DashGroupControlItemV2Variant1
+        | DashGroupControlItemV2Variant2
+        | shared.OtherKindBySourceType
+    )
 
 
 class DashGroupControlV2(APIModel):
@@ -519,8 +537,11 @@ class DashTabGroupControlItemV2(APIModel):
     data: DashGroupControlV2 | None = None
 
 
-class DashGlobalItemV2(RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2]):
-    root: DashTabControlItemV2 | DashTabGroupControlItemV2 = Field(..., discriminator="type")
+class DashGlobalItemV2(
+    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType],
+    hide_input_in_errors=True,
+):
+    root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType
 
 
 class DashTabItemV2Variant1Data(APIModel):
@@ -861,7 +882,9 @@ class DashTabItemV2(
         | DashTabItemV2Variant5
         | DashTabControlItemV2
         | DashTabGroupControlItemV2
-    ]
+        | shared.OtherKindByType
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         DashTabItemV2Variant1
@@ -871,6 +894,7 @@ class DashTabItemV2(
         | DashTabItemV2Variant5
         | DashTabControlItemV2
         | DashTabGroupControlItemV2
+        | shared.OtherKindByType
     )
 
 

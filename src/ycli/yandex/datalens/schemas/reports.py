@@ -16,7 +16,7 @@ class EntryAnnotation(APIModel):
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class ReportMetaV2(RootModel[dict[str, Any] | None]):
+class ReportMetaV2(RootModel[dict[str, Any] | None], hide_input_in_errors=True):
     root: dict[str, Any] | None
 
 
@@ -300,7 +300,7 @@ class ReportTabItemV2Variant6DataGroupItemVariant1(APIModel):
     source_type: Literal["dataset"] = Field(
         ..., alias="sourceType", description="Dataset control source type."
     )
-    source: shared.DashControlSourceDatasetV2Model4 | None = None
+    source: shared.DashControlSourceDatasetV2Model5 | None = None
 
 
 class ReportTabItemV2Variant6DataGroupItemVariant2(APIModel):
@@ -318,7 +318,7 @@ class ReportTabItemV2Variant6DataGroupItemVariant2(APIModel):
     source_type: Literal["manual"] = Field(
         ..., alias="sourceType", description="Manual control source type."
     )
-    source: shared.DashControlSourceManualV2Model4 | None = None
+    source: shared.DashControlSourceManualV2Model5 | None = None
 
 
 class ReportTabItemV2Variant7Data(APIModel):
@@ -551,6 +551,7 @@ class ReportTabItemV2Variant6Data(APIModel):
         list[
             ReportTabItemV2Variant6DataGroupItemVariant1
             | ReportTabItemV2Variant6DataGroupItemVariant2
+            | shared.OtherKindBySourceType
         ]
         | None
     ) = Field(default=None, description="Controls in the group.")
@@ -604,7 +605,9 @@ class ReportTabItemV2(
         | ReportTabItemV2Variant5
         | ReportTabItemV2Variant6
         | ReportTabItemV2Variant7
-    ]
+        | shared.OtherKindByType
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         ReportTabItemV2Variant1
@@ -614,6 +617,7 @@ class ReportTabItemV2(
         | ReportTabItemV2Variant5
         | ReportTabItemV2Variant6
         | ReportTabItemV2Variant7
+        | shared.OtherKindByType
     )
 
 
