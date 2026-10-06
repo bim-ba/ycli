@@ -24,6 +24,12 @@ RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
+        "--service",
+        default=None,
+        help="Run only the scenarios of this service (tracker, wiki, forms): the nightly "
+        "run is one job per service.",
+    )
+    parser.addoption(
         "--record",
         action="store_true",
         help="Run the CLI in this process and keep each operation's real reply as a fixture.",
@@ -71,7 +77,27 @@ def _skip_reason() -> str | None:
     return None
 
 
+def of_service(scenario_name: str, service: str | None) -> bool:
+    """Whether a scenario belongs to ``service``; every scenario does when none is named.
+
+    ``of_service("wiki/page-lifecycle", "wiki") -> True``: a scenario is named after the
+    directory of its service.
+    """
+    return service is None or scenario_name.split("/")[0] == service
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    service = config.getoption("--service")
+    dropped = [
+        item
+        for item in items
+        if (callspec := getattr(item, "callspec", None)) is not None
+        and "scenario" in callspec.params
+        and not of_service(callspec.params["scenario"].name, service)
+    ]
+    if dropped:
+        config.hook.pytest_deselected(items=dropped)
+        items[:] = [item for item in items if item not in dropped]
     reason = _skip_reason()
     if reason is None:
         return
