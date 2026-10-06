@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.103.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.102.1
+  ([`29bcdf8`](https://github.com/bim-ba/ycli/commit/29bcdf852aab99faa545dbf1893a350e8e679c86))
+
+### Features
+
+- **datalens**: An entry is embedded on another site, with the keys that sign it
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`f17029d`](https://github.com/bim-ba/ycli/commit/f17029dc548de458cca258b84817c1bb9aa35116))
+
+
 ## v0.102.1 (2026-10-06)
 
 ### Bug Fixes
