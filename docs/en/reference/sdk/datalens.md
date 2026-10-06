@@ -38,3 +38,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## permissions
 
 ::: ycli.yandex.datalens.permissions.client.PermissionsClient
+
+## connections
+
+::: ycli.yandex.datalens.connections.client.ConnectionsClient

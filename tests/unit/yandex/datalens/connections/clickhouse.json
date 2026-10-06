@@ -1,0 +1,9 @@
+{
+  "type": "clickhouse",
+  "name": "Sales DB",
+  "workbook_id": "wb000000000001",
+  "host": "db.example.net",
+  "port": 8443,
+  "username": "reader",
+  "password": "example-password"
+}

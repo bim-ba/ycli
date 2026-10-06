@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.96.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.95.3
+  ([`829590d`](https://github.com/bim-ba/ycli/commit/829590d4336f9ba21ea770cb46f7032fd9483db1))
+
+### Features
+
+- **datalens**: Connections are read, created, changed and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`6364837`](https://github.com/bim-ba/ycli/commit/6364837ef035d85afc58d80dec37e0361b730095))
+
+
 ## v0.95.3 (2026-10-06)
 
 ### Bug Fixes
