@@ -373,7 +373,7 @@ CASES = [
     Case(
         "wiki.pages.update",
         args=(4407, PageUpdate.model_validate({"title": "Only the title"})),
-        cli=None,
+        cli=["wiki", "pages", "update", "4407", "--title", "Only the title"],
         mcp=("wiki_pages_update", {"page_id": 4407, "body": {"title": "Only the title"}}),
         exchanges=[
             (
