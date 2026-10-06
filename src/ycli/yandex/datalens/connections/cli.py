@@ -13,6 +13,7 @@ from ycli.yandex.datalens.connections.models import (
     ConnectionCreated,
     ConnectionUpdate,
 )
+from ycli.yandex.datalens.schemas.connection import UpdateConnectionRequest
 from ycli.yandex.models import Ack
 
 app = typer.Typer(name="connections", help="DataLens connections.", no_args_is_help=True)
@@ -74,8 +75,10 @@ def update(
 ) -> Ack:
     """Change the fields given of a connection; the others stay as they are."""
     given = caller.over({"data": json.loads(data)} if data is not None else {})
+    # The request whole: a field that is not of it is refused, not dropped.
+    body = UpdateConnectionRequest.model_validate({"connectionId": connection_id, **given})
     datalens.connections.update(
-        connection_id, data=ConnectionUpdate.model_validate(given.get("data"))
+        body.connection_id, data=ConnectionUpdate.model_validate(given.get("data"))
     )
     return Ack.updated("connection", connection_id)
 
