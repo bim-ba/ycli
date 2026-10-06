@@ -160,7 +160,7 @@ The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` 
 
 **Permissions come as a map by id.** `entries permissions-get` and `permissions get-bulk` answer `{<id>: {"permissions": {…}}}`; an id that does not exist answers `{<id>: {"error": "NOT_FOUND"}}` in the same map, and an id of a wrong form refuses the whole request. `entries list` needs `--scope`, `--scopes` or `--id`; an entry you may not read comes with `isLocked: true` and little else.
 
-**A connection is its kind.** `type` (`clickhouse`, `postgres`, `gsheets`, `json_api`… 29 kinds) says which fields it takes; over MCP read them with `schema_get(service="datalens", name="ConnectionCreate")`, then the definition of the kind. `connections get` answers with the kind in `db_type` and never with the password or the token.
+**A connection is its kind.** `type` (`clickhouse`, `postgres`, `gsheets`, `json_api`… 29 kinds) says which fields it takes; over MCP read them with `schema_get(service="datalens", name="ConnectionCreate")`, then the definition of the kind. `connections get` answers with the kind in `db_type` and never with the password or the token. A connection to Google Sheets cannot be created through the API (`type: gsheets` answers 400 "This connection type is not editable"): make it in the DataLens interface, where its kind is `gsheets_v2`, then read it and build datasets on it here.
 
 **Give a secret in a file.** A password or a token goes in `--body-file` (a file outside the repository, mode 600), not in `-F` or `--data`: a command line stays in the shell history. `--dry-run` prints a secret as `***`, and a model prints it as `**********`; only the request itself carries it.
 
