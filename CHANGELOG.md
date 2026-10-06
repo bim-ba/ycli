@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.94.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.93.0
+  ([`6e8d432`](https://github.com/bim-ba/ycli/commit/6e8d432e1cff6eb73b4a8f6c1d3b025d51a33735))
+
+### Documentation
+
+- Service cards on the home page and an overview page for each service
+  ([#383](https://github.com/bim-ba/ycli/pull/383),
+  [`8069a3b`](https://github.com/bim-ba/ycli/commit/8069a3b69d2bb082be701c4cc5571b2902e8d658))
+
+### Features
+
+- **datalens**: A secret of a request is a SecretStr, masked wherever it is printed
+  ([#388](https://github.com/bim-ba/ycli/pull/388),
+  [`53abece`](https://github.com/bim-ba/ycli/commit/53abecef0fecbca198b5126a494bf924d257a456))
+
+
 ## v0.93.0 (2026-10-06)
 
 ### Build System

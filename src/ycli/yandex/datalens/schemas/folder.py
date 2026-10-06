@@ -51,7 +51,7 @@ class MoveEntryResultEntry(APIModel):
     type: str | None = Field(default=None, description="Type of the entry.")
 
 
-class MoveEntryResult(RootModel[list[MoveEntryResultEntry]]):
+class MoveEntryResult(RootModel[list[MoveEntryResultEntry]], hide_input_in_errors=True):
     """Entries affected by the move operation."""
 
     root: list[MoveEntryResultEntry] = Field(
@@ -363,7 +363,7 @@ class DlsPermissionUnit(APIModel):
     )
 
 
-class DlsSuggestResult(RootModel[list[DlsPermissionUnit]]):
+class DlsSuggestResult(RootModel[list[DlsPermissionUnit]], hide_input_in_errors=True):
     """List of matching DLS subjects."""
 
     root: list[DlsPermissionUnit] = Field(..., description="List of matching DLS subjects.")

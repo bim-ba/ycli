@@ -463,7 +463,8 @@ class CreateSparkApplicationArgs(
         CreateSparkApplicationArgsVariant1
         | CreateSparkApplicationArgsVariant2
         | CreateSparkApplicationArgsVariant3
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         CreateSparkApplicationArgsVariant1

@@ -483,5 +483,7 @@ class UpdateHtmlPageResult(APIModel):
     )
 
 
-class UpdateHtmlPageArgs(RootModel[UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2]):
+class UpdateHtmlPageArgs(
+    RootModel[UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2], hide_input_in_errors=True
+):
     root: UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2

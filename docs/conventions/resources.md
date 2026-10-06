@@ -416,6 +416,20 @@ check of its own to say it. A reply that does not fit its model is another error
   declares a default it applies by itself, and where the API requires a value the option is
   required. No `x or None` on a value the caller gave: an empty string or a `False` is a value.
   A place that departs from this on purpose is marked `# violation(as-given): <reason>`.
+- A secret in a request body (a password, a token: sent, never read back) is a `SecretStr`,
+  and a map of secrets is `dict[str, SecretStr]`. A caller gives the plain string and reads it
+  back with `.get_secret_value()`. pydantic masks it wherever the model is printed (`repr`, a
+  dump, a command's output, a tool's reply); it goes out as its own value in one place, the
+  dump of a request body (`APIModel._as_sent` under `WIRE`). A value that fails validation is
+  raw, so no model quotes its input in the text of an error (`hide_input_in_errors` on
+  `APIModel` and on every generated `RootModel`); the error still names the field. `--dry-run`
+  prints `***` under every key that the request's model types as a secret (`secret_keys`), at
+  any depth and whoever gave it (a flag, `-F`, `--body-file`): `PlannedRequest.of` (#388). That
+  mask goes by the key's name within one request, so a field of the same name elsewhere in the
+  body is masked too. A generated model types as secrets what its specification marks
+  `writeOnly`, with the names the generator adds and removes, each with its reason
+  (`_SECRET_MAPS`, `_NOT_SECRETS`). The help of a command that takes a secret says to give it
+  in `--body-file`.
 - Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
   field that has no flag of its own (#354). They are declared once, beside `--yes` and
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the
@@ -529,3 +543,4 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | An `Annotated` alias is defined once | `tests/architecture/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |
+| A three-valued boolean option is a `--x/--no-x` pair ([section 6](#6-writing-a-client-and-its-cli-commands)) | `tests/architecture/test_conventions.py::test_a_three_valued_boolean_option_is_declared_as_a_pair` |

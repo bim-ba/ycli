@@ -183,6 +183,49 @@ def _plain(spec: dict[str, Any]) -> None:
             del schema[key]
 
 
+# A value the document marks ``writeOnly`` is sent and never read back: a password, a token.
+# Two names it leaves unmarked hold credentials all the same, and two it marks hold none (#388).
+_SECRET_MAPS = {
+    "secret_headers": "the headers of an API connection that carry its credentials",
+    "extra_credentials": "the credentials a connection passes on to its source",
+}
+_NOT_SECRETS = {
+    "dir_path": "the folder a connection is created in: a path, shown wherever it is read",
+    "ssl_ca": "a certificate authority's certificate: public by its nature",
+}
+
+
+def _type_secrets(spec: dict[str, Any]) -> int:
+    """Give every secret of the document the type of one; return how many fields got it.
+
+    A string the document marks ``writeOnly`` becomes a ``password`` string, which the
+    generator writes as ``SecretStr``: its value is masked wherever the model is printed
+    (``repr``, an error, a command's output) and goes out as it is only in a request
+    (``ycli.yandex.models.APIModel``). The values of a map of ``_SECRET_MAPS`` are secrets
+    the same way; the names in it are not. A field of ``_NOT_SECRETS`` loses the mark.
+    """
+    typed = 0
+    for schema in list(_every_schema(spec)):
+        for name, field in schema.get("properties", {}).items():
+            if not isinstance(field, dict):
+                continue
+            marked = field.pop("writeOnly", False)
+            values = field.get("additionalProperties")
+            if name in _SECRET_MAPS and isinstance(values, dict):
+                # The document allows ``null`` for the map and for a value. The generator types
+                # the values only of a plain object, and a field not given is ``None`` anyway.
+                field["type"] = "object"
+                values.update({"type": "string", "format": "password"})
+                typed += 1
+            elif marked and name not in _NOT_SECRETS:
+                kinds = field.get("type")
+                if "string" not in (kinds if isinstance(kinds, list) else [kinds]):
+                    raise SystemExit(f"the secret {name!r} is no string: {field}")
+                field["format"] = "password"
+                typed += 1
+    return typed
+
+
 def _keep_whole_numbers(spec: dict[str, Any]) -> int:
     """Read a ``number`` as a whole number or a fraction, whichever it is; return how many.
 
@@ -685,6 +728,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _type_secrets(spec)
     _keep_whole_numbers(spec)
     _spread_unions(spec)
     _merge_agreeing_replies(spec)
@@ -720,6 +764,36 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         f"{section[name]}.{name}": schema for name, schema in schemas.items()
     }
     return spec
+
+
+_QUIET = "hide_input_in_errors"
+
+
+def _quiet_root_models(text: str) -> str:
+    r"""Make every ``RootModel`` of a module keep its input out of the text of its errors.
+
+    A value that fails validation is quoted in the error, and the value may be a connection
+    with its password: a union is refused by its tag before any ``SecretStr`` is built. The
+    models take the setting from ``APIModel``; a ``RootModel`` has no such base, so it is
+    given in the class statement, which needs no import.
+
+    Examples:
+        >>> _quiet_root_models("class Kind(RootModel[A | B]):\n    root: A | B\n")
+        'class Kind(RootModel[A | B], hide_input_in_errors=True):\n    root: A | B\n'
+        >>> _quiet_root_models(_quiet_root_models("class Kind(RootModel[A]):\n    root: A\n"))
+        'class Kind(RootModel[A], hide_input_in_errors=True):\n    root: A\n'
+    """
+    lines = text.splitlines(keepends=True)
+    for node in ast.parse(text).body:
+        if not isinstance(node, ast.ClassDef) or any(key.arg == _QUIET for key in node.keywords):
+            continue
+        for base in node.bases:
+            root = base.value if isinstance(base, ast.Subscript) else base
+            if isinstance(root, ast.Name) and root.id == "RootModel":
+                last = node.bases[-1]
+                row, column = (last.end_lineno or 0) - 1, last.end_col_offset or 0
+                lines[row] = f"{lines[row][:column]}, {_QUIET}=True{lines[row][column:]}"
+    return "".join(lines)
 
 
 def finish(text: str) -> str:
@@ -762,7 +836,7 @@ def finish(text: str) -> str:
         text = text.replace(
             _MODELS_IMPORT, "from ycli.yandex.models import APIModel, RequestBody\n"
         )
-    return text
+    return _quiet_root_models(text)
 
 
 def _ruff(text: str, name: str) -> str:

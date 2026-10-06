@@ -1,6 +1,6 @@
 {
   "body": {
-    "<unknown-1>": "<unknown-1>",
+    "commentId": "<commentId>",
     "content": "<content>",
     "createdAt": "<createdAt>",
     "createdBy": {
@@ -17,5 +17,5 @@
     "size": 74
   },
   "status": 201,
-  "unknown_keys": 1
+  "unknown_keys": 0
 }

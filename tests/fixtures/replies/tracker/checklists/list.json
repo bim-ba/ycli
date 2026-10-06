@@ -1,5 +1,13 @@
 {
-  "body": [],
+  "body": [
+    {
+      "checked": false,
+      "checklistItemType": "<checklistItemType>",
+      "id": "<id>",
+      "text": "<text>",
+      "textHtml": "<textHtml>"
+    }
+  ],
   "status": 200,
   "unknown_keys": 0
 }

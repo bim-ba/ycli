@@ -1,0 +1,45 @@
+{
+  "body": {
+    "<unknown-1>": "<unknown-1>",
+    "acl": {
+      "GRANT": {
+        "groups": [],
+        "roles": [
+          "<roles>"
+        ],
+        "users": [
+          {
+            "cloudUid": "<cloudUid>",
+            "display": "<display>",
+            "id": "<id>",
+            "passportUid": 1,
+            "self": "<self>"
+          }
+        ]
+      },
+      "WRITE": {
+        "groups": [
+          {
+            "display": "<display>",
+            "id": "<id>",
+            "self": "<self>"
+          }
+        ],
+        "roles": [
+          "<roles>"
+        ],
+        "users": [
+          {
+            "cloudUid": "<cloudUid>",
+            "display": "<display>",
+            "id": "<id>",
+            "passportUid": 1,
+            "self": "<self>"
+          }
+        ]
+      }
+    }
+  },
+  "status": 200,
+  "unknown_keys": 1
+}

@@ -106,6 +106,6 @@ class GetAuditEntryPermissionsForUserResultValue(APIModel):
 
 
 class GetAuditEntryPermissionsForUserResult(
-    RootModel[dict[str, GetAuditEntryPermissionsForUserResultValue]]
+    RootModel[dict[str, GetAuditEntryPermissionsForUserResultValue]], hide_input_in_errors=True
 ):
     root: dict[str, GetAuditEntryPermissionsForUserResultValue]

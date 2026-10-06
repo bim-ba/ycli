@@ -6,7 +6,7 @@ from http import HTTPMethod
 import httpx2
 import pytest
 import typer.main
-from pydantic import SecretStr
+from pydantic import BaseModel, Field, SecretStr
 from typer.testing import CliRunner
 
 from tests.hosts import TRACKER_BASE, WIKI_BASE
@@ -17,9 +17,10 @@ from ycli.cli.guard import DryRunPlanned, SendGuard
 from ycli.cli.planned_request import PlannedRequest
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.auth import OAuthTokenAuth
-from ycli.yandex.core.endpoint import Endpoint
+from ycli.yandex.core.endpoint import Effect, Endpoint
 from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import connect
+from ycli.yandex.models import RequestBody, secret_keys
 
 runner = CliRunner()
 BOARD_URL = f"{TRACKER_BASE}/boards/7"
@@ -170,3 +171,75 @@ def test_the_help_of_dry_run_says_only_the_first_write_is_shown():
     root = typer.main.get_command(app)
     help_text = next(getattr(param, "help", "") for param in root.params if param.name == "dry_run")
     assert "only the first write of a command is shown" in help_text
+
+
+class _Login(RequestBody):
+    user: str
+    password: SecretStr
+
+
+class _Connection(RequestBody):
+    host: str
+    logins: list[_Login]
+    api_token: SecretStr | None = Field(default=None, alias="apiToken")
+    headers: dict[str, SecretStr] | None = None
+
+
+def _planned(json: object) -> PlannedRequest:
+    endpoint = Endpoint(HTTPMethod.POST, "connections", json=json)
+    with httpx2.Client(base_url="https://api.test/v1/") as client:
+        return PlannedRequest.of(endpoint.request(client))
+
+
+def test_a_dry_run_masks_what_the_body_model_marks_as_a_secret():
+    """#388: a plan is printed to a terminal and a CI log; a password is not."""
+    body = _Connection.model_validate(
+        {
+            "host": "db",
+            "logins": [{"user": "reader", "password": "S3cret"}],
+            "apiToken": "t0ken",
+            "headers": {"Authorization": "Bearer x"},
+        }
+    )
+    assert _planned(body).body == {
+        "host": "db",
+        "logins": [{"user": "reader", "password": "***"}],
+        "apiToken": "***",
+        "headers": "***",
+    }
+    assert secret_keys(_Connection) == {"password", "apiToken", "headers"}
+
+
+def test_the_mask_bites():
+    """Both sides: the same body with no model behind it is printed as it is."""
+    plain = {"host": "db", "password": "S3cret"}
+    assert _planned(plain).body == plain
+    assert _planned(_Login(user="reader", password=SecretStr("S3cret"))).body["password"] == "***"
+
+
+def test_a_secret_given_by_a_field_flag_is_masked_like_one_given_to_the_model():
+    """``-F`` and ``--body-file`` join the body after the model: the key is masked all the same."""
+    options = {"dry_run": True, "field": ["proxy[password]=x", "proxy[port]=1"]}
+    guard = SendGuard(options, CallerFields(options))
+    endpoint = Endpoint(HTTPMethod.POST, "connections", json=_Connection(host="db", logins=[]))
+    with httpx2.Client(base_url="https://api.test/v1/") as client:
+        request = endpoint.request(client)
+        with pytest.raises(DryRunPlanned) as planned:
+            guard(Effect.WRITE, request)
+    assert planned.value.plan.body["proxy"] == {"password": "***", "port": 1}
+
+
+def test_a_generated_connection_carries_the_marks_of_its_specification():
+    """The document's secrets and two maps it leaves unmarked; a path, a certificate are none."""
+    from ycli.yandex.datalens.schemas import connection
+
+    marked = {
+        name
+        for model in vars(connection).values()
+        if isinstance(model, type) and issubclass(model, BaseModel)
+        for name in secret_keys(model)
+    }
+    assert marked == {
+        *("password", "token", "access_token", "refresh_token", "client_secret"),
+        *("credentials", "auth_header", "jwt", "secret_headers", "extra_credentials"),
+    }

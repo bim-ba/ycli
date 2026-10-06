@@ -52,6 +52,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Where the fixtures go (the committed ones by default).",
     )
     parser.addoption(
+        "--record-pause",
+        type=float,
+        default=1.0,
+        help="Seconds to wait before each command of a recording run: a command in this "
+        "process follows the one before faster than Tracker settles after a write.",
+    )
+    parser.addoption(
         "--record-report",
         type=Path,
         default=Path(tempfile.gettempdir()) / "ycli-record-report.txt",

@@ -1,7 +1,7 @@
 # What needs a second sandbox queue, named by the owner of the organization (QUEUE_2): an issue
 # moved into it and two moved back at once, and the queue itself deleted and restored.
 # Without the queue every step is skipped. Written before such a queue existed: the first run
-# with QUEUE_2 set is the first run of these steps.
+# with QUEUE_2 set is the first run of these steps. Whether there will be such a queue: #413.
 name: tracker/second-queue
 steps:
   - id: issue
