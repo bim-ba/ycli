@@ -43,6 +43,10 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 
 ::: ycli.yandex.datalens.connections.client.ConnectionsClient
 
+## sparkclusters
+
+::: ycli.yandex.datalens.sparkclusters.client.SparkClustersClient
+
 ## datasets
 
 ::: ycli.yandex.datalens.datasets.client.DatasetsClient

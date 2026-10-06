@@ -1,1 +1,1 @@
-A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 454 operations of the four APIs, and each is also a command and a Python method.
+A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 462 operations of the four APIs, and each is also a command and a Python method.

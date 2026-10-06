@@ -166,6 +166,7 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
             "restcatalogs",
             "lakehouseoperations",
             "trinoclusters",
+            "sparkclusters",
             "sparkapplications",
         ],
     ),

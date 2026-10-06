@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-121 tools.
+129 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -360,6 +360,111 @@ An entry that is not locked answers 404.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `params` | object | yes | The token of the lock, or `force` for another's lock. |
+
+## `datalens_sparkclusters_list`
+
+*List DataLens Spark clusters* · read-only
+
+The Spark clusters of DataLens, auto-paginated.
+
+Experimental API, not measured: ycli follows its document. Capped at the configured item
+cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `limit` | integer or null |  | Max clusters to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `collection_id` | string or null |  | Keep the clusters of one collection. |
+| `filter` | array of string or null |  | Filter expressions of the API. |
+
+## `datalens_sparkclusters_get`
+
+*Get DataLens Spark cluster* · read-only
+
+One Spark cluster: its settings, health and status. Experimental API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Spark cluster id. |
+
+## `datalens_sparkclusters_create`
+
+*Create DataLens Spark cluster* · write
+
+Create a Spark cluster and return the operation that creates it.
+
+A cluster is paid for while it runs: create one only when asked to. The operation goes on
+after the reply: ``lakehouseoperations_get`` with its ``id`` says how it ended. Experimental
+API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | The collection to create the cluster in. |
+| `cloud_environment_id` | string | yes | The cloud environment the cluster runs in. |
+| `name` | string | yes | The cluster's name. |
+| `config` | object | yes | The Spark version and the pools of the driver and executors. |
+| `description` | string or null |  | A description of the cluster. |
+| `labels` | object or null |  | Labels of the cluster. |
+
+## `datalens_sparkclusters_delete`
+
+*Delete DataLens Spark cluster* · destructive write
+
+Delete a Spark cluster and return the operation; ``lakehouseoperations_get`` reads it.
+
+Experimental API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `id` | string | yes | Spark cluster id. |
+
+## `datalens_sparkclusters_start`
+
+*Start DataLens Spark cluster* · write
+
+Start a stopped Spark cluster and return the operation.
+
+A cluster is paid for while it runs: start one only when asked to. ``lakehouseoperations_get``
+says how the operation ended. Experimental API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Spark cluster id. |
+
+## `datalens_sparkclusters_stop`
+
+*Stop DataLens Spark cluster* · write
+
+Stop a running Spark cluster and return the operation; ``lakehouseoperations_get`` reads it.
+
+Experimental API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cluster_id` | string | yes | Spark cluster id. |
+
+## `datalens_sparkclusters_resource_presets_list`
+
+*List DataLens Spark resource presets* · read-only
+
+The sizes an instance of a Spark cluster can take, auto-paginated.
+
+Experimental API, not measured. Capped at the configured item cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | The cloud environment the presets are for. |
+| `limit` | integer or null |  | Max presets to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_sparkclusters_resource_presets_get`
+
+*Get DataLens Spark resource preset* · read-only
+
+One resource preset: its cores and its memory. Experimental API, not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `resource_preset_id` | string | yes | Resource preset id. |
+| `cloud_environment_id` | string | yes | The cloud environment the presets are for. |
 
 ## `datalens_members_list`
 
