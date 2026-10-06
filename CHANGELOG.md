@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.102.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.101.0
+  ([`7268d6a`](https://github.com/bim-ba/ycli/commit/7268d6a2627128492d81f8ed71c11307bd5d3d8c))
+
+### Features
+
+- **datalens**: Charts of the wizard, QL charts and charts of the editor are read and written
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`14a6090`](https://github.com/bim-ba/ycli/commit/14a60901abe9c61079a62c25a009cd6d200902ab))
+
+
 ## v0.101.0 (2026-10-06)
 
 ### Build System
