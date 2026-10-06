@@ -43,7 +43,9 @@ class GetWorkbookImportStatusResult(APIModel):
         default=None, alias="workbookId", description="ID of the imported workbook."
     )
     status: shared.WorkbookTransferProcessStatus | None = None
-    progress: float | None = Field(default=None, description="Workbook import progress percentage.")
+    progress: int | float | None = Field(
+        default=None, description="Workbook import progress percentage."
+    )
     notifications: list[shared.WorkbookTransferNotification] | None = Field(
         default=None, description="Notifications generated during the workbook import."
     )

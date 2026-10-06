@@ -93,7 +93,7 @@ class GetDatasetDataRequestFiltersItem(APIModel):
         | str
         | None
     ) = Field(default=None, description="Filter operation.")
-    values: list[str | float | bool] | None = Field(
+    values: list[str | int | float | bool] | None = Field(
         default=None,
         description="Filter values; the required count depends on the operation.",
     )
@@ -101,7 +101,7 @@ class GetDatasetDataRequestFiltersItem(APIModel):
 
 class GetDatasetDataRequestParamsItem(APIModel):
     guid: str | None = Field(default=None, description="Dataset parameter GUID.")
-    value: str | float | bool | None = Field(default=None, description="Parameter value.")
+    value: str | int | float | bool | None = Field(default=None, description="Parameter value.")
 
 
 class GetDatasetDataRequestSortItem(APIModel):

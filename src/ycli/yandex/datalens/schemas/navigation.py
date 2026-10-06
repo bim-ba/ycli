@@ -275,8 +275,8 @@ class ListDirectoryArgs(RequestBody):
     )
     order_by: ListDirectoryArgsOrderBy | None = Field(default=None, alias="orderBy")
     filters: ListDirectoryArgsFilters | None = None
-    page: float | None = Field(default=None, description="Page number for pagination.")
-    page_size: float | None = Field(
+    page: int | float | None = Field(default=None, description="Page number for pagination.")
+    page_size: int | float | None = Field(
         default=None, alias="pageSize", description="Number of entries per page."
     )
     include_permissions_info: bool | None = Field(

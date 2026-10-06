@@ -55,7 +55,7 @@ write by hand, so `scripts/gen_datalens_models.py` generates them into
 are met by the script, not by an editor: before the generator runs it rewrites the document so
 that a reply is read openly, no object requires a field but the one that tells its kind (DataLens leaves out fields its document calls required, and most objects are read and sent back; only the top level of a request keeps what it requires, the arguments of its operation), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
-and is not sent) or a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
+and is not sent), a `number` is read as an integer or a fraction, whichever it is (`300000` is not sent as `300000.0`), no field has a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
 
 A generated file is never edited by hand and carries no `# violation` marker; the checks of this

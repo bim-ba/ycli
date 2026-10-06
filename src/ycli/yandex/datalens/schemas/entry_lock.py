@@ -34,7 +34,7 @@ class EntryLock(APIModel):
 
 
 class CreateEntryLockArgsData(APIModel):
-    duration: float | None = Field(default=None, description="Lock duration in milliseconds.")
+    duration: int | float | None = Field(default=None, description="Lock duration in milliseconds.")
     force: bool | None = Field(
         default=None, description="Whether to replace an existing active lock."
     )
@@ -46,7 +46,9 @@ class ExtendEntryLockArgsData(APIModel):
         alias="lockToken",
         description="Token identifying the lock to extend.",
     )
-    duration: float | None = Field(default=None, description="New lock duration in milliseconds.")
+    duration: int | float | None = Field(
+        default=None, description="New lock duration in milliseconds."
+    )
     force: bool | None = Field(default=None, description="Whether to force lock extension.")
 
 

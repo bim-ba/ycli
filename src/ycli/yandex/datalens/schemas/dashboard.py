@@ -75,8 +75,10 @@ class DashTabItemV2Variant1DataBackgroundSettingsColor(APIModel):
 
 
 class DashTabItemV2Variant2DataSizeVariant2(APIModel):
-    font_size: float | None = Field(default=None, alias="fontSize", description="Title font size.")
-    line_height: float | None = Field(
+    font_size: int | float | None = Field(
+        default=None, alias="fontSize", description="Title font size."
+    )
+    line_height: int | float | None = Field(
         default=None, alias="lineHeight", description="Title line height."
     )
 
@@ -235,7 +237,7 @@ class DashControlV2Variant1(APIModel):
     background_settings: DashControlV2Variant1BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Control border radius."
     )
     auto_height: bool | None = Field(
@@ -264,7 +266,7 @@ class DashControlV2Variant2(APIModel):
     background_settings: DashControlV2Variant2BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Control border radius."
     )
     auto_height: bool | None = Field(
@@ -293,7 +295,7 @@ class DashControlV2Variant3(APIModel):
     background_settings: DashControlV2Variant3BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Control border radius."
     )
     auto_height: bool | None = Field(
@@ -402,7 +404,7 @@ class DashTabItemV2Variant5DataBackgroundSettings(APIModel):
 class DashboardV2DataSettingsWidgetsSettings(APIModel):
     """Default visual settings for dashboard widgets."""
 
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Default widget border radius."
     )
     background_settings: DashboardV2DataSettingsWidgetsSettingsBackgroundSettings | None = Field(
@@ -413,7 +415,7 @@ class DashboardV2DataSettingsWidgetsSettings(APIModel):
 class DashDataV2SettingsWidgetsSettings(APIModel):
     """Default visual settings for dashboard widgets."""
 
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Default widget border radius."
     )
     background_settings: DashDataV2SettingsWidgetsSettingsBackgroundSettings | None = Field(
@@ -432,8 +434,10 @@ class DashControlV2(
 class DashTabControlItemV2(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["control"] = Field(..., description="Control item type.")
@@ -494,7 +498,7 @@ class DashGroupControlV2(APIModel):
     background_settings: DashGroupControlV2BackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Control group border radius."
     )
     group: list[DashGroupControlItemV2] | None = Field(
@@ -505,8 +509,10 @@ class DashGroupControlV2(APIModel):
 class DashTabGroupControlItemV2(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["group_control"] = Field(..., description="Control group item type.")
@@ -529,7 +535,7 @@ class DashTabItemV2Variant1Data(APIModel):
     background_settings: DashTabItemV2Variant1DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Text item border radius."
     )
 
@@ -558,7 +564,7 @@ class DashTabItemV2Variant2Data(APIModel):
     background_settings: DashTabItemV2Variant2DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Title border radius."
     )
     internal_margins_enabled: bool | None = Field(
@@ -577,7 +583,7 @@ class DashTabItemV2Variant3Data(APIModel):
     background_settings: DashTabItemV2Variant3DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Widget border radius."
     )
     tabs: list[DashTabItemV2Variant3DataTabsItem] | None = Field(
@@ -598,7 +604,7 @@ class DashTabItemV2Variant4Data(APIModel):
     background_settings: DashTabItemV2Variant4DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Image border radius."
     )
 
@@ -621,7 +627,7 @@ class DashTabItemV2Variant5Data(APIModel):
     background_settings: DashTabItemV2Variant5DataBackgroundSettings | None = Field(
         default=None, alias="backgroundSettings"
     )
-    border_radius: float | None = Field(
+    border_radius: int | float | None = Field(
         default=None, alias="borderRadius", description="Insight widget border radius."
     )
     hide_actions: bool | None = Field(
@@ -634,12 +640,12 @@ class DashTabItemV2Variant5Data(APIModel):
 class DashboardV2DataSettings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: float | None = Field(
+    autoupdate_interval: int | float | None = Field(
         default=None,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: float | None = Field(
+    max_concurrent_requests: int | float | None = Field(
         default=None,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -709,12 +715,12 @@ class DashboardV2DataSettings(APIModel):
 class DashDataV2Settings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: float | None = Field(
+    autoupdate_interval: int | float | None = Field(
         default=None,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: float | None = Field(
+    max_concurrent_requests: int | float | None = Field(
         default=None,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -784,8 +790,10 @@ class DashDataV2Settings(APIModel):
 class DashTabItemV2Variant1(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["text"] = Field(..., description="Text item type.")
@@ -795,8 +803,10 @@ class DashTabItemV2Variant1(APIModel):
 class DashTabItemV2Variant2(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["title"] = Field(..., description="Title item type.")
@@ -806,8 +816,10 @@ class DashTabItemV2Variant2(APIModel):
 class DashTabItemV2Variant3(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["widget"] = Field(..., description="Widget item type.")
@@ -817,8 +829,10 @@ class DashTabItemV2Variant3(APIModel):
 class DashTabItemV2Variant4(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["image"] = Field(..., description="Image item type.")
@@ -828,8 +842,10 @@ class DashTabItemV2Variant4(APIModel):
 class DashTabItemV2Variant5(APIModel):
     id: str | None = Field(default=None, description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
-    order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
-    default_order_id: float | None = Field(
+    order_id: int | float | None = Field(
+        default=None, alias="orderId", description="Current item order."
+    )
+    default_order_id: int | float | None = Field(
         default=None, alias="defaultOrderId", description="Default item order."
     )
     type: Literal["neuro_widget"] = Field(..., description="Insight widget item type.")
