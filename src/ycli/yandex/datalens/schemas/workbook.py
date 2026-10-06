@@ -102,8 +102,8 @@ class GetWorkbooksListArgs(RequestBody):
     filter_string: str | None = Field(
         default=None, alias="filterString", description="Filter workbooks by title."
     )
-    page: float | None = Field(default=None, description="Page number for pagination.")
-    page_size: float | None = Field(
+    page: int | float | None = Field(default=None, description="Page number for pagination.")
+    page_size: int | float | None = Field(
         default=None, alias="pageSize", description="Number of workbooks per page."
     )
     order_field: Literal["title", "createdAt", "updatedAt"] | str | None = Field(
@@ -163,7 +163,7 @@ class ListWorkbookAccessBindingsArgs(RequestBody):
         alias="getInheritedBindings",
         description="Include access bindings inherited from parent resources.",
     )
-    page_size: float | None = Field(
+    page_size: int | float | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of subjects to return.",
@@ -463,8 +463,8 @@ class GetWorkbookEntriesArgs(RequestBody):
         alias="includePermissionsInfo",
         description="Include permission information in the response.",
     )
-    page: float | None = Field(default=None, description="Page number for pagination.")
-    page_size: float | None = Field(
+    page: int | float | None = Field(default=None, description="Page number for pagination.")
+    page_size: int | float | None = Field(
         default=None, alias="pageSize", description="Number of entries per page."
     )
     only_my: bool | None = Field(

@@ -26,7 +26,9 @@ class GetWorkbookExportStatusResult(APIModel):
         default=None, alias="exportId", description="ID of the workbook export."
     )
     status: shared.WorkbookTransferProcessStatus | None = None
-    progress: float | None = Field(default=None, description="Workbook export progress percentage.")
+    progress: int | float | None = Field(
+        default=None, description="Workbook export progress percentage."
+    )
     notifications: list[shared.WorkbookTransferNotification] | None = Field(
         default=None, description="Notifications generated during the workbook export."
     )

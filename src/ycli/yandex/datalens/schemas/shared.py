@@ -105,10 +105,10 @@ class DashControlSourceExternalV2(APIModel):
 
 class DashLayoutItemV2(APIModel):
     i: str | None = Field(default=None, description="Dashboard item identifier.")
-    h: float | None = Field(default=None, description="Item height in grid units.")
-    w: float | None = Field(default=None, description="Item width in grid units.")
-    x: float | None = Field(default=None, description="Horizontal grid position.")
-    y: float | None = Field(default=None, description="Vertical grid position.")
+    h: int | float | None = Field(default=None, description="Item height in grid units.")
+    w: int | float | None = Field(default=None, description="Item width in grid units.")
+    x: int | float | None = Field(default=None, description="Horizontal grid position.")
+    y: int | float | None = Field(default=None, description="Vertical grid position.")
     parent: str | None = Field(default=None, description="Parent item identifier.")
 
 
@@ -190,14 +190,18 @@ class DatalensOperationCreatedAt(APIModel):
     """Operation creation timestamp."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class DatalensOperationModifiedAt(APIModel):
     """Operation last modification timestamp."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class DatalensOperationMetadata(APIModel):
@@ -574,20 +578,24 @@ class LakehouseOperationCreatedAt(APIModel):
     """Time when the operation was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class LakehouseOperationModifiedAt(APIModel):
     """Time when the operation was last modified."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class LakehouseOperationError(APIModel):
     """Operation error, if the operation failed."""
 
-    code: float | None = Field(default=None, description="Operation error code.")
+    code: int | float | None = Field(default=None, description="Operation error code.")
     message: str | None = Field(default=None, description="Operation error message.")
     details: list[Any] | None = Field(
         default=None, description="Additional operation error details."

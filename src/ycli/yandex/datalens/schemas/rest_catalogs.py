@@ -48,14 +48,18 @@ class ListCatalogsResultRestCatalogsItemCreatedAt(APIModel):
     """Time when the REST catalog was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class ListCatalogsResultRestCatalogsItemUpdatedAt(APIModel):
     """Time when the REST catalog was last updated."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class ListCatalogsResultRestCatalogsItemBucketSettings(APIModel):
@@ -83,7 +87,9 @@ class ListCatalogsResultRestCatalogsItemBucketDetailsUpdatedAt(APIModel):
     """Time when the bucket details were updated."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class CreateRestCatalogArgsBucketSettings(APIModel):

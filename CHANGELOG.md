@@ -9,6 +9,43 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.89.2 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A boolean option says yes, no or nothing
+  ([`7f8f2d7`](https://github.com/bim-ba/ycli/commit/7f8f2d7f1865c95ec9707c27274ead1e7811e33a))
+
+### Build System
+
+- Re-lock uv.lock for 0.89.1
+  ([`954072b`](https://github.com/bim-ba/ycli/commit/954072be7bba1932b3b763355be215db97125894))
+
+
+## v0.89.1 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: A whole number is sent whole, not as a fraction
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`dad6a8a`](https://github.com/bim-ba/ycli/commit/dad6a8a37e82de33626d74a28eb1fef19187b41e))
+
+### Build System
+
+- Re-lock uv.lock for 0.89.0
+  ([`dbf3090`](https://github.com/bim-ba/ycli/commit/dbf3090cb8607b24f77a2bac5ba3789f44530254))
+
+### Testing
+
+- **e2e**: A live scenario writes what a form is made of
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`3209e19`](https://github.com/bim-ba/ycli/commit/3209e19c5efa5504a0367d868808ea15263208c6))
+
+- **e2e**: A live scenario writes what lives on a Wiki page
+  ([#141](https://github.com/bim-ba/ycli/pull/141),
+  [`4835d4c`](https://github.com/bim-ba/ycli/commit/4835d4c64191f25a7a3673d276b793fac9524e50))
+
+
 ## v0.89.0 (2026-10-06)
 
 ### Bug Fixes

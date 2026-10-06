@@ -62,7 +62,7 @@ class SqlQueryDataParamsItemVariant3(APIModel):
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
-    default_value: str | float | bool | None = Field(
+    default_value: str | int | float | bool | None = Field(
         default=None,
         alias="defaultValue",
         description="Default value of the parameter.",
@@ -116,7 +116,7 @@ class CreateSqlQueryArgsParamsItemVariant3(APIModel):
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
-    default_value: str | float | bool | None = Field(
+    default_value: str | int | float | bool | None = Field(
         default=None,
         alias="defaultValue",
         description="Default value of the parameter.",
@@ -147,7 +147,7 @@ class UpdateSqlQueryArgsParamsItemVariant3(APIModel):
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
-    default_value: str | float | bool | None = Field(
+    default_value: str | int | float | bool | None = Field(
         default=None,
         alias="defaultValue",
         description="Default value of the parameter.",
@@ -179,7 +179,12 @@ class RunSqlQueryArgs(RequestBody):
     params: (
         dict[
             str,
-            str | float | bool | list[str | float | bool] | RunSqlQueryArgsParamsValueVariant5,
+            str
+            | int
+            | float
+            | bool
+            | list[str | int | float | bool]
+            | RunSqlQueryArgsParamsValueVariant5,
         ]
         | None
     ) = Field(
@@ -224,11 +229,11 @@ class RunSqlQueryResultResultsItemVariant1(APIModel):
         default=None,
         description="Columns of the statement result. Empty for statements that return no rows.",
     )
-    rows: list[list[str | float | bool | None]] | None = Field(
+    rows: list[list[str | int | float | bool | None]] | None = Field(
         default=None,
         description="Rows of the statement result, with values in the order of the columns.",
     )
-    affected_rows: float | None = Field(
+    affected_rows: int | float | None = Field(
         default=None,
         alias="affectedRows",
         description="Number of rows affected by the statement.",
@@ -406,7 +411,9 @@ class SqlQuery(APIModel):
         description="ID of the tenant that owns the SQL query.",
     )
     hidden: bool | None = Field(default=None, description="Whether the SQL query is hidden.")
-    version: float | None = Field(default=None, description="Schema version of the SQL query.")
+    version: int | float | None = Field(
+        default=None, description="Schema version of the SQL query."
+    )
     links: dict[str, Any] | None = Field(
         default=None, description="Links to the entries the SQL query depends on."
     )
