@@ -6,6 +6,7 @@ tested on a small document, and the committed files are held to be what the scri
 
 import importlib
 import json
+import re
 import shutil
 
 import pytest
@@ -742,3 +743,27 @@ def test_a_generated_root_model_does_not_quote_its_input_in_an_error():
     with pytest.raises(ValidationError) as refused:
         ConnectionCreate.model_validate({"type": "nope", "password": "S3cret-value"})
     assert "S3cret-value" not in str(refused.value)
+
+
+def test_a_set_of_values_is_written_in_one_order_everywhere():
+    """Measured: the output schema of `connections get` differed between Python 3.13 and 3.14.
+
+    Up to 3.13 ``Literal["on", "off"] | str`` and ``Literal["off", "on"] | str`` are one object,
+    the first evaluated; 3.14 keeps two. Both sides: the step turns the rarer order, and no
+    set of values of the committed layer stands in two orders.
+    """
+    often, once = {"enum": ["on", "off"]}, {"enum": ["off", "on"]}
+    fields = {"a": often, "b": once, "c": dict(often), "d": {"enum": ["x", "y"]}}
+    prepared = gen.prepare(_connection_document(fields))["components"]["schemas"]
+    listed = [
+        field["anyOf"][0]["enum"]
+        for field in prepared["things.CreateThingRequest"]["properties"].values()
+    ]
+    assert listed == [["on", "off"], ["on", "off"], ["on", "off"], ["x", "y"]]
+    orders: dict[frozenset[str], set[str]] = {}
+    for home in GENERATED:
+        for module in sorted((SRC / home).glob("*.py")):
+            for written in re.findall(r"Literal\[([^\]]+)\]", module.read_text(encoding="utf-8")):
+                values = " ".join(written.split())
+                orders.setdefault(frozenset(values.rstrip(",").split(", ")), set()).add(values)
+    assert not [sorted(found) for found in orders.values() if len(found) > 1]

@@ -73,7 +73,7 @@ _CLOSED_MODEL = re.compile(
     re.MULTILINE,
 )
 # What a generated module may import, inherit from and call (``foreign``).
-_MODULES = {"__future__", "typing", "datetime", "pydantic", "ycli.yandex.models"}
+_MODULES = {"typing", "datetime", "pydantic", "ycli.yandex.models"}
 _BASES = {"APIModel", "RequestBody", "RootModel"}
 _CALLS = {"Field", "ConfigDict"}
 _MODELS_IMPORT = "from ycli.yandex.models import APIModel\n"
@@ -224,6 +224,48 @@ def _type_secrets(spec: dict[str, Any]) -> int:
                 field["format"] = "password"
                 typed += 1
     return typed
+
+
+def _order_value_sets(spec: dict[str, Any]) -> int:
+    """Write each set of values in one order wherever it stands; return how many were turned.
+
+    The document lists ``on``/``off`` in a hundred places and ``off``/``on`` in three. Python
+    up to 3.13 keeps one object for ``Literal["on", "off"] | str`` and for
+    ``Literal["off", "on"] | str``, whichever was evaluated first, and 3.14 keeps two: the
+    schema of a model then depends on the interpreter and on the order of imports. With one
+    order per set there is nothing to differ. The order kept is the one most places use, the
+    first met among equals.
+
+    Examples:
+        >>> spec = {
+        ...     "paths": {},
+        ...     "components": {
+        ...         "schemas": {
+        ...             "A": {"enum": ["on", "off"]},
+        ...             "B": {"enum": ["off", "on"]},
+        ...             "C": {"enum": ["on", "off"]},
+        ...         }
+        ...     },
+        ... }
+        >>> _order_value_sets(spec), spec["components"]["schemas"]["B"]
+        (1, {'enum': ['on', 'off']})
+    """
+    met: dict[frozenset[str], dict[str, int]] = {}
+    held = []
+    for schema in list(_every_schema(spec)):
+        values = schema.get("enum")
+        if isinstance(values, list) and len(values) > 1:
+            written = [json.dumps(value) for value in values]
+            orders = met.setdefault(frozenset(written), {})
+            orders[json.dumps(values)] = orders.get(json.dumps(values), 0) + 1
+            held.append((schema, frozenset(written)))
+    turned = 0
+    for schema, key in held:
+        kept = json.loads(max(met[key], key=lambda order: met[key][order]))
+        if schema["enum"] != kept:
+            schema["enum"] = kept
+            turned += 1
+    return turned
 
 
 def _keep_whole_numbers(spec: dict[str, Any]) -> int:
@@ -690,7 +732,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         spec: The OpenAPI document as DataLens publishes it.
 
     Returns:
-        A copy with no generator directives and no defaults, in which a number is read whole
+        A copy with no generator directives and no defaults, in which a set of values has one
+        order wherever it stands, a number is read whole
         or fractional as it comes, "these fields and one of
         those" is written as its members, a reply's union of objects that nothing tells apart is
         one object, a union's discriminator is
@@ -728,6 +771,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _order_value_sets(spec)
     _type_secrets(spec)
     _keep_whole_numbers(spec)
     _spread_unions(spec)
@@ -941,6 +985,7 @@ def generate(spec: dict[str, Any]) -> dict[str, str]:
                 "--snake-case-field",
                 "--field-constraints",
                 "--disable-timestamp",
+                "--disable-future-imports",
             ],
             check=True,
             cwd=ROOT,

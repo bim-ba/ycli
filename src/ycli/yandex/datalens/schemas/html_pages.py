@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field, RootModel
@@ -51,7 +49,7 @@ class GetHtmlPagePreviewUrlArgs(RequestBody):
         alias="revId",
         description="ID of the HTML page revision to preview.",
     )
-    lang: Literal["ru", "en"] | str | None = Field(
+    lang: Literal["en", "ru"] | str | None = Field(
         default=None, description="Language of the HTML page preview."
     )
     theme: Literal["light", "dark", "light-hc", "dark-hc", "system"] | str | None = Field(

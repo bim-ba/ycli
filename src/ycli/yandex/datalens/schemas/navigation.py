@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field
@@ -34,7 +32,7 @@ class GetEntriesV2ArgsOrderBy(APIModel):
     field: Literal["createdAt", "name"] | str | None = Field(
         default=None, description="Field used to sort entries: creation date or name."
     )
-    direction: Literal["desc", "asc"] | str | None = Field(
+    direction: Literal["asc", "desc"] | str | None = Field(
         default=None, description="Entry sort direction."
     )
 
@@ -85,7 +83,7 @@ class ListDirectoryArgsOrderBy(APIModel):
     field: Literal["createdAt", "name"] | str | None = Field(
         default=None, description="Field used to sort entries: creation date or name."
     )
-    direction: Literal["desc", "asc"] | str | None = Field(
+    direction: Literal["asc", "desc"] | str | None = Field(
         default=None, description="Entry sort direction."
     )
 

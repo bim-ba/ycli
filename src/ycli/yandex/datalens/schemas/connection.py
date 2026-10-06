@@ -1,7 +1,5 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import AwareDatetime, Field, RootModel, SecretStr
@@ -969,7 +967,7 @@ class Trino(APIModel):
     id: str | None = None
     jwt: SecretStr | None = None
     key: str | None = None
-    listing_sources: Literal["off", "on"] | str | None = None
+    listing_sources: Literal["on", "off"] | str | None = None
     mdb_cluster_id: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1007,7 +1005,7 @@ class Trino2(APIModel):
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
     host: str | None = None
     jwt: SecretStr | None = None
-    listing_sources: Literal["off", "on"] | str | None = None
+    listing_sources: Literal["on", "off"] | str | None = None
     mdb_cluster_id: str | None = None
     password: SecretStr | None = None
     port: int | None = None
@@ -1933,7 +1931,7 @@ class Trino1(APIModel):
     id: str | None = None
     jwt: SecretStr | None = None
     key: str | None = None
-    listing_sources: Literal["off", "on"] | str | None = None
+    listing_sources: Literal["on", "off"] | str | None = None
     mdb_cluster_id: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
