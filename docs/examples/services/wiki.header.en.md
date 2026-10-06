@@ -1,4 +1,4 @@
-# :book: Wiki
+# 📖 Wiki
 
 Pages, grids, comments, attachments.
 

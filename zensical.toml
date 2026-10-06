@@ -2,7 +2,7 @@
 
 [project]
 site_name = "ycli"
-site_description = "Yandex 360 (Tracker, Wiki, Forms) from a CLI, an MCP server and a Python SDK."
+site_description = "Yandex business services (Tracker, Wiki, Forms, DataLens) from a CLI, an MCP server and a Python SDK."
 site_url = "https://ycli.savaznatnov.dev/"
 repo_url = "https://github.com/bim-ba/ycli"
 repo_name = "bim-ba/ycli"
@@ -154,7 +154,7 @@ filters = ["!^_"]
 [project.plugins.llmstxt]
 full_output = "llms-full.txt"
 markdown_description = """
-ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server for AI agents and a Python SDK. One operation has one name on every surface: `ycli tracker issues get` is the tool `tracker_issues_get` and the method `tracker.issues.get`.
+ycli drives Yandex Tracker, Wiki, Forms and DataLens from a command line, an MCP server for AI agents and a Python SDK. One operation has one name on every surface: `ycli tracker issues get` is the tool `tracker_issues_get` and the method `tracker.issues.get`.
 
 The full reference is large, one page per service, and is left out of llms-full.txt:
 

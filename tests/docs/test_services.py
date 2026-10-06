@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -26,7 +27,7 @@ def _fact(name: str, **changes: object) -> gen_services.Facts:
         name=name,
         titles={"en": name.capitalize(), "ru": name.capitalize()},
         summaries={"en": "Things.", "ru": "Вещи."},
-        emoji=":clipboard:",
+        emoji="📋",
         operations=7,
         wrapped=7,
         published=7,
@@ -93,7 +94,7 @@ def test_the_heading_of_an_overview_carries_no_mark():
     """A mark in the heading would enter the page's title and the navigation."""
     text = gen_services.header(_fact("beta", wrapped=2, published=9, in_progress=True), "en")
     heading, rest = text.split("\n", 1)
-    assert heading == "# :clipboard: Beta"
+    assert heading == "# 📋 Beta"
     assert "<mark>in progress</mark>" in rest and "2 of the 9 operations" in rest
     assert "<mark>" not in gen_services.header(_fact("alpha"), "en")
 
@@ -140,6 +141,26 @@ def test_the_home_page_description_names_every_service():
     description = page.split("\n")[1]
     assert description.startswith("description: ")
     assert [name for name in NAMES if gen_coverage.TITLES[name][0] not in description] == []
+
+
+@pytest.mark.parametrize(("config", "title"), [("zensical.toml", 0), ("zensical.ru.toml", 1)])
+def test_the_site_descriptions_name_every_service(config, title):
+    """A site's configuration takes no generated value: its two descriptions are checked."""
+    project = tomllib.loads((ROOT / config).read_text(encoding="utf-8"))["project"]
+    titles = [gen_coverage.TITLES[name][title] for name in NAMES]
+    for description in (
+        project["site_description"],
+        project["plugins"]["llmstxt"]["markdown_description"].split("\n\n")[0],
+    ):
+        assert [found for found in titles if found not in description] == [], description
+
+
+def test_an_emoji_is_the_character_itself():
+    """A ``:shortcode:`` would be rendered as an image loaded from a CDN."""
+    for emoji in gen_coverage.EMOJI.values():
+        assert ":" not in emoji and not emoji.isascii()
+    built = gen_services.build()
+    assert [path.name for path, text in built.items() if re.search(r":[a-z_]+:", text)] == []
 
 
 @pytest.mark.parametrize("language", gen_services.LANGUAGES)

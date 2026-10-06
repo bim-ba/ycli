@@ -79,13 +79,12 @@ TITLES = {
     "forms": ("Forms", "Формы", "Форм"),
     "datalens": ("DataLens", "DataLens", "DataLens"),
 }
-# The emoji a service wears on the site, as a twemoji shortcode: 📋 📖 📝 📊 (issue #383).
-# Presentation, so it stays out of `src/`; `scripts/gen_services.py` renders it.
+# The character, not a `:shortcode:`: the site would load a shortcode as an image from a CDN.
 EMOJI = {
-    "tracker": ":clipboard:",
-    "wiki": ":book:",
-    "forms": ":pencil:",
-    "datalens": ":bar_chart:",
+    "tracker": "📋",
+    "wiki": "📖",
+    "forms": "📝",
+    "datalens": "📊",
 }
 # What a service is, in one line, on the Russian site; the English line is `Service.help`.
 SUMMARIES_RU = {

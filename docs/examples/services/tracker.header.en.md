@@ -1,4 +1,4 @@
-# :clipboard: Tracker
+# 📋 Tracker
 
 Issues, queues, boards, sprints, fields, automation.
 
