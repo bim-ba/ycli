@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from e2e.catalog import load, scenario_paths
+from e2e.conftest import of_service
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
@@ -85,3 +86,12 @@ def test_a_typoed_scenario_command_is_caught(tmp_path):
 def test_a_malformed_scenario_fails_to_load(tmp_path, text: str, message: str):
     with pytest.raises(ValidationError, match=message):
         load(_write(tmp_path, text))
+
+
+def test_a_scenario_is_named_after_the_directory_of_its_service():
+    """The nightly run is one job per service, picked by the first part of the name."""
+    assert not [
+        str(path) for path in scenario_paths() if not of_service(load(path).name, path.parent.name)
+    ]
+    assert of_service("wiki/page-lifecycle", None)
+    assert not of_service("wiki/page-lifecycle", "forms")

@@ -1740,7 +1740,7 @@ $ ycli forms keysets update [OPTIONS] SURVEY_ID KEYSET_ID
 **Options**:
 
 * `--name TEXT`: Key set name (required — replaces the record).  [required]
-* `--total INTEGER`: Number of keys (required — replaces the record).  [required]
+* `--total INTEGER`: Number of keys (required — replaces the record); the API refuses a number smaller than the set has now.  [required]
 * `--enabled / --disabled`: Active flag (required).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2199,7 +2199,7 @@ $ ycli forms images clone [OPTIONS] SURVEY_ID
 **Options**:
 
 * `--image-id INTEGER`: Id of the image to clone.
-* `--name TEXT`: File name for the clone.
+* `--name TEXT`: Ignored by the API: the clone keeps the file name of the original.
 * `--link TEXT`: SIZE=URL of the image to clone (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

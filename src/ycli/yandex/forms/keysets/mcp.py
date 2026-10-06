@@ -88,7 +88,8 @@ def update(
     """Replace a key set's settings; returns the updated ``Keyset``.
 
     Despite the PATCH verb, the API validates the body as a full record: ``name``, ``total``
-    and ``is_enabled`` must all be set or the request is rejected with ``400``.
+    and ``is_enabled`` must all be set or the request is rejected with ``400``. ``total`` can
+    only grow: a number smaller than the set has now is refused.
     """
     return client.keysets.update(survey_id, keyset_id, body)
 
