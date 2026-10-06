@@ -947,3 +947,70 @@ def test_the_model_template_is_the_generators_own_but_for_what_ycli_adds():
     assert len(added) == 9
     assert sum(line.startswith("{#- ycli:") for line in added) == 2
     assert sum("Annotated[{{ field.type_hint }}, NoDropNull()]" in line for line in added) == 2
+
+
+def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
+    """Both sides: each member is closed and keeps what it requires; a union deeper is not.
+
+    Seen on the defect: before the step both members of ``updateHtmlPage`` were open classes
+    that required nothing, so a body with no field and a body with ``content`` and ``revId``
+    together both passed.
+    """
+    new = {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "content": {"type": "string"}},
+        "required": ["id", "content"],
+    }
+    old = {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "revId": {"type": "string"}},
+        "required": ["id", "revId"],
+    }
+    spec = {
+        "paths": {"/rpc/updateThing": _operation({"anyOf": [new, old]}, {})},
+        "components": {"schemas": {}},
+    }
+    schemas = gen.prepare(spec)["components"]["schemas"]
+    # Nothing tells the members apart: no spare kind among them.
+    assert schemas["things.UpdateThingRequest"]["anyOf"] == [
+        {"$ref": REF + "things.UpdateThingRequestVariant1"},
+        {"$ref": REF + "things.UpdateThingRequestVariant2"},
+    ]
+    first, second = (schemas[f"things.UpdateThingRequestVariant{n}"] for n in (1, 2))
+    assert (first["required"], second["required"]) == (["id", "content"], ["id", "revId"])
+    assert first["additionalProperties"] is False and second["additionalProperties"] is False
+    # The other side: the same union one level down belongs to no operation's arguments.
+    inner = {"type": "object", "properties": {"change": {"anyOf": [new, old]}}}
+    spec["paths"]["/rpc/updateThing"] = _operation(inner, {})
+    prepared = gen.prepare(spec)["components"]["schemas"]
+    for name in (
+        "things.UpdateThingRequestChangeVariant1",
+        "things.UpdateThingRequestChangeVariant2",
+    ):
+        assert prepared[name]["required"] == [] and "additionalProperties" not in prepared[name]
+    # The layer as committed: the model itself refuses both bodies, and names the fields.
+    from pydantic import ValidationError
+
+    from ycli.yandex.datalens.schemas import html_pages, spark_applications
+    from ycli.yandex.models import WIRE, RequestBody
+
+    for refused, named in (
+        ({}, ["content", "entryId", "mode", "revId"]),
+        ({"entryId": "p1", "content": "<p>", "revId": "r1", "mode": "save"}, ["content", "revId"]),
+    ):
+        with pytest.raises(ValidationError) as failure:
+            html_pages.UpdateHtmlPageArgs.model_validate(refused)
+        assert sorted({error["loc"][-1] for error in failure.value.errors()}) == named
+    for body in (
+        {"entryId": "p1", "content": "<p>"},
+        {"entryId": "p1", "revId": "r1", "mode": "publish"},
+    ):
+        assert html_pages.UpdateHtmlPageArgs.model_validate(body).model_dump(context=WIRE) == body
+    for envelope_class in (
+        html_pages.UpdateHtmlPageArgsVariant1,
+        html_pages.UpdateHtmlPageArgsVariant2,
+        spark_applications.CreateSparkApplicationArgsVariant1,
+        spark_applications.CreateSparkApplicationArgsVariant2,
+        spark_applications.CreateSparkApplicationArgsVariant3,
+    ):
+        assert issubclass(envelope_class, RequestBody), envelope_class.__name__
