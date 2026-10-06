@@ -12,6 +12,7 @@ from ycli.yandex.mcp import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAG,
+    OverBudget,
     app_config,
     client_provider,
 )
@@ -33,6 +34,7 @@ __all__ = [
     "WRITE_IDEMPOTENT",
     "WRITE_TAGS",
     "EntryID",
+    "OverBudget",
     "PermissionsInfo",
     "app_config",
     "datalens_client",

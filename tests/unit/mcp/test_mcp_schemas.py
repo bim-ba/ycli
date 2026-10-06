@@ -110,7 +110,8 @@ async def test_schema_get_says_so_when_no_tool_needs_it():
 async def test_the_index_is_read_from_the_listing_and_every_address_resolves():
     """An address is written by hand: one that names nothing fails here, not at a user's call."""
     index = definitions(await full.list_tools())
-    assert set(index) == {"forms"}
+    assert set(index) == {"forms", "datalens"}
+    assert {"ConnectionCreate", "ConnectionUpdate", "Clickhouse"} <= set(index["datalens"])
     assert {"Subscription", "EmailSubscription", "SubscriptionHeader"} <= set(index["forms"])
 
 
