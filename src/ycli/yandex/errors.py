@@ -131,8 +131,8 @@ def describe_error_body(body: str) -> str:
     Tracker answers ``{"errorMessages": [...]}``, Wiki ``{"message": [...] or "...",
     "error_code": ...}``, Forms ``{"detail": ...}`` or a bare list of ``{"loc", "error_code",
     "msg"}`` items, DataLens ``{"code": ..., "message": ..., "details": {"details": [{"path",
-    "message"}]}}``, whose items say which field is wrong; anything else is cut to 300
-    characters.
+    "message"}]}}``, whose items say which field is wrong, and sometimes only ``{"error":
+    ...}``; anything else is cut to 300 characters.
 
     Args:
         body: The response body text.
@@ -152,6 +152,8 @@ def describe_error_body(body: str) -> str:
         ...     '{"details": [{"path": ["collectionId"], "message": "Too big"}]}}'
         ... )
         'VALIDATION_ERROR: Validation error (collectionId: Too big)'
+        >>> describe_error_body('{"error": "Cannot read properties of undefined"}')
+        'Cannot read properties of undefined'
     """
     try:
         data = json.loads(body)
@@ -160,7 +162,7 @@ def describe_error_body(body: str) -> str:
     if isinstance(data, list) and data:
         return "; ".join(_error_item(item) for item in data)
     if isinstance(data, dict):
-        for key in ("errorMessages", "message", "detail"):
+        for key in ("errorMessages", "message", "detail", "error"):
             value = data.get(key)
             if isinstance(value, list) and value:
                 text = "; ".join(_error_item(item) for item in value)

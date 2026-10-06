@@ -22,6 +22,8 @@ EntryScope = (
     ]
     | str
 )
+#: How a chart or a dashboard is saved: as a draft, or as the version everyone sees.
+SaveMode = Literal["save", "publish"] | str
 #: What a listing of collections or workbooks is sorted by.
 OrderField = Literal["title", "createdAt", "updatedAt"] | str
 
@@ -31,5 +33,6 @@ __all__ = [
     "EntryScope",
     "Operation",
     "OrderField",
+    "SaveMode",
     "SubjectWithBindings",
 ]

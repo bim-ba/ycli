@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-53 tools.
+65 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -640,6 +640,170 @@ reached answers with an error.
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `params` | object or null |  | Values for the chart's parameters, by name: one value or several. |
+
+## `datalens_charts_wizard_get`
+
+*Get DataLens wizard chart* · read-only
+
+One chart built in the wizard: the datasets it reads and what it shows.
+
+``entry.data`` is what ``charts_wizard_update`` takes back; ``isFavorite`` and
+``permissions`` come only when asked for. ``entries_list`` with the scope
+``widget`` finds charts; its ``type`` says how a chart is built.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+| `workbook_id` | string or null |  | The workbook the chart lies in. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_links` | boolean or null |  | Also say what it is linked to. |
+| `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+
+## `datalens_charts_wizard_create`
+
+*Create DataLens wizard chart* · write
+
+Create a chart of the wizard in a workbook and return it with its id.
+
+The ``entry.data`` of a chart read with ``charts_wizard_get`` is a valid ``data``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `data` | object | yes | What the chart holds: `sources` and `visualization`. Its schema is not listed here: read `WizardChartData` with schema_get(service="datalens", name="WizardChartData"), then the definitions it refers to. |
+| `annotation` | object or null |  | A description of the chart. |
+| `key` | string or null |  | The entry's key, in a folder. |
+| `workbook_id` | string or null |  | The workbook to create it in. |
+| `name` | string or null |  | The chart's name. |
+
+## `datalens_charts_wizard_update`
+
+*Update DataLens wizard chart* · idempotent write
+
+Save a chart of the wizard as given: read it, change it, send it back whole.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+| `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
+| `data` | object | yes | What the chart holds; it replaces the whole of it. Its schema is not listed here: read `WizardChartData` with schema_get(service="datalens", name="WizardChartData"), then the definitions it refers to. |
+| `annotation` | object or null |  | A description of the chart. |
+| `rev_id` | string or null |  | The revision the change is made on. |
+
+## `datalens_charts_wizard_delete`
+
+*Delete DataLens wizard chart* · destructive write
+
+Delete a chart; the dashboards that show it lose it.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+
+## `datalens_charts_ql_get`
+
+*Get DataLens QL chart* · read-only
+
+One QL chart. Unlike a chart of the wizard it comes flat, with no ``entry`` around it.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+| `workbook_id` | string or null |  | The workbook the chart lies in. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_links` | boolean or null |  | Also say what it is linked to. |
+| `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+
+## `datalens_charts_ql_create`
+
+*Create DataLens QL chart* · write
+
+Create a QL chart; the reply is what DataLens answers, as it came.
+
+The specification describes neither the content of a QL chart nor the reply.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `template` | string | yes | The template of the chart; the API takes only `ql` today. |
+| `data` | object | yes | What the chart holds: its query and how it is shown. |
+| `annotation` | object or null |  | A description of the chart. |
+| `key` | string or null |  | The entry's key, in a folder. |
+| `workbook_id` | string or null |  | The workbook to create it in. |
+| `name` | string or null |  | The chart's name. |
+
+## `datalens_charts_ql_update`
+
+*Update DataLens QL chart* · idempotent write
+
+Save a QL chart as given; the reply is what DataLens answers, as it came.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Chart id. |
+| `template` | string | yes | The template of the chart; the API takes only `ql` today. |
+| `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
+| `data` | object | yes | What the chart holds; it replaces the whole of it. |
+| `annotation` | object or null |  | A description of the chart. |
+
+## `datalens_charts_ql_delete`
+
+*Delete DataLens QL chart* · destructive write
+
+Delete a chart; the dashboards that show it lose it.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+
+## `datalens_charts_editor_get`
+
+*Get DataLens editor chart* · read-only
+
+One chart written in the editor: its kind (``entry.type``) and its tabs of code.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
+| `workbook_id` | string or null |  | The workbook the chart lies in. |
+| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_links` | boolean or null |  | Also say what it is linked to. |
+| `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+
+## `datalens_charts_editor_create`
+
+*Create DataLens editor chart* · write
+
+Create a chart of the editor and return it with its id.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry` | any | yes | The new chart: where it lies, its kind (`type`) and its code. |
+
+## `datalens_charts_editor_update`
+
+*Update DataLens editor chart* · idempotent write
+
+Save a chart of the editor as given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry` | any | yes | The chart to save: its `entryId`, its kind (`type`) and its code. |
+| `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
+
+## `datalens_charts_editor_delete`
+
+*Delete DataLens editor chart* · destructive write
+
+Delete a chart; the dashboards that show it lose it.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | Chart id. |
 
 ## `datalens_workbookexports_start`
 
