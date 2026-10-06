@@ -20,10 +20,12 @@ from ycli.yandex.datalens.embeddingsecrets.client import EmbeddingSecretsClient
 from ycli.yandex.datalens.embeds.client import EmbedsClient
 from ycli.yandex.datalens.entries.client import EntriesClient
 from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
+from ycli.yandex.datalens.lakehouseoperations.client import LakehouseOperationsClient
 from ycli.yandex.datalens.licensing.client import LicensingClient
 from ycli.yandex.datalens.members.client import MembersClient
 from ycli.yandex.datalens.permissions.client import PermissionsClient
 from ycli.yandex.datalens.reports.client import ReportsClient
+from ycli.yandex.datalens.restcatalogs.client import RestCatalogsClient
 from ycli.yandex.datalens.sharedentries.client import SharedEntriesClient
 from ycli.yandex.datalens.sqlqueries.client import SqlQueriesClient
 from ycli.yandex.datalens.tenant.client import TenantClient
@@ -68,3 +70,5 @@ class DataLensClient(DomainClient):
         self.licensing = LicensingClient(session=session)
         self.cloudenvironments = CloudEnvironmentsClient(session=session)
         self.cloudenvironmentstorage = CloudEnvironmentStorageClient(session=session)
+        self.restcatalogs = RestCatalogsClient(session=session)
+        self.lakehouseoperations = LakehouseOperationsClient(session=session)

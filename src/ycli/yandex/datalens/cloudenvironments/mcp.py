@@ -72,7 +72,7 @@ def get(
     """One cloud environment: its cloud, its subnet, its status and its storage.
 
     Experimental in the DataLens API and written from its document: not measured. An id
-    nothing knows answers 403 Permission denied, not 404.
+    nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
     """
     return client.cloudenvironments.get(id, include_permissions=include_permissions)
 

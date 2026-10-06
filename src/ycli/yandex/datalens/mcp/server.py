@@ -13,11 +13,13 @@ from ycli.yandex.datalens.embeddingsecrets.mcp import mcp as embeddingsecrets_mc
 from ycli.yandex.datalens.embeds.mcp import mcp as embeds_mcp
 from ycli.yandex.datalens.entries.mcp import mcp as entries_mcp
 from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
+from ycli.yandex.datalens.lakehouseoperations.mcp import mcp as lakehouseoperations_mcp
 from ycli.yandex.datalens.licensing.mcp import mcp as licensing_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
 from ycli.yandex.datalens.members.mcp import mcp as members_mcp
 from ycli.yandex.datalens.permissions.mcp import mcp as permissions_mcp
 from ycli.yandex.datalens.reports.mcp import mcp as reports_mcp
+from ycli.yandex.datalens.restcatalogs.mcp import mcp as restcatalogs_mcp
 from ycli.yandex.datalens.sharedentries.mcp import mcp as sharedentries_mcp
 from ycli.yandex.datalens.sqlqueries.mcp import mcp as sqlqueries_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
@@ -53,4 +55,6 @@ mcp.mount(sqlqueries_mcp)
 mcp.mount(licensing_mcp)
 mcp.mount(cloudenvironments_mcp)
 mcp.mount(cloudenvironmentstorage_mcp)
+mcp.mount(restcatalogs_mcp)
+mcp.mount(lakehouseoperations_mcp)
 mcp.mount(mcp_resources_mcp)

@@ -14,10 +14,12 @@ from ycli.yandex.datalens.embeddingsecrets.cli import app as embeddingsecrets_ap
 from ycli.yandex.datalens.embeds.cli import app as embeds_app
 from ycli.yandex.datalens.entries.cli import app as entries_app
 from ycli.yandex.datalens.entrylocks.cli import app as entrylocks_app
+from ycli.yandex.datalens.lakehouseoperations.cli import app as lakehouseoperations_app
 from ycli.yandex.datalens.licensing.cli import app as licensing_app
 from ycli.yandex.datalens.members.cli import app as members_app
 from ycli.yandex.datalens.permissions.cli import app as permissions_app
 from ycli.yandex.datalens.reports.cli import app as reports_app
+from ycli.yandex.datalens.restcatalogs.cli import app as restcatalogs_app
 from ycli.yandex.datalens.sharedentries.cli import app as sharedentries_app
 from ycli.yandex.datalens.sqlqueries.cli import app as sqlqueries_app
 from ycli.yandex.datalens.tenant.cli import app as tenant_app
@@ -51,3 +53,5 @@ app.add_typer(sqlqueries_app)
 app.add_typer(licensing_app)
 app.add_typer(cloudenvironments_app)
 app.add_typer(cloudenvironmentstorage_app)
+app.add_typer(restcatalogs_app)
+app.add_typer(lakehouseoperations_app)

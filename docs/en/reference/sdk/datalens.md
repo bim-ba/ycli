@@ -94,3 +94,11 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## cloudenvironmentstorage
 
 ::: ycli.yandex.datalens.cloudenvironmentstorage.client.CloudEnvironmentStorageClient
+
+## restcatalogs
+
+::: ycli.yandex.datalens.restcatalogs.client.RestCatalogsClient
+
+## lakehouseoperations
+
+::: ycli.yandex.datalens.lakehouseoperations.client.LakehouseOperationsClient

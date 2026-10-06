@@ -38,6 +38,11 @@ EXPECTED_LINK_GAPS = (
     "datalens.cloudenvironmentstorage.bucket_objects_list",
     "datalens.cloudenvironmentstorage.bucket_upload_url_create",
     # The published reference has no page for the saved SQL queries (experimental, 2026-10-06).
+    "datalens.lakehouseoperations",
+    "datalens.lakehouseoperations.get",
+    "datalens.restcatalogs",
+    "datalens.restcatalogs.create",
+    "datalens.restcatalogs.list",
     "datalens.sqlqueries",
     "datalens.sqlqueries.create",
     "datalens.sqlqueries.delete",
@@ -132,7 +137,7 @@ def test_link_stats_totals_are_consistent():
     assert stats.linked_resources <= stats.resources
     # The vast majority of operations deep-link to their own endpoint page.
     assert stats.specific_ops > stats.fallback_ops + stats.plain_ops
-    assert stats.plain_ops == 16 and stats.linked_resources == stats.resources - 5
+    assert stats.plain_ops == 19 and stats.linked_resources == stats.resources - 7
 
 
 def test_link_map_keys_reference_real_resources_and_operations():
