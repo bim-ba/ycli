@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.100.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.99.0
+  ([`ba90940`](https://github.com/bim-ba/ycli/commit/ba909407ab9679219b7b2afaf6a4b5acc99d5ae9))
+
+### Features
+
+- **datalens**: Datasets are read, created, saved, checked and deleted, with their rows
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`c98982c`](https://github.com/bim-ba/ycli/commit/c98982c3087e62322474a2ea5128a19530524f20))
+
+
 ## v0.99.0 (2026-10-06)
 
 ### Build System
