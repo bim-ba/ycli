@@ -49,6 +49,11 @@ class Attachment(APIModel):
         description="MIME type of the file, e.g. ``image/png`` or ``text/plain``.",
     )
     size: int | None = Field(default=None, description="File size in bytes.")
+    comment_id: str | None = Field(
+        default=None,
+        alias="commentId",
+        description="Id of the comment the file is attached to; absent for a file of the issue.",
+    )
     metadata: AttachmentMetadata | None = Field(
         default=None,
         description="Extra file metadata (image pixel dimensions for graphic files).",

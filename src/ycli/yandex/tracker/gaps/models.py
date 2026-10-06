@@ -10,6 +10,7 @@ from typing import Literal
 from pydantic import AliasChoices, Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.tracker.models import User
 
 #: The kinds of absence the API documents.
 GapWorkflow = (
@@ -29,43 +30,6 @@ GapWorkflow = (
 )
 
 
-class GapUser(APIModel):
-    """The user an absence belongs to, as a full directory record.
-
-    Examples:
-        >>> GapUser.model_validate({"login": "ann", "uid": 1, "sources": ["directory"]}).login
-        'ann'
-    """
-
-    self_url: str | None = Field(default=None, alias="self", description="API URL of the user.")
-    uid: int | None = Field(default=None, description="Numeric id of the user.")
-    login: str | None = Field(default=None, description="Login of the user.")
-    tracker_uid: int | None = Field(
-        default=None, alias="trackerUid", description="Id of the user in Tracker."
-    )
-    passport_uid: int | None = Field(
-        default=None, alias="passportUid", description="Id of the user's Yandex account."
-    )
-    cloud_uid: str | None = Field(
-        default=None, alias="cloudUid", description="Id of the user in Yandex Cloud."
-    )
-    first_name: str | None = Field(default=None, alias="firstName", description="First name.")
-    last_name: str | None = Field(default=None, alias="lastName", description="Last name.")
-    display: str | None = Field(default=None, description="Display name.")
-    email: str | None = Field(default=None, description="Email address.")
-    external: bool | None = Field(default=None, description="Whether the user is external.")
-    dismissed: bool | None = Field(default=None, description="Whether the user is dismissed.")
-    first_login_date: str | None = Field(
-        default=None, alias="firstLoginDate", description="First login time (ISO 8601)."
-    )
-    last_login_date: str | None = Field(
-        default=None, alias="lastLoginDate", description="Last login time (ISO 8601)."
-    )
-    sources: list[str] = Field(
-        default_factory=list, description="Where the user record comes from, e.g. directory."
-    )
-
-
 class Gap(APIModel):
     """One absence. ``user`` is filled on create replies and absent inside search results.
 
@@ -77,7 +41,7 @@ class Gap(APIModel):
     """
 
     id: str | None = Field(default=None, description="Identifier of the absence.")
-    user: GapUser | None = Field(default=None, description="The absent user (create replies).")
+    user: User | None = Field(default=None, description="The absent user (create replies).")
     workflow: str | None = Field(default=None, description="Kind of absence, e.g. vacation.")
     date_from: str | None = Field(
         default=None, alias="from", description="Start of the absence (ISO 8601)."
@@ -112,7 +76,7 @@ class UserGaps(APIModel):
         'ann'
     """
 
-    user: GapUser | None = Field(default=None, description="The requested user.")
+    user: User | None = Field(default=None, description="The requested user.")
     gaps: list[Gap] = Field(default_factory=list, description="Their absences in the window.")
 
 
