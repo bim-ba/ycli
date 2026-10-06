@@ -1,0 +1,14 @@
+{
+  "body": {
+    "answer_id": 1,
+    "answer_key": "<answer_key>",
+    "correct": false,
+    "id": "<id>",
+    "integrations": [],
+    "name": "<name>",
+    "subtitle": "<subtitle>",
+    "title": "<title>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

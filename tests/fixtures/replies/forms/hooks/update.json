@@ -1,0 +1,9 @@
+{
+  "body": {
+    "active": false,
+    "id": 1,
+    "name": "<name>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

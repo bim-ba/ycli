@@ -1,0 +1,22 @@
+{
+  "body": {
+    "created": "<created>",
+    "data": [
+      {
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": false,
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": false,
+        "<unknown-5>": "<unknown-5>",
+        "<unknown-6>": "<unknown-6>"
+      }
+    ],
+    "id": 1,
+    "survey": {
+      "id": "<id>",
+      "name": "<name>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}
