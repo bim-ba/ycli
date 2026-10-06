@@ -19,6 +19,7 @@ datalens collections update: --body-file:FILE --description:TEXT --dry-run:BOOLE
 datalens entrylocks create: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens members list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --language:TEXT --limit:INTEGER RANGE --profile:TEXT --search:TEXT --tab-id:TEXT --yes:BOOLEAN=False
 datalens tenant details-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 datalens workbooks access-bindings-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --get-inherited-bindings:BOOLEAN --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!
 datalens workbooks access-bindings-update: --body-file:FILE --delta:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False WORKBOOK_ID:TEXT!

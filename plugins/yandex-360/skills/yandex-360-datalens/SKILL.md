@@ -74,6 +74,7 @@ DataLens differs from the other services in both credentials:
 | Several workbooks by id | `uv run ycli datalens workbooks list-by-ids <id> <id>…` | `datalens_workbooks_list_by_ids` |
 | What a workbook holds | `uv run ycli datalens workbooks entries-list <workbook_id> [--scope dash] [--scope dataset] [--all]` | `datalens_workbooks_entries_list` |
 | Who has which role on a workbook | `uv run ycli datalens workbooks access-bindings-list <workbook_id>` | `datalens_workbooks_access_bindings_list` |
+| Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -115,6 +116,6 @@ An operation takes the fields of its request as arguments, under one name on eve
 {"action": "ADD", "accessBinding": {"roleId": "datalens.collections.viewer", "subject": {"id": "<user id>", "type": "userAccount"}}}
 ```
 
-`action` is `ADD` or `REMOVE`; subject `type` is one of `userAccount`, `federatedUser`, `serviceAccount`, `group`, `invitee`, `system`. It answers with an operation; `done` says whether it has been applied.
+The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` or `REMOVE`; subject `type` is one of `userAccount`, `federatedUser`, `serviceAccount`, `group`, `invitee`, `system`. It answers with an operation; `done` says whether it has been applied.
 
 **A lock is held by its token.** `entrylocks create` answers with the token alone: keep it, `extend` and `delete` take it. The duration is in milliseconds. An entry that is already locked answers 423 `ERR.US.ENTRY_IS_LOCKED` with who holds the lock and until when; releasing an entry that is not locked answers 404.
