@@ -417,42 +417,36 @@ class ListSparkApplicationsResult(APIModel):
     )
 
 
-class CreateSparkApplicationArgsVariant1(APIModel):
-    cluster_id: str | None = Field(
-        default=None, alias="clusterId", description="ID of the Spark cluster."
-    )
+class CreateSparkApplicationArgsVariant1(RequestBody):
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant1CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    spark_application: CreateSparkApplicationArgsVariant1SparkApplication | None = Field(
-        default=None, alias="sparkApplication"
+    spark_application: CreateSparkApplicationArgsVariant1SparkApplication = Field(
+        ..., alias="sparkApplication"
     )
 
 
-class CreateSparkApplicationArgsVariant2(APIModel):
-    cluster_id: str | None = Field(
-        default=None, alias="clusterId", description="ID of the Spark cluster."
-    )
+class CreateSparkApplicationArgsVariant2(RequestBody):
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant2CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    pyspark_application: CreateSparkApplicationArgsVariant2PysparkApplication | None = Field(
-        default=None, alias="pysparkApplication"
+    pyspark_application: CreateSparkApplicationArgsVariant2PysparkApplication = Field(
+        ..., alias="pysparkApplication"
     )
 
 
-class CreateSparkApplicationArgsVariant3(APIModel):
-    cluster_id: str | None = Field(
-        default=None, alias="clusterId", description="ID of the Spark cluster."
-    )
+class CreateSparkApplicationArgsVariant3(RequestBody):
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the Spark cluster.")
     name: str | None = Field(default=None, description="Name of the Spark application.")
     catalogs: list[CreateSparkApplicationArgsVariant3CatalogsItem] | None = Field(
         default=None, description="REST catalogs to attach to the Spark application."
     )
-    spark_connect_application: CreateSparkApplicationArgsVariant3SparkConnectApplication | None = (
-        Field(default=None, alias="sparkConnectApplication")
+    spark_connect_application: CreateSparkApplicationArgsVariant3SparkConnectApplication = Field(
+        ..., alias="sparkConnectApplication"
     )
 
 

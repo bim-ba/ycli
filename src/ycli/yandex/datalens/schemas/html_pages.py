@@ -185,15 +185,11 @@ class UpdateHtmlPageArgsVariant1Annotation(APIModel):
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class UpdateHtmlPageArgsVariant2(APIModel):
-    entry_id: str | None = Field(
-        default=None, alias="entryId", description="ID of the HTML page to update."
-    )
-    rev_id: str | None = Field(
-        default=None, alias="revId", description="ID of the revision to use."
-    )
-    mode: Literal["save", "publish"] | str | None = Field(
-        default=None, description="HTML page revision update mode."
+class UpdateHtmlPageArgsVariant2(RequestBody):
+    entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to update.")
+    rev_id: str = Field(..., alias="revId", description="ID of the revision to use.")
+    mode: Literal["save", "publish"] | str = Field(
+        ..., description="HTML page revision update mode."
     )
 
 
@@ -463,11 +459,9 @@ class UpdateHtmlPageResultEntry(APIModel):
     permissions: UpdateHtmlPageResultEntryPermissions | None = None
 
 
-class UpdateHtmlPageArgsVariant1(APIModel):
-    entry_id: str | None = Field(
-        default=None, alias="entryId", description="ID of the HTML page to update."
-    )
-    content: str | None = Field(default=None, description="New HTML content of the page.")
+class UpdateHtmlPageArgsVariant1(RequestBody):
+    entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to update.")
+    content: str = Field(..., description="New HTML content of the page.")
     annotation: UpdateHtmlPageArgsVariant1Annotation | None = None
     mode: Literal["save", "publish"] | str | None = Field(
         default=None, description="HTML page update mode."
