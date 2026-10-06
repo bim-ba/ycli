@@ -42,10 +42,12 @@ class NotificationsClient(Resource):
     ) -> ItemList[Notification]:
         """``GET /notifications`` → runs matching every filter given, at most ``limit``.
 
-        With no filter, the runs of every form.
+        The API answers 404 Not Found to a listing without ``survey_id``, whatever else is given,
+        though its reference marks no filter as required (seen on 2026-10-06): the other
+        filters narrow the runs of that form.
 
         Args:
-            survey_id: Only runs of this form.
+            survey_id: The form whose runs to list; without it the API answers 404.
             hook_id: Only runs of this integration group.
             subscription_id: Only runs of this integration.
             answer_id: Only runs triggered by this answer.

@@ -1859,7 +1859,7 @@ $ ycli forms notifications [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List integration runs, filtered...
+* `list`: List a form's integration runs, filtered...
 * `get`: Print one run with its context, response...
 * `status-get`: Print a run's state only (pending,...
 * `restart`: Run the integration again for that answer...
@@ -1868,7 +1868,10 @@ $ ycli forms notifications [OPTIONS] COMMAND [ARGS]...
 
 ### `ycli forms notifications list`
 
-List integration runs, filtered (auto-paginated; --all for everything).
+List a form's integration runs, filtered (auto-paginated; --all for everything).
+
+Give --survey-id: without it the API answers 404 Not Found, and the other filters only
+narrow that form's runs.
 
 **Usage**:
 
@@ -1878,7 +1881,7 @@ $ ycli forms notifications list [OPTIONS]
 
 **Options**:
 
-* `--survey-id TEXT`: Only this form's runs (24-char hex id).
+* `--survey-id TEXT`: The form whose runs to list (24-char hex id); without it, 404.
 * `--hook-id INTEGER`: Only this integration group.
 * `--subscription-id INTEGER`: Only this integration.
 * `--answer-id INTEGER`: Only runs for this answer.
