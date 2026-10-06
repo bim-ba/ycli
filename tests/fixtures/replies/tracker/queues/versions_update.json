@@ -1,0 +1,21 @@
+{
+  "body": {
+    "archived": false,
+    "description": "<description>",
+    "dueDate": "<dueDate>",
+    "id": 1,
+    "name": "<name>",
+    "queue": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "released": false,
+    "self": "<self>",
+    "startDate": "<startDate>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

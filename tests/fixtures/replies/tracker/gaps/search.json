@@ -1,0 +1,43 @@
+{
+  "body": {
+    "hasMore": false,
+    "userGaps": [
+      {
+        "gaps": [
+          {
+            "from": "<from>",
+            "fullDay": true,
+            "id": "<id>",
+            "to": "<to>",
+            "workInAbsence": false,
+            "workflow": "<workflow>"
+          }
+        ],
+        "user": {
+          "cloudUid": "<cloudUid>",
+          "disableNotifications": false,
+          "dismissed": false,
+          "display": "<display>",
+          "email": "<email>",
+          "external": false,
+          "firstLoginDate": "<firstLoginDate>",
+          "firstName": "<firstName>",
+          "hasLicense": true,
+          "lastLoginDate": "<lastLoginDate>",
+          "lastName": "<lastName>",
+          "login": "<login>",
+          "passportUid": 1,
+          "self": "<self>",
+          "sources": [
+            "<sources>"
+          ],
+          "trackerUid": 1,
+          "uid": 1,
+          "useNewFilters": true
+        }
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 3
+}

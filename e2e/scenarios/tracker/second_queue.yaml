@@ -1,0 +1,47 @@
+# What needs a second sandbox queue, named by the owner of the organization (QUEUE_2): an issue
+# moved into it and two moved back at once, and the queue itself deleted and restored.
+# Without the queue every step is skipped. Written before such a queue existed: the first run
+# with QUEUE_2 set is the first run of these steps.
+name: tracker/second-queue
+steps:
+  - id: issue
+    needs: [QUEUE_2]
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} to move"
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: move
+    needs: [QUEUE_2]
+    run: tracker issues move ${key} ${QUEUE_2}
+    expect:
+      queue: ${QUEUE_2}
+    save:
+      moved: key
+    cleanup: tracker transitions execute ${moved} close --field resolution=fixed
+    disarms: [issue]
+  - id: move-back
+    needs: [QUEUE_2]
+    run: tracker issues move-bulk ${QUEUE} --issue ${moved}
+  - id: found-again
+    needs: [QUEUE_2]
+    run: 'tracker issues search "Queue: ${QUEUE} AND Summary: \"${RUN} to move\""'
+    expect:
+      "length(@)": 1
+    save:
+      back: "[0].key"
+    cleanup: tracker transitions execute ${back} close --field resolution=fixed
+    disarms: [move]
+  - id: close
+    needs: [QUEUE_2]
+    run: tracker transitions execute ${back} close --field resolution=fixed
+    disarms: [found-again]
+  - id: queue-delete
+    needs: [QUEUE_2]
+    run: tracker queues delete ${QUEUE_2}
+    cleanup: tracker queues restore ${QUEUE_2}
+  - id: queue-restore
+    needs: [QUEUE_2]
+    run: tracker queues restore ${QUEUE_2}
+    expect:
+      key: ${QUEUE_2}
+    disarms: [queue-delete]

@@ -159,6 +159,13 @@ steps:
       name: ${RUN} survey renamed
   - id: open-to-all
     run: forms access update ${id} --action submit --access public
+  # Written before a grantee was named: the first run with GRANTEE set is their first run.
+  - id: grant
+    needs: [GRANTEE]
+    run: forms access grant ${id} --action change --uid ${GRANTEE}
+  - id: grant-revoke
+    needs: [GRANTEE]
+    run: forms access revoke ${id} --action change --uid ${GRANTEE}
   - id: question-delete
     run: forms questions delete ${id} ${three}
   - id: publish

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 from e2e.models import Scenario
 from e2e.runner import CommandResult, Driver, ScenarioError, run_scenario, scrub, search
+from e2e.settings import OPTIONAL_VARIABLES, optional_variables
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -156,3 +157,28 @@ def test_the_cli_driver_confirms_deletes(monkeypatch):
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
     runner.CliDriver().run(["wiki", "pages", "delete", "7"])
     assert sent == [["/venv/bin/ycli", "-o", "json", "--yes", "wiki", "pages", "delete", "7"]]
+
+
+def test_a_step_that_needs_a_variable_nobody_set_is_skipped_with_its_cleanup():
+    scenario = _scenario(
+        {"id": "make", "run": "wiki pages create", "save": {"id": "id"}},
+        {"id": "grant", "run": "wiki access create ${id} ${GRANTEE}", "needs": ["GRANTEE"],
+         "cleanup": "wiki access clear ${id}"},
+        {"id": "delete", "run": "wiki pages delete ${id}"},
+    )  # fmt: skip
+    driver = ScriptedDriver({"wiki pages create": _ok({"id": 7})})
+    assert run_scenario(scenario, driver, {}) == ["s/grant: needs GRANTEE"]
+    assert driver.calls == [["wiki", "pages", "create"], ["wiki", "pages", "delete", "7"]]
+    driver = ScriptedDriver({"wiki pages create": _ok({"id": 7})})
+    assert run_scenario(scenario, driver, {"GRANTEE": "42"}) == []
+    assert ["wiki", "access", "create", "7", "42"] in driver.calls
+    assert driver.calls[-1] == ["wiki", "access", "clear", "7"]
+
+
+def test_the_optional_variables_are_the_ones_the_environment_sets(monkeypatch):
+    for variable in OPTIONAL_VARIABLES.values():
+        monkeypatch.delenv(variable, raising=False)
+    assert optional_variables() == {}
+    monkeypatch.setenv("YCLI_E2E_QUEUE_2", "MOVE")
+    monkeypatch.setenv("YCLI_E2E_GRANTEE", "")
+    assert optional_variables() == {"QUEUE_2": "MOVE"}

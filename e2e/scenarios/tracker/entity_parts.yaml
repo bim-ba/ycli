@@ -69,6 +69,27 @@ steps:
     run: tracker entities attachments get project ${project} ${file}
   - id: attachment-delete
     run: tracker entities attachments delete project ${project} ${file}
+  # Written before a grantee was named: the first run with GRANTEE set is their first run.
+  - id: grant
+    needs: [GRANTEE]
+    run: >-
+      tracker entities permissions-update project ${project}
+      --acl 'grant={"READ":{"users":["${GRANTEE}"]}}'
+  - id: grant-revoke
+    needs: [GRANTEE]
+    run: >-
+      tracker entities permissions-update project ${project}
+      --acl 'revoke={"READ":{"users":["${GRANTEE}"]}}'
+  - id: grant-direct
+    needs: [GRANTEE]
+    run: >-
+      tracker entities permissions-update-direct project ${project}
+      --grant '{"READ": {"users": ["${GRANTEE}"]}}'
+  - id: grant-direct-revoke
+    needs: [GRANTEE]
+    run: >-
+      tracker entities permissions-update-direct project ${project}
+      --revoke '{"READ": {"users": ["${GRANTEE}"]}}'
   - id: both-at-once
     run: tracker entities update-bulk project --entity ${project} --entity ${other} --comment "Handed over" --field "summary=${RUN} project, handed over"
   - id: delete

@@ -1,0 +1,84 @@
+# Importing history into an issue (the issue itself, a comment, files, a link, a worklog
+# record, each with a date and an author of the past) and an absence of the signed-in user on
+# a day far ahead, deleted at once. The imported issues end closed in the sandbox queue.
+name: tracker/imports-and-gaps
+steps:
+  - id: me
+    run: tracker me get
+    save:
+      login: login
+  - id: issue
+    # The update date leaves room: an imported comment, file or link must fall between the
+    # issue's creation and its last update.
+    run: >-
+      tracker issues import --queue ${QUEUE} --summary "${RUN} imported"
+      --created-at 2017-08-29T12:34:41.740+0000 --created-by ${login}
+      -F updatedAt=2025-01-01T00:00:00.000+0000 -F updatedBy=${login}
+    expect:
+      summary: ${RUN} imported
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: other
+    run: >-
+      tracker issues import --queue ${QUEUE} --summary "${RUN} imported, linked"
+      --created-at 2017-08-29T12:34:41.740+0000 --created-by ${login}
+      -F updatedAt=2025-01-01T00:00:00.000+0000 -F updatedBy=${login}
+    save:
+      other: key
+    cleanup: tracker transitions execute ${other} close --field resolution=fixed
+  - id: comment
+    run: >-
+      tracker comments import ${key} --text "Old comment ${RUN}"
+      --created-at 2019-02-03T04:05:06.000+0000 --created-by ${login}
+    expect:
+      text: Old comment ${RUN}
+    save:
+      comment: id
+  - id: file
+    run: >-
+      tracker attachments import ${key} ${FILES}/square.png
+      --created-at 2022-05-06T07:08:09.000+0000 --created-by ${login} --filename renamed.png
+    expect:
+      name: renamed.png
+  - id: file-of-the-comment
+    # A file of a comment carries the comment's own date.
+    run: >-
+      tracker attachments import-for-comment ${key} ${comment} ${FILES}/square.png
+      --created-at 2019-02-03T04:05:06.000+0000 --created-by ${login} --filename scan.png
+  - id: link
+    run: >-
+      tracker links import ${key} --relationship relates --issue ${other}
+      --created-at 2020-03-04T05:06:07.000+0000 --created-by ${login}
+    expect:
+      object.key: ${other}
+  - id: worklog
+    run: >-
+      tracker worklog import ${key} --duration PT2H
+      --created-at 2021-04-05T06:07:08.000+0000 --created-by ${login}
+      --start 2021-04-05T09:00:00.000+0000 --comment Backfilled
+    expect:
+      "length(@)": 1
+  - id: close-both
+    run: tracker issues transition-bulk close --issue ${key} --issue ${other} -F resolution=fixed
+    disarms: [issue, other]
+  - id: absence
+    run: >-
+      tracker gaps create --user ${login} --workflow vacation
+      --date-from 2099-01-05T00:00:00.000Z --date-to 2099-01-06T00:00:00.000Z --full-day
+    expect:
+      "length(gaps)": 1
+    save:
+      gap: gaps[0].id
+    cleanup: tracker gaps delete ${gap}
+  - id: absent
+    run: tracker gaps search ${login} --date-from 2099-01-01T00:00:00.000Z --date-to 2099-01-31T00:00:00.000Z
+    expect:
+      "length([0].gaps)": 1
+  - id: absence-delete
+    run: tracker gaps delete ${gap}
+    disarms: [absence]
+  - id: back
+    run: tracker gaps search ${login} --date-from 2099-01-01T00:00:00.000Z --date-to 2099-01-31T00:00:00.000Z
+    expect:
+      "length([0].gaps)": 0
