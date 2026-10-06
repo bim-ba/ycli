@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.102.1 (2026-10-06)
+
+### Bug Fixes
+
+- **datalens**: Datasets update and validate keep the fields a file or -F gives
+  ([`e5bd82b`](https://github.com/bim-ba/ycli/commit/e5bd82b1b0b49dd8f9082d2953c051c51cf4c67b))
+
+### Build System
+
+- Re-lock uv.lock for 0.102.0
+  ([`c8f3cb6`](https://github.com/bim-ba/ycli/commit/c8f3cb6a8dfee2cff8bc7f2e2a3c441fae75facf))
+
+
 ## v0.102.0 (2026-10-06)
 
 ### Build System
