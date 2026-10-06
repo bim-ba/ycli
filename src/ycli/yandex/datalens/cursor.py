@@ -45,3 +45,7 @@ def next_page_number(response: httpx2.Response) -> int | None:
 
 DATALENS_CURSOR = BodyCursorPagination(cursor_of=next_page_token)
 DATALENS_PAGE_NUMBER = BodyCursorPagination(cursor_of=next_page_number, cursor_param="page")
+# Two listings (the audit, the licences) call the size of a page ``limit``, where the others
+# call it ``pageSize``: it is the pager's field there too, and a method's ``limit`` stays
+# ycli's cap on the whole listing.
+DATALENS_CURSOR_SIZED_BY_LIMIT = BodyCursorPagination(cursor_of=next_page_token, size_param="limit")

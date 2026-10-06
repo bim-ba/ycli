@@ -12,6 +12,7 @@ from ycli.yandex.datalens.embeddingsecrets.cli import app as embeddingsecrets_ap
 from ycli.yandex.datalens.embeds.cli import app as embeds_app
 from ycli.yandex.datalens.entries.cli import app as entries_app
 from ycli.yandex.datalens.entrylocks.cli import app as entrylocks_app
+from ycli.yandex.datalens.licensing.cli import app as licensing_app
 from ycli.yandex.datalens.members.cli import app as members_app
 from ycli.yandex.datalens.permissions.cli import app as permissions_app
 from ycli.yandex.datalens.reports.cli import app as reports_app
@@ -45,3 +46,4 @@ app.add_typer(embeddingsecrets_app)
 app.add_typer(sharedentries_app)
 app.add_typer(audit_app)
 app.add_typer(sqlqueries_app)
+app.add_typer(licensing_app)

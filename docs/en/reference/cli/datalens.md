@@ -40,6 +40,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `sharedentries`: DataLens shared entries: connections and...
 * `audit`: DataLens audit.
 * `sqlqueries`: DataLens saved SQL queries (experimental...
+* `licensing`: Licences (seats) of the DataLens instance.
 
 ## `ycli datalens auth`
 
@@ -2779,3 +2780,122 @@ $ ycli datalens sqlqueries run [OPTIONS] SQL_QUERY_ID
 * `--help`: Show this message and exit.
 
 Experimental in the DataLens API and written from its document: not measured. An organization whose SQL editor is off answers 403 SQL_EDITOR_NOT_ALLOWED.
+
+## `ycli datalens licensing`
+
+Licences (seats) of the DataLens instance.
+
+**Usage**:
+
+```console
+$ ycli datalens licensing [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `licenses-list`: List the licences of the instance: whose,...
+* `licenses-assign`: Give each of these users a licence.
+* `limit-get`: Print how many licences the instance may...
+* `limit-set`: Set how many licences the instance may hold.
+
+### `ycli datalens licensing licenses-list`
+
+List the licences of the instance: whose, of which type, active or not (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens licensing licenses-list [OPTIONS]
+```
+
+**Options**:
+
+* `--user-ids TEXT`: Only the licences of this user (repeatable).
+* `--status TEXT`: Only licences in this state. Known values: active, expired, expiring.
+* `--sort-by TEXT`: The field to sort by. Known values: createdAt, updatedAt.
+* `--order TEXT`: The order of the sort. Known values: asc, desc.
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens licensing licenses-assign`
+
+Give each of these users a licence.
+
+**Usage**:
+
+```console
+$ ycli datalens licensing licenses-assign [OPTIONS] USER_ID...
+```
+
+**Arguments**:
+
+* `USER_ID...`: User ids.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+A licence is a seat DataLens bills for. Written from the DataLens document and never called: not measured.
+
+### `ycli datalens licensing limit-get`
+
+Print how many licences the instance may hold, now and next, and how many are active.
+
+**Usage**:
+
+```console
+$ ycli datalens licensing limit-get [OPTIONS]
+```
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens licensing limit-set`
+
+Set how many licences the instance may hold.
+
+**Usage**:
+
+```console
+$ ycli datalens licensing limit-set [OPTIONS] VALUE
+```
+
+**Arguments**:
+
+* `VALUE`: The most licences the instance may hold.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+A licence is a seat DataLens bills for. Written from the DataLens document and never called: not measured.

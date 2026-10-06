@@ -1,0 +1,14 @@
+# The licences of the instance, read only: who holds a seat, and how many there may be. The
+# two writes of the section (giving a licence, setting the limit) change what DataLens bills
+# for and are never run. Run by hand only (the README says how): CI has no token DataLens takes.
+name: datalens/licensing
+steps:
+  - id: held
+    run: datalens licensing licenses-list --status active --sort-by updatedAt --order desc
+    expect:
+      "length(@) > `0`": true
+      "[0].isActive": true
+  - id: limit
+    run: datalens licensing limit-get
+    expect:
+      "current.value >= current.activeLicensesCount": true

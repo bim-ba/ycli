@@ -18,6 +18,7 @@ from ycli.yandex.datalens.embeddingsecrets.client import EmbeddingSecretsClient
 from ycli.yandex.datalens.embeds.client import EmbedsClient
 from ycli.yandex.datalens.entries.client import EntriesClient
 from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
+from ycli.yandex.datalens.licensing.client import LicensingClient
 from ycli.yandex.datalens.members.client import MembersClient
 from ycli.yandex.datalens.permissions.client import PermissionsClient
 from ycli.yandex.datalens.reports.client import ReportsClient
@@ -62,3 +63,4 @@ class DataLensClient(DomainClient):
         self.sharedentries = SharedEntriesClient(session=session)
         self.audit = AuditClient(session=session)
         self.sqlqueries = SqlQueriesClient(session=session)
+        self.licensing = LicensingClient(session=session)
