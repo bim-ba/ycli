@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.93.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.92.0
+  ([`0606c33`](https://github.com/bim-ba/ycli/commit/0606c33c4524e99229f03ca715a2cc1a1d8e08f5))
+
+### Features
+
+- **datalens**: A kind the specification does not list is read as it came
+  ([#391](https://github.com/bim-ba/ycli/pull/391),
+  [`99554cf`](https://github.com/bim-ba/ycli/commit/99554cf078bcc853db0626a9df6e13af08b65b1c))
+
+
 ## v0.92.0 (2026-10-06)
 
 ### Build System

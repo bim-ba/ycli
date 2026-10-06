@@ -8,6 +8,8 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
+from . import shared
+
 
 class GetSqlQueryArgs(RequestBody):
     sql_query_id: str = Field(
@@ -336,6 +338,7 @@ class SqlQueryData(APIModel):
             SqlQueryDataParamsItemVariant1
             | SqlQueryDataParamsItemVariant2
             | SqlQueryDataParamsItemVariant3
+            | shared.OtherKind
         ]
         | None
     ) = Field(default=None, description="Parameters of the SQL query.")
