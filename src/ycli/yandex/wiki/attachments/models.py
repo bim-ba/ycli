@@ -11,28 +11,6 @@ from ycli.yandex.wiki.models import User
 AttachmentOrder = Literal["name", "size", "created_at"] | str
 
 
-class Attachment(APIModel):
-    """A page attachment descriptor (``/pages/{id}/attachments`` item).
-
-    The list payload reports ``size`` as a human-readable string (e.g. ``"0.00"``) and names the
-    MIME type ``mimetype`` — matching the sibling :class:`AttachedFile` and the ``resources``
-    listing.
-
-    Examples:
-        >>> Attachment.model_validate(
-        ...     {"id": 7, "name": "d.png", "size": "0.00", "mimetype": "image/png"}
-        ... ).id
-        7
-    """
-
-    id: int | None = Field(
-        default=None, description="Numeric id of the attachment (the ``file_id`` other calls take)."
-    )
-    name: str | None = Field(default=None, description="File name of the attachment.")
-    size: str | None = Field(default=None, description="Human-readable size, e.g. `0.00`.")
-    mimetype: str | None = Field(default=None, description="MIME type of the attachment.")
-
-
 class AttachmentCreate(RequestBody):
     """Typed request body for ``attachments.attach`` (``POST /pages/{id}/attachments``).
 
@@ -50,10 +28,7 @@ class AttachmentCreate(RequestBody):
 
 
 class AttachedFile(APIModel):
-    """A file just attached to a page (``results[]`` item of ``POST /pages/{id}/attachments``).
-
-    Richer than the list-surface :class:`Attachment`: carries the new ``id``, ``download_url``
-    and virus-``check_status`` the attach response returns.
+    """A file attached to a page: an item of the listing, and what attaching one returns.
 
     Examples:
         >>> AttachedFile.model_validate({"id": 7, "name": "d.png"}).id

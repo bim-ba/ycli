@@ -12,7 +12,6 @@ from http import HTTPMethod
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.attachments.models import (
     AttachedFile,
-    Attachment,
     AttachmentCreate,
     AttachResponse,
 )
@@ -22,11 +21,11 @@ from ycli.yandex.wiki.models import CursorPage
 
 def list_(
     page_id: int, *, order_by: str | None, order_direction: str | None
-) -> Paged[CursorPage[Attachment], Attachment]:
+) -> Paged[CursorPage[AttachedFile], AttachedFile]:
     path = f"pages/{segment(page_id)}/attachments"
     params = {"page_size": 100, "order_by": order_by, "order_direction": order_direction}
     return Paged(
-        Endpoint(HTTPMethod.GET, path, CursorPage[Attachment], params=params),
+        Endpoint(HTTPMethod.GET, path, CursorPage[AttachedFile], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
