@@ -21,8 +21,6 @@ without permission. The open-licensed Yandex Cloud documentation is not fetched 
 git submodule ``references/yandex-cloud`` (see ``references/README.md``).
 """
 
-from __future__ import annotations
-
 import argparse
 import html
 import json

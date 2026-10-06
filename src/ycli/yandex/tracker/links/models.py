@@ -74,11 +74,6 @@ class Link(APIModel):
         """``object.key`` or ``None``."""
         return self.object.key if self.object else None
 
-    @property
-    def object_display(self) -> str | None:
-        """``object.display`` or ``None``."""
-        return self.object.display if self.object else None
-
 
 class LinkPage(APIModel):
     """One page of ``POST /issues/{key}/links/_list``: the links under a ``links`` key.

@@ -16,8 +16,6 @@ Usage::
     uv run scripts/gen_examples.py --check    # exit 1 if one is stale, missing or unused
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os

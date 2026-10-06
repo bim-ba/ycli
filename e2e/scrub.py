@@ -21,8 +21,6 @@ A list keeps one item per distinct shape. Placeholders are numbered and items or
 they are, not by the order of the reply: the same reply gives the same file.
 """
 
-from __future__ import annotations
-
 import datetime
 import enum
 import json

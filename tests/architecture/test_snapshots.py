@@ -1,7 +1,5 @@
 """ARCH-6: the public surface changes only via an intentional snapshot update."""
 
-from __future__ import annotations
-
 import asyncio
 from pathlib import Path
 from typing import Annotated

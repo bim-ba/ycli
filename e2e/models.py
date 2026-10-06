@@ -1,7 +1,5 @@
 """The scenario file format: a YAML list of real ``ycli`` commands and the state each must reach."""
 
-from __future__ import annotations
-
 from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator

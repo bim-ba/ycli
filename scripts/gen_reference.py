@@ -12,8 +12,6 @@ Usage::
 ``tests/docs/test_docs_site.py`` runs the check, so the reference never drifts from the code.
 """
 
-from __future__ import annotations
-
 import argparse
 import asyncio
 import sys

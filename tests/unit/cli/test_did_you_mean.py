@@ -1,7 +1,5 @@
 """Unknown subcommands suggest the closest valid one."""
 
-from __future__ import annotations
-
 from typer.testing import CliRunner
 
 from ycli.cli.app import app

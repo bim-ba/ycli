@@ -5,8 +5,6 @@ in diffs) yet load-bearing: without it, every downstream mypy/pyright treats
 ``ycli`` as untyped and the typed pydantic models are invisible. Lock it in.
 """
 
-from __future__ import annotations
-
 from importlib import resources
 
 

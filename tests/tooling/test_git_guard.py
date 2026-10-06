@@ -5,8 +5,6 @@ it is loaded by path and is not measured by the coverage gate. These tests asser
 its decision logic and its stdin->stdout/exit contract.
 """
 
-from __future__ import annotations
-
 import importlib.util
 import json
 import subprocess

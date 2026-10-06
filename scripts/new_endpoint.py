@@ -11,8 +11,6 @@ with their endpoint's effect. Fill the marked spots with the real endpoint; the 
 already satisfies ARCH-1..4 and import-linter, and passes ruff as generated.
 """
 
-from __future__ import annotations
-
 import argparse
 from pathlib import Path
 
