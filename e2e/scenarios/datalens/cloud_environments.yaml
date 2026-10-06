@@ -12,3 +12,8 @@ steps:
     run: datalens restcatalogs list --sort-by name --limit 5
     expect:
       "type(@)": array
+  - id: clusters
+    # Listed only: a Trino cluster is billed while it runs and is never made here.
+    run: datalens trinoclusters list --limit 5
+    expect:
+      "type(@)": array

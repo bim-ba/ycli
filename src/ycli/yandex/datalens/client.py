@@ -29,6 +29,7 @@ from ycli.yandex.datalens.restcatalogs.client import RestCatalogsClient
 from ycli.yandex.datalens.sharedentries.client import SharedEntriesClient
 from ycli.yandex.datalens.sqlqueries.client import SqlQueriesClient
 from ycli.yandex.datalens.tenant.client import TenantClient
+from ycli.yandex.datalens.trinoclusters.client import TrinoClustersClient
 from ycli.yandex.datalens.workbookexports.client import WorkbookExportsClient
 from ycli.yandex.datalens.workbookimports.client import WorkbookImportsClient
 from ycli.yandex.datalens.workbooks.client import WorkbooksClient
@@ -72,3 +73,4 @@ class DataLensClient(DomainClient):
         self.cloudenvironmentstorage = CloudEnvironmentStorageClient(session=session)
         self.restcatalogs = RestCatalogsClient(session=session)
         self.lakehouseoperations = LakehouseOperationsClient(session=session)
+        self.trinoclusters = TrinoClustersClient(session=session)

@@ -102,3 +102,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## lakehouseoperations
 
 ::: ycli.yandex.datalens.lakehouseoperations.client.LakehouseOperationsClient
+
+## trinoclusters
+
+::: ycli.yandex.datalens.trinoclusters.client.TrinoClustersClient

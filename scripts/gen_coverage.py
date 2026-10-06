@@ -160,7 +160,13 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("SQL", ["sqlqueries"]),
     (
         "Cloud environments",
-        ["cloudenvironments", "cloudenvironmentstorage", "restcatalogs", "lakehouseoperations"],
+        [
+            "cloudenvironments",
+            "cloudenvironmentstorage",
+            "restcatalogs",
+            "lakehouseoperations",
+            "trinoclusters",
+        ],
     ),
     ("Embedding", ["embeds", "embeddingsecrets"]),
 ]

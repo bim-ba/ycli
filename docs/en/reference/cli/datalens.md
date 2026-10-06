@@ -45,6 +45,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `cloudenvironmentstorage`: The storage bucket of a DataLens cloud...
 * `restcatalogs`: DataLens REST catalogs (experimental in...
 * `lakehouseoperations`: DataLens Lakehouse operations...
+* `trinoclusters`: DataLens Trino clusters (experimental in...
 
 ## `ycli datalens auth`
 
@@ -3308,3 +3309,298 @@ $ ycli datalens lakehouseoperations get [OPTIONS] OPERATION_ID
 * `--help`: Show this message and exit.
 
 Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied.
+
+## `ycli datalens trinoclusters`
+
+DataLens Trino clusters (experimental in the API).
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List the Trino clusters (auto-paginated).
+* `get`: Print one Trino cluster: its...
+* `create`: Make a Trino cluster; prints the operation...
+* `delete`: Delete a Trino cluster; prints the...
+* `start`: Start a stopped Trino cluster; prints the...
+* `stop`: Stop a running Trino cluster; prints the...
+* `catalog-create`: Attach a REST catalog to a Trino cluster;...
+* `catalog-delete`: Detach a REST catalog from a Trino...
+* `resource-presets-list`: List the sizes a cluster's machines may...
+* `resource-preset-get`: Print one size of a cluster's machines:...
+
+### `ycli datalens trinoclusters list`
+
+List the Trino clusters (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters list [OPTIONS]
+```
+
+**Options**:
+
+* `--filter TEXT`: A condition the clusters must meet (repeatable).
+* `--collection-id TEXT`: Only the clusters of this collection.
+* `--catalog-id TEXT`: Only the clusters this REST catalog is attached to.
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens trinoclusters get`
+
+Print one Trino cluster: its configuration, health, status and coordinator.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters get [OPTIONS] ID
+```
+
+**Arguments**:
+
+* `ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied, not 404.
+
+### `ycli datalens trinoclusters create`
+
+Make a Trino cluster; prints the operation that makes it.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters create [OPTIONS]
+```
+
+**Options**:
+
+* `--collection-id TEXT`: The DataLens collection to make it in.  [required]
+* `--cloud-environment-id TEXT`: The cloud environment to make it in.  [required]
+* `--name TEXT`: The cluster's name.  [required]
+* `--worker-config TEXT`: The workers, as a JSON object: {"resources": {"resourcePresetId": "…"}, "scalePolicy": {"autoScale": {"minCount": "1", "maxCount": "4"}}}.  [required]
+* `--description TEXT`: A description.
+* `--labels TEXT`: Labels, as a JSON object: {"team": "analytics"}.
+* `--catalogs-config TEXT`: A REST catalog to attach, as a JSON object: {"catalogId": "…"} (repeatable).
+* `--trino-version TEXT`: The version of Trino; the service's own if not.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters delete`
+
+Delete a Trino cluster; prints the operation that deletes it.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters delete [OPTIONS] ID
+```
+
+**Arguments**:
+
+* `ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters start`
+
+Start a stopped Trino cluster; prints the operation that starts it.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters start [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters stop`
+
+Stop a running Trino cluster; prints the operation that stops it.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters stop [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters catalog-create`
+
+Attach a REST catalog to a Trino cluster; prints the operation.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters catalog-create [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `--catalog TEXT`: The REST catalog to attach, as a JSON object: {"catalogId": "…"}.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters catalog-delete`
+
+Detach a REST catalog from a Trino cluster; the catalog itself stays.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters catalog-delete [OPTIONS] CLUSTER_ID
+```
+
+**Arguments**:
+
+* `CLUSTER_ID`: Id of the Trino cluster.  [required]
+
+**Options**:
+
+* `--catalog-id TEXT`: The id of the REST catalog to detach.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: written from the document and never called, not measured.
+
+### `ycli datalens trinoclusters resource-presets-list`
+
+List the sizes a cluster's machines may have in a cloud environment.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters resource-presets-list [OPTIONS] CLOUD_ENVIRONMENT_ID
+```
+
+**Arguments**:
+
+* `CLOUD_ENVIRONMENT_ID`: Id of the cloud environment.  [required]
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied, not 404.
+
+### `ycli datalens trinoclusters resource-preset-get`
+
+Print one size of a cluster's machines: its cores and its memory.
+
+**Usage**:
+
+```console
+$ ycli datalens trinoclusters resource-preset-get [OPTIONS] RESOURCE_PRESET_ID
+```
+
+**Arguments**:
+
+* `RESOURCE_PRESET_ID`: Id of the resource preset.  [required]
+
+**Options**:
+
+* `--cloud-environment-id TEXT`: The cloud environment the presets are of.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied, not 404.
