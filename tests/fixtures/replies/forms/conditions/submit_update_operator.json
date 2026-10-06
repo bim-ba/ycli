@@ -1,0 +1,20 @@
+{
+  "body": {
+    "items": [
+      {
+        "id": 1,
+        "items": [
+          {
+            "condition": "eq",
+            "type": "language",
+            "value": "<value>"
+          }
+        ],
+        "operator": "<operator>"
+      }
+    ],
+    "operator": "and"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

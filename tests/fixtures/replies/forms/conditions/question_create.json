@@ -1,0 +1,16 @@
+{
+  "body": {
+    "id": 1,
+    "items": [
+      {
+        "condition": "eq",
+        "question": "<question>",
+        "type": "question",
+        "value": "<value>"
+      }
+    ],
+    "operator": "<operator>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

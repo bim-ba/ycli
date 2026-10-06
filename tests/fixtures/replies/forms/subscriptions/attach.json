@@ -1,0 +1,10 @@
+{
+  "body": {
+    "name": "<name>",
+    "path": "<path>",
+    "size": 30,
+    "url": "<url>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

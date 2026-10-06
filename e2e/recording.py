@@ -125,6 +125,21 @@ def _named(operation: str, method: Callable[..., Any]) -> Callable[..., Any]:
     return call
 
 
+def reply_type(endpoint: Endpoint[Any]) -> Any:
+    """What the reply of ``endpoint`` is read as: its ``response_type``, or what its parser returns.
+
+    ``Any`` when neither says: a reply nothing reads, or raw bytes.
+    """
+    if endpoint.parser is not None:
+        # Only the return annotation: the parameter's type is imported for type checkers alone.
+        returned = endpoint.parser.__annotations__.get("return", Any)
+        if not isinstance(returned, str):
+            return returned
+        # The annotation as written in the parser's own module, a name of that module.
+        return eval(returned, getattr(endpoint.parser, "__globals__", {}))
+    return Any if endpoint.response_type in (None, bytes) else endpoint.response_type
+
+
 def _keys(value: Any) -> int:
     """How many keys ``value`` holds at every depth: ``{"a": {"b": 1}, "c": [{"d": 2}]}`` -> 4."""
     if isinstance(value, dict):
@@ -162,7 +177,7 @@ class Recorder:
         fixture: dict[str, Any] = {"status": response.status_code}
         keys = 0
         if "json" in response.headers.get("content-type", "") and response.content:
-            reply = scrub(response.json(), endpoint.response_type or Any, self.public)
+            reply = scrub(response.json(), reply_type(endpoint), self.public)
             keys = _keys(reply.body)
             if operation in self.recorded and keys <= self._keys_kept[operation]:
                 return
@@ -173,10 +188,14 @@ class Recorder:
             self.unknown_keys.pop(operation, None)
             if reply.unknown_keys:
                 self.unknown_keys[operation] = sorted(set(reply.unknown_keys))
-            if endpoint.parser is None and endpoint.response_type not in (None, bytes):
+            if reply_type(endpoint) is not Any:
                 # A scrubbed reply must still be one its own model reads.
                 try:
-                    endpoint.parse(httpx2.Response(response.status_code, json=reply.body))
+                    endpoint.parse(
+                        httpx2.Response(
+                            response.status_code, json=reply.body, request=response.request
+                        )
+                    )
                 except Exception as error:
                     raise RuntimeError(
                         f"the scrubbed reply of {operation} no longer fits its model: "
