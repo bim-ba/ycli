@@ -103,12 +103,15 @@ def test_the_probe_bites(tmp_path):
     assert {PERSONAL_VALUE, PERSONAL_KEY} <= kept
 
 
-def test_only_the_first_reply_of_an_operation_is_kept(recorder, api, tmp_path):
+def test_the_fullest_reply_of_an_operation_is_kept(recorder, api, tmp_path):
+    fixture = tmp_path / "replies" / "tracker" / "issues" / "get.json"
     _driver().run(["tracker", "issues", "get", "A-1"])
     api.reply = {"key": "A-2", "votes": 1}
     _driver().run(["tracker", "issues", "get", "A-2"])
-    body = load(tmp_path / "replies" / "tracker" / "issues" / "get.json")["body"]
-    assert "summary" in body
+    assert "summary" in load(fixture)["body"]  # a poorer reply does not replace a fuller one
+    api.reply = {**ISSUE, "resolution": {"key": "fixed"}}
+    _driver().run(["tracker", "issues", "get", "A-3"])
+    assert "resolution" in load(fixture)["body"]
 
 
 def test_a_failed_reply_is_not_a_fixture(recorder, tmp_path, monkeypatch):

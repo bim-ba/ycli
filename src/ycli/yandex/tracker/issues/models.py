@@ -83,6 +83,26 @@ class Issue(APIModel):
     followers: list[UserReference] = Field(
         default_factory=list, description="The users following the issue."
     )
+    resolution: KeyedReference | None = Field(
+        default=None, description="The resolution of the issue, once it has one."
+    )
+    resolved_at: str | None = Field(
+        default=None, alias="resolvedAt", description="When the issue was resolved (ISO 8601)."
+    )
+    resolved_by: UserReference | None = Field(
+        default=None, alias="resolvedBy", description="The user who set the resolution."
+    )
+    estimation: str | None = Field(
+        default=None, description="The estimate of the issue, an ISO 8601 duration."
+    )
+    original_estimation: str | None = Field(
+        default=None,
+        alias="originalEstimation",
+        description="The original estimate of the issue, an ISO 8601 duration.",
+    )
+    spent: str | None = Field(
+        default=None, description="Time spent on the issue, an ISO 8601 duration."
+    )
     votes: int | None = Field(default=None, description="Number of votes for the issue.")
     favorite: bool | None = Field(
         default=None, description="Whether the issue is in the caller's favourites."

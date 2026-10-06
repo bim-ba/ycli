@@ -4,7 +4,6 @@
     "prev_cursor": null,
     "results": [
       {
-        "<unknown-1>": null,
         "author": {
           "<unknown-1>": "<unknown-1>",
           "<unknown-2>": "<unknown-2>",
@@ -23,11 +22,12 @@
         "is_deleted": false,
         "parent_id": null,
         "reactions": [],
-        "resolve_status": "<resolve_status>",
-        "thread_id": null
+        "resolve_status": "unresolved",
+        "thread_id": null,
+        "thread_info": null
       }
     ]
   },
   "status": 200,
-  "unknown_keys": 7
+  "unknown_keys": 0
 }
