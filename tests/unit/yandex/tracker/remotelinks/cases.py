@@ -21,7 +21,7 @@ CASES = [
         args=(
             "JUNE-3",
             RemoteLinkCreate.model_validate(
-                {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"}
+                {"relationship": "RELATES", "key": "TEST-18", "origin": "ru.yandex.bitbucket"}
             ),
         ),
         kwargs={"backlink": "true"},
@@ -35,7 +35,7 @@ CASES = [
             "--origin",
             "ru.yandex.bitbucket",
             "--relationship",
-            "BLOCKS",
+            "RELATES",
             "--backlink",
         ],
         mcp=(
@@ -43,7 +43,7 @@ CASES = [
             {
                 "issue_key": "JUNE-3",
                 "body": {
-                    "relationship": "BLOCKS",
+                    "relationship": "RELATES",
                     "key": "TEST-18",
                     "origin": "ru.yandex.bitbucket",
                 },
@@ -56,7 +56,7 @@ CASES = [
                     "POST",
                     "issues/JUNE-3/remotelinks",
                     {"backlink": "true"},
-                    {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"},
+                    {"relationship": "RELATES", "key": "TEST-18", "origin": "ru.yandex.bitbucket"},
                 ),
                 Reply(json={"id": 52, "object": {"key": "TEST-18"}}, status=201),
             )

@@ -6,12 +6,12 @@ import typer
 
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.checklists.models import (
-    Checklist,
     ChecklistItem,
     ChecklistItemCreate,
     ChecklistItemUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.models import Issue
 from ycli.yandex.tracker.typedefs import (
     DeadlineTypeOpt,
     IssueKeyArg,
@@ -45,7 +45,7 @@ def create(
     deadline_type: DeadlineTypeOpt = None,
     *,
     tracker: TrackerClient,
-) -> Checklist:
+) -> Issue:
     """Add a checklist item to issue ISSUE_KEY (creates the checklist if absent)."""
     body = ChecklistItemCreate(
         text=text,
@@ -67,7 +67,7 @@ def update(
     deadline_type: DeadlineTypeOpt = None,
     *,
     tracker: TrackerClient,
-) -> Checklist:
+) -> Issue:
     """Edit checklist item ITEM_ID on issue ISSUE_KEY — only supplied fields are sent."""
     body = ChecklistItemUpdate(
         text=text,
@@ -79,12 +79,12 @@ def update(
 
 
 @app.command()
-def delete(issue_key: IssueKeyArg, item_id: ItemIDArg, *, tracker: TrackerClient) -> Checklist:
+def delete(issue_key: IssueKeyArg, item_id: ItemIDArg, *, tracker: TrackerClient) -> Issue:
     """Delete checklist item ITEM_ID from issue ISSUE_KEY."""
     return tracker.checklists.delete(issue_key, item_id)
 
 
 @app.command()
-def clear(issue_key: IssueKeyArg, *, tracker: TrackerClient) -> Checklist:
+def clear(issue_key: IssueKeyArg, *, tracker: TrackerClient) -> Issue:
     """Delete the entire checklist from issue ISSUE_KEY."""
     return tracker.checklists.clear(issue_key)

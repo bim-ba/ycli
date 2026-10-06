@@ -9,7 +9,7 @@ from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.applications.models import Application
+from ycli.yandex.tracker.models import Application
 
 
 def list_() -> Endpoint[ItemList[Application]]:

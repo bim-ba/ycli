@@ -8,7 +8,6 @@ from pydantic import Field
 
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.checklists.models import (
-    Checklist,
     ChecklistItem,
     ChecklistItemCreate,
     ChecklistItemUpdate,
@@ -23,6 +22,7 @@ from ycli.yandex.tracker.dependencies import (
     IssueKey,
     tracker_client,
 )
+from ycli.yandex.tracker.models import Issue
 
 mcp = FastMCP("tracker-checklists")
 
@@ -46,7 +46,7 @@ def list_(
 )
 def create(
     issue_key: IssueKey, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
-) -> Checklist:
+) -> Issue:
     """Add an item to a Tracker issue's checklist (creates the checklist if absent).
 
     Returns the issue with its full checklist.
@@ -63,7 +63,7 @@ def update(
     item_id: ChecklistItemID,
     body: ChecklistItemUpdate,
     client: TrackerClient = Depends(tracker_client),
-) -> Checklist:
+) -> Issue:
     """Edit one checklist item on a Tracker issue (text, checked state, assignee, deadline).
 
     Get ``item_id`` from ``checklists_list``. Returns the issue with its updated checklist.
@@ -77,7 +77,7 @@ def update(
 )
 def delete(
     issue_key: IssueKey, item_id: ChecklistItemID, client: TrackerClient = Depends(tracker_client)
-) -> Checklist:
+) -> Issue:
     """Permanently remove one item from a Tracker issue's checklist (irreversible).
 
     Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining checklist.
@@ -89,7 +89,7 @@ def delete(
     name="checklists_clear",
     annotations={**DESTRUCTIVE, "title": "Clear Tracker issue checklist"},
 )
-def clear(issue_key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+def clear(issue_key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """Permanently delete the ENTIRE checklist of a Tracker issue (all items, irreversible).
 
     Returns the issue without its checklist.

@@ -9,7 +9,7 @@ from ycli.yandex.tracker.applications import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
-    from ycli.yandex.tracker.applications.models import Application
+    from ycli.yandex.tracker.models import Application
 
 
 class ApplicationsClient(Resource):

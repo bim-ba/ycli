@@ -51,7 +51,7 @@ class RemoteLinksClient(Resource):
             ...     "JUNE-3",
             ...     RemoteLinkCreate.model_validate(
             ...         {
-            ...             "relationship": "BLOCKS",
+            ...             "relationship": "RELATES",
             ...             "key": "TEST-18",
             ...             "origin": "ru.yandex.bitbucket",
             ...         }

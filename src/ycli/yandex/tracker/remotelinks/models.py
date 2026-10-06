@@ -7,20 +7,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
-from ycli.yandex.tracker.models import LinkType
-
-
-class RemoteApplication(APIModel):
-    """The ``application`` sub-object — the external app the linked object belongs to.
-
-    Examples:
-        >>> RemoteApplication.model_validate({"id": "1", "name": "test-app"}).name
-        'test-app'
-    """
-
-    id: str | None = Field(default=None, description="External application identifier.")
-    type: str | None = Field(default=None, description="Application type, e.g. ``app``.")
-    name: str | None = Field(default=None, description="Display name of the external application.")
+from ycli.yandex.tracker.models import Application, LinkType
 
 
 class RemoteObject(APIModel):
@@ -31,9 +18,12 @@ class RemoteObject(APIModel):
         'TEST-17'
     """
 
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the external object."
+    )
     id: str | None = Field(default=None, description="Identifier of the external object.")
     key: str | None = Field(default=None, description="Key of the external object.")
-    application: RemoteApplication | None = Field(
+    application: Application | None = Field(
         default=None, description="The external application the object belongs to."
     )
 

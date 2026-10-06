@@ -3193,8 +3193,8 @@ $ ycli tracker boards create [OPTIONS]
 * `--name TEXT`: Name of the new board.  [required]
 * `--owner TEXT`: Login or uid of the board owner.
 * `--permissions TEXT`: Access template: 'private' or 'public'.
-* `--backlog / --no-backlog`: Enable the board backlog.
-* `--sprints / --no-sprints`: Enable board sprints.
+* `--backlog / --no-backlog`: Enable the board backlog; the API takes it together with --sprints only.
+* `--sprints / --no-sprints`: Enable board sprints; the API takes them together with --backlog only.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -3220,8 +3220,8 @@ $ ycli tracker boards update [OPTIONS] BOARD_ID
 **Options**:
 
 * `--name TEXT`: New board name.
-* `--backlog / --no-backlog`: Enable the board backlog.
-* `--sprints / --no-sprints`: Enable board sprints.
+* `--backlog / --no-backlog`: Enable the board backlog; the API takes it together with --sprints only.
+* `--sprints / --no-sprints`: Enable board sprints; the API takes them together with --backlog only.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -4288,8 +4288,8 @@ $ ycli tracker remotelinks create [OPTIONS] ISSUE_KEY
 **Options**:
 
 * `--key TEXT`: Key of the object in the external app.  [required]
-* `--origin TEXT`: Identifier of the external application.  [required]
-* `--relationship TEXT`: Link type (RELATES recommended).  [required]
+* `--origin TEXT`: Identifier of an external application the organization has (`tracker applications list`).  [required]
+* `--relationship TEXT`: Link type; RELATES is recommended, an unknown one is refused.  [required]
 * `--backlink / --no-backlink`: Also create the mirror link in the app.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

@@ -2,7 +2,7 @@
 
 The ``get`` read returns a bare array of items (``ItemList[ChecklistItem]``); every write
 (create/update/delete-item/clear) returns the issue wrapper with the updated
-``checklistItems`` embedded (``Checklist``) — including the delete calls, which the API
+``checklistItems`` embedded (``Issue``) — including the delete calls, which the API
 answers with ``200 OK`` and a body (not ``204``).
 """
 
@@ -16,11 +16,11 @@ from ycli.yandex.tracker.checklists import endpoints
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.checklists.models import (
-        Checklist,
         ChecklistItem,
         ChecklistItemCreate,
         ChecklistItemUpdate,
     )
+    from ycli.yandex.tracker.models import Issue
 
 
 class ChecklistsClient(Resource):
@@ -41,7 +41,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.list_(issue_key))
 
-    def create(self, issue_key: str, body: ChecklistItemCreate) -> Checklist:
+    def create(self, issue_key: str, body: ChecklistItemCreate) -> Issue:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.
 
         Args:
@@ -60,7 +60,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.create(issue_key, body))
 
-    def update(self, issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
+    def update(self, issue_key: str, item_id: str, body: ChecklistItemUpdate) -> Issue:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
         Args:
@@ -80,7 +80,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.update(issue_key, item_id, body))
 
-    def delete(self, issue_key: str, item_id: str) -> Checklist:
+    def delete(self, issue_key: str, item_id: str) -> Issue:
         """``DELETE /issues/{key}/checklistItems/{item_id}`` — remove one item (200 + wrapper).
 
         Args:
@@ -96,7 +96,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.delete(issue_key, item_id))
 
-    def clear(self, issue_key: str) -> Checklist:
+    def clear(self, issue_key: str) -> Issue:
         """``DELETE /issues/{key}/checklistItems`` — remove the whole checklist (200 + wrapper).
 
         Args:

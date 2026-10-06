@@ -125,6 +125,7 @@ CASES = [
         effect=Effect.READ,
         output=[
             {
+                "self": None,
                 "id": 451,
                 "type": None,
                 "direction": None,

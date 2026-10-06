@@ -26,8 +26,16 @@ def create(
     object_key: Annotated[
         str, typer.Option("--key", help="Key of the object in the external app.")
     ],
-    origin: Annotated[str, typer.Option(help="Identifier of the external application.")],
-    relationship: Annotated[str, typer.Option(help="Link type (RELATES recommended).")],
+    origin: Annotated[
+        str,
+        typer.Option(
+            help="Identifier of an external application the organization has "
+            "(`tracker applications list`)."
+        ),
+    ],
+    relationship: Annotated[
+        str, typer.Option(help="Link type; RELATES is recommended, an unknown one is refused.")
+    ],
     backlink: Annotated[
         bool | None,
         typer.Option("--backlink/--no-backlink", help="Also create the mirror link in the app."),
