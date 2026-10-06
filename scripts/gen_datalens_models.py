@@ -10,7 +10,8 @@ The pipeline has two steps of ycli's own around ``datamodel-code-generator``:
 
 1. :func:`prepare` rewrites the specification so that the generator's output follows ycli's
    rules (docs/conventions/resources.md, "Generated models"): no directive to the generator, no
-   default and no limit on a value survives, a reply is read as it comes, no object requires
+   default and no limit on a value survives, a number stays the whole number or the fraction
+   it was given as, a reply is read as it comes, no object requires
    a field but the one that tells its kind (the top level of a request keeps the arguments
    of its operation), a set of values is open, only the envelope of a
    request refuses an unknown field, every object has a name made from its place, and each
@@ -180,6 +181,26 @@ def _plain(spec: dict[str, Any]) -> None:
             if key.startswith(("x-", "custom")) or key == "default" or key in _LIMITS
         ]:
             del schema[key]
+
+
+def _keep_whole_numbers(spec: dict[str, Any]) -> int:
+    """Read a ``number`` as a whole number or a fraction, whichever it is; return how many.
+
+    JSON has one kind of number and the document says ``number`` for a count of milliseconds
+    as for a ratio. Read as a float, the ``300000`` a caller gave would be sent as ``300000.0``
+    and a count in a reply printed with a fraction it never had: ycli sends what it was given.
+    """
+    changed = 0
+    for schema in list(_every_schema(spec)):
+        kind = schema.get("type")
+        if kind == "number":
+            schema["type"] = ["integer", "number"]
+        elif isinstance(kind, list) and "number" in kind and "integer" not in kind:
+            schema["type"] = ["integer", *kind]
+        else:
+            continue
+        changed += 1
+    return changed
 
 
 def _spread_unions(spec: dict[str, Any]) -> int:
@@ -401,7 +422,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         spec: The OpenAPI document as DataLens publishes it.
 
     Returns:
-        A copy with no generator directives and no defaults, in which "these fields and one of
+        A copy with no generator directives and no defaults, in which a number is read whole
+        or fractional as it comes, "these fields and one of
         those" is written as its members, a union's discriminator is
         required in its members, a set of string values is open, nothing else is required
         below the top level of a request, only a request envelope is closed to unknown fields,
@@ -436,6 +458,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _keep_whole_numbers(spec)
     _spread_unions(spec)
     tags = _require_discriminators(spec)
     _open_value_sets(spec, keep=tags)

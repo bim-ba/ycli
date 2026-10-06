@@ -73,7 +73,7 @@ class CurrentTenantDetailsSettings(APIModel):
         alias="autoBuyLicenses",
         description="Whether additional seats are purchased automatically.",
     )
-    auto_buy_licenses_limit: float | None = Field(
+    auto_buy_licenses_limit: int | float | None = Field(
         default=None,
         alias="autoBuyLicensesLimit",
         description="Maximum number of seats that can be purchased automatically.",

@@ -98,7 +98,9 @@ class GetBucketObjectMetadataResultLastModified(APIModel):
     """Time when the object was last modified."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class GetBucketObjectMetadataResult(APIModel):

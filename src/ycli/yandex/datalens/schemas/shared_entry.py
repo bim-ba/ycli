@@ -20,7 +20,7 @@ class ListSharedEntryAccessBindingsArgs(RequestBody):
         alias="getInheritedBindings",
         description="Whether to include inherited access bindings.",
     )
-    page_size: float | None = Field(
+    page_size: int | float | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of subjects to return.",

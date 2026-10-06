@@ -73,21 +73,27 @@ class SparkApplicationVariant1CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant1StartedAt(APIModel):
     """Time when the Spark application was started."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant1FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant1CatalogsItem(APIModel):
@@ -143,21 +149,27 @@ class SparkApplicationVariant2CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant2StartedAt(APIModel):
     """Time when the Spark application was started."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant2FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant2CatalogsItem(APIModel):
@@ -215,21 +227,27 @@ class SparkApplicationVariant3CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant3StartedAt(APIModel):
     """Time when the Spark application was started."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant3FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant3CatalogsItem(APIModel):
@@ -274,21 +292,27 @@ class SparkApplicationVariant4CreatedAt(APIModel):
     """Time when the Spark application was created."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant4StartedAt(APIModel):
     """Time when the Spark application was started."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant4FinishedAt(APIModel):
     """Time when the Spark application was finished."""
 
     seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+    nanos: int | float | None = Field(
+        default=None, description="Fractional seconds in nanoseconds."
+    )
 
 
 class SparkApplicationVariant4CatalogsItem(APIModel):

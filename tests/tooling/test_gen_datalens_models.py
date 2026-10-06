@@ -462,3 +462,36 @@ def test_fields_and_one_of_becomes_one_of_each_with_the_fields():
         "number",
     ]
     assert "allOf" in schemas["things.GetThingResponse"]["properties"]["mapped"]
+
+
+def test_a_number_is_read_as_the_whole_number_or_the_fraction_it_is():
+    """Both sides on a small document: ``number`` takes an integer too; ``integer`` is left."""
+    arguments = {
+        "type": "object",
+        "properties": {
+            "duration": {"type": "number"},
+            "ratio": {"type": ["number", "null"]},
+            "count": {"type": "integer"},
+        },
+    }
+    spec = {
+        "paths": {"/rpc/getThing": _operation(arguments, {"type": "object"})},
+        "components": {"schemas": {}},
+    }
+    properties = gen.prepare(spec)["components"]["schemas"]["things.GetThingRequest"]["properties"]
+    assert properties["duration"]["type"] == ["integer", "number"]
+    assert properties["ratio"]["type"] == ["integer", "number", "null"]
+    assert properties["count"]["type"] == "integer"
+
+
+def test_a_generated_model_sends_a_number_as_it_was_given():
+    """Measured: a lock of 60000 ms went out as ``60000.0``."""
+    from ycli.yandex.datalens.schemas.entry_lock import CreateEntryLockArgsData
+    from ycli.yandex.models import WIRE
+
+    def sent(duration: object) -> str:
+        terms = CreateEntryLockArgsData.model_validate({"duration": duration})
+        return json.dumps(terms.model_dump(context=WIRE))
+
+    assert sent(60000) == '{"duration": 60000}'
+    assert sent(1.5) == '{"duration": 1.5}'
