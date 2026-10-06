@@ -22,7 +22,7 @@ class GetDashboardV2Args(RequestBody):
     workbook_id: str | None = Field(default=None, alias="workbookId")
 
 
-class DashMetaV2(RootModel[dict[str, Any] | None]):
+class DashMetaV2(RootModel[dict[str, Any] | None], hide_input_in_errors=True):
     root: dict[str, Any] | None
 
 
@@ -429,7 +429,8 @@ class DashControlV2(
         | DashControlV2Variant2
         | DashControlV2Variant3
         | shared.OtherKindBySourceType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         DashControlV2Variant1
@@ -461,7 +462,8 @@ class DashGroupControlItemV2(
         DashGroupControlItemV2Variant1
         | DashGroupControlItemV2Variant2
         | shared.OtherKindBySourceType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         DashGroupControlItemV2Variant1
@@ -536,7 +538,8 @@ class DashTabGroupControlItemV2(APIModel):
 
 
 class DashGlobalItemV2(
-    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType]
+    RootModel[DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType],
+    hide_input_in_errors=True,
 ):
     root: DashTabControlItemV2 | DashTabGroupControlItemV2 | shared.OtherKindByType
 
@@ -880,7 +883,8 @@ class DashTabItemV2(
         | DashTabControlItemV2
         | DashTabGroupControlItemV2
         | shared.OtherKindByType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         DashTabItemV2Variant1

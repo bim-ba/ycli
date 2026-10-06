@@ -12,9 +12,17 @@ from __future__ import annotations
 
 import logging
 from functools import cache
-from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal, get_args
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, RootModel, model_serializer
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    RootModel,
+    SecretStr,
+    model_serializer,
+)
 
 #: The order of a sorted listing.
 SortDirection = Literal["asc", "desc"] | str
@@ -84,7 +92,12 @@ class APIModel(BaseModel):
         {'createdAt': 'today'}
     """
 
-    model_config = ConfigDict(extra="allow", validate_by_name=True, serialize_by_alias=True)
+    # ``hide_input_in_errors``: a value that fails validation is quoted in the error's text,
+    # and the value may be a body with a password in it (a union is refused by its tag
+    # before any ``SecretStr`` is built). The error still names the field and what is wrong.
+    model_config = ConfigDict(
+        extra="allow", validate_by_name=True, serialize_by_alias=True, hide_input_in_errors=True
+    )
 
     # No return annotation, on purpose: with one, pydantic replaces the model's serialization
     # schema with that type, and every MCP output schema loses its fields
@@ -92,6 +105,9 @@ class APIModel(BaseModel):
     @model_serializer(mode="wrap")
     def _as_sent(self, handler, info):  # noqa: ANN001, ANN202
         """The usual dump; as a request body (``WIRE``), without the fields left unset.
+
+        A secret (``SecretStr``) is dumped masked, as pydantic dumps it, and as its own value
+        in a request body only.
 
         A ``None`` is an absence and is dropped, except where the caller could only have meant
         it: in a field with no default (``page`` of a redirect: ``null`` removes the redirect)
@@ -101,6 +117,10 @@ class APIModel(BaseModel):
         data = handler(self)
         if not (info.context or {}).get("wire"):
             return data
+        # The one place a secret leaves its mask: the request has to carry the value itself.
+        for name, key in _secret_fields(type(self)):
+            if key in data:
+                data[key] = _revealed(getattr(self, name))
         optional = _optional_keys(type(self))
         return {
             key: value for key, value in data.items() if value is not None or key not in optional
@@ -109,6 +129,77 @@ class APIModel(BaseModel):
 
 #: The serialization context of a request body: ``body.model_dump(context=WIRE)``.
 WIRE: dict[str, Any] = {"wire": True}
+
+
+def _is_secret(field: Any) -> bool:
+    """Whether the JSON schema ``field`` is a secret, or a map, a list or a union of secrets."""
+    if not isinstance(field, dict):
+        return False
+    held = [*field.get("anyOf", []), field.get("additionalProperties"), field.get("items")]
+    return bool(field.get("writeOnly")) or any(_is_secret(part) for part in held)
+
+
+@cache
+def secret_keys(model: type[BaseModel]) -> frozenset[str]:
+    """The keys of a body of ``model``, at any depth, whose values are secrets.
+
+    A secret in a request body is a ``SecretStr`` (or a map of them): pydantic masks it
+    wherever the model is printed, and it goes out as it is only in a request
+    (:class:`APIModel`). What prints a request before it is sent masks these keys by name.
+
+    Args:
+        model: The class of a request body.
+
+    Returns:
+        The names, as the API takes them, of the secret fields of ``model`` and of every
+        model it holds.
+
+    Examples:
+        >>> class Login(RequestBody):
+        ...     user: str
+        ...     password: SecretStr
+        ...     headers: dict[str, SecretStr] | None = None
+        >>> sorted(secret_keys(Login))
+        ['headers', 'password']
+    """
+    found: set[str] = set()
+    pending: list[Any] = [model.model_json_schema()]
+    while pending:
+        schema = pending.pop()
+        if isinstance(schema, dict):
+            properties = schema.get("properties")
+            if isinstance(properties, dict):
+                found |= {name for name, field in properties.items() if _is_secret(field)}
+            pending += schema.values()
+        elif isinstance(schema, list):
+            pending += schema
+    return frozenset(found)
+
+
+def _holds_secret(annotation: Any) -> bool:
+    """Whether a field of this type is a ``SecretStr`` or holds one (``dict[str, SecretStr]``)."""
+    return annotation is SecretStr or any(_holds_secret(part) for part in get_args(annotation))
+
+
+@cache
+def _secret_fields(model: type[BaseModel]) -> tuple[tuple[str, str], ...]:
+    """The secret fields of ``model`` itself: each attribute and the key it is dumped under."""
+    return tuple(
+        (name, field.serialization_alias or field.alias or name)
+        for name, field in model.model_fields.items()
+        if _holds_secret(field.annotation)
+    )
+
+
+def _revealed(value: Any) -> Any:
+    """``value`` with every secret in it replaced by what it hides: only for a request."""
+    if isinstance(value, SecretStr):
+        return value.get_secret_value()
+    if isinstance(value, dict):
+        return {key: _revealed(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_revealed(item) for item in value]
+    return value
 
 
 @cache
@@ -137,7 +228,7 @@ class RequestBody(APIModel):
             ...
         pydantic_core._pydantic_core.ValidationError: 1 validation error for Rename
         nmae
-          Extra inputs are not permitted [type=extra_forbidden, input_value='x', input_type=str]
+          Extra inputs are not permitted [type=extra_forbidden]
             For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
     """
 

@@ -179,7 +179,7 @@ class DeleteWorkbooksResponse(APIModel):
     workbooks: list[Workbook] | None = Field(default=None, description="Deleted workbooks.")
 
 
-class GetWorkbooksByIdsResponse(RootModel[list[Workbook]]):
+class GetWorkbooksByIdsResponse(RootModel[list[Workbook]], hide_input_in_errors=True):
     root: list[Workbook]
 
 

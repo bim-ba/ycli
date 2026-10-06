@@ -16,7 +16,7 @@ class EntryAnnotation(APIModel):
     description: str | None = Field(default=None, description="Description of the entry.")
 
 
-class ReportMetaV2(RootModel[dict[str, Any] | None]):
+class ReportMetaV2(RootModel[dict[str, Any] | None], hide_input_in_errors=True):
     root: dict[str, Any] | None
 
 
@@ -606,7 +606,8 @@ class ReportTabItemV2(
         | ReportTabItemV2Variant6
         | ReportTabItemV2Variant7
         | shared.OtherKindByType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         ReportTabItemV2Variant1

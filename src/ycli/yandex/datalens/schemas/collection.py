@@ -224,7 +224,7 @@ class OtherKindByEntity(APIModel):
     entity: str | None = Field(default=None, description="The kind.")
 
 
-class GetCollectionsByIdsResponse(RootModel[list[Collection]]):
+class GetCollectionsByIdsResponse(RootModel[list[Collection]], hide_input_in_errors=True):
     root: list[Collection]
 
 
@@ -713,7 +713,9 @@ class GetStructureItemsResultItemsItemVariant2(APIModel):
     permissions: GetStructureItemsResultItemsItemVariant2Permissions | None = None
 
 
-class GetCollectionBreadcrumbsResult(RootModel[list[GetCollectionBreadcrumbsResultItem]]):
+class GetCollectionBreadcrumbsResult(
+    RootModel[list[GetCollectionBreadcrumbsResultItem]], hide_input_in_errors=True
+):
     root: list[GetCollectionBreadcrumbsResultItem]
 
 

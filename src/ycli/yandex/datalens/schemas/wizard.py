@@ -7268,7 +7268,8 @@ class WizardLabelsItemSchemaModel3(WizardFieldSchemaVariant4, WizardLabelsItemSc
 
 
 class WizardPseudoFieldSchema(
-    RootModel[WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2 | OtherKindByTitle]
+    RootModel[WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2 | OtherKindByTitle],
+    hide_input_in_errors=True,
 ):
     root: WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2 | OtherKindByTitle
 
@@ -7282,13 +7283,14 @@ class WizardSortItemSchemaModel2(WizardPseudoFieldSchemaVariant2, WizardSortItem
 
 
 class WizardSortItemSchemaModel3(
-    RootModel[WizardSortItemSchemaModel1 | WizardSortItemSchemaModel2 | WizardSortItemSchemaModel]
+    RootModel[WizardSortItemSchemaModel1 | WizardSortItemSchemaModel2 | WizardSortItemSchemaModel],
+    hide_input_in_errors=True,
 ):
     root: WizardSortItemSchemaModel1 | WizardSortItemSchemaModel2 | WizardSortItemSchemaModel
 
 
 class WizardSortItemSchemaModel4(
-    RootModel[WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel3]
+    RootModel[WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel3], hide_input_in_errors=True
 ):
     root: WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel3
 
@@ -7482,7 +7484,8 @@ class WizardFieldSchema(
         | WizardFieldSchemaVariant3
         | WizardFieldSchemaVariant4
         | shared.OtherKind
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         WizardFieldSchemaVariant1
@@ -7504,7 +7507,8 @@ class WizardLabelsItemSchemaModel5(
         | WizardLabelsItemSchemaModel2
         | WizardLabelsItemSchemaModel3
         | WizardLabelsItemSchemaModel
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         WizardLabelsItemSchemaModel4
@@ -8665,7 +8669,8 @@ class WizardV1GeolayerLayerSchema(
         | WizardV1GeolayerLayerSchemaVariant4
         | WizardV1GeolayerLayerSchemaVariant5
         | shared.OtherKindByType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         WizardV1GeolayerLayerSchemaVariant1
@@ -8683,7 +8688,8 @@ class WizardV1CombinedChartLayerSchema(
         | WizardV1CombinedChartLayerSchemaVariant2
         | WizardV1CombinedChartLayerSchemaVariant3
         | shared.OtherKindByType
-    ]
+    ],
+    hide_input_in_errors=True,
 ):
     root: (
         WizardV1CombinedChartLayerSchemaVariant1
