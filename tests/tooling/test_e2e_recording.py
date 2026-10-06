@@ -289,3 +289,15 @@ def test_a_reply_read_by_a_parser_takes_the_type_the_parser_returns():
         "subject": "<subject>",
         "type": "email",
     }
+
+
+def test_a_number_under_an_unknown_key_is_never_kept():
+    """It may be an identifier: nothing says what the key means."""
+    reply = {"name": "Sprint", "ivansCounter": 78, "nested": {"count": 5, "items": [3, 4]}}
+    assert scrub(reply, _Board).body == {
+        "name": "<name>",
+        "<unknown-1>": 1,
+        "<unknown-2>": {"<unknown-1>": 1, "<unknown-2>": [1]},
+    }
+    # Under a key the model reads, a small number stays.
+    assert scrub({"name": "x", "counts": {"a": 5}}, _Board).body["counts"] == {"<key-1>": 5}

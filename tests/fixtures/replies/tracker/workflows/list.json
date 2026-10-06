@@ -19,14 +19,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1000,
-            "<unknown-2>": 250
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -49,8 +49,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -76,14 +76,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -101,8 +101,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -123,14 +123,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 700,
-            "<unknown-2>": 200
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -178,14 +178,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1300,
-            "<unknown-2>": 300
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -216,14 +216,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -241,8 +241,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -285,14 +285,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 700,
-            "<unknown-2>": 200
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -310,8 +310,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -337,14 +337,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 1300,
-            "<unknown-2>": 300
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -370,14 +370,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -395,8 +395,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -439,14 +439,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1000,
-            "<unknown-2>": 250
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -472,14 +472,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -508,8 +508,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -527,8 +527,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -549,14 +549,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 700,
-            "<unknown-2>": 200
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -585,8 +585,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -612,14 +612,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 400,
-            "<unknown-2>": 150
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -637,8 +637,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -681,14 +681,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1600,
-            "<unknown-2>": 350
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -714,14 +714,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -750,8 +750,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -769,8 +769,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -791,14 +791,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 1000,
-            "<unknown-2>": 250
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -816,8 +816,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -860,14 +860,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1300,
-            "<unknown-2>": 300
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -893,14 +893,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -918,8 +918,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -940,14 +940,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 1000,
-            "<unknown-2>": 250
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -995,14 +995,14 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 1300,
-            "<unknown-2>": 300
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 4,
-                "<unknown-2>": 6
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "<unknown-2>": [
                 {
@@ -1028,14 +1028,14 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 100,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "actions": [
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -1053,8 +1053,8 @@
             },
             {
               "<unknown-1>": {
-                "<unknown-1>": 0,
-                "<unknown-2>": 2
+                "<unknown-1>": 1,
+                "<unknown-2>": 1
               },
               "id": "<id>",
               "name": "<name>",
@@ -1097,13 +1097,13 @@
       "steps": [
         {
           "<unknown-1>": {
-            "<unknown-1>": 0,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "metaAction": {
             "<unknown-1>": {
-              "<unknown-1>": 100,
-              "<unknown-2>": 0
+              "<unknown-1>": 1,
+              "<unknown-2>": 1
             },
             "<unknown-2>": [
               {
@@ -1128,13 +1128,13 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 700,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "metaAction": {
             "<unknown-1>": {
-              "<unknown-1>": 150,
-              "<unknown-2>": 700
+              "<unknown-1>": 1,
+              "<unknown-2>": 1
             },
             "id": "<id>",
             "name": "<name>",
@@ -1159,13 +1159,13 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": 170,
-            "<unknown-2>": 100
+            "<unknown-1>": 1,
+            "<unknown-2>": 1
           },
           "metaAction": {
             "<unknown-1>": {
-              "<unknown-1>": 150,
-              "<unknown-2>": 170
+              "<unknown-1>": 1,
+              "<unknown-2>": 1
             },
             "id": "<id>",
             "name": "<name>",
