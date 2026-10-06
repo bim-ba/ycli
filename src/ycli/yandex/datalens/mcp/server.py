@@ -13,6 +13,7 @@ from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
 from ycli.yandex.datalens.members.mcp import mcp as members_mcp
 from ycli.yandex.datalens.permissions.mcp import mcp as permissions_mcp
+from ycli.yandex.datalens.reports.mcp import mcp as reports_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
 from ycli.yandex.datalens.workbookexports.mcp import mcp as workbookexports_mcp
 from ycli.yandex.datalens.workbookimports.mcp import mcp as workbookimports_mcp
@@ -35,6 +36,7 @@ mcp.mount(permissions_mcp)
 mcp.mount(connections_mcp)
 mcp.mount(datasets_mcp)
 mcp.mount(charts_mcp)
+mcp.mount(reports_mcp)
 mcp.mount(workbookexports_mcp)
 mcp.mount(workbookimports_mcp)
 mcp.mount(embeds_mcp)
