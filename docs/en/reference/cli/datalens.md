@@ -43,6 +43,8 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `licensing`: Licences (seats) of the DataLens instance.
 * `cloudenvironments`: DataLens cloud environments (experimental...
 * `cloudenvironmentstorage`: The storage bucket of a DataLens cloud...
+* `restcatalogs`: DataLens REST catalogs (experimental in...
+* `lakehouseoperations`: DataLens Lakehouse operations...
 
 ## `ycli datalens auth`
 
@@ -3189,3 +3191,120 @@ $ ycli datalens cloudenvironmentstorage bucket-upload-url-create [OPTIONS] CLOUD
 * `--help`: Show this message and exit.
 
 Experimental in the DataLens API and written from its document: not measured. An environment nothing knows answers 403 Permission denied.
+
+## `ycli datalens restcatalogs`
+
+DataLens REST catalogs (experimental in the API).
+
+**Usage**:
+
+```console
+$ ycli datalens restcatalogs [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List the REST catalogs (auto-paginated).
+* `create`: Make a REST catalog; prints the operation...
+
+### `ycli datalens restcatalogs list`
+
+List the REST catalogs (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens restcatalogs list [OPTIONS]
+```
+
+**Options**:
+
+* `--cloud-environment-id TEXT`: Only the catalogs of this cloud environment.
+* `--filter TEXT`: A condition such as name="…" (repeatable).
+* `--sort-by TEXT`: The field to sort by. Known values: name, createdAt, updatedAt.
+* `--reverse-order / --no-reverse-order`: Sort the other way round.
+* `--include-permissions / --no-include-permissions`: Also say what you may do with each catalog.
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens restcatalogs create`
+
+Make a REST catalog; prints the operation that makes it.
+
+**Usage**:
+
+```console
+$ ycli datalens restcatalogs create [OPTIONS]
+```
+
+**Options**:
+
+* `--cloud-environment-id TEXT`: The cloud environment to make it in.  [required]
+* `--name TEXT`: The catalog's name.  [required]
+* `--bucket-settings TEXT`: The settings of its bucket, as a JSON object: {"storageClass": "STANDARD", "maxSize": "1073741824"}, or {}.  [required]
+* `--description TEXT`: A description.
+* `--labels TEXT`: Labels, as a JSON object: {"team": "analytics"}.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API. It creates a bucket in a cloud, which may be billed: written from the document and never called, not measured.
+
+## `ycli datalens lakehouseoperations`
+
+DataLens Lakehouse operations (experimental in the API).
+
+**Usage**:
+
+```console
+$ ycli datalens lakehouseoperations [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `get`: Print how far an operation is: done or...
+
+### `ycli datalens lakehouseoperations get`
+
+Print how far an operation is: done or not, its error or its response.
+
+**Usage**:
+
+```console
+$ ycli datalens lakehouseoperations get [OPTIONS] OPERATION_ID
+```
+
+**Arguments**:
+
+* `OPERATION_ID`: Operation id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret in --body-file, not here: a command line stays in the shell history.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+Experimental in the DataLens API and written from its document: not measured. An id nothing knows answers 403 Permission denied.

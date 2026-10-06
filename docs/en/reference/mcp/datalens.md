@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-99 tools.
+102 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1256,7 +1256,7 @@ Experimental in the DataLens API. An instance with none answers an empty list.
 One cloud environment: its cloud, its subnet, its status and its storage.
 
 Experimental in the DataLens API and written from its document: not measured. An id
-nothing knows answers 403 Permission denied, not 404.
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1315,7 +1315,9 @@ Experimental in the DataLens API, written from its document and never called: no
 
 The paths of the objects in a cloud environment's storage bucket, auto-paginated.
 
-Experimental in the DataLens API and written from its document: not measured.
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404: it is not a lack of
+rights.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1329,7 +1331,8 @@ Experimental in the DataLens API and written from its document: not measured.
 
 The size of an object, in bytes as a string, and when it last changed.
 
-Experimental in the DataLens API and written from its document: not measured.
+Experimental in the DataLens API and written from its document: not measured. An
+environment nothing knows answers 403 Permission denied, not 404.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1367,3 +1370,51 @@ its document: not measured.
 | `path` | string | yes | The path of the object in the bucket. |
 | `size` | string | yes | The size of the object in bytes, as a string. |
 | `content_md5` | string | yes | The MD5 digest of the content: 16 bytes, base64-encoded. |
+
+## `datalens_restcatalogs_list`
+
+*List DataLens REST catalogs* · read-only
+
+The REST catalogs of the DataLens instance, auto-paginated.
+
+Experimental in the DataLens API. An instance with none answers an empty list.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string or null |  | Only the catalogs of this cloud environment. |
+| `filter` | array of string or null |  | Conditions such as ``name="…"``; only matching catalogs are kept. |
+| `sort_by` | `name` · `createdAt` · `updatedAt` or string or null |  | The field to sort by. |
+| `reverse_order` | boolean or null |  | Sort the other way round. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `limit` | integer or null |  | Max catalogs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_restcatalogs_create`
+
+*Create DataLens REST catalog* · write
+
+Make a REST catalog and return the operation that makes it.
+
+It creates a bucket in a cloud, which may be billed: ask the person before calling. Ask
+``lakehouseoperations_get`` for the operation until ``done``. Experimental in the DataLens
+API, written from its document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `cloud_environment_id` | string | yes | The cloud environment to make it in. |
+| `name` | string | yes | The catalog's name. |
+| `bucket_settings` | object | yes | The settings of its bucket; an empty object is valid. |
+| `description` | string or null |  | A description. |
+| `labels` | object or null |  | Labels, a name to a value. |
+
+## `datalens_lakehouseoperations_get`
+
+*Get DataLens Lakehouse operation* · read-only
+
+How far an operation is: ``done`` or not, and then its ``error`` or its ``response``.
+
+Experimental in the DataLens API and written from its document: not measured. An id
+nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `operation_id` | string | yes | Operation id, from making a cloud environment or a REST catalog. |

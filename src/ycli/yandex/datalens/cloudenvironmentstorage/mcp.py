@@ -39,7 +39,9 @@ def bucket_objects_list(
 ) -> ItemList[str]:
     """The paths of the objects in a cloud environment's storage bucket, auto-paginated.
 
-    Experimental in the DataLens API and written from its document: not measured.
+    Experimental in the DataLens API and written from its document: not measured. An
+    environment nothing knows answers 403 Permission denied, not 404: it is not a lack of
+    rights.
     """
     return client.cloudenvironmentstorage.bucket_objects_list(
         cloud_environment_id, prefix=prefix, limit=config.http.cap(limit)
@@ -57,7 +59,8 @@ def bucket_object_metadata_get(
 ) -> BucketObjectMetadata:
     """The size of an object, in bytes as a string, and when it last changed.
 
-    Experimental in the DataLens API and written from its document: not measured.
+    Experimental in the DataLens API and written from its document: not measured. An
+    environment nothing knows answers 403 Permission denied, not 404.
     """
     return client.cloudenvironmentstorage.bucket_object_metadata_get(
         cloud_environment_id, path=path

@@ -7,3 +7,8 @@ steps:
     run: datalens cloudenvironments list --include-permissions --limit 5
     expect:
       "type(@)": array
+  - id: catalogs
+    # Listed only: making a REST catalog creates a bucket in a cloud and is never run.
+    run: datalens restcatalogs list --sort-by name --limit 5
+    expect:
+      "type(@)": array
