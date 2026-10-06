@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-86 tools.
+90 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1183,3 +1183,54 @@ API and written from its document: not measured.
 |---|---|:---:|---|
 | `sql_query_id` | string | yes | SQL query id. |
 | `params` | object or null |  | The values of the parameters, by name; one left out takes its default. |
+
+## `datalens_licensing_licenses_list`
+
+*List DataLens licences* · read-only
+
+The licences (seats) of the DataLens instance, auto-paginated.
+
+Each says whose it is, its type (``creator`` or ``viewer``), whether it is active, and when
+its holder last signed in.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `user_ids` | array of string or null |  | Only the licences of these users. |
+| `status` | `active` · `expired` · `expiring` or string or null |  | Only the licences in this state. |
+| `sort_by` | `createdAt` · `updatedAt` or string or null |  | The field to sort by. |
+| `order` | `asc` · `desc` or string or null |  | The order of the sort. |
+| `limit` | integer or null |  | Max licences to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+
+## `datalens_licensing_licenses_assign`
+
+*Assign DataLens licences* · write
+
+Give each of these users a licence and return the licences given.
+
+A licence is a seat DataLens bills for: ask the person before calling. Written from the
+DataLens document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `user_ids` | array of string | yes | The users to give a licence to. |
+
+## `datalens_licensing_limit_get`
+
+*Get DataLens licence limit* · read-only
+
+How many licences the instance may hold: the limit in force and the one that takes over.
+
+``current`` carries the count of active licences; ``next`` is null when no change is set.
+
+## `datalens_licensing_limit_set`
+
+*Set DataLens licence limit* · idempotent write
+
+Set how many licences the instance may hold and return the limits.
+
+The limit is the number of seats DataLens bills for: ask the person before calling. Written
+from the DataLens document and never called: not measured.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `value` | integer | yes | The most licences the instance may hold. |

@@ -57,6 +57,10 @@ datalens entries revisions-list: --all:BOOLEAN=False --body-file:FILE --dry-run:
 datalens entrylocks create: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens licensing licenses-assign: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False USER_IDS:TEXT!
+datalens licensing licenses-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --order:TEXT --profile:TEXT --sort-by:TEXT --status:TEXT --user-ids:TEXT --yes:BOOLEAN=False
+datalens licensing limit-get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens licensing limit-set: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False VALUE:INTEGER!
 datalens members list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --language:TEXT --limit:INTEGER RANGE --profile:TEXT --search:TEXT --tab-id:TEXT --yes:BOOLEAN=False
 datalens permissions get-bulk: --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --entry-id:TEXT --field:TEXT --format:CHOICE --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens reports create: --annotation:TEXT --body-file:FILE --data:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-permissions:BOOLEAN --key:TEXT --meta:TEXT --name:TEXT --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False

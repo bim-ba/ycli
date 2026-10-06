@@ -149,7 +149,7 @@ FORMS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Identity", ["me"]),
 ]
 DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("Organization", ["tenant", "members"]),
+    ("Organization", ["tenant", "members", "licensing"]),
     (
         "Collections & workbooks",
         ["collections", "workbooks", "workbookexports", "workbookimports"],

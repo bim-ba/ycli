@@ -28,6 +28,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - the audit (reads)
 - saved SQL queries (experimental in the API; written from its document, not measured)
 - the members of the organization and the details of the DataLens instance (reads)
+- the licences (seats) of the instance: reads measured; giving a licence and setting the limit written from the document, never called
 
 Not wrapped yet: dashboards are found and listed as entries, but their content is not opened or changed.
 
@@ -119,6 +120,8 @@ DataLens differs from the other services in both credentials:
 | Entries changed in a period (deleted ones too) | `uv run ycli datalens audit entries-updates-list --from 2026-10-01T00:00:00Z [--to …] [--all]` | `datalens_audit_entries_updates_list` |
 | What one user may do with entries | `uv run ycli datalens audit entry-permissions-get <entry_id>… --user-id <user_id>` | `datalens_audit_entry_permissions_get` |
 | One saved SQL query (experimental) | `uv run ycli datalens sqlqueries get <sql_query_id>` | `datalens_sqlqueries_get` |
+| Who holds a licence (a seat) | `uv run ycli datalens licensing licenses-list [--status active] [--user-ids <id>]… [--all]` | `datalens_licensing_licenses_list` |
+| How many licences there may be, and how many are active | `uv run ycli datalens licensing limit-get` | `datalens_licensing_limit_get` |
 | Users, groups and service accounts (to give a role to) | `uv run ycli datalens members list [--search …] [--tab-id GROUP] [--all]` | `datalens_members_list` |
 | One connection (never its password or token) | `uv run ycli datalens connections get <connection_id>` | `datalens_connections_get` |
 | One dataset: sources, joins, fields with their guids | `uv run ycli datalens datasets get <dataset_id>` | `datalens_datasets_get` |
@@ -169,6 +172,8 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Save a SQL query anew | `uv run ycli datalens sqlqueries update <sql_query_id> --connection-id <id> --query '…'` | `datalens_sqlqueries_update` |
 | Run a saved SQL query | `uv run ycli datalens sqlqueries run <sql_query_id> [--params '{"since": "2026-10-01"}']` | `datalens_sqlqueries_run` |
 | Delete a saved SQL query | `uv run ycli datalens sqlqueries delete <sql_query_id>` | `datalens_sqlqueries_delete` |
+| Give users a licence (billed; not measured) | `uv run ycli datalens licensing licenses-assign <user_id>…` | `datalens_licensing_licenses_assign` |
+| Set how many licences there may be (billed; not measured) | `uv run ycli datalens licensing limit-set <value>` | `datalens_licensing_limit_set` |
 | Rename an entry | `uv run ycli datalens entries rename <entry_id> --name …` | `datalens_entries_rename` |
 | Create a connection | `uv run ycli datalens connections create --body-file conn.yaml` | `datalens_connections_create` |
 | Change a connection | `uv run ycli datalens connections update <connection_id> --data '{"host": "db2"}'` | `datalens_connections_update` |
@@ -197,6 +202,8 @@ An operation takes the fields of its request as arguments, under one name on eve
 **A shared entry lies in a collection, not in a workbook.** A connection or a dataset created with `--collection-id` (and no `--workbook-id`) is one: workbooks may use it, and it has roles of its own, `datalens.sharedEntries.*` (`admin`, `viewer`), changed by deltas as on a collection. `sharedentries access-bindings-list` of an entry that lies in a workbook, or of an id nothing knows, answers an empty list, not an error. A change of roles answers an operation that may not be done yet (`done: false`): read the roles again to see it.
 
 **The audit is asked with a start time.** `audit entries-updates-list` requires `--from` (ISO-8601 with its zone) and lists every entry changed since, deleted ones included (`isDeleted`), with who changed it. `audit entry-permissions-get` answers by entry id: `permissions` (`execute`, `read`, `edit`, `admin`), or `error` for an entry that does not exist; the user's id is the one `createdBy` of an entry gives.
+
+**A licence is a seat DataLens bills for.** Yandex's pricing counts the seats of the instance (the number of seats times the cost of one), so `licensing licenses-assign` and `licensing limit-set` change what the organization pays: ask the person before either. Both are written from the published document and were never called. The reads are measured: `licenses-list` answers whose each licence is, its type (`creator` or `viewer`) and whether it is active; `limit-get` answers the limit in force with the count of active licences, and `next: null` when no change is set.
 
 **Saved SQL queries are experimental, and not measured.** DataLens marks the whole section experimental; ycli wraps it from the published document, and no reply of it was checked against the service. An organization whose SQL editor is off answers `403 SQL_EDITOR_NOT_ALLOWED` to every call. A query runs over a connection to PostgreSQL, ClickHouse, MySQL, Greenplum or Trino; `sqlqueries run` runs the text as it is saved, so a text that changes data changes it. `sqlqueries update` takes the connection and the text every time.
 
