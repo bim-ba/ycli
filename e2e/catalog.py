@@ -1,7 +1,5 @@
 """Where scenarios live and how a file becomes a :class:`Scenario` (shared with the guard)."""
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import yaml

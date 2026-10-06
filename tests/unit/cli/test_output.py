@@ -1,7 +1,5 @@
 """TDD for ycli.cli.output — the `--format` renderer over pydantic results."""
 
-from __future__ import annotations
-
 import io
 import json
 

@@ -1,7 +1,5 @@
 """What the checks of several invariants share: where the code is, and how it is read."""
 
-from __future__ import annotations
-
 import ast
 import asyncio
 import re

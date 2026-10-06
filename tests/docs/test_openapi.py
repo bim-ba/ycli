@@ -4,8 +4,6 @@ They are not committed (about a megabyte, rewritten by every model change): the 
 generates them into the site. These tests build them in memory.
 """
 
-from __future__ import annotations
-
 import inspect
 
 import pytest

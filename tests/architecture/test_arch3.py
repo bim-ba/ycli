@@ -1,7 +1,5 @@
 """ARCH-3 — Honest effects (see ARCHITECTURE.md)."""
 
-from __future__ import annotations
-
 import ast
 
 from tests.architecture.scanners import SRC, YANDEX, _mcp_tools, _probe_tools, unexplained

@@ -4,8 +4,6 @@
 is typed by hand, and a service in the registry has a card, an emoji and an overview page.
 """
 
-from __future__ import annotations
-
 import dataclasses
 import re
 import tomllib

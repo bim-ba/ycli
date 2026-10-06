@@ -1,7 +1,5 @@
 """ARCH-7 — Dependency injection (see ARCHITECTURE.md)."""
 
-from __future__ import annotations
-
 import ast
 from pathlib import Path
 
