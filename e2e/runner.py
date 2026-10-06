@@ -23,13 +23,14 @@ from typing import TYPE_CHECKING, Any
 import jmespath
 import jmespath.functions
 
+from e2e.settings import CREDENTIAL_VARIABLES
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from e2e.models import Scenario, Step
 
 EXCERPT_CHARACTERS = 300
-CREDENTIAL_VARIABLES = ("YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID")
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(\.[\w-]+)+")
 _LONG_NUMBER = re.compile(r"\b\d{13,}\b")  # Yandex account uids; page/issue ids are shorter
 
