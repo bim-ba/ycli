@@ -22,3 +22,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## workbooks
 
 ::: ycli.yandex.datalens.workbooks.client.WorkbooksClient
+
+## entrylocks
+
+::: ycli.yandex.datalens.entrylocks.client.EntryLocksClient
