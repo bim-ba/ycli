@@ -1,0 +1,20 @@
+{
+  "body": {
+    "content": "<content>",
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "id": "<id>",
+    "mimetype": "<mimetype>",
+    "name": "<name>",
+    "self": "<self>",
+    "size": 30
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

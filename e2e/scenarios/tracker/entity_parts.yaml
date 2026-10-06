@@ -1,0 +1,79 @@
+# What hangs on a project: a comment that is edited, a checklist whose items are renamed,
+# moved and deleted, a link to another project, an attachment, and one change of both
+# projects at once. Both projects are deleted.
+name: tracker/entity-parts
+steps:
+  - id: first
+    run: tracker entities create project --summary "${RUN} project"
+    save:
+      project: id
+    cleanup: tracker entities delete project ${project}
+  - id: second
+    run: tracker entities create project --summary "${RUN} project, linked"
+    save:
+      other: id
+    cleanup: tracker entities delete project ${other}
+  - id: comment
+    run: tracker entities comments create project ${project} --text "note ${RUN}"
+    save:
+      comment: id
+  - id: comment-update
+    run: tracker entities comments update project ${project} ${comment} --text "note ${RUN}, fixed"
+    expect:
+      text: note ${RUN}, fixed
+  - id: checklist
+    run: tracker entities checklists create project ${project} --text "one" --fields checklistItems
+    save:
+      one: fields.checklistItems[0].id
+  - id: checklist-second
+    run: tracker entities checklists create project ${project} --text "two" --fields checklistItems
+    expect:
+      "length(fields.checklistItems)": 2
+    save:
+      two: fields.checklistItems[1].id
+  - id: checklist-rename
+    run: tracker entities checklists update project ${project} --item "${one}=Renamed" --item "${two}=Second" --fields checklistItems
+    expect:
+      "fields.checklistItems[0].text": Renamed
+  - id: checklist-move
+    run: tracker entities checklists move project ${project} ${two} --before ${one} --fields checklistItems
+    expect:
+      "fields.checklistItems[0].text": Second
+  - id: checklist-item-delete
+    run: tracker entities checklists items-delete project ${project} ${one} --fields checklistItems
+    expect:
+      "length(fields.checklistItems)": 1
+  - id: checklist-delete
+    run: tracker entities checklists delete project ${project}
+  - id: link
+    run: tracker entities links create project ${project} --relationship "depends on" --entity ${other}
+  - id: linked
+    run: tracker entities links list project ${project}
+    expect:
+      "length(@)": 1
+  - id: link-delete
+    run: tracker entities links delete project ${project} ${other}
+  - id: temporary-file
+    run: tracker attachments upload-temp ${FILES}/note.txt
+    save:
+      temporary: id
+  - id: attach
+    run: tracker entities attachments attach project ${project} ${temporary}
+  - id: attached
+    run: tracker entities attachments list project ${project}
+    expect:
+      "length(@)": 1
+    save:
+      file: "[0].id"
+  - id: attachment
+    run: tracker entities attachments get project ${project} ${file}
+  - id: attachment-delete
+    run: tracker entities attachments delete project ${project} ${file}
+  - id: both-at-once
+    run: tracker entities update-bulk project --entity ${project} --entity ${other} --comment "Handed over" --field "summary=${RUN} project, handed over"
+  - id: delete
+    run: tracker entities delete project ${project}
+    disarms: [first]
+  - id: delete-other
+    run: tracker entities delete project ${other}
+    disarms: [second]

@@ -1,0 +1,22 @@
+{
+  "body": {
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "executionChunkPercent": 100,
+    "executionIssuePercent": 100,
+    "id": "<id>",
+    "self": "<self>",
+    "status": "<status>",
+    "statusText": "<statusText>",
+    "totalCompletedIssues": 2,
+    "totalIssues": 2
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

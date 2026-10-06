@@ -1,0 +1,29 @@
+{
+  "body": {
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
+    "id": 1,
+    "longId": "<longId>",
+    "self": "<self>",
+    "text": "<text>",
+    "transport": "<transport>",
+    "type": "<type>",
+    "updatedAt": "<updatedAt>",
+    "updatedBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

@@ -1,0 +1,103 @@
+# What a team sets up around its issues: a board with a column and a sprint that is started and
+# archived, and in the sandbox queue a component, a macro and an old-style project, plus a
+# saved filter. Each is deleted by the step that ends its part.
+name: tracker/board-and-queue
+steps:
+  - id: me
+    run: tracker me get
+    save:
+      login: login
+  - id: board
+    # A board takes a backlog and sprints together: the API refuses one without the other.
+    run: tracker boards create --name "${RUN} board" --owner ${login} --permissions private --backlog --sprints
+    save:
+      board: id
+    cleanup: tracker boards delete ${board}
+  - id: board-rename
+    run: tracker boards update ${board} --name "${RUN} board renamed"
+    expect:
+      name: ${RUN} board renamed
+  - id: column
+    run: tracker columns create ${board} --name "${RUN} column" --status needInfo
+    save:
+      column: id
+  - id: column-rename
+    run: tracker columns update ${board} ${column} --name "${RUN} column renamed" --status needInfo
+    expect:
+      name: ${RUN} column renamed
+  - id: column-delete
+    run: tracker columns delete ${board} ${column}
+  - id: sprint
+    run: tracker sprints create --board-id ${board} --name "${RUN} sprint" --start-date 2027-01-04 --end-date 2027-01-18
+    save:
+      sprint: id
+      version: version
+  - id: sprint-rename
+    run: tracker sprints update ${sprint} --name "${RUN} sprint renamed" --start-date 2027-01-05 --end-date 2027-01-19 --version ${version}
+    expect:
+      name: ${RUN} sprint renamed
+    save:
+      version: version
+  - id: sprint-start
+    run: tracker sprints start ${sprint} --version ${version}
+    save:
+      version: version
+  - id: sprint-archive
+    run: tracker sprints archive ${sprint} --version ${version}
+    expect:
+      archived: true
+  - id: sprint-delete
+    run: tracker sprints delete ${sprint}
+  - id: board-delete
+    run: tracker boards delete ${board}
+    disarms: [board]
+  - id: component
+    run: tracker components create --name "${RUN} component" --queue ${QUEUE} --description Frontend
+    save:
+      component: id
+      version: version
+    cleanup: tracker components delete ${component}
+  - id: component-rename
+    run: tracker components update ${component} --name "${RUN} component renamed" --description Renamed --version ${version}
+    expect:
+      name: ${RUN} component renamed
+  - id: component-delete
+    run: tracker components delete ${component}
+    disarms: [component]
+  - id: filter
+    run: 'tracker filters create --name "${RUN} filter" --query "Queue: ${QUEUE}"'
+    save:
+      filter: id
+    cleanup: tracker filters delete ${filter}
+  - id: filter-rename
+    run: 'tracker filters update ${filter} --name "${RUN} filter renamed" --query "Queue: ${QUEUE} Resolution: empty()"'
+    expect:
+      name: ${RUN} filter renamed
+  - id: filter-delete
+    run: tracker filters delete ${filter}
+    disarms: [filter]
+  - id: macro
+    run: tracker macros create ${QUEUE} --name "${RUN} macro" --body "Taking a look"
+    save:
+      macro: id
+    cleanup: tracker macros delete ${QUEUE} ${macro}
+  - id: macro-rename
+    run: tracker macros update ${QUEUE} ${macro} --name "${RUN} macro renamed" --body "New text"
+    expect:
+      name: ${RUN} macro renamed
+  - id: macro-delete
+    run: tracker macros delete ${QUEUE} ${macro}
+    disarms: [macro]
+  - id: project
+    run: tracker projects create --name "${RUN} old project" --queues ${QUEUE}
+    save:
+      project: id
+      version: version
+    cleanup: tracker projects delete ${project}
+  - id: project-rename
+    run: tracker projects update ${project} --version ${version} --queues ${QUEUE} --name "${RUN} old project renamed"
+    expect:
+      name: ${RUN} old project renamed
+  - id: project-delete
+    run: tracker projects delete ${project}
+    disarms: [project]

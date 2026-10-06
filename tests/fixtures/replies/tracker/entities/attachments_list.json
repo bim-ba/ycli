@@ -1,5 +1,22 @@
 {
-  "body": [],
+  "body": [
+    {
+      "content": "<content>",
+      "createdAt": "<createdAt>",
+      "createdBy": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 1,
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "mimetype": "<mimetype>",
+      "name": "<name>",
+      "self": "<self>",
+      "size": 30
+    }
+  ],
   "status": 200,
   "unknown_keys": 0
 }

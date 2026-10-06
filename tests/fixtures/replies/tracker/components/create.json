@@ -1,0 +1,18 @@
+{
+  "body": {
+    "assignAuto": false,
+    "description": "<description>",
+    "id": 1,
+    "name": "<name>",
+    "queue": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

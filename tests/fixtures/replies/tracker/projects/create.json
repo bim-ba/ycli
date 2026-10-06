@@ -1,0 +1,12 @@
+{
+  "body": {
+    "id": "<id>",
+    "key": "<key>",
+    "name": "<name>",
+    "self": "<self>",
+    "status": "<status>",
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 0
+}
