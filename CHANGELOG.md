@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.105.0 (2026-10-06)
+
+### Build System
+
+- Re-lock uv.lock for 0.104.0
+  ([`9c7d016`](https://github.com/bim-ba/ycli/commit/9c7d016faf2bb340f468ef34cd54f1aa7cfb8909))
+
+### Features
+
+- **datalens**: The roles on a shared entry, and the audit of what changed
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`f7a8cfa`](https://github.com/bim-ba/ycli/commit/f7a8cfa362a7278024cdca1178701c3dac429abe))
+
+### Refactoring
+
+- **datalens**: A request given as a union of objects has an envelope per member
+  ([`798a687`](https://github.com/bim-ba/ycli/commit/798a68767bbd99ea2d7415bffee08780a7c9f9c3))
+
+
 ## v0.104.0 (2026-10-06)
 
 ### Build System
