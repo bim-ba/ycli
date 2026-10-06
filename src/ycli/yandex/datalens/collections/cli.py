@@ -75,7 +75,7 @@ def content_list(
         str | None, values_option(SortDirection, "--order-direction", help="Sort direction.")
     ] = None,
     only_my: Annotated[
-        bool | None, typer.Option("--only-my", help="Keep only what you created.")
+        bool | None, typer.Option("--only-my/--no-only-my", help="Keep only what you created.")
     ] = None,
     mode: Annotated[
         str | None, values_option(ContentMode, "--mode", help="Which kinds of items to list.")
@@ -125,7 +125,10 @@ def access_bindings_list(
     all_: AllOption = False,
     get_inherited_bindings: Annotated[
         bool | None,
-        typer.Option("--get-inherited-bindings", help="Also list the inherited roles."),
+        typer.Option(
+            "--get-inherited-bindings/--no-get-inherited-bindings",
+            help="Also list the inherited roles.",
+        ),
     ] = None,
     *,
     config: AppConfig,
