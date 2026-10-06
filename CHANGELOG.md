@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.97.0 (2026-10-06)
+
+### Bug Fixes
+
+- **forms**: The value of an API key and the secret of a variable are SecretStr
+  ([`be1c6a2`](https://github.com/bim-ba/ycli/commit/be1c6a241400bb813cf2361e826250dc81da1e29))
+
+### Build System
+
+- Re-lock uv.lock for 0.96.0
+  ([`a5c0482`](https://github.com/bim-ba/ycli/commit/a5c04822eb707ce03ee6357b5005b3b8a6c4223e))
+
+### Documentation
+
+- **datalens**: Deleting a workbook twice answers 500, and the docs say so
+  ([`cedb8af`](https://github.com/bim-ba/ycli/commit/cedb8af6d01978941f4068753eb479798c6127b1))
+
+### Breaking Changes
+
+- **forms**: In the SDK `SurveyAPIKey.value` and `SubscriptionVariable.secret` are
+  `pydantic.SecretStr`, not `str`. A plain string is still taken when a model is built from data;
+  read the value with `.get_secret_value()`.
+
+
 ## v0.96.0 (2026-10-06)
 
 ### Build System
