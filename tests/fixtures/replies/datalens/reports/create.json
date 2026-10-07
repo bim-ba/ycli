@@ -1,0 +1,45 @@
+{
+  "body": {
+    "entry": {
+      "annotation": null,
+      "collectionId": null,
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "data": {
+        "counter": 1,
+        "salt": "<salt>",
+        "slideGroups": [],
+        "slideSettings": {},
+        "slides": [
+          {
+            "id": "<id>"
+          }
+        ],
+        "slidesOrder": [
+          "<slidesOrder>"
+        ],
+        "visualSettings": {}
+      },
+      "entryId": "<entryId>",
+      "hidden": false,
+      "key": "<key>",
+      "links": {},
+      "meta": null,
+      "public": false,
+      "publishedId": "<publishedId>",
+      "revId": "<revId>",
+      "revUpdatedAt": "<revUpdatedAt>",
+      "revUpdatedBy": "<revUpdatedBy>",
+      "savedId": "<savedId>",
+      "scope": "report",
+      "tenantId": "<tenantId>",
+      "type": "",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>",
+      "version": 2,
+      "workbookId": "<workbookId>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

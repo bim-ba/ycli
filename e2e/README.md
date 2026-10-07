@@ -45,6 +45,8 @@ A fifth, `datalens/licensing`, only reads: who holds a licence and how many ther
 
 A sixth, `datalens/cloud-environments`, only lists the cloud environments, the REST catalogs and the Trino clusters; making any of them creates cloud resources and is never run.
 
+A seventh, `datalens/entries-content`, writes what a workbook holds: a connection (to a host that does not exist: DataLens saves a connection without trying it), a dataset, a chart of each of the three kinds, a dashboard and a report are made in a workbook of the run, saved again as they were read, and deleted.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

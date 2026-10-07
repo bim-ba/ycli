@@ -1,0 +1,36 @@
+{
+  "body": {
+    "entry": {
+      "annotation": {
+        "description": "<description>"
+      },
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "data": {
+        "config": "<config>",
+        "controls": "<controls>",
+        "meta": "<meta>",
+        "params": "<params>",
+        "prepare": "<prepare>",
+        "sources": "<sources>"
+      },
+      "entryId": "<entryId>",
+      "hidden": false,
+      "key": "<key>",
+      "meta": {},
+      "public": false,
+      "publishedId": "<publishedId>",
+      "revId": "<revId>",
+      "savedId": "<savedId>",
+      "scope": "widget",
+      "tenantId": "<tenantId>",
+      "type": "table_node",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>",
+      "version": 1,
+      "workbookId": "<workbookId>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}
