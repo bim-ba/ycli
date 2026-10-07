@@ -1,11 +1,13 @@
 """Pydantic v2 models for Yandex Wiki /pages responses."""
 
 from datetime import datetime  # pydantic reads the field type at runtime
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.document import Body
+from ycli.yandex.sync.marks import Place
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
 from ycli.yandex.wiki.models import (
     Location,
@@ -185,7 +187,7 @@ class PageDetails(APIModel):
     """
 
     id: int = Field(description="Numeric id of the page.")
-    slug: str = Field(description="Slug of the page, e.g. ``data/x``.")
+    slug: Annotated[str, Place()] = Field(description="Slug of the page, e.g. ``data/x``.")
     title: str = Field(description="Title of the page.")
     page_type: str | None = Field(
         default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
@@ -317,7 +319,7 @@ class PageCreate(RequestBody):
         'eng/new'
     """
 
-    slug: str = Field(description="Address of the page, e.g. ``data/x``.")
+    slug: Annotated[str, Place()] = Field(description="Address of the page, e.g. ``data/x``.")
     title: str = Field(description="Title of the page.")
     content: str | None = Field(default=None, description="Body of the page in YFM markdown.")
     access_policy: PageAccessPolicyUpdate | None = Field(
@@ -336,7 +338,9 @@ class PageUpdate(RequestBody):
     """
 
     title: str | None = Field(default=None, description="New title of the page.")
-    content: str | None = Field(default=None, description="New body, replacing the whole one.")
+    content: Annotated[str | None, Body()] = Field(
+        default=None, description="New body, replacing the whole one."
+    )
     redirect: PageRedirectUpdate | None = Field(
         default=None, description="Make the page a redirect, or remove its redirect."
     )

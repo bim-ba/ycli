@@ -46,6 +46,7 @@ nav = [
       "reference/cli/mcp.md",
       "reference/cli/api.md",
       "reference/cli/doctor.md",
+      "reference/cli/sync.md",
     ] },
     { "MCP tools" = [
       "reference/mcp/tracker.md",
@@ -167,7 +168,7 @@ The full reference is large, one page per service, and is left out of llms-full.
 "Services" = ["services/*.md"]
 "Tutorials" = ["tutorials/*.md"]
 "How-to guides" = ["how-to/*.md"]
-"Reference" = ["reference/configuration.md", "reference/openapi.md", "reference/cli/index.md", "reference/cli/api.md", "reference/cli/auth.md", "reference/cli/doctor.md", "reference/cli/mcp.md"]
+"Reference" = ["reference/configuration.md", "reference/openapi.md", "reference/cli/index.md", "reference/cli/api.md", "reference/cli/auth.md", "reference/cli/doctor.md", "reference/cli/mcp.md", "reference/cli/sync.md"]
 "Explanation" = ["explanation/*.md"]
 
 [project.plugins.social]

@@ -11,8 +11,11 @@ Examples:
 """
 
 from http import HTTPMethod
+from typing import Annotated
 
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
+from ycli.yandex.sync.marks import Container, Identity
+from ycli.yandex.wiki import pages
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
@@ -44,7 +47,11 @@ def get(
 
 
 def get_by_id(
-    page_id: int, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool | None
+    page_id: Annotated[int, Identity()],
+    *,
+    fields: str | None,
+    revision_id: int | None,
+    raise_on_redirect: bool | None,
 ) -> Endpoint[PageDetails]:
     params = {
         "fields": fields,
@@ -55,7 +62,11 @@ def get_by_id(
 
 
 def descendants_list(
-    slug: str, *, actuality: str | None, include_self: bool | None, show_all: bool | None
+    slug: Annotated[str, Container(pages)],
+    *,
+    actuality: str | None,
+    include_self: bool | None,
+    show_all: bool | None,
 ) -> Paged[CursorPage[PageRef], PageRef]:
     params = {
         "slug": slug,
@@ -109,7 +120,7 @@ def create(
 
 
 def update(
-    page_id: int,
+    page_id: Annotated[int, Identity()],
     body: PageUpdate,
     *,
     fields: str | None,
@@ -124,7 +135,9 @@ def update(
     )
 
 
-def delete(page_id: int, *, recursive: bool | None) -> Endpoint[PageDeleteResult]:
+def delete(
+    page_id: Annotated[int, Identity()], *, recursive: bool | None
+) -> Endpoint[PageDeleteResult]:
     params = {"recursive": recursive}
     return Endpoint(HTTPMethod.DELETE, f"pages/{segment(page_id)}", PageDeleteResult, params=params)
 
@@ -148,7 +161,7 @@ def move(body: PageMove, *, validate_only: bool | None) -> Endpoint[AsyncOperati
 
 
 def revisions_list(
-    page_id: int, *, ids: str | None
+    page_id: Annotated[int, Identity()], *, ids: str | None
 ) -> Paged[CursorPage[PageRevision], PageRevision]:
     """``GET /pages/{id}/revisions`` (undocumented): newest-first revisions, 50 a page at most."""
     params = {"page_size": 50, "ids": ids}

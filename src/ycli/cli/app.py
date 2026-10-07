@@ -30,6 +30,7 @@ class _Ycli(RootGroup):
         *(SubApp(service.name, service.help, service.cli) for service in SERVICES),
         SubApp("auth", "Inspect and obtain Yandex 360 credentials.", "ycli.yandex.status.cli:app"),
         SubApp("mcp", "MCP server control (reads + writes).", "ycli.mcp.cli:app"),
+        SubApp("sync", "Yandex 360 content as files in git.", "ycli.cli.sync:app"),
         SubApp(
             "doctor",
             "Check what a working call needs and say what to fix.",
