@@ -130,7 +130,9 @@ jobs:
           if [ "$surface" != binary ]; then
             # The pause: commands of one process follow each other faster than Tracker settles
             # after a write; with one second a sprint's change of state was refused (measured).
-            surfaces=(--surfaces report --writes-through "$surface" --record-pause 2.5)
+            # --log-level=INFO: the core says when it sends a request again, and a failed
+            # test shows its log; a write that went out twice is then seen as such.
+            surfaces=(--surfaces report --writes-through "$surface" --record-pause 2.5 --log-level=INFO)
           fi
           echo "writes through: $surface"
           uv run pytest e2e --no-cov -n 0 -p no:cacheprovider -m "$MARKERS" "${service[@]}" "${surfaces[@]}" ${SELECT:+-k "$SELECT"}
