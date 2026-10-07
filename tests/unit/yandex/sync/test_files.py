@@ -46,14 +46,15 @@ def test_each_file_is_unchanged_edited_or_new_by_its_fingerprint(repository):
         # It names an object and carries no `hash`: written by hand, never read from it.
         "tracker/queues/DE/triggers/16.yaml": State.UNTRACKED,
         "wiki/team.md": State.UNCHANGED,
-        "wiki/team/edited.md": State.EDITED,
-        "wiki/team/new.md": State.NEW,
+        "wiki/team/edited.md": State.UPDATE,
+        "wiki/team/new.md": State.CREATE,
     }
 
 
 def test_a_run_is_limited_by_a_path(repository):
     under = examine(repository, [PurePosixPath("wiki/team")], kinds())
-    assert sorted(_states(under)) == ["wiki/team/edited.md", "wiki/team/new.md"]
+    # A directory names the page beside it too, as `pull wiki/team` writes both.
+    assert sorted(_states(under)) == ["wiki/team.md", "wiki/team/edited.md", "wiki/team/new.md"]
     one = examine(repository, [PurePosixPath("wiki/team.md")], kinds())
     assert _states(one) == {"wiki/team.md": State.UNCHANGED}
     assert examine(repository, [PurePosixPath("wiki/nowhere")], kinds()) == []
@@ -103,10 +104,13 @@ def test_sync_status_lists_what_was_edited_and_sums_up(repository, monkeypatch):
     assert code == 0
     assert {row["path"]: row["state"] for row in listed} == {
         "tracker/queues/DE/triggers/16.yaml": "untracked",
-        "wiki/team/edited.md": "edited",
-        "wiki/team/new.md": "new",
+        "wiki/team/edited.md": "update",
+        "wiki/team/new.md": "create",
     }
-    assert summary.strip() == "1 unchanged, 1 edited, 1 new, 1 untracked, 0 unreadable"
+    assert (
+        summary.strip()
+        == "1 unchanged, 1 update, 1 create, 1 untracked, 0 unsupported, 0 unreadable"
+    )
     # Changes are an exit code only when asked for: 7, in the one table of every ycli command.
     assert _run(repository, monkeypatch, "status", "--exit-code")[0] == 7
     assert _run(repository, monkeypatch, "status", "--exit-code", "wiki/team.md")[0] == 0

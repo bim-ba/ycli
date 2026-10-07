@@ -58,4 +58,5 @@ without parsing the message.
 | 4 | auth | 401 or 403, or no credentials |
 | 5 | rate limited | the API answered 429 and the retries ran out (the hint shows `Retry-After`) |
 | 6 | transient | a 5xx, a timeout or a lost connection: worth retrying later |
-| 7 | changes | nothing failed: `ycli sync status --exit-code` found files edited since they were read |
+| 7 | changes | nothing failed: with `--exit-code`, `ycli sync` found something to push |
+| 8 | diverged | a file and its object went apart: the object changed on the server since the file was read, or is gone |
