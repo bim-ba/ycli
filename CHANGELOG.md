@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.114.1 (2026-10-07)
+
+### Bug Fixes
+
+- **mcp**: A refusal of a tool's arguments no longer repeats what was sent
+  ([`77dad13`](https://github.com/bim-ba/ycli/commit/77dad1369fb2264db4c70e4e5fc1dac9410006ac))
+
+### Build System
+
+- Re-lock uv.lock for 0.114.0
+  ([`a3e2130`](https://github.com/bim-ba/ycli/commit/a3e2130c14d6ed9d6236b7cc6f2d7a4f91114bda))
+
+
 ## v0.114.0 (2026-10-07)
 
 ### Build System
