@@ -74,6 +74,31 @@ def test_an_input_makes_the_default_method_post(api: MockAPI):
     assert _api("things", "--service", "tracker", "--input", "-", stdin="{}").exit_code == 0
 
 
+@pytest.mark.parametrize("method", [[], ["-X", "POST"], ["-X", "PATCH"]])
+def test_a_body_file_alone_is_the_body_of_a_write(api: MockAPI, tmp_path, method):
+    """No ``-F`` beside it: the file is the whole body, and the method defaults to POST."""
+    body = tmp_path / "body.json"
+    body.write_text('{"scope": "dash", "filters": {"name": "Sales"}}')
+    verb = method[1] if method else "POST"
+    api.add(verb, f"{TRACKER_BASE}/things", json={})
+    result = _api("things", "--service", "tracker", *method, "--body-file", str(body))
+    assert result.exit_code == 0, result.output
+    assert (api.calls[0].method, json.loads(api.calls[0].content)) == (
+        verb,
+        {"scope": "dash", "filters": {"name": "Sales"}},
+    )
+
+
+def test_a_body_file_of_a_read_is_still_refused(api: MockAPI, tmp_path):
+    """A GET carries its fields in the query: there is no object to lay the file under."""
+    body = tmp_path / "body.json"
+    body.write_text('{"a": 1}')
+    result = _api("things", "--service", "tracker", "-X", "GET", "--body-file", str(body))
+    assert result.exit_code == 2
+    assert "this command sends no JSON object to add fields to" in _said(result)
+    assert api.calls == []
+
+
 def test_fields_of_a_get_go_to_the_query_string(api: MockAPI):
     api.add("GET", f"{TRACKER_BASE}/issues", json=[])
     result = _api(

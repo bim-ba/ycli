@@ -1,7 +1,8 @@
 """``ycli api`` — call any endpoint ycli has not wrapped, with the same auth, retries and output.
 
-Modelled on ``gh api``: the method defaults to GET (POST once fields or ``--input`` are given),
-``-f``/``-F`` build the query string of a GET or the JSON body of a write, and the answer prints
+Modelled on ``gh api``: the method defaults to GET (POST once fields, ``--input`` or
+``--body-file`` are given), ``-f``/``-F`` build the query string of a GET or the JSON body of a
+write, and the answer prints
 through the normal output path, so ``-o``, ``--yes`` and ``--dry-run`` work as they do
 everywhere. The request is an :class:`~ycli.yandex.core.endpoint.Endpoint` sent through the
 service's own client, so its effect follows the method: a ``DELETE`` asks for ``--yes``.
@@ -63,7 +64,9 @@ def api(
     method: Annotated[
         str | None,
         typer.Option(
-            "--method", "-X", help="HTTP method (default GET, or POST with fields or --input)."
+            "--method",
+            "-X",
+            help="HTTP method (default GET, or POST with fields, --input or --body-file).",
         ),
     ] = None,
     field: Annotated[
@@ -118,9 +121,12 @@ def api(
     fields = parse_fields(field, raw=raw_field, structured=True)
     content = _read_input(input_file)
     target, relative = _resolve_target(path, service)
+    # ``--body-file`` alone is a body too: it is laid under the request's object as it is
+    # sent, so a write gets an empty object for it to land in.
+    from_file = context.find_root().obj.caller_fields.options.get("body_file") is not None
     # Paging is a read, so ``--paginate -f k=v`` stays a GET with its fields in the query.
     verb = (
-        ("POST" if (fields or content is not None) and not paginate else "GET")
+        ("POST" if (fields or content is not None or from_file) and not paginate else "GET")
         if method is None
         else method
     ).upper()
@@ -129,7 +135,7 @@ def api(
         _check_paginate(target, pagination, verb)
     elif limit is not None or all_:
         raise typer.BadParameter("--limit and --all need --paginate.", param_hint="--limit")
-    endpoint = _endpoint(verb, relative, fields, content, _headers(header))
+    endpoint = _endpoint(verb, relative, fields, content, _headers(header), from_file=from_file)
     client = context.find_root().obj.resolve(target.client_class())
     if paginate and pagination is not None:
         items = client.iterate(
@@ -145,6 +151,8 @@ def _endpoint(
     fields: dict[str, Any],
     content: bytes | None,
     headers: dict[str, str],
+    *,
+    from_file: bool = False,
 ) -> Endpoint[Any]:
     """The call as an endpoint: fields in the query of a read or beside a raw body, else as JSON.
 
@@ -154,6 +162,8 @@ def _endpoint(
         fields: The ``-F`` / ``-f`` fields.
         content: The raw body of ``--input``, if any.
         headers: The ``-H`` headers; a JSON content type is added for a raw body without one.
+        from_file: Whether ``--body-file`` gives the body: a write then sends an object even
+            with no field of its own.
 
     Returns:
         The endpoint, decoding its reply as ``ycli api`` prints it.
@@ -172,7 +182,7 @@ def _endpoint(
             cast("HTTPMethod", verb),
             path_only,
             params=params,
-            json=None if in_query else fields or None,
+            json=None if in_query else fields or ({} if from_file else None),
             content=content,
             headers=headers,
             parser=_decode,
