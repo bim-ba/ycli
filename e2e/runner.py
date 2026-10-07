@@ -33,6 +33,11 @@ if TYPE_CHECKING:
 EXCERPT_CHARACTERS = 300
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(\.[\w-]+)+")
 _LONG_NUMBER = re.compile(r"\b\d{13,}\b")  # Yandex account uids; page/issue ids are shorter
+# A link that carries its own permission in the query (object storage signs downloads so):
+# whoever holds it needs no token.
+_SIGNED_LINK = re.compile(
+    r"https?://[^\s'\"<>]*[?&](?:X-Amz-[A-Za-z-]+|sign(?:ature)?|sig)=[^\s'\"<>]*", re.IGNORECASE
+)
 
 
 class ScenarioError(AssertionError):
@@ -95,7 +100,7 @@ def search(expression: str, document: Any) -> Any:
 
 
 def scrub(text: str) -> str:
-    """A public-log-safe excerpt: credentials, emails and uids masked, then truncated.
+    """A public-log-safe excerpt: credentials, signed links, emails and uids masked, then cut.
 
     ``scrub("by ivan@ya.ru")`` -> ``"by <email>"``.
     """
@@ -103,6 +108,7 @@ def scrub(text: str) -> str:
         secret = os.environ.get(name)
         if secret:
             text = text.replace(secret, "<redacted>")
+    text = _SIGNED_LINK.sub("<signed link>", text)
     text = _LONG_NUMBER.sub("<uid>", _EMAIL.sub("<email>", text))
     if len(text) > EXCERPT_CHARACTERS:
         return f"{text[:EXCERPT_CHARACTERS]}… ({len(text)} characters)"
