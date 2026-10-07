@@ -26,6 +26,14 @@ class YandexInvalidRequestError(YandexError):
     """
 
 
+class YandexStaleContinuationError(YandexError):
+    """A listing cannot go on from the token given: the service no longer takes it.
+
+    The first request of the continued listing was sent and refused. Start the listing again
+    without the token.
+    """
+
+
 class YandexNotConfiguredError(YandexError):
     """The credentials cannot reach this service as they are; the message says what to set.
 
