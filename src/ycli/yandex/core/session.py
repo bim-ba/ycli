@@ -245,6 +245,10 @@ class SyncSession:
                 follow_redirects=paged.endpoint.follow_redirects,
             )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
+            # An empty page is the last one, whatever it names next: a listing that pages by
+            # number ends only so, and no service here filters after it pages (DataLens
+            # ``getEntries`` asked for the last of four entries by name, one per page, answers
+            # it on the first page: measured).
             following = paged.pagination.next(request, response, items) if items else None
             taken, done = _page_plan(items, produced, limit, has_next=following is not None)
             produced += len(taken)
