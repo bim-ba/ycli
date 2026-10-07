@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -14,6 +13,7 @@ from ycli.yandex.forms.dependencies import (
     WRITE_IDEMPOTENT,
     SurveyID,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.questions.models import (
     FORCE_IGNORED,
@@ -25,7 +25,7 @@ from ycli.yandex.forms.questions.models import (
 )
 from ycli.yandex.models import IGNORED_BY_API, Ack
 
-mcp = FastMCP("forms-questions")
+mcp = new_server("forms-questions")
 
 
 @mcp.tool(name="questions_list", annotations={**RO, "title": "List Forms questions"})

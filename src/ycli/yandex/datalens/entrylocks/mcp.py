@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,6 +12,7 @@ from ycli.yandex.datalens.dependencies import (
     WRITE_IDEMPOTENT,
     EntryID,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.entrylocks.models import (
     Lock,
@@ -22,7 +22,7 @@ from ycli.yandex.datalens.entrylocks.models import (
     LockTerms,
 )
 
-mcp = FastMCP("datalens-entrylocks")
+mcp = new_server("datalens-entrylocks")
 
 
 @mcp.tool(name="entrylocks_create", annotations={**WRITE, "title": "Lock a DataLens entry"})

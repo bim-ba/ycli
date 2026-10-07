@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,11 +14,12 @@ from ycli.yandex.forms.dependencies import (
     HookID,
     SurveyID,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
 from ycli.yandex.models import Ack, ItemList
 
-mcp = FastMCP("forms-hooks")
+mcp = new_server("forms-hooks")
 
 
 @mcp.tool(name="hooks_list", annotations={**RO, "title": "List Forms integration groups"})

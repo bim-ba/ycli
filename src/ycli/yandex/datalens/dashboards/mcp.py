@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -22,11 +21,12 @@ from ycli.yandex.datalens.dependencies import (
     OverBudget,
     PermissionsInfo,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.models import RevisionBranch, SaveMode
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-dashboards")
+mcp = new_server("datalens-dashboards")
 
 DashboardID = Annotated[str, Field(description="Dashboard id.")]
 LockToken = Annotated[

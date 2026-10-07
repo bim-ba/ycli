@@ -13,16 +13,16 @@ import difflib
 import pkgutil
 from typing import TYPE_CHECKING, Annotated, Any
 
-from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field, TypeAdapter
 
-from ycli.yandex.mcp import RO, SCHEMA_ADDRESS
+from ycli.yandex.mcp import RO, SCHEMA_ADDRESS, new_server
 from ycli.yandex.models import APIModel
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
 
+    from fastmcp import FastMCP
     from fastmcp.tools.base import Tool
 
 
@@ -79,7 +79,7 @@ def schema_server(list_tools: Callable[[], Awaitable[Sequence[Tool]]]) -> FastMC
     The index is built at the first call and kept: the tools a server serves do not change
     after it starts.
     """
-    server = FastMCP("schema")
+    server = new_server("schema")
     index: dict[str, dict[str, dict[str, Any]]] = {}
 
     @server.tool(name="get", annotations={**RO, "title": "Read the schema of a tool's body"})

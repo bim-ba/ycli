@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,12 +12,13 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     QueueID,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
 from ycli.yandex.tracker.models import FieldCreate
 
-mcp = FastMCP("tracker-localfields")
+mcp = new_server("tracker-localfields")
 
 
 @mcp.tool(name="localfields_list", annotations={**RO, "title": "List Tracker local fields"})

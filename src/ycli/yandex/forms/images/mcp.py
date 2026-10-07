@@ -6,15 +6,14 @@ JSON MCP tool cannot carry — so it stays on the CLI and SDK.
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import WRITE, forms_client
+from ycli.yandex.forms.dependencies import WRITE, forms_client, new_server
 from ycli.yandex.forms.images.models import Image, ImageClone
 
-mcp = FastMCP("forms-images")
+mcp = new_server("forms-images")
 
 
 @mcp.tool(name="images_clone", annotations={**WRITE, "title": "Clone a Forms image"})

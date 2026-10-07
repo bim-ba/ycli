@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,11 +12,12 @@ from ycli.yandex.datalens.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.embeds.models import Embed, EmbedDeleted, EmbedSettings
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-embeds")
+mcp = new_server("datalens-embeds")
 
 EmbedID = Annotated[str, Field(description="Embed id, from ``embeds_list``.")]
 Title = Annotated[str, Field(description="The name of the embed.")]

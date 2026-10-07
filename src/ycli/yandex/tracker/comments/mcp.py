@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -20,11 +19,12 @@ from ycli.yandex.tracker.dependencies import (
     Expand,
     IssueKey,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.models import CommentCreate
 
-mcp = FastMCP("tracker-comments")
+mcp = new_server("tracker-comments")
 
 
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Tracker issue comments"})

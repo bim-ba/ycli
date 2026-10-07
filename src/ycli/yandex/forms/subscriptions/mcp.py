@@ -5,7 +5,6 @@ Uploading a fixed attachment is a binary payload and stays CLI/SDK-only.
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -19,11 +18,12 @@ from ycli.yandex.forms.dependencies import (
     OverBudget,
     SurveyID,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.subscriptions.models import Subscription
 from ycli.yandex.models import Ack, ItemList
 
-mcp = FastMCP("forms-subscriptions")
+mcp = new_server("forms-subscriptions")
 
 # The body is a union of seven integrations: listed whole it takes a tool over the budget.
 SUBSCRIPTION = "ycli.yandex.forms.subscriptions.models:Subscription"

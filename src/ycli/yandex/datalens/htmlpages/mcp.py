@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,6 +14,7 @@ from ycli.yandex.datalens.dependencies import (
     EntryID,
     PermissionsInfo,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.htmlpages.models import (
     HTMLPage,
@@ -29,7 +29,7 @@ from ycli.yandex.datalens.htmlpages.models import (
 from ycli.yandex.datalens.models import RevisionBranch
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-htmlpages")
+mcp = new_server("datalens-htmlpages")
 
 PageBranch = Annotated[
     RevisionBranch | None,

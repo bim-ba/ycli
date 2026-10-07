@@ -2,16 +2,15 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, forms_client
+from ycli.yandex.forms.dependencies import RO, forms_client, new_server
 from ycli.yandex.forms.variables.models import VariableInfo
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("forms-variables")
+mcp = new_server("forms-variables")
 
 
 @mcp.tool(

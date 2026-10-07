@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -20,10 +19,11 @@ from ycli.yandex.datalens.dependencies import (
     WRITE_IDEMPOTENT,
     OverBudget,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-connections")
+mcp = new_server("datalens-connections")
 
 ConnectionID = Annotated[str, Field(description="Connection id.")]
 MODELS = "ycli.yandex.datalens.connections.models"

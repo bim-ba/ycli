@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,10 +14,11 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     IssueKey,
     app_config,
+    new_server,
     tracker_client,
 )
 
-mcp = FastMCP("tracker-changelog")
+mcp = new_server("tracker-changelog")
 
 
 @mcp.tool(name="changelog_list", annotations={**RO, "title": "List Tracker issue changelog"})

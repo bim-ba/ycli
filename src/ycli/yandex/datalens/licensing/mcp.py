@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,6 +14,7 @@ from ycli.yandex.datalens.dependencies import (
     WRITE_IDEMPOTENT,
     app_config,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.licensing.models import (
     License,
@@ -25,7 +25,7 @@ from ycli.yandex.datalens.licensing.models import (
 )
 from ycli.yandex.models import ItemList, SortDirection
 
-mcp = FastMCP("datalens-licensing")
+mcp = new_server("datalens-licensing")
 
 
 @mcp.tool(name="licensing_licenses_list", annotations={**RO, "title": "List DataLens licences"})

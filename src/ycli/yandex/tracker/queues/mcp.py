@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -18,6 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     Expand,
     QueueID,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.queues.models import (
@@ -34,7 +34,7 @@ from ycli.yandex.tracker.queues.models import (
     QueueVersionUpdate,
 )
 
-mcp = FastMCP("tracker-queues")
+mcp = new_server("tracker-queues")
 
 
 @mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"})

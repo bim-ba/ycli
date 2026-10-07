@@ -6,7 +6,6 @@ useful MCP payload). The upload direction is exposed: an agent supplies a small 
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
@@ -18,10 +17,11 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     IssueKey,
+    new_server,
     tracker_client,
 )
 
-mcp = FastMCP("tracker-attachments")
+mcp = new_server("tracker-attachments")
 
 
 @mcp.tool(

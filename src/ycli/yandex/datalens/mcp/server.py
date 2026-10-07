@@ -1,11 +1,4 @@
-"""DataLens FastMCP subserver — mounts the per-resource tool servers.
-
-The server of one resource (``…<resource>.mcp.mcp``) is a building block: whoever mounts one
-in a server of their own adds ``ArgumentRefusals`` to it, or a refusal of arguments repeats
-what was sent. This server carries it.
-"""
-
-from fastmcp import FastMCP
+"""DataLens FastMCP subserver — mounts the per-resource tool servers."""
 
 from ycli.yandex.datalens.audit.mcp import mcp as audit_mcp
 from ycli.yandex.datalens.charts.mcp import mcp as charts_mcp
@@ -36,17 +29,15 @@ from ycli.yandex.datalens.trinoclusters.mcp import mcp as trinoclusters_mcp
 from ycli.yandex.datalens.workbookexports.mcp import mcp as workbookexports_mcp
 from ycli.yandex.datalens.workbookimports.mcp import mcp as workbookimports_mcp
 from ycli.yandex.datalens.workbooks.mcp import mcp as workbooks_mcp
-from ycli.yandex.mcp import ArgumentRefusals
+from ycli.yandex.mcp import new_server
 
-mcp = FastMCP(
+mcp = new_server(
     "datalens",
     instructions=(
         "Yandex DataLens. tenant_details_get tells which DataLens instance the credentials "
         "reach. DataLens needs a Yandex Cloud IAM token and a Yandex Cloud organization."
     ),
 )
-# The root server carries it too; this one for whoever mounts the service alone.
-mcp.add_middleware(ArgumentRefusals())
 mcp.mount(tenant_mcp)
 mcp.mount(collections_mcp)
 mcp.mount(workbooks_mcp)

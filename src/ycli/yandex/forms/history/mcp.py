@@ -2,17 +2,16 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, app_config, forms_client
+from ycli.yandex.forms.dependencies import RO, app_config, forms_client, new_server
 from ycli.yandex.forms.history.models import HistoryEvent
 from ycli.yandex.models import ItemList, SortDirection
 
-mcp = FastMCP("forms-history")
+mcp = new_server("forms-history")
 
 
 @mcp.tool(name="history_list", annotations={**RO, "title": "List Forms change log"})

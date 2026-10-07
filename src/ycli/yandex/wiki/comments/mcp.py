@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -22,11 +21,12 @@ from ycli.yandex.wiki.dependencies import (
     WRITE,
     PageID,
     app_config,
+    new_server,
     wiki_client,
 )
 from ycli.yandex.wiki.models import ResolveStatus
 
-mcp = FastMCP("wiki-comments")
+mcp = new_server("wiki-comments")
 
 
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"})

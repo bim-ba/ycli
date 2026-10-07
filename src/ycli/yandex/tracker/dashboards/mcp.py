@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,9 +12,9 @@ from ycli.yandex.tracker.dashboards.models import (
     DashboardCreate,
     Widget,
 )
-from ycli.yandex.tracker.dependencies import WRITE, tracker_client
+from ycli.yandex.tracker.dependencies import WRITE, new_server, tracker_client
 
-mcp = FastMCP("tracker-dashboards")
+mcp = new_server("tracker-dashboards")
 
 
 @mcp.tool(

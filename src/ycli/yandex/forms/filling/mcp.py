@@ -6,16 +6,15 @@ All three endpoints are exposed: the ``get-settings`` and ``suggest`` reads, and
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, WRITE, forms_client
+from ycli.yandex.forms.dependencies import RO, WRITE, forms_client, new_server
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("forms-filling")
+mcp = new_server("forms-filling")
 
 
 @mcp.tool(name="filling_get", annotations={**RO, "title": "Get Forms fillable form"})

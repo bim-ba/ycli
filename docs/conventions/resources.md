@@ -173,6 +173,19 @@ the domain tags (`TAGS`, `WRITE_TAGS`) for the prompts and resources of the serv
 have no annotations to derive them from.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import, and
 an import-linter contract forbids a resource `mcp.py` from importing `ycli.yandex.mcp`.
 
+### One constructor for every server
+
+A server is built with `new_server(name)` (`ycli.yandex.mcp`; a resource's `mcp.py` takes it
+from its domain's `dependencies`, like the annotation sets), never with `FastMCP(name)`:
+
+```python
+mcp = new_server("forms-surveys")
+```
+
+What every server of ycli must do is added there once. Today that is `ArgumentRefusals`: a
+refusal of a tool's arguments names the path and what is wrong, and never repeats what was
+sent, whether the server is the root one, a service's, or one resource's run by itself.
+
 ### Why `<domain>_client` is a per-request provider
 
 fastmcp's `mount()` does not propagate lifespan context across server boundaries, so a
@@ -428,8 +441,8 @@ check of its own to say it. A reply that does not fit its model is another error
   dump of a request body (`APIModel._as_sent` under `WIRE`). A value that fails validation is
   raw, so no model quotes its input in the text of an error (`hide_input_in_errors` on
   `APIModel` and on every generated `RootModel`); the error still names the field. The arguments of
-  an MCP tool are validated by FastMCP, which that setting does not reach: the root server
-  writes their refusal itself (`ArgumentRefusals`), with the same line the CLI prints
+  an MCP tool are validated by FastMCP, which that setting does not reach: every server
+  writes their refusal itself (`ArgumentRefusals`, added by `new_server`), with the same line the CLI prints
   (`field_error`): the path and what is wrong, never the value. `--dry-run`
   prints `***` under every key that the request's model types as a secret (`secret_keys`), at
   any depth and whoever gave it (a flag, `-F`, `--body-file`): `PlannedRequest.of` (#388). That
@@ -562,6 +575,7 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | `APIModel` base | `tests/architecture/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
 | No list class of a resource's own | `tests/architecture/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
 | `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
+| Every server is built by `new_server` | `tests/architecture/test_conventions.py::test_every_server_is_built_by_the_shared_constructor` |
 | MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/contract/test_contract.py`, `tests/architecture/test_arch3.py` |
 | Serialization confinement | `tests/architecture/test_arch4.py` |
 | Discriminated MCP output unions | `tests/architecture/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |

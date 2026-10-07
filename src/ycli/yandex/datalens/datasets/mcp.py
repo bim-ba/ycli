@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -25,10 +24,11 @@ from ycli.yandex.datalens.dependencies import (
     WRITE_IDEMPOTENT,
     OverBudget,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-datasets")
+mcp = new_server("datalens-datasets")
 
 DatasetID = Annotated[str, Field(description="Dataset id.")]
 InWorkbook = Annotated[str | None, Field(description="The workbook the dataset lies in.")]

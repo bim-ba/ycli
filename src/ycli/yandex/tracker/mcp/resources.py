@@ -1,15 +1,14 @@
 """Tracker MCP resources: what a user attaches, each repeating one read tool."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.resources import ResourceContent
 
-from ycli.yandex.mcp import REPEATS_TOOL, guide
+from ycli.yandex.mcp import REPEATS_TOOL, guide, new_server
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import TAGS, tracker_client
 from ycli.yandex.tracker.issues.mcp import get as issues_get
 
-mcp = FastMCP("tracker-resources")
+mcp = new_server("tracker-resources")
 
 
 @mcp.resource(

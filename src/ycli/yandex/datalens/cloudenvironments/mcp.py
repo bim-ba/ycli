@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -22,11 +21,12 @@ from ycli.yandex.datalens.dependencies import (
     PermissionsInfo,
     app_config,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-cloudenvironments")
+mcp = new_server("datalens-cloudenvironments")
 
 EnvironmentID = Annotated[str, Field(description="Id of the cloud environment.")]
 SecurityGroups = Annotated[

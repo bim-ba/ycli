@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,11 +12,12 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     Version,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeCreate, IssueTypeUpdate
 
-mcp = FastMCP("tracker-issuetypes")
+mcp = new_server("tracker-issuetypes")
 
 
 @mcp.tool(name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"})

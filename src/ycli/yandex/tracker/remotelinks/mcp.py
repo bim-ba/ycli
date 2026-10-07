@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,11 +12,12 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     IssueKey,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 
-mcp = FastMCP("tracker-remotelinks")
+mcp = new_server("tracker-remotelinks")
 
 
 @mcp.tool(

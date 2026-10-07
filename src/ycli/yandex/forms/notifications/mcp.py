@@ -2,13 +2,12 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client
+from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client, new_server
 from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.forms.notifications.models import (
     Notification,
@@ -18,7 +17,7 @@ from ycli.yandex.forms.notifications.models import (
 )
 from ycli.yandex.models import ItemList, SortDirection
 
-mcp = FastMCP("forms-notifications")
+mcp = new_server("forms-notifications")
 
 NotificationID = Annotated[
     int, Field(description="Notification id (integer) from notifications_list.")

@@ -2,18 +2,17 @@
 
 from typing import Annotated, Any
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import RO, WRITE, datalens_client
+from ycli.yandex.datalens.dependencies import RO, WRITE, datalens_client, new_server
 from ycli.yandex.datalens.workbookimports.models import (
     WorkbookImportStarted,
     WorkbookImportStatus,
 )
 
-mcp = FastMCP("datalens-workbookimports")
+mcp = new_server("datalens-workbookimports")
 
 
 @mcp.tool(

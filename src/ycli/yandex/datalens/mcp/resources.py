@@ -1,11 +1,9 @@
 """DataLens MCP resources: what a user attaches."""
 
-from fastmcp import FastMCP
-
 from ycli.yandex.datalens.dependencies import TAGS
-from ycli.yandex.mcp import guide
+from ycli.yandex.mcp import guide, new_server
 
-mcp = FastMCP("datalens-resources")
+mcp = new_server("datalens-resources")
 
 
 @mcp.resource(

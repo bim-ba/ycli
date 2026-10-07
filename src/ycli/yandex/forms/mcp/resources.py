@@ -1,15 +1,14 @@
 """Forms MCP resources: what a user attaches, each repeating one read tool."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.resources import ResourceContent
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import TAGS, forms_client
 from ycli.yandex.forms.surveys.mcp import get as surveys_get
-from ycli.yandex.mcp import REPEATS_TOOL, guide
+from ycli.yandex.mcp import REPEATS_TOOL, guide, new_server
 
-mcp = FastMCP("forms-resources")
+mcp = new_server("forms-resources")
 
 
 @mcp.resource(

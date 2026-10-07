@@ -7,7 +7,6 @@ operation id is also pollable via the generic ``operations_get`` tool.
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -28,11 +27,12 @@ from ycli.yandex.forms.dependencies import (
     SurveyID,
     app_config,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.models import Ack, ItemList, SortDirection
 
-mcp = FastMCP("forms-answers")
+mcp = new_server("forms-answers")
 
 
 @mcp.tool(name="answers_get", annotations={**RO, "title": "Get Forms answer"})

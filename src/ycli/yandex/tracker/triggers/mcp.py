@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -17,6 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     QueueID,
     Version,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.triggers.models import (
@@ -26,7 +26,7 @@ from ycli.yandex.tracker.triggers.models import (
     WebhookLogEntry,
 )
 
-mcp = FastMCP("tracker-triggers")
+mcp = new_server("tracker-triggers")
 
 
 @mcp.tool(name="triggers_list", annotations={**RO, "title": "List Tracker queue triggers"})

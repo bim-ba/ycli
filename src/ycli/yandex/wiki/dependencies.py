@@ -13,6 +13,7 @@ from ycli.yandex.mcp import (
     WRITE_TAG,
     app_config,
     client_provider,
+    new_server,
 )
 from ycli.yandex.wiki.client import WikiClient
 
@@ -36,5 +37,6 @@ __all__ = [
     "PageID",
     "Slug",
     "app_config",
+    "new_server",
     "wiki_client",
 ]

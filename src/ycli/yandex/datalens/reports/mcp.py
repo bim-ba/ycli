@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,6 +14,7 @@ from ycli.yandex.datalens.dependencies import (
     OverBudget,
     PermissionsInfo,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.models import SaveMode
 from ycli.yandex.datalens.reports.models import (
@@ -27,7 +27,7 @@ from ycli.yandex.datalens.reports.models import (
 )
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-reports")
+mcp = new_server("datalens-reports")
 
 ReportID = Annotated[str, Field(description="Report id.")]
 Data = Annotated[

@@ -2,12 +2,11 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import DESTRUCTIVE, RO, WRITE, datalens_client
+from ycli.yandex.datalens.dependencies import DESTRUCTIVE, RO, WRITE, datalens_client, new_server
 from ycli.yandex.datalens.embeddingsecrets.models import (
     EmbeddingSecret,
     EmbeddingSecretCreated,
@@ -15,7 +14,7 @@ from ycli.yandex.datalens.embeddingsecrets.models import (
 )
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-embeddingsecrets")
+mcp = new_server("datalens-embeddingsecrets")
 
 SecretID = Annotated[str, Field(description="Id of the key for embedding.")]
 

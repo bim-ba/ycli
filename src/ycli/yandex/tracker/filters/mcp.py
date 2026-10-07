@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,11 +12,12 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
-mcp = FastMCP("tracker-filters")
+mcp = new_server("tracker-filters")
 
 
 @mcp.tool(name="filters_get", annotations={**RO, "title": "Get Tracker filter"})

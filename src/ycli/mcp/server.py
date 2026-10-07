@@ -10,7 +10,6 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING
 
-from fastmcp import FastMCP
 from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
@@ -25,11 +24,12 @@ from ycli.settings import (
     MCPHTTPConfig,
     OAuthAppConfig,
 )
-from ycli.yandex.mcp import WRITE_TAG, ArgumentRefusals, guide
+from ycli.yandex.mcp import WRITE_TAG, guide, new_server
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.mcp import mcp as status_mcp
 
 if TYPE_CHECKING:
+    from fastmcp import FastMCP
     from fastmcp.server.auth import AuthProvider
 
     from ycli.yandex.service import Service
@@ -53,12 +53,12 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
 
     Examples:
         >>> server = build_server(Selection(toolsets=("wiki",)))
-        >>> isinstance(server, FastMCP)
-        True
+        >>> server.name
+        'yandex'
     """
     mounted_names = selection.services()
     mounted = [service for service in SERVICES if service.name in mounted_names]
-    server = FastMCP("yandex", instructions=_instructions(mounted), auth=auth)
+    server = new_server("yandex", instructions=_instructions(mounted), auth=auth)
 
     @server.resource(
         "ycli://guide",
@@ -74,7 +74,6 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
     server.mount(schema_server(server.list_tools), namespace="schema")
-    server.add_middleware(ArgumentRefusals())
     server.add_transform(DerivedTags())
     _apply_selection(server, selection)
     return server

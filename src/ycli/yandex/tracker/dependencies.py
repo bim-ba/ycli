@@ -13,6 +13,7 @@ from ycli.yandex.mcp import (
     WRITE_TAG,
     app_config,
     client_provider,
+    new_server,
 )
 from ycli.yandex.tracker.client import TrackerClient
 
@@ -78,5 +79,6 @@ __all__ = [
     "Version",
     "WorklogRecordID",
     "app_config",
+    "new_server",
     "tracker_client",
 ]

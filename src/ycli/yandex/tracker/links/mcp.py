@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -16,11 +15,12 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     IssueKey,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate
 
-mcp = FastMCP("tracker-links")
+mcp = new_server("tracker-links")
 
 
 @mcp.tool(name="links_list", annotations={**RO, "title": "List Tracker issue links"})

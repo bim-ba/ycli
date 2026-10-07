@@ -15,6 +15,7 @@ from ycli.yandex.mcp import (
     OverBudget,
     app_config,
     client_provider,
+    new_server,
 )
 
 TAGS: set[str] = {"datalens"}
@@ -38,4 +39,5 @@ __all__ = [
     "PermissionsInfo",
     "app_config",
     "datalens_client",
+    "new_server",
 ]

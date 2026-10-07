@@ -7,17 +7,16 @@ JSON MCP tool cannot carry, so they stay CLI/SDK-only; ``verify`` (a read done v
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, forms_client
+from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, forms_client, new_server
 from ycli.yandex.forms.files.models import FileIn
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import Ack, ItemList
 
-mcp = FastMCP("forms-files")
+mcp = new_server("forms-files")
 
 
 @mcp.tool(name="files_verify", annotations={**RO, "title": "Verify Forms files"})

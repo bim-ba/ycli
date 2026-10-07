@@ -2,17 +2,16 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, app_config, new_server, tracker_client
 from ycli.yandex.tracker.users.models import User
 
-mcp = FastMCP("tracker-users")
+mcp = new_server("tracker-users")
 
 
 @mcp.tool(name="users_get", annotations={**RO, "title": "Get Tracker user"})
