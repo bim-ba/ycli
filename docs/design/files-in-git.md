@@ -101,11 +101,25 @@ One vocabulary says what `push` would do with a file, in `status`, `diff` and `p
 | `changed-on-server` | the version or the fingerprint of the object is not the file's | no |
 | `gone` | the file names an object the server no longer has | no |
 | `no-file` | a container holds an object that has no file | no |
+| `delete` | `push --prune <commit>`: the file was deleted since that commit | from git |
 
 `status` reads nothing but the files, so an edited file is `update` there even when its object has
 changed meanwhile; `diff` reads the server and says `changed-on-server`. The file keeps no copy of
 what was read, only its fingerprint: where the object changed, `diff` shows the file against the
 server as it is now and cannot say whose change a line is.
+
+What `push` did with a file is one of `created`, `updated`, `deleted`, `unchanged`, `stopped`
+(the file and its object went apart: exit `8`) and `failed` (exit `1`, which outweighs `8`). After
+a write the object is read again. A value that was sent and is not there fails the file and is
+named by its path (`written, and the server did not keep: actions.0.status`); the link of the
+file stays as it was, so the next `diff` shows the file against the server. What the server
+added of its own is no loss: the file is written anew as `pull` would write it, so it is
+`unchanged` from then on, and the summary counts such files when there are any (`2 files now hold what the
+service added`; whether a file should be rewritten so is with the owner). The plan says beforehand that
+a new file gets its identity and, where it applies, the name of its object. A new file that lies under an identity is moved to the name of its
+object (`triggers/assign.yaml` becomes `triggers/16.yaml`). `--on-error abort` ends the run at
+the first failed file; the default, `fail`, goes on. `push --dry-run` sends nothing and prints
+the plan.
 
 A directory names the files under it and the file beside it of the same name: `wiki/team` is the
 page `wiki/team.md` and the pages under `wiki/team/`, in every command.
@@ -394,8 +408,8 @@ trigger: for a trigger file deleted with `--prune` the engine says so.
 | `status`, `validate`, where a file lies (`ycli.yandex.sync.files`, `paths`) | built |
 | `pull` (`ycli.yandex.sync.pull`) | built |
 | `diff`, the plan it shares with `push`, the exit codes (`ycli.yandex.sync.plan`) | built |
-| `push`, `--on-error`, the rest of the output of #492 | not built |
-| `--prune` | not built |
+| `push`, `--on-error`, `--prune` (`ycli.yandex.sync.push`) | built; a live round trip of each kind is still to be recorded |
+| The rest of the output of #492: one JSON object a line, `-o paths`, the annotations of GitHub Actions | not built |
 | The MCP tools, in one change with `pull` / `diff` / `push` | not built |
 | A how-to page in `docs/en` and `docs/ru`, with the recipe "the plan as a comment on a pull request" | not built |
 
