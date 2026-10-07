@@ -135,6 +135,20 @@ def test_unique_counts_repeated_keys():
     assert search("length(unique([].key))", issues) == 2
 
 
+def test_scrub_masks_a_signed_link_whole():
+    """Whoever holds such a link reads the file with no token; a log of the CI job is public."""
+    link = (
+        "https://storage.example.net/exports/a.xlsx?X-Amz-Credential=MADEUPKEYID%2Fs3"
+        "&X-Amz-Expires=259200&X-Amz-Signature=0123456789abcdef"
+    )
+    assert scrub(f"got {{'href': '{link}'}} instead") == "got {'href': '<signed link>'} instead"
+    assert scrub("see https://x.example/f?sign=abc123&ts=1") == "see <signed link>"
+    # A link that signs nothing stays: a failure should still say which address it was.
+    assert scrub("GET https://api.example.net/v1/pages?slug=a") == (
+        "GET https://api.example.net/v1/pages?slug=a"
+    )
+
+
 def test_scrub_masks_emails_and_uids():
     assert scrub("by ivan.p@yandex.ru uid 1130000012345678 id 50427846") == (
         "by <email> uid <uid> id 50427846"

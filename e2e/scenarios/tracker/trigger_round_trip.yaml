@@ -1,0 +1,59 @@
+# What `ycli sync` stands on for a trigger (the kind `tracker/trigger`): a trigger read and sent
+# back as it was read is the same trigger, and a change of one field changes that field alone.
+# The fields are those of `TriggerUpdate`: the name, the actions, the conditions and whether it
+# is active.
+#
+# The API cannot delete a trigger, so a run makes none: it edits the one kept in the sandbox
+# queue, switched off, that the owner of the organization names (TRIGGER), and gives its name
+# back. Without the variable every step is skipped.
+name: tracker/trigger-round-trip
+steps:
+  - id: read
+    needs: [TRIGGER]
+    run: tracker triggers get ${QUEUE} ${TRIGGER}
+    expect:
+      active: false
+      "length(actions)": 1
+      "length(conditions)": 1
+    save:
+      name: name
+      version: version
+      action: "to_string(actions[0])"
+      condition: "to_string(conditions[0])"
+      actions: "to_string(actions)"
+      conditions: "to_string(conditions)"
+  # Everything as it was read, the keys the service added itself included (an action's `id`
+  # and `fromRobot`, a condition's `ignoreCase`, `removeMarkup`, `noMatchBefore`).
+  - id: send-back
+    needs: [TRIGGER]
+    run: >-
+      tracker triggers update ${QUEUE} ${TRIGGER} --name '${name}' --inactive
+      --action '${action}' --condition '${condition}' --version ${version}
+  # A save that changes nothing leaves the version where it was (measured).
+  - id: same
+    needs: [TRIGGER]
+    run: tracker triggers get ${QUEUE} ${TRIGGER}
+    expect:
+      name: ${name}
+      active: false
+      "to_string(actions)": ${actions}
+      "to_string(conditions)": ${conditions}
+      "to_string(version)": ${version}
+  - id: rename
+    needs: [TRIGGER]
+    run: tracker triggers update ${QUEUE} ${TRIGGER} --name "${name} ${RUN}" --version ${version}
+  - id: only-the-name-changed
+    needs: [TRIGGER]
+    run: tracker triggers get ${QUEUE} ${TRIGGER}
+    expect:
+      name: ${name} ${RUN}
+      active: false
+      "to_string(actions)": ${actions}
+      "to_string(conditions)": ${conditions}
+    save:
+      version: version
+  - id: name-back
+    needs: [TRIGGER]
+    run: tracker triggers update ${QUEUE} ${TRIGGER} --name '${name}' --version ${version}
+    expect:
+      name: ${name}
