@@ -478,8 +478,8 @@ it. ``entries_list`` with the scope ``artifact`` finds the pages.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
-| `rev_id` | string or null |  | A revision of the page. |
-| `branch` | `saved` · `published` or string or null |  | The revision saved last (`saved`), or the public one (`published`). |
+| `rev_id` | string or null |  | One revision, as it is; give it or `branch`, not both. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_favorite` | boolean or null |  | Also say whether the page is a favourite. |
 
@@ -529,8 +529,8 @@ A temporary signed link that shows the page; it stops working after a while.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
-| `branch` | `saved` · `published` or string or null |  | The revision saved last (`saved`), or the public one (`published`). |
-| `rev_id` | string or null |  | A revision of the page. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. |
+| `rev_id` | string or null |  | One revision, as it is; give it or `branch`, not both. |
 | `lang` | `en` · `ru` or string or null |  | Language of the preview: `en` or `ru`. |
 | `theme` | `light` · `dark` · `light-hc` · `dark-hc` · `system` or string or null |  | Theme of the preview. |
 
@@ -834,11 +834,11 @@ One chart built in the wizard: the datasets it reads and what it shows.
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `workbook_id` | string or null |  | The workbook the chart lies in. |
-| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `rev_id` | string or null |  | One revision to read, as it is; give it or `branch`, not both. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_wizard_create`
 
@@ -896,11 +896,11 @@ One QL chart. Unlike a chart of the wizard it comes flat, with no ``entry`` arou
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `workbook_id` | string or null |  | The workbook the chart lies in. |
-| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `rev_id` | string or null |  | One revision to read, as it is; give it or `branch`, not both. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_ql_create`
 
@@ -956,11 +956,11 @@ One chart written in the editor: its kind (``entry.type``) and its tabs of code.
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `workbook_id` | string or null |  | The workbook the chart lies in. |
-| `rev_id` | string or null |  | The revision to read; the current one when left out. |
+| `rev_id` | string or null |  | One revision to read, as it is; give it or `branch`, not both. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_editor_create`
 
@@ -1009,11 +1009,11 @@ tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > das
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `dashboard_id` | string | yes | Dashboard id. |
-| `rev_id` | string or null |  | The revision of the dashboard to read; the current when left out. |
+| `rev_id` | string or null |  | One revision to read, as it is; give it or `branch`, not both. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what the dashboard is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether the dashboard is a favourite. |
-| `branch` | `saved` · `published` or string or null |  | Which version of it to read; the published one when left out (measured). A save writes the saved one: read `saved` before changing a dashboard. |
+| `branch` | `saved` · `published` or string or null |  | The version to read when no revision is named: `saved` or `published`. A save writes the saved one: read `saved` before changing a dashboard. |
 | `workbook_id` | string or null |  | The workbook the dashboard lies in. |
 
 ## `datalens_dashboards_create`
@@ -1064,6 +1064,7 @@ One report: its slides and the charts and texts on them.
 
 ``entry.data`` and ``entry.meta`` are what ``reports_update`` takes back.
 ``entries_list`` with the scope ``report`` finds reports.
+A report has no branch in the API: the read answers the saved version (measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

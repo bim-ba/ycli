@@ -220,6 +220,8 @@ class ArgumentRefusals(Middleware):
     the value given: for a field that is missing, the whole object it is missing from, and
     with it a password or a key the caller sent beside it. This writes the refusal as the CLI
     does, :func:`~ycli.yandex.models.field_error`: the path and what is wrong, nothing else.
+    A request the tool's body could not build from arguments that fit is said the same way,
+    under the CLI's heading: FastMCP alone answers it "Invalid request parameters".
 
     The root server and the server of each service carry it. The server of one resource
     (``ycli.yandex.<service>.<resource>.mcp.mcp``) is a building block and does not: whoever
@@ -242,4 +244,11 @@ class ArgumentRefusals(Middleware):
             # ``from None``: the cause holds the arguments, and a client may be shown it.
             raise ToolError(
                 "The arguments do not fit the tool:\n" + "\n".join(map(field_error, wrong))
+            ) from None
+        except ValidationError as unbuilt:
+            # The arguments fit, and the request they make does not (a read that names both a
+            # branch and a revision): FastMCP would answer "Invalid request parameters" alone.
+            wrong = unbuilt.errors(include_input=False, include_url=False)
+            raise ToolError(
+                "The request cannot be built:\n" + "\n".join(map(field_error, wrong))
             ) from None

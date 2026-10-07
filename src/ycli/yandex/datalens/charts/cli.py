@@ -21,7 +21,7 @@ from ycli.yandex.datalens.charts.models import (
     WizardChartSaved,
 )
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.models import SaveMode
+from ycli.yandex.datalens.models import RevisionBranch, SaveMode
 from ycli.yandex.datalens.schemas.editor import CreateEditorChartArgs, UpdateEditorChartArgs
 from ycli.yandex.datalens.schemas.ql import CreateQLChartArgs, UpdateQLChartArgs
 from ycli.yandex.datalens.schemas.wizard import CreateWizardChartV1Args, UpdateWizardV1Args
@@ -40,7 +40,8 @@ ChartWorkbookOption = Annotated[
     str | None, typer.Option("--workbook-id", help="The workbook the chart lies in.")
 ]
 RevisionOption = Annotated[
-    str | None, typer.Option("--rev-id", help="The revision to read; the current by default.")
+    str | None,
+    typer.Option("--rev-id", help="One revision to read, as it is; give it or --branch, not both."),
 ]
 ChartPermissionsOption = Annotated[
     bool | None,
@@ -60,10 +61,11 @@ FavoriteOption = Annotated[
 ]
 BranchOption = Annotated[
     str | None,
-    typer.Option(
+    values_option(
+        RevisionBranch,
         "--branch",
-        help="Which version to read: saved or published; the published one if left out "
-        "(measured). A save writes the saved one: read `saved` before you change a chart.",
+        help="The version to read when no revision is named: saved or published. A save writes "
+        "the saved one: read `saved` before you change a chart.",
     ),
 ]
 ModeOption = Annotated[

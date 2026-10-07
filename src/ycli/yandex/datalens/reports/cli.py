@@ -85,7 +85,10 @@ def get(
     *,
     datalens: DataLensClient,
 ) -> Report:
-    """Print one report: its slides and what stands on them."""
+    """Print one report: its slides and what stands on them.
+
+    A report has no branch in the API: the read answers the saved version (measured).
+    """
     return datalens.reports.get(
         entry_id,
         rev_id=rev_id,

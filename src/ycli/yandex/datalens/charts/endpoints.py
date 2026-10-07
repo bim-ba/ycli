@@ -26,6 +26,7 @@ from ycli.yandex.datalens.charts.models import (
     WizardChartData,
     WizardChartSaved,
 )
+from ycli.yandex.datalens.models import RevisionBranch, one_revision
 from ycli.yandex.datalens.schemas.data import GetChartDataArgs
 from ycli.yandex.datalens.schemas.editor import (
     CreateEditorChartArgs,
@@ -70,8 +71,9 @@ def wizard_get(
     include_permissions: bool | None,
     include_links: bool | None,
     include_favorite: bool | None,
-    branch: str | None,
+    branch: RevisionBranch | None,
 ) -> Endpoint[WizardChart]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetWizardChartV1Args(
         chartId=chart_id,
         workbookId=workbook_id,
@@ -130,8 +132,9 @@ def ql_get(
     include_permissions: bool | None,
     include_links: bool | None,
     include_favorite: bool | None,
-    branch: str | None,
+    branch: RevisionBranch | None,
 ) -> Endpoint[QLChart]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetQLChartArgs(
         chartId=chart_id,
         workbookId=workbook_id,
@@ -200,8 +203,9 @@ def editor_get(
     include_permissions: bool | None,
     include_links: bool | None,
     include_favorite: bool | None,
-    branch: str | None,
+    branch: RevisionBranch | None,
 ) -> Endpoint[EditorChart]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetEditorChartArgs(
         chartId=chart_id,
         workbookId=workbook_id,

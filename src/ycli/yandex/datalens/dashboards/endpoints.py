@@ -13,6 +13,7 @@ from ycli.yandex.datalens.dashboards.models import (
     DashboardSaved,
     DashboardUpdate,
 )
+from ycli.yandex.datalens.models import RevisionBranch, one_revision
 from ycli.yandex.datalens.schemas.dashboard import (
     CreateDashboardV2Args,
     DeleteDashboardArgs,
@@ -29,9 +30,10 @@ def get(
     include_permissions: bool | None,
     include_links: bool | None,
     include_favorite: bool | None,
-    branch: str | None,
+    branch: RevisionBranch | None,
     workbook_id: str | None,
 ) -> Endpoint[Dashboard]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetDashboardV2Args(
         dashboardId=dashboard_id,
         revId=rev_id,

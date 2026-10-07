@@ -41,7 +41,7 @@ def get(
     dashboard_id: DashboardID,
     rev_id: Annotated[
         str | None,
-        Field(description="The revision of the dashboard to read; the current when left out."),
+        Field(description="One revision to read, as it is; give it or `branch`, not both."),
     ] = None,
     include_permissions: PermissionsInfo = None,
     include_links: Annotated[
@@ -53,8 +53,8 @@ def get(
     branch: Annotated[
         RevisionBranch | None,
         Field(
-            description="Which version of it to read; the published one when left out "
-            "(measured). A save writes the saved one: read `saved` before changing a dashboard."
+            description="The version to read when no revision is named: `saved` or `published`. "
+            "A save writes the saved one: read `saved` before changing a dashboard."
         ),
     ] = None,
     workbook_id: Annotated[

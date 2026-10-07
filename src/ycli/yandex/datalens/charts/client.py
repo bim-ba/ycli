@@ -28,6 +28,7 @@ if TYPE_CHECKING:
         WizardChartData,
         WizardChartSaved,
     )
+    from ycli.yandex.datalens.models import RevisionBranch
 
 
 class ChartsClient(Resource):
@@ -67,26 +68,26 @@ class ChartsClient(Resource):
         include_permissions: bool | None = None,
         include_links: bool | None = None,
         include_favorite: bool | None = None,
-        branch: str | None = None,
+        branch: RevisionBranch | None = None,
     ) -> WizardChart:
         """``getWizardChart`` → one chart built in the wizard: its datasets and what it shows.
 
         Args:
             chart_id: The chart's id.
             workbook_id: The workbook the chart lies in.
-            rev_id: The revision to read; the current one when left out.
+            rev_id: One revision to read, as it is; give it or ``branch``, not both.
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``; the published one when
-                left out (measured). A save writes the saved one: read ``saved`` before
+            branch: The version to read when no revision is named: ``saved`` or
+                ``published``. A save writes the saved one: read ``saved`` before
                 changing the chart.
 
         Returns:
             The chart.
 
         Examples:
-            >>> chart = datalens.charts.wizard_get("ch000000000001")
+            >>> chart = datalens.charts.wizard_get("ch000000000001", branch="saved")
             >>> chart.entry.entry_id, chart.entry.data.visualization.type
             ('ch000000000001', 'flatTable')
         """
@@ -211,26 +212,26 @@ class ChartsClient(Resource):
         include_permissions: bool | None = None,
         include_links: bool | None = None,
         include_favorite: bool | None = None,
-        branch: str | None = None,
+        branch: RevisionBranch | None = None,
     ) -> QLChart:
         """``getQLChart`` → one QL chart: flat, with no ``entry`` around it.
 
         Args:
             chart_id: The chart's id.
             workbook_id: The workbook the chart lies in.
-            rev_id: The revision to read; the current one when left out.
+            rev_id: One revision to read, as it is; give it or ``branch``, not both.
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``; the published one when
-                left out (measured). A save writes the saved one: read ``saved`` before
+            branch: The version to read when no revision is named: ``saved`` or
+                ``published``. A save writes the saved one: read ``saved`` before
                 changing the chart.
 
         Returns:
             The chart.
 
         Examples:
-            >>> chart = datalens.charts.ql_get("ch000000000001")
+            >>> chart = datalens.charts.ql_get("ch000000000001", branch="saved")
             >>> chart.entry_id, chart.type
             ('ch000000000001', 'table_ql_node')
         """
@@ -351,26 +352,26 @@ class ChartsClient(Resource):
         include_permissions: bool | None = None,
         include_links: bool | None = None,
         include_favorite: bool | None = None,
-        branch: str | None = None,
+        branch: RevisionBranch | None = None,
     ) -> EditorChart:
         """``getEditorChart`` → one chart of the editor: its kind (``type``) and its code.
 
         Args:
             chart_id: The chart's id.
             workbook_id: The workbook the chart lies in.
-            rev_id: The revision to read; the current one when left out.
+            rev_id: One revision to read, as it is; give it or ``branch``, not both.
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``; the published one when
-                left out (measured). A save writes the saved one: read ``saved`` before
+            branch: The version to read when no revision is named: ``saved`` or
+                ``published``. A save writes the saved one: read ``saved`` before
                 changing the chart.
 
         Returns:
             The chart.
 
         Examples:
-            >>> chart = datalens.charts.editor_get("ch000000000001")
+            >>> chart = datalens.charts.editor_get("ch000000000001", branch="saved")
             >>> chart.entry.type
             'table_node'
         """

@@ -60,6 +60,7 @@ def get(
 
     ``entry.data`` and ``entry.meta`` are what ``reports_update`` takes back.
     ``entries_list`` with the scope ``report`` finds reports.
+    A report has no branch in the API: the read answers the saved version (measured).
     """
     return client.reports.get(
         entry_id,

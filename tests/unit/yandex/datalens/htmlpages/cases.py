@@ -34,22 +34,27 @@ CASES = [
     Case(
         "datalens.htmlpages.get",
         args=(HP,),
-        cli=["datalens", "htmlpages", "get", HP],
-        mcp=("datalens_htmlpages_get", {"entry_id": HP}),
+        kwargs={"branch": "published"},
+        cli=["datalens", "htmlpages", "get", HP, "--branch", "published"],
+        mcp=("datalens_htmlpages_get", {"entry_id": HP, "branch": "published"}),
         effect=Effect.READ,
-        exchanges=[(Sent("POST", "rpc/getHtmlPage", json={"entryId": HP}), Reply(json=PAGE))],
+        exchanges=[
+            (
+                Sent("POST", "rpc/getHtmlPage", json={"entryId": HP, "branch": "published"}),
+                Reply(json=PAGE),
+            )
+        ],
     ),
     Case(
         "datalens.htmlpages.get",
         args=(HP,),
         kwargs={
             "rev_id": "rev1",
-            "branch": "saved",
             "include_permissions": True,
             "include_favorite": False,
         },
         cli=[
-            *("datalens", "htmlpages", "get", HP, "--rev-id", "rev1", "--branch", "saved"),
+            *("datalens", "htmlpages", "get", HP, "--rev-id", "rev1"),
             *("--include-permissions", "--no-include-favorite"),
         ],
         mcp=(
@@ -57,7 +62,6 @@ CASES = [
             {
                 "entry_id": HP,
                 "rev_id": "rev1",
-                "branch": "saved",
                 "include_permissions": True,
                 "include_favorite": False,
             },
@@ -71,7 +75,6 @@ CASES = [
                     json={
                         "entryId": HP,
                         "revId": "rev1",
-                        "branch": "saved",
                         "includePermissions": True,
                         "includeFavorite": False,
                     },
@@ -178,24 +181,28 @@ CASES = [
     Case(
         "datalens.htmlpages.preview_url_get",
         args=(HP,),
-        cli=["datalens", "htmlpages", "preview-url-get", HP],
-        mcp=("datalens_htmlpages_preview_url_get", {"entry_id": HP}),
+        kwargs={"branch": "saved"},
+        cli=["datalens", "htmlpages", "preview-url-get", HP, "--branch", "saved"],
+        mcp=("datalens_htmlpages_preview_url_get", {"entry_id": HP, "branch": "saved"}),
         effect=Effect.READ,
         exchanges=[
-            (Sent("POST", "rpc/getHtmlPagePreviewUrl", json={"entryId": HP}), Reply(json=PREVIEW))
+            (
+                Sent("POST", "rpc/getHtmlPagePreviewUrl", json={"entryId": HP, "branch": "saved"}),
+                Reply(json=PREVIEW),
+            )
         ],
     ),
     Case(
         "datalens.htmlpages.preview_url_get",
         args=(HP,),
-        kwargs={"branch": "saved", "rev_id": "rev1", "lang": "ru", "theme": "dark"},
+        kwargs={"rev_id": "rev1", "lang": "ru", "theme": "dark"},
         cli=[
-            *("datalens", "htmlpages", "preview-url-get", HP, "--branch", "saved"),
+            *("datalens", "htmlpages", "preview-url-get", HP),
             *("--rev-id", "rev1", "--lang", "ru", "--theme", "dark"),
         ],
         mcp=(
             "datalens_htmlpages_preview_url_get",
-            {"entry_id": HP, "branch": "saved", "rev_id": "rev1", "lang": "ru", "theme": "dark"},
+            {"entry_id": HP, "rev_id": "rev1", "lang": "ru", "theme": "dark"},
         ),
         effect=Effect.READ,
         exchanges=[
@@ -205,7 +212,6 @@ CASES = [
                     "rpc/getHtmlPagePreviewUrl",
                     json={
                         "entryId": HP,
-                        "branch": "saved",
                         "revId": "rev1",
                         "lang": "ru",
                         "theme": "dark",

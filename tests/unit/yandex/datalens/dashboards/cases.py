@@ -45,12 +45,13 @@ CASES = [
     Case(
         "datalens.dashboards.get",
         args=(DASH,),
-        cli=["datalens", "dashboards", "get", DASH],
-        mcp=("datalens_dashboards_get", {"dashboard_id": DASH}),
+        kwargs={"branch": "saved"},
+        cli=["datalens", "dashboards", "get", DASH, "--branch", "saved"],
+        mcp=("datalens_dashboards_get", {"dashboard_id": DASH, "branch": "saved"}),
         effect=Effect.READ,
         exchanges=[
             (
-                Sent("POST", "rpc/getDashboard", json={"dashboardId": DASH}),
+                Sent("POST", "rpc/getDashboard", json={"dashboardId": DASH, "branch": "saved"}),
                 Reply(json={"entry": ENTRY, "isFavorite": False}),
             )
         ],
@@ -63,13 +64,12 @@ CASES = [
             "include_permissions": True,
             "include_links": False,
             "include_favorite": True,
-            "branch": "saved",
             "workbook_id": WB,
         },
         cli=[
             *("datalens", "dashboards", "get", DASH, "--rev-id", "rev1"),
             *("--include-permissions", "--no-include-links", "--include-favorite"),
-            *("--branch", "saved", "--workbook-id", WB),
+            *("--workbook-id", WB),
         ],
         mcp=(
             "datalens_dashboards_get",
@@ -79,7 +79,6 @@ CASES = [
                 "include_permissions": True,
                 "include_links": False,
                 "include_favorite": True,
-                "branch": "saved",
                 "workbook_id": WB,
             },
         ),
@@ -95,7 +94,6 @@ CASES = [
                         "includePermissions": True,
                         "includeLinks": False,
                         "includeFavorite": True,
-                        "branch": "saved",
                         "workbookId": WB,
                     },
                 ),
