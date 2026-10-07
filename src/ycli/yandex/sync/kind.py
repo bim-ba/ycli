@@ -222,5 +222,6 @@ def summary_of(kind: Kind[Any, Any]) -> KindSummary:
         file=kind.layout.suffix,
         operations=[*kind.operations()],
         version=kind.version.describe(),
-        about=(declared_in.__doc__ or "").partition("\n")[0],
+        # A docstring marks code for the reference; a listing is plain text.
+        about=(declared_in.__doc__ or "").partition("\n")[0].replace("``", ""),
     )

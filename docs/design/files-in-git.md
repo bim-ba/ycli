@@ -83,8 +83,9 @@ What every command prints ([#492](https://github.com/bim-ba/ycli/issues/492)):
 | A secret in `diff` | masked (`password: ***`); `--show-secrets` prints it |
 | Under GitHub Actions | a failure of `push` is an annotation on its file; the plan is a table in the job summary |
 
-Exit codes: `0` nothing to do or all done, `2` there are changes (`diff`), `3` a file stopped on a
-version or fingerprint that does not match, `1` an error.
+Exit codes are those of every ycli command, `0` to `6`, and two of `sync`'s own in the same
+table: `7`, there are changes, given only when `--exit-code` asks for it (`status` and `diff` exit
+with `0` without the flag); `8`, a file stopped because its object changed on the server.
 
 `pull --dry-run` names the files it would overwrite that hold uncommitted work: `pull` overwrites
 them, and git is the only protection.
