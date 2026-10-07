@@ -3,7 +3,10 @@
 The API is a ``httpx2.MockTransport`` here; the CLI, the tool and the method are the real ones.
 """
 
+import subprocess
+import sys
 from collections.abc import Iterator, Sequence
+from pathlib import Path
 from typing import Any
 
 import httpx2
@@ -170,3 +173,24 @@ def test_differences_are_paths_and_shapes():
         "$.f: only in the second",
     ]
     assert differences([{"a": 1}], [{"a": 1}]) == []
+
+
+def test_the_live_suite_is_collected_where_fastmcp_is_not_installed():
+    """CI runs ``pytest e2e`` without the ``mcp`` extra: nothing may import fastmcp unasked.
+
+    ``sys.modules["fastmcp"] = None`` makes every import of it fail, as on a machine without
+    the extra; ``--doctest-modules`` (the repository's own option) imports every module there.
+    """
+    blocked = (
+        "import sys; sys.modules['fastmcp'] = None; import pytest; "
+        "sys.exit(pytest.main(['e2e', '--collect-only', '-q', '--no-cov', '-n', '0', "
+        "'-p', 'no:cacheprovider']))"
+    )
+    collected = subprocess.run(
+        [sys.executable, "-c", blocked],
+        cwd=Path(__file__).parents[2],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert collected.returncode == 0, collected.stdout[-2000:]

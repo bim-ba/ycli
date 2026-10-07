@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 
     from e2e.surfaces import ThreeSurfaces
 
+# Never collected: ``--doctest-modules`` would import it, and it imports fastmcp, which comes
+# with the `mcp` extra a plain run does not have. Only the ``surfaces`` fixture imports it.
+collect_ignore = ["surfaces.py"]
+
 # A file every scenario appends its run name to, when set (see ``e2e/janitor.py --runs-file``).
 RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
 
