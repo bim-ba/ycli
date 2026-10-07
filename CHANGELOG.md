@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.115.2 (2026-10-07)
+
+### Bug Fixes
+
+- **datalens**: A request that is one of several objects is refused once, by its fields
+  ([`fef7485`](https://github.com/bim-ba/ycli/commit/fef74856ac6c9c4dd64fea79501a1f4421f912af))
+
+### Build System
+
+- Re-lock uv.lock for 0.115.1
+  ([`f379de5`](https://github.com/bim-ba/ycli/commit/f379de59774959d26ac72786d288d794abc7f936))
+
+
+## v0.115.1 (2026-10-07)
+
+### Bug Fixes
+
+- **mcp**: The server of one service refuses arguments without repeating them too
+  ([`13ba44b`](https://github.com/bim-ba/ycli/commit/13ba44bbd7a2e9f769ede12a67ff8fcd02cf6a3b))
+
+### Build System
+
+- Re-lock uv.lock for 0.115.0
+  ([`4cb641e`](https://github.com/bim-ba/ycli/commit/4cb641ebf192883e4ebcb8e88e54abd17e6ba7ad))
+
+
 ## v0.115.0 (2026-10-07)
 
 ### Build System

@@ -147,7 +147,7 @@ afterwards with ``questions_move``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) to add the question to. |
-| `body` | any | yes | Typed question body; the ``type`` tag selects the question schema. |
+| `body` | StringQuestion or BooleanQuestion or IntegerQuestion or FileQuestion or CommentQuestion or DateQuestion or DateRangeQuestion or PaymentQuestion or EnumQuestion or SuggestQuestion or MatrixQuestion or SeriesQuestion | yes | Typed question body; the ``type`` tag selects the question schema. |
 
 ## `forms_questions_update`
 
@@ -162,7 +162,7 @@ The body's ``type`` must match the existing question's type; look it up with
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to modify. |
-| `body` | any | yes | Typed question body; ``type`` must match the existing question. |
+| `body` | StringQuestion or BooleanQuestion or IntegerQuestion or FileQuestion or CommentQuestion or DateQuestion or DateRangeQuestion or PaymentQuestion or EnumQuestion or SuggestQuestion or MatrixQuestion or SeriesQuestion | yes | Typed question body; ``type`` must match the existing question. |
 
 ## `forms_questions_delete`
 

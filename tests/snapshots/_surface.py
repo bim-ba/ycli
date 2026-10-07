@@ -84,7 +84,7 @@ def mcp_signature(tool: Any) -> str:
             schema.get("type")
             or "|".join(
                 str(option.get("type", option.get("$ref", "?")).rsplit("/", 1)[-1])
-                for option in schema.get("anyOf", [])
+                for option in schema.get("anyOf", schema.get("oneOf", []))
             )
             or str(schema.get("$ref", "?")).rsplit("/", 1)[-1]
         )
