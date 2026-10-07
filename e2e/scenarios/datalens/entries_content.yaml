@@ -44,6 +44,7 @@ steps:
       held: "to_string({dataset: dataset})"
     cleanup: datalens datasets delete ${dataset}
   - id: dataset-update
+    # Measured: the reply of a save carries `id: null`; the dataset itself is in `dataset`.
     run: datalens datasets update ${dataset} --data '${held}'
     expect:
       "type(dataset)": object
