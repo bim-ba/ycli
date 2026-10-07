@@ -12,9 +12,13 @@ import typer
 from ycli.cli.exit_codes import ExitCode
 from ycli.cli.output import ExitWith
 from ycli.yandex.models import ItemList
+from ycli.yandex.registry import SERVICES
 from ycli.yandex.registry import kinds as declared_kinds
 from ycli.yandex.sync.files import FileState, State, examine
+from ycli.yandex.sync.git import uncommitted
 from ycli.yandex.sync.kind import KindSummary, summary_of
+from ycli.yandex.sync.pull import Action, Pulled, ScopeError, Sender
+from ycli.yandex.sync.pull import pull as pull_objects
 
 app = typer.Typer(name="sync", help="Yandex 360 content as files in git.", no_args_is_help=True)
 
@@ -65,7 +69,10 @@ def status(
     listed = ItemList[FileState](
         [file for file in kept if show_unchanged or file.state is not State.UNCHANGED]
     )
-    changed = any(file.state in {State.EDITED, State.NEW} for file in kept)
+    if any(file.state is State.UNREADABLE for file in kept):
+        # A file that cannot be read is an error, which is more than a change.
+        return ExitWith(listed, exit_code=ExitCode.FAILURE)
+    changed = any(file.state is not State.UNCHANGED for file in kept)
     return ExitWith(listed, exit_code=ExitCode.CHANGES) if exit_code and changed else listed
 
 
@@ -79,3 +86,56 @@ def validate(paths: Paths = None, kind: Kinds = None) -> ItemList[FileState] | E
     unreadable = [file for file in _examined(paths, kind) if file.state is State.UNREADABLE]
     listed = ItemList[FileState](unreadable)
     return ExitWith(listed) if unreadable else listed
+
+
+@app.command()
+def pull(
+    context: typer.Context,
+    path: Annotated[
+        Path,
+        typer.Argument(
+            help="What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>."
+        ),
+    ],
+    kind: Kinds = None,
+    show_unchanged: Annotated[
+        bool, typer.Option("--show-unchanged", help="Also list the files that were the same.")
+    ] = False,
+) -> ItemList[Pulled]:
+    """Read the objects under PATH from the server and write each as its file.
+
+    A file is written over whatever is there: commit your edits first, git is what protects
+    them. With --dry-run nothing is written, and a file that holds uncommitted work is named.
+    An object no kind keeps (a grid among Wiki pages) is listed as skipped.
+    """
+    application = context.find_root().obj
+    clients = {service.name: service.client_class for service in SERVICES}
+
+    def sender(service: str) -> Sender:
+        return application.resolve(clients[service]())
+
+    dry_run = bool(application.options.get("dry_run"))
+    kinds = [one for one in declared_kinds() if not kind or one.name in kind]
+    try:
+        found = pull_objects(
+            Path.cwd(), PurePosixPath(path.as_posix()), kinds, sender, write=not dry_run
+        )
+    except ScopeError as refusal:
+        raise typer.BadParameter(str(refusal), param_hint="PATH") from None
+    if dry_run:
+        changed = [PurePosixPath(one.path) for one in found if one.action is Action.WOULD_WRITE]
+        at_risk = {str(one) for one in uncommitted(Path.cwd(), changed)}
+        found = [
+            one.model_copy(update={"detail": "would overwrite uncommitted work"})
+            if one.path in at_risk
+            else one
+            for one in found
+        ]
+    counted = Counter(one.action for one in found)
+    # A run says what it did: one that writes nothing counts no file as written.
+    unsaid = Action.WRITTEN if dry_run else Action.WOULD_WRITE
+    said = [action for action in Action if action is not unsaid]
+    typer.echo(", ".join(f"{counted[action]} {action}" for action in said), err=True)
+    return ItemList[Pulled](
+        [one for one in found if show_unchanged or one.action is not Action.UNCHANGED]
+    )

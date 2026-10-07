@@ -7,7 +7,7 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.sync.document import Body
-from ycli.yandex.sync.marks import Place
+from ycli.yandex.sync.marks import Place, Version
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
 from ycli.yandex.wiki.models import (
     Location,
@@ -158,7 +158,9 @@ class PageRevision(APIModel):
         'ivan'
     """
 
-    id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
+    id: Annotated[int, Version()] = Field(
+        description="Revision id (the ``revision_id`` of ``GET /pages``)."
+    )
     author: User | None = Field(default=None, description="Who saved the revision.")
     created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
     page_type: PageType | None = Field(

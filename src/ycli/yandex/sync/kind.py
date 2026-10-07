@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from ycli.yandex.core.endpoint import Endpoint, Paged
 from ycli.yandex.models import APIModel
-from ycli.yandex.sync.document import Link
+from ycli.yandex.sync.document import Link, fields_marked
 from ycli.yandex.sync.formats import FileFormat
 from ycli.yandex.sync.marks import Container, Identity, Version
 
@@ -20,12 +20,19 @@ from ycli.yandex.sync.marks import Container, Identity, Version
 #: whole or with the arguments a kind always gives it already set (``functools.partial``).
 type Operation = Callable[..., Endpoint[Any] | Paged[Any, Any]]
 
+#: Calls another operation for the object at hand and returns what it answers.
+type Ask = Callable[[Operation], Any]
+
 
 class Proof(Protocol):
     """One way a write proves the version it worked from, beside the fingerprint of the file."""
 
     def describe(self) -> str:
         """What ``ycli sync kinds`` says of it."""
+        ...
+
+    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
+        """The version of an object now: ``reply`` is what reading it answered."""
         ...
 
 
@@ -40,6 +47,19 @@ class SentVersion:
             One line.
         """
         return "sent with the write: the server refuses a stale one"
+
+    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
+        """The version the reply itself carries, under the kind's own key.
+
+        Args:
+            reply: What reading the object answered.
+            key: The name of the version field of the kind's link.
+            ask: Calls another operation for the same object (not used).
+
+        Returns:
+            The version.
+        """
+        return getattr(reply, key)
 
 
 @dataclass(frozen=True)
@@ -60,6 +80,23 @@ class CheckedVersion:
         """
         return "read and compared before the write"
 
+    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
+        """The newest version the service lists: the field marked ``Version`` of the first.
+
+        Args:
+            reply: What reading the object answered (not used).
+            key: The name of the version field of the kind's link (not used).
+            ask: Calls another operation for the same object.
+
+        Returns:
+            The newest version; ``None`` for an object with none.
+        """
+        newest = next(iter(ask(self.newest)), None)
+        if newest is None:
+            return None
+        (field,) = fields_marked(type(newest), Version)
+        return getattr(newest, field)
+
 
 @dataclass(frozen=True)
 class NoVersion:
@@ -72,6 +109,19 @@ class NoVersion:
             One line.
         """
         return "none: the fingerprint of the content alone"
+
+    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
+        """No version at all.
+
+        Args:
+            reply: What reading the object answered (not used).
+            key: The name of the version field of the kind's link (not used).
+            ask: Calls another operation for the same object (not used).
+
+        Returns:
+            ``None``.
+        """
+        return None
 
 
 @dataclass(frozen=True)
@@ -169,6 +219,8 @@ class Kind[L: Link, C: BaseModel]:
         delete: The operation that deletes an object.
         version: How a write proves the version it worked from, beside the fingerprint every
             file carries.
+        only: Says whether an object that was read is one the kind keeps (a Wiki page whose text
+            is Markdown, not a grid). ``None``: every object that was found.
     """
 
     name: str
@@ -181,6 +233,7 @@ class Kind[L: Link, C: BaseModel]:
     update: Operation | None = None
     delete: Operation | None = None
     version: Proof = NoVersion()
+    only: Callable[[Any], bool] | None = None
 
     def operations(self) -> dict[str, Operation]:
         """The operations the kind has, by the name of the field that holds each.
@@ -188,12 +241,13 @@ class Kind[L: Link, C: BaseModel]:
         Returns:
             ``read`` and whichever of ``find``, ``create``, ``update``, ``delete`` the API has.
         """
-        held = {field.name: getattr(self, field.name) for field in fields(self)}
-        return {
-            name: value
-            for name, value in held.items()
-            if callable(value) and not isinstance(value, type)
-        }
+        hints = get_type_hints(type(self))
+        named = [
+            field.name
+            for field in fields(self)
+            if Operation in (hints[field.name], *get_args(hints[field.name]))
+        ]
+        return {name: held for name in named if (held := getattr(self, name)) is not None}
 
 
 class KindSummary(APIModel):
