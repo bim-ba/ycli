@@ -17,6 +17,7 @@ class ExitCode(enum.IntEnum):
     AUTH = 4  # 401/403, or no credentials at all
     RATE_LIMITED = 5  # the API answered 429 and retries ran out
     TRANSIENT = 6  # a 5xx, a timeout or a lost connection: worth trying again later
+    CHANGES = 7  # nothing failed: `sync status --exit-code` found files that were edited
 
 
 def exit_codes_summary() -> str:
@@ -26,7 +27,10 @@ def exit_codes_summary() -> str:
         One ``<value> <name>`` entry per exit code, joined by `` · ``.
 
     Examples:
-        >>> exit_codes_summary()
-        '0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limited · 6 transient'
+        >>> listed = exit_codes_summary().split(" · ")
+        >>> listed[:4]
+        ['0 ok', '1 failure', '2 usage', '3 not found']
+        >>> listed[4:]
+        ['4 auth', '5 rate limited', '6 transient', '7 changes']
     """
     return " · ".join(f"{code.value} {code.name.lower().replace('_', ' ')}" for code in ExitCode)

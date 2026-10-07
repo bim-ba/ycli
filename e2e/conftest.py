@@ -18,6 +18,12 @@ from ycli.yandex.registry import SERVICES
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from e2e.surfaces import ThreeSurfaces
+
+# Never collected: ``--doctest-modules`` would import it, and it imports fastmcp, which comes
+# with the `mcp` extra a plain run does not have. Only the ``surfaces`` fixture imports it.
+collect_ignore = ["surfaces.py"]
+
 # A file every scenario appends its run name to, when set (see ``e2e/janitor.py --runs-file``).
 RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
 
@@ -59,6 +65,19 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "process follows the one before faster than Tracker settles after a write.",
     )
     parser.addoption(
+        "--surfaces",
+        choices=("report", "strict"),
+        default=None,
+        help="Run the CLI in this process and repeat every read through MCP and the SDK (needs "
+        "the `mcp` extra): `report` lists where the replies differ, `strict` also fails on it.",
+    )
+    parser.addoption(
+        "--surfaces-report",
+        type=Path,
+        default=Path(tempfile.gettempdir()) / "ycli-surfaces-report.txt",
+        help="Where the report of a --surfaces run goes, besides the end of the log.",
+    )
+    parser.addoption(
         "--record-report",
         type=Path,
         default=Path(tempfile.gettempdir()) / "ycli-record-report.txt",
@@ -79,6 +98,32 @@ def recorder(request: pytest.FixtureRequest) -> Iterator[Recorder | None]:
         report.write_text(recorder.details(), encoding="utf-8")
         terminal = request.config.get_terminal_writer()
         terminal.line(f"\n{recorder.summary()}\nthe names are in {report}")
+
+
+@pytest.fixture(scope="session")
+def surfaces(
+    request: pytest.FixtureRequest, recorder: Recorder | None
+) -> Iterator[ThreeSurfaces | None]:
+    """The driver of a ``--surfaces`` run, ``None`` otherwise; its report ends the log.
+
+    After ``recorder``: it listens over a recording run's transport, not under it.
+    """
+    if request.config.getoption("--surfaces") is None:
+        yield None
+        return
+    # Here, not at the top: fastmcp comes with the `mcp` extra, and a plain run has none.
+    from e2e.recording import InProcessDriver
+    from e2e.surfaces import ThreeSurfaces, listening
+
+    with pytest.MonkeyPatch.context() as monkeypatch, listening(monkeypatch) as listener:
+        driver = ThreeSurfaces(
+            InProcessDriver(request.config.getoption("--record-pause")), listener
+        )
+        yield driver
+        driver.close()
+        text = driver.report.text()
+        request.config.getoption("--surfaces-report").write_text(text, encoding="utf-8")
+        request.config.get_terminal_writer().line(f"\n{text}")
 
 
 def pytest_configure(config: pytest.Config) -> None:

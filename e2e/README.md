@@ -102,6 +102,24 @@ While the `reads` of a step run, the command gets `--dry-run` and the network se
 
 Before a write is tried on something that already exists, read the whole state it can touch, not only the part you mean to change, and keep it: an undo is checked against that. A revoke is not always the inverse of its grant (in Tracker, taking a user out of a queue's `read` took it out of `write` too).
 
+## Three surfaces
+
+```bash
+YCLI_E2E=1 uv run --extra mcp pytest e2e --no-cov -n 0 -p no:cacheprovider --surfaces report
+```
+
+`--surfaces` runs the scenarios through the CLI in this process and repeats every read through the MCP tool and the SDK method of the same operation, with the same arguments, then compares the three replies (`e2e/surfaces.py`). Nothing names the tool or the method of a command: the run hears which method of which resource client the command called and with what arguments, and ARCH-1 gives that operation one name on every surface. A write runs once, as in any other run; while a read is repeated, the network seam refuses any request whose endpoint does not declare the effect `read`.
+
+The report ends the log and goes to the file `--surfaces-report` names. It holds names, paths and shapes, never a value:
+
+- `DATA`: the CLI answered the same before and after, and a surface answered something else. A defect.
+- `TIME`: the CLI itself answered differently a moment later, so the object changed between the calls. Noise of the runner.
+- what was not compared and why (a write, a command that prints no JSON, an argument the tool does not take), and the operations whose surfaces are not one operation before any call: no tool, or a method that takes what its tool does not.
+
+The commands follow each other at the pace of a recording run, so `--record-pause` applies here too: with the default second Tracker refused a sprint's change of state with 412 twice, and with 2.5 it passed (measured).
+
+`--surfaces report` never fails on a difference; `--surfaces strict` fails the scenario that showed a `DATA` one. It needs the `mcp` extra; a run without the flag needs none and drives the installed binary.
+
 ## Janitor
 
 A failed cleanup or a cancelled job can leave objects behind. The janitor closes open Tracker issues in the sandbox queue and deletes Wiki pages and Forms surveys whose name carries a run stamp older than the cutoff, at most `--max` per call, and prints each object it touches:

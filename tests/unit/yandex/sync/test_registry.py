@@ -69,5 +69,9 @@ def test_sync_kinds_lists_what_the_registry_holds(monkeypatch):
     assert listed["wiki/page"]["operations"] == ["read", "find", "create", "update", "delete"]
     assert listed["wiki/page"]["version"] == "read and compared before the write"
     # What a kind is comes from the first line of the docstring of the module that declares it.
-    assert listed["wiki/page"]["about"].startswith("A Wiki page as a file: ")
-    assert listed["tracker/trigger"]["about"].startswith("A trigger of a queue as a file: ")
+    assert listed["wiki/page"]["about"] == (
+        "A Wiki page as a file: wiki/<slug>.md, its text under a header."
+    )
+    assert listed["tracker/trigger"]["about"] == (
+        "A trigger of a queue as a file: tracker/queues/<queue>/triggers/<id>.yaml."
+    )
