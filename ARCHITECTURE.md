@@ -111,7 +111,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
   framework, surfaces never import each other.
 - **Why:** each layer has one job (single responsibility) and can change without the others.
 - **Check:** import-linter contracts in `pyproject.toml` (`uv run lint-imports`): the httpx2
-  core imports no service, surface, `typer` or `fastmcp`; MCP modules never import `ycli.cli`
+  core imports no service, surface, `typer` or `fastmcp`, and neither does the file engine
+  (`ycli.yandex.sync`: a resource declares itself to it, never the other way round), and
+  `test_arch2_a_layer_that_knows_no_service_forbids_every_service` holds each such list to
+  the registry of services, so a new service cannot be left out of one; MCP
+  modules never import `ycli.cli`
   or `typer`, even indirectly; `cli.py`/`mcp.py`/`models.py` import no HTTP library
   (`httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
   CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
@@ -155,7 +159,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch4_serialization_confined_to_output` (AST: `json.dumps`, `yaml.safe_dump`,
   `pydantic_core.to_json`, `.model_dump_json()` and their aliases), each with a bite test.
 - **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
-  `json.dumps`) and `# violation(arch-4): <reason>` above a line that touches stdout (the eager
+  `json.dumps`; the file engine writes a file of a repository in `sync/formats.py` and takes a
+  fingerprint from a canonical form in `sync/document.py`, neither a result of a command) and `# violation(arch-4): <reason>` above a line that touches stdout (the eager
   `--version` callback, and `guard.attended`, which only asks whether stdout is a terminal). Bytes and raw text are result
   types (`BinaryResult`, `str`), not exceptions.
 - **Field names:** CLI and MCP output both keep each API's own field names (Tracker

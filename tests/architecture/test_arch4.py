@@ -15,6 +15,8 @@ _SERIALIZER_METHODS = frozenset({"model_dump_json", "dump_json"})  # BaseModel /
 ARCH4_SERIALIZATION_HOMES = {
     Path("cli/output.py"): "output.render, the one output path",
     Path("log.py"): "the JSON log formatter writes diagnostic records to stderr, not results",
+    Path("yandex/sync/formats.py"): "writes a file of a repository, not a result of a command",
+    Path("yandex/sync/document.py"): "the canonical form a fingerprint is taken from",
 }
 
 

@@ -319,6 +319,23 @@ forbidden_modules = [
     "ycli.yandex.tracker",
     "ycli.yandex.wiki",
     "ycli.yandex.forms",
+    "ycli.yandex.datalens",
+    "ycli.yandex.status",
+    "ycli.cli",
+    "ycli.mcp",
+    "typer",
+    "fastmcp",
+]
+
+[[tool.importlinter.contracts]]
+name = "ARCH-2: the file engine (ycli.yandex.sync) knows no service and no surface"
+type = "forbidden"
+source_modules = ["ycli.yandex.sync"]
+forbidden_modules = [
+    "ycli.yandex.tracker",
+    "ycli.yandex.wiki",
+    "ycli.yandex.forms",
+    "ycli.yandex.datalens",
     "ycli.yandex.status",
     "ycli.cli",
     "ycli.mcp",
