@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.122.4 (2026-10-07)
+
+### Bug Fixes
+
+- **tracker**: The body of `gaps search` is a request model, and a rule keeps every body one
+  ([`cf91012`](https://github.com/bim-ba/ycli/commit/cf910120af44ee2a1a503baf066a06c2d39d38e3))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.3
+  ([`f96b712`](https://github.com/bim-ba/ycli/commit/f96b71257aed3f48cb65062cf19951fb9edbe62a))
+
+### Continuous Integration
+
+- **e2e**: The nightly run takes its turn of three: the command, writes through MCP, writes through
+  the SDK
+  ([`7e2cf4d`](https://github.com/bim-ba/ycli/commit/7e2cf4d6d16bde5041fe161ee1d32dc355413510))
+
+### Testing
+
+- **e2e**: A page and a trigger read and sent back as read stay the same
+  ([`700c354`](https://github.com/bim-ba/ycli/commit/700c35456dfc4dd755cc8021a3cf51f471a6d24f))
+
+
 ## v0.122.3 (2026-10-07)
 
 ### Bug Fixes
