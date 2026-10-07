@@ -1,0 +1,20 @@
+id: no-direct-fastmcp
+language: python
+severity: error
+message: Build the server with `new_server(...)`, not `FastMCP(...)`.
+note: |-
+  `new_server` (`ycli.yandex.mcp`; a resource takes it from its domain's `dependencies`) adds
+  what every server of ycli must do. docs/conventions/resources.md, section 3, "One constructor
+  for every server".
+url: https://github.com/bim-ba/ycli/blob/main/docs/conventions/resources.md#one-constructor-for-every-server
+files:
+  - src/ycli/**/*.py
+ignores:
+  - src/ycli/yandex/mcp.py
+# ast-grep resolves no import, so `from fastmcp import FastMCP as Server; Server(...)` passes
+# here: `test_every_server_is_built_by_the_shared_constructor` follows the alias and stays.
+rule:
+  any:
+    - pattern: FastMCP($$$ARGUMENTS)
+    - pattern: fastmcp.FastMCP($$$ARGUMENTS)
+    - pattern: fastmcp.server.FastMCP($$$ARGUMENTS)

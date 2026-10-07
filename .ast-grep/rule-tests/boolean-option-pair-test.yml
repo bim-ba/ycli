@@ -1,0 +1,22 @@
+id: boolean-option-pair
+valid:
+  - |
+    def one(notify: Annotated[bool | None, typer.Option("--notify/--no-notify")] = None): ...
+  - X = Annotated[bool | None, typer.Option("--x/--no-x")]
+  - |
+    def one(flag: Annotated[bool, typer.Option("--flag")] = False): ...
+  - |
+    def one(count: Annotated[int | None, typer.Option()] = None): ...
+  - |
+    def tool(notify: Annotated[bool | None, Field()] = None): ...
+invalid:
+  - |
+    def one(silent: Annotated[bool | None, typer.Option("--silent", help="a/b")] = None): ...
+  - |
+    def one(bare: Annotated[None | bool, typer.Option(help="x")] = None): ...
+  - Deep = Annotated[bool | None, typer.Option("--deep")]
+  - |
+    Deep = Annotated[
+        bool | None,
+        Option("--deep"),
+    ]

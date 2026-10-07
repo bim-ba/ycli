@@ -31,15 +31,20 @@ The structure in [`ARCHITECTURE.md`](ARCHITECTURE.md) is enforced. Install the l
 uv run pre-commit install
 ```
 
-They run import-linter + the architecture/snapshot tests on commit. CI runs the same. If you
+They run import-linter, the ast-grep rules and the architecture/snapshot tests on commit. CI runs the same. If you
 change the public surface on purpose, regenerate snapshots: `uv run python -m tests.snapshots --update`.
+
+A convention about the text of one file is an ast-grep rule in `.ast-grep/rules/` (`sgconfig.yml`
+names the directory). `uv run ast-grep scan` checks the tree, `uv run ast-grep test --skip-snapshot-tests`
+runs each rule against its valid and invalid cases in `.ast-grep/rule-tests/`, and an editor with
+an ast-grep extension (`ast-grep lsp`) shows a finding as you type.
 
 ## Conventions
 
 - **Verify like CI before you push** — run the same gate CI runs; note `ruff format --check` is a
   *separate* step from `ruff check` (formatting/wrapping vs lint/imports — passing one does not
   imply the other): `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest`,
-  `uv run ty check`, `uv run lint-imports`.
+  `uv run ty check`, `uv run lint-imports`, `uv run ast-grep scan`.
 - **Tests:** `uv run pytest`. The suite must stay at **100% line and branch coverage** (`--cov-fail-under=100`).
   HTTP is stubbed with the `api` fixture (`MockAPI`) — no live network. Async MCP tests rely on `asyncio_mode = "auto"`.
 - **MCP server is read/write with honest annotations** (ARCH-3): reads carry

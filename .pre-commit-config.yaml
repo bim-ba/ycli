@@ -14,6 +14,18 @@ repos:
         language: system
         pass_filenames: false
         files: ^src/ycli/.*\.py$
+      - id: ast-grep
+        name: ast-grep rules (conventions of one file's text)
+        entry: uv run --locked ast-grep scan
+        language: system
+        pass_filenames: false
+        files: '^src/ycli/.*\.py$|^sgconfig\.yml$|^\.ast-grep/'
+      - id: ast-grep-test
+        name: ast-grep rules against their cases
+        entry: uv run --locked ast-grep test --skip-snapshot-tests
+        language: system
+        pass_filenames: false
+        files: '^sgconfig\.yml$|^\.ast-grep/'
       - id: architecture-tests
         name: architecture invariants (ARCH-1..8)
         entry: uv run --locked pytest tests/architecture/ tests/docs/test_docs.py -q --no-cov

@@ -3,7 +3,8 @@
 `ycli` exposes one SDK four ways (CLI, MCP server, Python SDK, Claude Code plugin).
 Its strength is a regular, symmetric layout — and that regularity is enforced, not hoped for.
 These invariants are checked by `tests/architecture/`, import-linter (`pyproject.toml`),
-and `tests/architecture/test_snapshots.py`. A failing build names the violated invariant.
+`tests/architecture/test_snapshots.py` and the ast-grep rules in `.ast-grep/rules/`. A failing
+build names the violated invariant.
 
 ## Layout
 
@@ -60,7 +61,10 @@ Notable shared pieces:
 
 Each rule states a principle; the mechanics live in its check, and every exception is a marker or an
 allowlist entry in code with its reason, never prose here. Tests are in
-`tests/architecture/` unless named otherwise.
+`tests/architecture/` unless named otherwise. A check of the text of one file is an ast-grep
+rule (`.ast-grep/rules/<id>.yml`; how to run them is in [`CONTRIBUTING.md`](CONTRIBUTING.md)),
+so an editor shows it as the code is typed; one that reads several files or the running
+program stays a test.
 
 ### ARCH-1 — Surface parity
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
@@ -141,7 +145,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   effect of the endpoints it sends; `test_arch3_effect_overrides_are_marked` keeps
   `# violation(arch-3): <reason>` above every `effect=`, and every such marker above one;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
-  and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
+  and the ast-grep rule `no-tool-tags` keeps a second statement out. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/unit/yandex/status/test_mcp.py`).
   A prompt and a resource follow their tools (`tests/unit/mcp/test_mcp_prompts_resources.py`): a
   prompt lists the tools its text names, all of them exist, and one write among them means
@@ -299,6 +303,6 @@ so generated resources can target it.
 ## Changing an invariant
 
 These are deliberate, not incidental. To change one: edit this file **and** its enforcing check
-(in `tests/architecture/`, `pyproject.toml`, or the snapshots) **in the same PR**, and say
+(in `tests/architecture/`, `.ast-grep/rules/`, `pyproject.toml`, or the snapshots) **in the same PR**, and say
 so in the PR body. A reviewer (human or `/arch-review`) should reject a surface/structure change
 that isn't reflected here.

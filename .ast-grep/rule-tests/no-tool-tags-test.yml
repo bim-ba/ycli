@@ -1,0 +1,16 @@
+id: no-tool-tags
+valid:
+  - |
+    @mcp.tool(name="a_list", annotations=RO)
+    def list_(): ...
+  - |
+    @mcp.prompt(name="digest", tags=TAGS)
+    def digest(): ...
+  - mcp.disable(tags={WRITE_TAG})
+invalid:
+  - |
+    @mcp.tool(name="a_get", annotations=RO, tags=TAGS)
+    def get(): ...
+  - |
+    @mcp.tool(tags={"a"})
+    async def get(): ...
