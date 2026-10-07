@@ -3,22 +3,16 @@
 The API is a ``httpx2.MockTransport`` here; the CLI, the tool and the method are the real ones.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any
+from collections.abc import Iterator, Sequence
+from typing import Any
 
 import httpx2
 import pytest
 from e2e.recording import InProcessDriver
 from e2e.runner import CommandResult, Driver, ScenarioError
-from e2e.surfaces import Call, Report, ThreeSurfaces, differences, fail_on_data, listening
+from e2e.surfaces import Call, Listener, Report, ThreeSurfaces, differences, fail_on_data, listening
 
 from ycli.yandex.core.endpoint import Effect
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
-
-    from e2e.surfaces import Listener
 
 
 class _API:

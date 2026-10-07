@@ -14,20 +14,21 @@ request that is not a read before it reaches the network.
 What a run found is a :class:`Report`; it holds names, paths and shapes, never a value.
 """
 
-from __future__ import annotations
-
 import asyncio
 import contextlib
 import functools
 import inspect
 import json
 import re
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
 
 import httpx2
+import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
+from fastmcp.tools import Tool
 from pydantic import BaseModel, SecretStr
 from pydantic_core import to_jsonable_python
 
@@ -41,12 +42,6 @@ from ycli.yandex.errors import YandexError
 from ycli.yandex.factory import build_client
 from ycli.yandex.models import WIRE
 from ycli.yandex.registry import SERVICES
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
-
-    import pytest
-    from fastmcp.tools import Tool
 
 # How many differing paths of one reply are kept: the first ones name the defect.
 MAX_PATHS = 20
