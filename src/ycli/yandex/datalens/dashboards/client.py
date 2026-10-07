@@ -70,8 +70,8 @@ class DashboardsClient(Resource):
         ``entry`` says where it lies (``workbookId`` and ``name``) and what it holds: ``data``
         needs ``counter``, ``salt``, ``settings`` and ``tabs``, and a tab may be empty. The
         ``data`` of a dashboard read with ``get`` is a valid one. ``entry.meta`` must be an
-        object, ``{}`` when there is nothing to say: without it DataLens answers 400
-        (measured).
+        object, ``{}`` when there is nothing to say: without it DataLens answers
+        ``400 entry.meta: expected record, received undefined`` (measured).
 
         Args:
             entry: The new dashboard: where it lies, its tabs and its settings.

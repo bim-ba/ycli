@@ -8,13 +8,22 @@ from ycli.yandex.datalens.dashboards.models import DashboardCreate, DashboardUpd
 
 DASH = "dash0000000001"
 WB = "wb000000000001"
-# The least a live `createDashboard` took (2026-10-06): one tab with nothing on it.
-TAB = {"id": "t1", "title": "Sales", "items": [], "layout": []}
-# The document requires these two settings and lets them be null: a live dashboard has
-# them so, and DataLens refuses a save without them (#461).
-SETTINGS = {"autoupdateInterval": None, "maxConcurrentRequests": None}
+# The least a live `createDashboard` takes (measured through ycli, 2026-10-07): one tab
+# with nothing on it, and every key here; DataLens answers 400 for a body without one.
+TAB = {"id": "t1", "title": "Sales", "items": [], "layout": [], "connections": [], "aliases": {}}
+# The document requires the first two settings and lets them be null: a live dashboard
+# has them so, and DataLens refuses a save without them (#461).
+SETTINGS = {
+    "autoupdateInterval": None,
+    "maxConcurrentRequests": None,
+    "silentLoading": False,
+    "dependentSelectors": True,
+    "expandTOC": False,
+}
 DATA = {"counter": 1, "salt": "s", "settings": SETTINGS, "tabs": [TAB]}
-NEW = {"workbookId": WB, "name": "Sales", "data": DATA}
+# `meta` of a new dashboard must be an object: without it DataLens answers
+# `400 entry.meta: expected record, received undefined` (measured, 2026-10-07).
+NEW = {"workbookId": WB, "name": "Sales", "data": DATA, "meta": {}}
 # `meta` of a dashboard to save is required too, and null when it has none.
 CHANGE = {"entryId": DASH, "data": {**DATA, "counter": 2}, "meta": None}
 # The document requires three fields with one value each: `scope`, an empty `type`, `version`.

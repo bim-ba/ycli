@@ -120,6 +120,7 @@ def update(
 
     ``data.dataset`` replaces the content. Check a change first with ``datasets_validate``.
     Read the dataset again after every save: content of an older revision is refused.
+    The reply holds the content and the revisions; its ``id`` is ``null`` (measured).
     """
     return client.datasets.update(dataset_id, data=data, workbook_id=workbook_id)
 

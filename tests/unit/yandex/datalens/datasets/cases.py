@@ -48,9 +48,9 @@ READ = {
 }
 # `createDataset` answers the content, the id, the options and the revisions.
 CREATED = {"id": DS, "dataset": EMPTY, "options": {}, **REVISIONS}
-# `updateDataset` answers no id.
+# `updateDataset` answers `id: null` (measured, 2026-10-07).
 CHANGE = {"dataset": {**CONTENT, "description": "Q1"}, "mode": "save"}
-SAVED = {"dataset": CHANGE["dataset"], "options": {}, **REVISIONS, "revId": "rev2"}
+SAVED = {"id": None, "dataset": CHANGE["dataset"], "options": {}, **REVISIONS, "revId": "rev2"}
 TRIED = {"dataset": CONTENT}
 CHECKED = {"code": "OK", "message": "", "dataset_errors": [], **SAVED}
 FILTER = {"guid": "guid-1", "operation": "eq", "values": ["Moscow"]}
