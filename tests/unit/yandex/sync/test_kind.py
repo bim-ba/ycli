@@ -164,3 +164,24 @@ def test_every_way_to_prove_a_version_says_what_it_is():
         "none: the fingerprint of the content alone",
     ]
     assert summary_of(bare).version == said[2]
+
+
+def test_every_way_to_prove_a_version_says_the_version_of_an_object_now():
+    """One call for any of them: the reply, the newest of a listing, or nothing at all."""
+
+    class Revision(Link):
+        id: Annotated[int, Version()]
+
+    read = Revision(id=7)
+    asked: list[Any] = []
+
+    def ask(operation: Any) -> list[Revision]:
+        asked.append(operation)
+        return [Revision(id=9), Revision(id=8)]
+
+    assert SentVersion().current(read, "id", ask) == 7
+    assert NoVersion().current(read, "id", ask) is None
+    assert asked == []  # neither asks the service again
+    assert CheckedVersion(newest=list_).current(read, "id", ask) == 9
+    assert asked == [list_]
+    assert CheckedVersion(newest=list_).current(read, "id", lambda operation: []) is None

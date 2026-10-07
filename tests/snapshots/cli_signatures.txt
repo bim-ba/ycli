@@ -225,6 +225,7 @@ forms variables list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --fo
 mcp methods: --body-file:FILE --dry-run:BOOLEAN=False --exclude-tools:TEXT --field:TEXT --format:CHOICE --kind:CHOICE=<Kind.tools: 'tools'> --profile:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT --toolsets:TEXT='all' --yes:BOOLEAN=False
 mcp start: --body-file:FILE --dry-run:BOOLEAN=False --exclude-tools:TEXT --field:TEXT --format:CHOICE --host:TEXT --port:INTEGER --profile:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT --toolsets:TEXT='all' --transport:CHOICE=<Transport.stdio: 'stdio'> --yes:BOOLEAN=False
 sync kinds: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+sync pull: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATH:PATH!
 sync status: --body-file:FILE --dry-run:BOOLEAN=False --exit-code:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATHS:PATH
 sync validate: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --yes:BOOLEAN=False PATHS:PATH
 tracker applications list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
