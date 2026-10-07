@@ -114,6 +114,7 @@ The report ends the log and goes to the file `--surfaces-report` names. It holds
 
 - `DATA`: the CLI answered the same before and after, and a surface answered something else. A defect.
 - `TIME`: the CLI itself answered differently a moment later, so the object changed between the calls. Noise of the runner.
+- the requests the core sent a second time, by method and path (it repeats a request the service rate-limited, a write too): a write that went out twice is seen as such;
 - what was not compared and why (a write, a command that prints no JSON, an argument the tool does not take), and the operations whose surfaces are not one operation before any call: no tool, or a method that takes what its tool does not.
 
 The commands follow each other at the pace of a recording run, so `--record-pause` applies here too: with the default second Tracker refused a sprint's change of state with 412 twice, and with 2.5 it passed (measured).
