@@ -34,7 +34,7 @@ from ycli.yandex.datalens.dependencies import (
     PermissionsInfo,
     datalens_client,
 )
-from ycli.yandex.datalens.models import SaveMode
+from ycli.yandex.datalens.models import RevisionBranch, SaveMode
 from ycli.yandex.models import Ack
 
 mcp = FastMCP("datalens-charts")
@@ -42,17 +42,17 @@ mcp = FastMCP("datalens-charts")
 ChartID = Annotated[str, Field(description="Chart id.")]
 ChartWorkbook = Annotated[str | None, Field(description="The workbook the chart lies in.")]
 Revision = Annotated[
-    str | None, Field(description="The revision to read; the current one when left out.")
+    str | None, Field(description="One revision to read, as it is; give it or `branch`, not both.")
 ]
 WithLinks = Annotated[bool | None, Field(description="Also say what it is linked to.")]
 WithFavorite = Annotated[
     bool | None, Field(description="Also say whether it is a favourite of the caller.")
 ]
 Branch = Annotated[
-    str | None,
+    RevisionBranch | None,
     Field(
-        description="Which version to read: `saved` or `published`; the published one when left "
-        "out (measured). A save writes the saved one: read `saved` before changing a chart."
+        description="The version to read when no revision is named: `saved` or `published`. A "
+        "save writes the saved one: read `saved` before changing a chart."
     ),
 ]
 Mode = Annotated[

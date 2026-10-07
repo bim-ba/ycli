@@ -56,7 +56,6 @@ GET = {
     "includePermissions": True,
     "includeLinks": False,
     "includeFavorite": True,
-    "branch": "published",
 }
 GET_KWARGS = {
     "workbook_id": WB,
@@ -64,11 +63,10 @@ GET_KWARGS = {
     "include_permissions": True,
     "include_links": False,
     "include_favorite": True,
-    "branch": "published",
 }
 GET_FLAGS = [
     *("--workbook-id", WB, "--rev-id", "rev1", "--include-permissions"),
-    *("--no-include-links", "--include-favorite", "--branch", "published"),
+    *("--no-include-links", "--include-favorite"),
 ]
 # A QL chart comes flat (the keys of a live `getQLChart`, 2026-10-06); what `create` and
 # `update` answer, and every Editor reply, is not measured and follows the document.
@@ -96,15 +94,17 @@ EDITOR_ENTRY = {"entry": {"entryId": CHART, "type": "table_node", "scope": "widg
 
 
 def _get(kind: str, rpc: str, reply: dict) -> list[Case]:
-    """Reading a chart of one kind: by id alone, and with every argument."""
+    """Reading a chart of one kind: the saved version, and one revision with every argument."""
+    saved = {"chartId": CHART, "branch": "saved"}
     return [
         Case(
             f"datalens.charts.{kind}_get",
             args=(CHART,),
-            cli=["datalens", "charts", kind, "get", CHART],
-            mcp=(f"datalens_charts_{kind}_get", {"chart_id": CHART}),
+            kwargs={"branch": "saved"},
+            cli=["datalens", "charts", kind, "get", CHART, "--branch", "saved"],
+            mcp=(f"datalens_charts_{kind}_get", {"chart_id": CHART, "branch": "saved"}),
             effect=Effect.READ,
-            exchanges=[(Sent("POST", f"rpc/{rpc}", json={"chartId": CHART}), Reply(json=reply))],
+            exchanges=[(Sent("POST", f"rpc/{rpc}", json=saved), Reply(json=reply))],
         ),
         Case(
             f"datalens.charts.{kind}_get",

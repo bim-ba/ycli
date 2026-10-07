@@ -33,9 +33,11 @@ mcp = FastMCP("datalens-htmlpages")
 
 PageBranch = Annotated[
     RevisionBranch | None,
-    Field(description="The revision saved last (`saved`), or the public one (`published`)."),
+    Field(description="The version to read when no revision is named: `saved` or `published`."),
 ]
-PageRevision = Annotated[str | None, Field(description="A revision of the page.")]
+PageRevision = Annotated[
+    str | None, Field(description="One revision, as it is; give it or `branch`, not both.")
+]
 
 
 @mcp.tool(name="htmlpages_get", annotations={**RO, "title": "Get DataLens HTML page"})

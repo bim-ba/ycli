@@ -1179,8 +1179,8 @@ $ ycli datalens htmlpages get [OPTIONS] ENTRY_ID
 
 **Options**:
 
-* `--rev-id TEXT`: A revision of the page.
-* `--branch TEXT`: The revision saved last, or the public one. Known values: saved, published.
+* `--rev-id TEXT`: One revision, as it is; give it or --branch, not both.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. Known values: saved, published.
 * `--include-permissions / --no-include-permissions`: Also say what you may do with the page.
 * `--include-favorite / --no-include-favorite`: Also say whether the page is a favourite.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1287,8 +1287,8 @@ $ ycli datalens htmlpages preview-url-get [OPTIONS] ENTRY_ID
 
 **Options**:
 
-* `--branch TEXT`: The revision saved last, or the public one. Known values: saved, published.
-* `--rev-id TEXT`: A revision of the page.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. Known values: saved, published.
+* `--rev-id TEXT`: One revision, as it is; give it or --branch, not both.
 * `--lang TEXT`: Language of the preview. Known values: en, ru.
 * `--theme TEXT`: Theme of the preview. Known values: light, dark, light-hc, dark-hc, system.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1951,11 +1951,11 @@ $ ycli datalens charts wizard get [OPTIONS] CHART_ID
 **Options**:
 
 * `--workbook-id TEXT`: The workbook the chart lies in.
-* `--rev-id TEXT`: The revision to read; the current by default.
+* `--rev-id TEXT`: One revision to read, as it is; give it or --branch, not both.
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. A save writes the saved one: read `saved` before you change a chart. Known values: saved, published.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2090,11 +2090,11 @@ $ ycli datalens charts ql get [OPTIONS] CHART_ID
 **Options**:
 
 * `--workbook-id TEXT`: The workbook the chart lies in.
-* `--rev-id TEXT`: The revision to read; the current by default.
+* `--rev-id TEXT`: One revision to read, as it is; give it or --branch, not both.
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. A save writes the saved one: read `saved` before you change a chart. Known values: saved, published.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2222,11 +2222,11 @@ $ ycli datalens charts editor get [OPTIONS] CHART_ID
 **Options**:
 
 * `--workbook-id TEXT`: The workbook the chart lies in.
-* `--rev-id TEXT`: The revision to read; the current by default.
+* `--rev-id TEXT`: One revision to read, as it is; give it or --branch, not both.
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. A save writes the saved one: read `saved` before you change a chart. Known values: saved, published.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2344,11 +2344,11 @@ $ ycli datalens dashboards get [OPTIONS] DASHBOARD_ID
 
 **Options**:
 
-* `--rev-id TEXT`: The revision to read; the current by default.
+* `--rev-id TEXT`: One revision to read, as it is; give it or --branch, not both.
 * `--include-permissions / --no-include-permissions`: Also say what you may do with the dashboard.
 * `--include-links / --no-include-links`: Also say what the dashboard is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether the dashboard is a favourite.
-* `--branch TEXT`: Which version of it to read; the published one if left out (measured). A save writes the saved one: read `saved` before you change a dashboard. Known values: saved, published.
+* `--branch TEXT`: The version to read when no revision is named: saved or published. A save writes the saved one: read `saved` before you change a dashboard. Known values: saved, published.
 * `--workbook-id TEXT`: The workbook the dashboard lies in.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2457,6 +2457,8 @@ $ ycli datalens reports [OPTIONS] COMMAND [ARGS]...
 ### `ycli datalens reports get`
 
 Print one report: its slides and what stands on them.
+
+A report has no branch in the API: the read answers the saved version (measured).
 
 **Usage**:
 

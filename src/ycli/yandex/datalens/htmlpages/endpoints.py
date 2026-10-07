@@ -16,7 +16,7 @@ from ycli.yandex.datalens.htmlpages.models import (
     PreviewLanguage,
     PreviewTheme,
 )
-from ycli.yandex.datalens.models import RevisionBranch
+from ycli.yandex.datalens.models import RevisionBranch, one_revision
 from ycli.yandex.datalens.schemas.html_pages import (
     CreateHtmlPageArgs,
     DeleteHtmlPageArgs,
@@ -33,6 +33,7 @@ def get(
     include_permissions: bool | None,
     include_favorite: bool | None,
 ) -> Endpoint[HTMLPage]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetHtmlPageArgs(
         entryId=entry_id,
         revId=rev_id,
@@ -76,6 +77,7 @@ def preview_url_get(
     lang: PreviewLanguage | None,
     theme: PreviewTheme | None,
 ) -> Endpoint[HTMLPagePreview]:
+    one_revision(branch=branch, rev_id=rev_id)
     body = GetHtmlPagePreviewUrlArgs(
         entryId=entry_id, branch=branch, revId=rev_id, lang=lang, theme=theme
     )

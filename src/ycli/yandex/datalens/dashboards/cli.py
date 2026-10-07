@@ -46,7 +46,10 @@ def _body[M: BaseModel](model: type[M], caller: CallerFields, flags: dict[str, s
 def get(
     dashboard_id: DashIDArg,
     rev_id: Annotated[
-        str | None, typer.Option("--rev-id", help="The revision to read; the current by default.")
+        str | None,
+        typer.Option(
+            "--rev-id", help="One revision to read, as it is; give it or --branch, not both."
+        ),
     ] = None,
     include_permissions: Annotated[
         bool | None,
@@ -73,7 +76,7 @@ def get(
         values_option(
             RevisionBranch,
             "--branch",
-            help="Which version of it to read; the published one if left out (measured). A save "
+            help="The version to read when no revision is named: saved or published. A save "
             "writes the saved one: read `saved` before you change a dashboard.",
         ),
     ] = None,

@@ -37,6 +37,8 @@ class ReportsClient(Resource):
     ) -> Report:
         """``getReport`` → one report: its slides and what stands on them.
 
+        A report has no branch in the API: the read answers the saved version (measured).
+
         Args:
             entry_id: The report's id.
             rev_id: The revision to read; the current one when left out.

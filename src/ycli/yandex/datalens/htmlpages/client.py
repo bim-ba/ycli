@@ -40,8 +40,8 @@ class HTMLPagesClient(Resource):
 
         Args:
             entry_id: The page's id.
-            rev_id: The revision to read; the current one when left out.
-            branch: ``saved`` or ``published``.
+            rev_id: One revision to read, as it is; give it or ``branch``, not both.
+            branch: The version to read when no revision is named: ``saved`` or ``published``.
             include_permissions: Also say what the caller may do with the page.
             include_favorite: Also say whether the page is a favourite.
 
@@ -49,7 +49,7 @@ class HTMLPagesClient(Resource):
             The page.
 
         Examples:
-            >>> datalens.htmlpages.get("hp000000000001").type
+            >>> datalens.htmlpages.get("hp000000000001", branch="published").type
             'html-page'
         """
         return self._session.send(
@@ -145,8 +145,8 @@ class HTMLPagesClient(Resource):
 
         Args:
             entry_id: The page's id.
-            branch: ``saved`` or ``published``; the published one when left out.
-            rev_id: The revision to show.
+            branch: The version to show when no revision is named: ``saved`` or ``published``.
+            rev_id: One revision to show, as it is; give it or ``branch``, not both.
             lang: The language of the preview: ``en`` or ``ru``.
             theme: The theme of the preview, e.g. ``light`` or ``dark``.
 
@@ -154,7 +154,7 @@ class HTMLPagesClient(Resource):
             The link under ``url``; it stops working after a while.
 
         Examples:
-            >>> datalens.htmlpages.preview_url_get("hp000000000001").url
+            >>> datalens.htmlpages.preview_url_get("hp000000000001", branch="saved").url
             'https://preview.example/hp000000000001?sig=1'
         """
         return self._session.send(

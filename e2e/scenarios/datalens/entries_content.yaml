@@ -115,7 +115,8 @@ steps:
       dashboard: entry.entryId
     cleanup: datalens dashboards delete ${dashboard}
   - id: dashboard-read
-    run: datalens dashboards get ${dashboard}
+    # The saved version: the one a save writes, and the one to send back.
+    run: datalens dashboards get ${dashboard} --branch saved
     save:
       laid: "to_string({entryId: entry.entryId, data: entry.data, meta: entry.meta})"
   - id: dashboard-update

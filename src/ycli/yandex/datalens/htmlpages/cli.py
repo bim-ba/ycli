@@ -36,9 +36,16 @@ PageNoteOption = Annotated[
 ]
 PageBranchOption = Annotated[
     str | None,
-    values_option(RevisionBranch, "--branch", help="The revision saved last, or the public one."),
+    values_option(
+        RevisionBranch,
+        "--branch",
+        help="The version to read when no revision is named: saved or published.",
+    ),
 ]
-PageRevisionOption = Annotated[str | None, typer.Option("--rev-id", help="A revision of the page.")]
+PageRevisionOption = Annotated[
+    str | None,
+    typer.Option("--rev-id", help="One revision, as it is; give it or --branch, not both."),
+]
 
 
 def _body[M: BaseModel](model: type[M], caller: CallerFields, flags: Mapping[str, str | None]) -> M:

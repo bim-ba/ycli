@@ -15,6 +15,7 @@ if TYPE_CHECKING:
         DashboardSaved,
         DashboardUpdate,
     )
+    from ycli.yandex.datalens.models import RevisionBranch
 
 
 class DashboardsClient(Resource):
@@ -28,7 +29,7 @@ class DashboardsClient(Resource):
         include_permissions: bool | None = None,
         include_links: bool | None = None,
         include_favorite: bool | None = None,
-        branch: str | None = None,
+        branch: RevisionBranch | None = None,
         workbook_id: str | None = None,
     ) -> Dashboard:
         """``getDashboard`` → one dashboard: its tabs and what stands on them.
@@ -37,12 +38,12 @@ class DashboardsClient(Resource):
 
         Args:
             dashboard_id: The dashboard's id.
-            rev_id: The revision to read; the current one when left out.
+            rev_id: One revision to read, as it is; give it or ``branch``, not both.
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``; the published one when
-                left out (measured). A save writes the saved one: read ``saved`` before
+            branch: The version to read when no revision is named: ``saved`` or
+                ``published``. A save writes the saved one: read ``saved`` before
                 changing the dashboard.
             workbook_id: The workbook the dashboard lies in.
 
@@ -50,7 +51,7 @@ class DashboardsClient(Resource):
             The dashboard.
 
         Examples:
-            >>> dashboard = datalens.dashboards.get("dash0000000001")
+            >>> dashboard = datalens.dashboards.get("dash0000000001", branch="saved")
             >>> dashboard.entry.entry_id, [tab.title for tab in dashboard.entry.data.tabs]
             ('dash0000000001', ['Sales'])
         """
