@@ -65,8 +65,15 @@ steps:
       "length(@)": 1
     save:
       file: "[0].id"
+      name: "[0].name"
   - id: attachment
     run: tracker entities attachments get project ${project} ${file}
+  - id: attachment-download
+    # The bytes go to stdout, so the reply is the file itself.
+    output: text
+    run: tracker entities attachments download ${file} ${name}
+    expect:
+      "contains(@, 'a note for the live scenarios')": true
   - id: attachment-delete
     run: tracker entities attachments delete project ${project} ${file}
   # GRANTEE is a Yandex uid, and Tracker knows a user by its own uid (it answers "does not
@@ -98,6 +105,12 @@ steps:
       --revoke '{"READ": {"users": ["${grantee}"]}}'
   - id: both-at-once
     run: tracker entities update-bulk project --entity ${project} --entity ${other} --comment "Handed over" --field "summary=${RUN} project, handed over"
+    save:
+      bulk: id
+  - id: both-at-once-status
+    run: tracker entities bulk-get ${bulk}
+    expect:
+      id: ${bulk}
   - id: delete
     run: tracker entities delete project ${project}
     disarms: [first]
