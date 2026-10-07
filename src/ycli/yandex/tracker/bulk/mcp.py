@@ -42,16 +42,16 @@ def get(
 
 @mcp.tool(
     name="bulk_issues_list",
-    annotations={**RO, "title": "List Tracker bulk-change failed issues"},
+    annotations={**RO, "title": "List the issues of a Tracker bulk change"},
 )
 def issues_list(
     bulk_id: Annotated[str, Field(description="Bulk-change operation id to inspect.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[BulkIssueResult]:
-    """The issues a bulk-change operation could NOT change, each with its per-field error.
+    """Every issue of a bulk change with how it went: its ``status`` and, when it failed, why.
 
-    Use after ``bulk_get`` reports a non-zero failure count to see *why* specific issues were
-    rejected (e.g. an invalid resolution for the target queue/type). Successful issues are not
-    listed here.
+    One record per issue, the ones that went well too (``COMPLETED``, measured). Use after
+    ``bulk_get`` reports a failure to see which issues were rejected and why (e.g. an invalid
+    resolution for the target queue/type): those carry ``error``.
     """
     return client.bulk.issues_list(bulk_id)

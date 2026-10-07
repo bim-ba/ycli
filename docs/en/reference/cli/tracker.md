@@ -4181,7 +4181,7 @@ $ ycli tracker bulk [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `get`: Print the current status of bulk-change...
-* `issues-list`: List issues that a bulk change failed on...
+* `issues-list`: List the issues of a bulk change, each...
 
 ### `ycli tracker bulk get`
 
@@ -4209,7 +4209,10 @@ $ ycli tracker bulk get [OPTIONS] BULK_ID
 
 ### `ycli tracker bulk issues-list`
 
-List issues that a bulk change failed on (GET /bulkchange/{id}/issues).
+List the issues of a bulk change, each with how it went (GET /bulkchange/{id}/issues).
+
+One record per issue, the ones that went well too (status COMPLETED); a failed one
+carries its error.
 
 **Usage**:
 

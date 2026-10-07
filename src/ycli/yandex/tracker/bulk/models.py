@@ -101,7 +101,7 @@ class BulkError(APIModel):
 
 
 class BulkIssueResult(APIModel):
-    """One issue's outcome in ``GET /bulkchange/{id}/issues`` (issues that failed to change).
+    """One issue's outcome in ``GET /bulkchange/{id}/issues``: every issue of the change has one.
 
     Examples:
         >>> BulkIssueResult.model_validate({"issue": {"key": "TEST-1"}, "status": "FAILED"}).issue
@@ -110,7 +110,7 @@ class BulkIssueResult(APIModel):
 
     issue: KeyStr = Field(default=None, description="Key of the affected issue.")
     status: str | None = Field(
-        default=None, description="Outcome status for this issue, e.g. ``FAILED``."
+        default=None, description="Outcome for this issue; ``COMPLETED`` when it went well."
     )
     status_text: str | None = Field(
         default=None, alias="statusText", description="Human-readable description of the outcome."
