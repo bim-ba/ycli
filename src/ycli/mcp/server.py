@@ -72,6 +72,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
 
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
+    # No tools for `ycli sync`: it works in the caller's working tree, and a server has none.
     server.mount(status_mcp, namespace="status")
     server.mount(schema_server(server.list_tools), namespace="schema")
     server.add_transform(DerivedTags())
@@ -89,7 +90,8 @@ def _instructions(mounted: list[Service]) -> str:
         f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
         f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
         "caller's Yandex account). Each service has a guide to read before its first call, "
-        "as a resource: " + ", ".join(f"ycli://{service.name}/guide" for service in mounted) + "."
+        "as a resource: " + ", ".join(f"ycli://{service.name}/guide" for service in mounted) + ". "
+        "Objects as files in git (pull, diff, push) are the CLI's: run `ycli sync --help`."
     )
 
 

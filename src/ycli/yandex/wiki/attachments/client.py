@@ -70,7 +70,6 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.get(page_id, file_id))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def previews_download(self, page_id: int, file_id: int) -> bytes:
         r"""``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
 
@@ -92,7 +91,6 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.previews_download(page_id, file_id))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.
 
@@ -111,7 +109,6 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.download(page_id, file_id))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def download_by_url(self, url: str) -> bytes:
         """``GET /pages/attachments/download_by_url?url=`` → the file's raw bytes.
 

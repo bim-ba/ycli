@@ -103,11 +103,16 @@ program stays a test.
   `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/contract/test_contract.py`)
   replays every contract case with an empty object for a reply: the command and the tool
   return the same data or both fail, so neither judges a reply the other shows as it is.
+- **What works with a file on the caller's disk is not served over MCP.** A server has no disk
+  of the caller, and bytes do not round-trip a tool result. It is one rule for a client method
+  that gives or takes the bytes of a file (`-> bytes`, or a `bytes` argument: the check reads
+  the signature, so no marker says it; an upload that takes base64 is a tool like any other) and
+  for `ycli sync`, which reads and writes the caller's working tree and has no tool at all
+  ([#520](https://github.com/bim-ba/ycli/issues/520)): an agent runs the command.
 - **Exceptions:** `# violation(arch-1): <reason>` above a tool — it has no CLI command of its own
-  name because one command serves several tools; the same marker above a client method — a binary download is
-  CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file
-  from disk (the other uploads are MCP tools that take base64), plus a few SDK-internal primitives; a
-  resource whose every operation is marked so serves no MCP tool. `status/` and the `ycli.mcp` server package are
+  name because one command serves several tools; the same marker above a client method — an
+  SDK-internal primitive that is a step of another operation; a
+  resource whose every operation is a file's or marked so serves no MCP tool. `status/` and the `ycli.mcp` server package are
   cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
   service mounts that is no resource (`<service> auth`, built once from the registry).
 
