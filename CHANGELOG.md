@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.123.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.122.4
+  ([`60ecebf`](https://github.com/bim-ba/ycli/commit/60ecebf40d02df95650dec882339a5d145950668))
+
+### Features
+
+- **sync**: `ycli sync push` sends the files and reads each write back
+  ([`0a89d66`](https://github.com/bim-ba/ycli/commit/0a89d66abd166eeede9e4f0b281e6f42d925313e))
+
+
 ## v0.122.4 (2026-10-07)
 
 ### Bug Fixes
