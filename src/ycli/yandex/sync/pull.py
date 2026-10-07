@@ -73,7 +73,7 @@ def _under(tree: Tree, scope: PurePosixPath) -> tuple[str, ...]:
     return tuple(got for want, got in zip(frame, parts, strict=False) if want == "*")
 
 
-def _documents(
+def documents_under(
     kind: Kind[Any, Any], senders: Callable[[str], Sender], scope: PurePosixPath
 ) -> Iterator[tuple[PurePosixPath, Document[Any, Any] | None]]:
     """Every object of ``kind`` under ``scope`` as its file; ``None`` for one the kind skips."""
@@ -86,7 +86,6 @@ def _documents(
     found, read = arguments_of(kind.find), arguments_of(kind.read)
     places = dict(zip(read.container, held, strict=False))
     identity = fields_marked(kind.link, Identity)
-    (version,) = fields_marked(kind.link, Version) or [None]
     for item in _ask(sender, kind.find, dict(zip(found.container, held, strict=True))):
         ids = [getattr(item, name) for name in identity]
         named = places | dict(zip(read.identity, ids, strict=True))
@@ -95,20 +94,55 @@ def _documents(
             getattr(reply, name) for name in identity
         ]
         path = tree.path(held if tree.resource else (), "/".join(map(str, leaf)))
-        if kind.only and not kind.only(reply):
-            yield path, None
-            continue
-        taken = set(kind.content.model_fields) | {
-            info.alias for info in kind.content.model_fields.values() if info.alias
-        }
-        given = reply.model_dump(mode="json", by_alias=True, exclude_none=True)
-        content = kind.content.model_validate({key: given[key] for key in given if key in taken})
-        link = {name: getattr(reply, name) for name in identity} | {"hash": fingerprint(content)}
-        if version:
-            link[version] = kind.version.current(
-                reply, version, lambda operation, named=named: _ask(sender, operation, named)
-            )
-        yield path, Document(path=path, link=kind.link(**link), content=content)
+        yield path, _as_document(kind, sender, path, reply, named)
+
+
+def _as_document(
+    kind: Kind[Any, Any],
+    sender: Sender,
+    path: PurePosixPath,
+    reply: BaseModel,
+    named: dict[str, Any],
+) -> Document[Any, Any] | None:
+    """What reading an object answered, as its file; ``None`` for one the kind does not keep."""
+    if kind.only and not kind.only(reply):
+        return None
+    taken = set(kind.content.model_fields) | {
+        info.alias for info in kind.content.model_fields.values() if info.alias
+    }
+    given = reply.model_dump(mode="json", by_alias=True, exclude_none=True)
+    content = kind.content.model_validate({key: given[key] for key in given if key in taken})
+    identity = fields_marked(kind.link, Identity)
+    (version,) = fields_marked(kind.link, Version) or [None]
+    link = {name: getattr(reply, name) for name in identity} | {"hash": fingerprint(content)}
+    if version:
+        link[version] = kind.version.current(
+            reply, version, lambda operation: _ask(sender, operation, named)
+        )
+    return Document(path=path, link=kind.link(**link), content=content)
+
+
+def read_one(
+    kind: Kind[Any, Any], sender: Sender, document: Document[Any, Any]
+) -> Document[Any, Any] | None:
+    """Read from the server the object that the file ``document`` stands for.
+
+    Args:
+        kind: The kind of the file.
+        sender: The client of the kind's service.
+        document: The file, read; its link names the object.
+
+    Returns:
+        The object as its file would be now; ``None`` when the kind does not keep it.
+    """
+    tree = tree_of(kind)
+    read = arguments_of(kind.read)
+    held, _ = tree.split(document.path)
+    ids = [getattr(document.link, name) for name in fields_marked(kind.link, Identity)]
+    named = dict(zip(read.container, held, strict=False)) | dict(
+        zip(read.identity, ids, strict=True)
+    )
+    return _as_document(kind, sender, document.path, _ask(sender, kind.read, named), named)
 
 
 def pull(
@@ -144,7 +178,7 @@ def pull(
     done: list[Pulled] = []
     within = scope.with_suffix("")
     for kind in mine:
-        for path, document in _documents(kind, senders, scope):
+        for path, document in documents_under(kind, senders, scope):
             if within != path.with_suffix("") and within not in path.parents:
                 continue
             if document is None:
