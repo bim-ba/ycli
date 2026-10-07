@@ -42,6 +42,21 @@ def test_effect_follows_the_method(method, effect, idempotent):
     assert endpoint.idempotent is idempotent
 
 
+@pytest.mark.parametrize("value", [{"k": 1}, {"a"}, b"x", [{"k": 1}]])
+def test_a_query_value_that_would_go_as_python_text_fails_at_construction(value):
+    """Httpx sends such a value as ``str(value)``: ``metadata=%7B%27k%27%3A+1%7D``."""
+    with pytest.raises(TypeError, match=r"the query parameter 'metadata' of GET items is a "):
+        Endpoint(HTTPMethod.GET, "items", params={"metadata": value})
+
+
+def test_a_query_takes_a_string_a_number_a_boolean_and_a_list_of_them():
+    endpoint = Endpoint(
+        HTTPMethod.GET, "items", params={"q": "a", "n": 2, "f": 1.5, "b": True, "l": ["x", 3]}
+    )
+    with httpx2.Client(base_url="https://api.example.net/v1/") as client:
+        assert endpoint.request(client).url.query == b"q=a&n=2&f=1.5&b=true&l=x&l=3"
+
+
 def test_a_stated_effect_wins():
     assert Endpoint(HTTPMethod.POST, "issues/_search", effect=Effect.READ).effect == "read"
 

@@ -188,7 +188,13 @@ def _response(recording: Recorded, found: dict[tuple[str, str], Any]) -> dict[st
     return {"description": "Parsed by ycli.", "content": {_JSON: {"schema": schema}}}
 
 
-_BY_VALUE = {bool: "boolean", int: "integer", float: "number", str: "string", list: "array"}
+_BY_VALUE: dict[type, str] = {
+    bool: "boolean",
+    int: "integer",
+    float: "number",
+    str: "string",
+    list: "array",
+}
 
 
 def _wire_schema(annotation: Any) -> dict[str, Any]:

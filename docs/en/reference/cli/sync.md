@@ -22,9 +22,10 @@ $ ycli sync [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `kinds`: List the kinds of object that can be kept...
-* `status`: Say which files were edited since they...
+* `status`: Say what `push` would do with each file,...
 * `validate`: Check that every file reads as a file of...
 * `pull`: Read the objects under PATH from the...
+* `diff`: Show what `push` would change: each file...
 
 ## `ycli sync kinds`
 
@@ -48,10 +49,11 @@ $ ycli sync kinds [OPTIONS]
 
 ## `ycli sync status`
 
-Say which files were edited since they were read from the server; uses no network.
+Say what `push` would do with each file, as far as the files alone say; uses no network.
 
-A file is edited when its content no longer has the fingerprint in its `hash` key, and
-new when it has no `hash`: it was written by hand.
+A file is to `update` when its content no longer has the fingerprint in its `hash` key. One
+with no `hash` was written by hand: to `create` when it names no object, `untracked` when
+it names one. Whether the object changed on the server meanwhile, only `diff` can say.
 
 **Usage**:
 
@@ -67,7 +69,7 @@ $ ycli sync status [OPTIONS] [PATHS]...
 
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
 * `--show-unchanged`: Also list the files that were not edited.
-* `--exit-code`: Exit with 7 when a file was edited or is new.
+* `--exit-code`: Exit with 7 when there is something to push.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -126,6 +128,39 @@ $ ycli sync pull [OPTIONS] PATH
 
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
 * `--show-unchanged`: Also list the files that were the same.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli sync diff`
+
+Show what `push` would change: each file against its object on the server, as it is now.
+
+The difference runs from the server to the file. Under a directory that names a container
+(wiki/team, tracker/queues/DE) an object with no file is listed too. Where the object
+changed since the file was read, the difference is the file against the server now: the
+file keeps no copy of what was read, so whose change a line is cannot be said.
+
+**Usage**:
+
+```console
+$ ycli sync diff [OPTIONS] [PATHS]...
+```
+
+**Arguments**:
+
+* `[PATHS]...`: Files or directories to look at; every service's directory by default.
+
+**Options**:
+
+* `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
+* `--show-unchanged`: Also list the files with nothing to push.
+* `--show-secrets`: Show secrets as they are, not masked.
+* `--exit-code`: Exit with 7 when there is something to push, 8 when a file and its object went apart.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
