@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.117.1 (2026-10-07)
+
+### Bug Fixes
+
+- **mcp**: Every server is built by one constructor, so a resource's server run alone does not
+  repeat a secret
+  ([`672d9f6`](https://github.com/bim-ba/ycli/commit/672d9f65b524c59074372752fb9e7008d332eb1c))
+
+### Build System
+
+- Re-lock uv.lock for 0.117.0
+  ([`af25ef5`](https://github.com/bim-ba/ycli/commit/af25ef552677a0927e08a8ec2ad0496aa6907943))
+
+
 ## v0.117.0 (2026-10-07)
 
 ### Build System
