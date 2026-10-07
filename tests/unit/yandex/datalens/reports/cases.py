@@ -8,8 +8,18 @@ from ycli.yandex.datalens.reports.models import EntryAnnotation, ReportData, Rep
 
 REP = "rep00000000001"
 WB = "wb000000000001"
-DATA = {"slides": [{"id": "s1"}]}
-CHANGE = {"slides": [{"id": "s1"}, {"id": "s2"}]}
+# The least a live `createReport` takes (measured through ycli, 2026-10-07): one slide
+# with nothing on it, and every key here; DataLens answers 400 for `slides` alone.
+DATA = {
+    "counter": 1,
+    "salt": "s",
+    "slides": [{"id": "s1"}],
+    "slideGroups": [],
+    "slidesOrder": ["s1"],
+    "visualSettings": {},
+    "slideSettings": {},
+}
+CHANGE = {**DATA, "slides": [{"id": "s1"}, {"id": "s2"}], "slidesOrder": ["s1", "s2"]}
 META = {"title": "Q1"}
 NOTE = {"description": "The quarter"}
 # The document requires four fields with one value each: `scope`, an empty `type`, `version`
