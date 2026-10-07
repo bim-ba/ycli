@@ -960,6 +960,28 @@ def test_the_model_template_is_the_generators_own_but_for_what_ycli_adds():
     assert sum("Annotated[{{ field.type_hint }}, NoDropNull()]" in line for line in added) == 2
 
 
+def test_the_root_model_template_is_the_generators_own_but_for_what_ycli_adds():
+    """The second copy, for the mark of a union of envelopes (#459): the same two-sided check."""
+    import datamodel_code_generator
+
+    name = "pydantic_v2/RootModel.jinja2"
+    upstream = Path(datamodel_code_generator.__file__).parent / "model" / "template" / name
+    theirs = upstream.read_text(encoding="utf-8").splitlines()
+    ours = (gen.TEMPLATES / name).read_text(encoding="utf-8").splitlines()
+    changes = [line for line in difflib.ndiff(theirs, ours) if line[:1] in "+-"]
+    # An ``if`` of the generator becomes the ``elif`` after ycli's branch, twice.
+    assert [line[2:].strip() for line in changes if line[0] == "-"] == [
+        "{%- if use_base_type -%}",
+        "{{ description }}",
+        "{%- if field.annotated %}",
+    ]
+    added = [line[2:].strip() for line in changes if line[0] == "+"]
+    assert len(added) == 9
+    assert sum(line.startswith("{#- ycli:") for line in added) == 2
+    assert sum("KindByOwnField()]" in line for line in added) == 2
+    assert "{%- elif use_base_type -%}" in added and "{%- elif field.annotated %}" in added
+
+
 def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
     """Both sides: each member is closed and keeps what it requires; a union deeper is not.
 
@@ -987,6 +1009,8 @@ def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
         {"$ref": REF + "things.UpdateThingRequestVariant1"},
         {"$ref": REF + "things.UpdateThingRequestVariant2"},
     ]
+    # The union itself is marked as told apart by a field; the mark is the generator's to take.
+    assert schemas["things.UpdateThingRequest"][gen._TOLD_APART] is True
     first, second = (schemas[f"things.UpdateThingRequestVariant{n}"] for n in (1, 2))
     assert (first["required"], second["required"]) == (["id", "content"], ["id", "revId"])
     assert first[gen._BASE] == gen._CLOSED and second[gen._BASE] == gen._CLOSED
@@ -999,19 +1023,20 @@ def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
         "things.UpdateThingRequestChangeVariant2",
     ):
         assert prepared[name]["required"] == [] and gen._BASE not in prepared[name]
+    assert [name for name, schema in prepared.items() if gen._TOLD_APART in schema] == []
     # The layer as committed: the model itself refuses both bodies, and names the fields.
     from pydantic import ValidationError
 
     from ycli.yandex.datalens.schemas import html_pages, spark_applications
     from ycli.yandex.models import WIRE, RequestBody
 
-    for refused, named in (
-        ({}, ["content", "entryId", "mode", "revId"]),
-        ({"entryId": "p1", "content": "<p>", "revId": "r1", "mode": "save"}, ["content", "revId"]),
-    ):
+    for refused in ({}, {"entryId": "p1", "content": "<p>", "revId": "r1", "mode": "save"}):
         with pytest.raises(ValidationError) as failure:
             html_pages.UpdateHtmlPageArgs.model_validate(refused)
-        assert sorted({error["loc"][-1] for error in failure.value.errors()}) == named
+        # Once, by the fields that tell the members apart (#459), not once per member.
+        assert [error["msg"] for error in failure.value.errors()] == [
+            "give exactly one of: content, revId"
+        ]
     for body in (
         {"entryId": "p1", "content": "<p>"},
         {"entryId": "p1", "revId": "r1", "mode": "publish"},
@@ -1066,3 +1091,56 @@ def test_a_field_with_one_value_is_required_only_where_it_tells_kinds_apart():
     entry = UpdateHtmlPageResult.model_validate(saved).entry
     assert entry is not None and entry.version is None
     assert GetHtmlPageResult.model_validate({"entryId": "p1", "version": 1}).version == 1
+
+
+def test_the_generated_union_of_envelopes_carries_the_mark_and_no_other_class_does():
+    """#459: the mark is written by the template, on the root of the union, with its import."""
+    new = {"type": "object", "properties": {"content": {"type": "string"}}, "required": ["content"]}
+    old = {"type": "object", "properties": {"revId": {"type": "string"}}, "required": ["revId"]}
+    plain = {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}
+    spec = {
+        "paths": {
+            "/rpc/updateThing": _operation({"anyOf": [new, old]}, {}),
+            "/rpc/getThing": _operation(plain, {}),
+        },
+        "components": {"schemas": {}},
+    }
+    things = gen.generate(spec)["things.py"]
+    marked = "Annotated[UpdateThingRequestVariant1 | UpdateThingRequestVariant2, KindByOwnField()]"
+    assert f"    root: {marked}\n" in things and f"RootModel[{marked}]" in things
+    assert things.count("KindByOwnField()") == 2
+    assert "from ycli.yandex.models import KindByOwnField, RequestBody" in things
+    assert gen._TOLD_APART not in things and gen.foreign(things) == []
+
+
+def test_the_marked_classes_of_the_layer_are_its_unions_of_request_envelopes():
+    """Both ways, read from the committed layer: no union envelope without it, none beside."""
+    import importlib
+    import typing
+
+    from pydantic import RootModel
+
+    from ycli.yandex.models import KindByOwnField, RequestBody
+
+    marked, unions = set(), set()
+    for path in sorted(gen.SCHEMAS.glob("*.py")):
+        if path.stem == "__init__":
+            continue
+        module = importlib.import_module(f"ycli.yandex.datalens.schemas.{path.stem}")
+        for name, held in vars(module).items():
+            if not (
+                isinstance(held, type) and issubclass(held, RootModel) and held is not RootModel
+            ):
+                continue
+            if held.__module__ != module.__name__:
+                continue
+            root = held.model_fields["root"]
+            if any(isinstance(mark, KindByOwnField) for mark in root.metadata):
+                marked.add(name)
+            members = typing.get_args(root.annotation)
+            if members and all(
+                isinstance(member, type) and issubclass(member, RequestBody) for member in members
+            ):
+                unions.add(name)
+    assert marked == unions
+    assert {"CreateSparkApplicationArgs", "UpdateHtmlPageArgs"} <= marked

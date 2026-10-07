@@ -24,6 +24,7 @@ from pydantic import (
     SecretStr,
     model_serializer,
 )
+from pydantic_core import core_schema
 
 #: The order of a sorted listing.
 SortDirection = Literal["asc", "desc"] | str
@@ -33,6 +34,7 @@ GroupSource = Literal["dir", "cloud", "com", "staff"] | str
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from pydantic import GetCoreSchemaHandler
     from pydantic.fields import FieldInfo
     from pydantic_core import ErrorDetails
 
@@ -255,6 +257,109 @@ class NoDropNull:
     stays optional to give and to read; a generated model carries the mark from its
     specification.
     """
+
+
+@dataclass(frozen=True)
+class KindByOwnField:
+    """Marks a union of request objects told apart by the field each of them alone requires.
+
+    ``root: Annotated[Jar | Script, KindByOwnField()]``: the kind of a body is the member
+    whose own field it holds, so pydantic validates it against that member only, and a body
+    with none of those fields, or with two, is refused once, by the names of the fields.
+    Without the mark every member is tried and each says what it lacks.
+
+    The own field of a member is the one it requires and no other member declares, by the
+    name the API takes it under; it is read from the members, never listed.
+
+    Examples:
+        >>> class Jar(RequestBody):
+        ...     cluster: str
+        ...     jar: str
+        >>> class Script(RequestBody):
+        ...     cluster: str
+        ...     script: str
+        >>> class New(RootModel, hide_input_in_errors=True):
+        ...     root: Annotated[Jar | Script, KindByOwnField()]
+        >>> type(New.model_validate({"cluster": "c1", "script": "job.py"}).root).__name__
+        'Script'
+        >>> New.model_validate({"cluster": "c1"})
+        Traceback (most recent call last):
+            ...
+        pydantic_core._pydantic_core.ValidationError: 1 validation error for New
+          give exactly one of: jar, script [type=one_kind]
+    """
+
+    def __get_pydantic_core_schema__(
+        self, source: Any, handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        """The union as one told apart by :func:`_kind`, with one error for no kind or two."""
+        members = _own_fields(get_args(source))
+
+        def kind(value: object) -> str | None:  # pydantic-core asks the chooser for its name
+            return _kind(members, value)
+
+        return core_schema.tagged_union_schema(
+            {field: handler.generate_schema(member) for field, member in members.items()},
+            discriminator=kind,
+            custom_error_type="one_kind",
+            custom_error_message="give exactly one of: {kinds}",
+            custom_error_context={"kinds": ", ".join(members)},
+        )
+
+
+def _own_fields(members: tuple[type[BaseModel], ...]) -> dict[str, type[BaseModel]]:
+    """Each member of a union under the field it alone requires, as the API names it.
+
+    Args:
+        members: The classes of the union.
+
+    Returns:
+        The members, keyed by their own fields, in the order of the union.
+
+    Raises:
+        TypeError: A member has no such field, or more than one: the union is not told apart
+            by a field, and the mark does not belong on it.
+    """
+    declared = [
+        {field.alias or name for name, field in member.model_fields.items()} for member in members
+    ]
+    found: dict[str, type[BaseModel]] = {}
+    for index, member in enumerate(members):
+        others = set().union(*declared[:index], *declared[index + 1 :])
+        own = [
+            field.alias or name
+            for name, field in member.model_fields.items()
+            if field.is_required() and (field.alias or name) not in others
+        ]
+        if len(own) != 1:
+            raise TypeError(
+                f"{member.__name__} is told apart by {own or 'no field'}, not by one field"
+            )
+        found[own[0]] = member
+    return found
+
+
+def _kind(members: dict[str, type[BaseModel]], value: object) -> str | None:
+    """The own field of the member ``value`` is: of a body, the one it holds, if it holds one.
+
+    Args:
+        members: The members of the union, keyed by their own fields.
+        value: A body as it was given, or a member already built.
+
+    Returns:
+        The own field of its member; ``None`` when it holds none of them, or two.
+
+    Examples:
+        >>> _kind({"jar": BaseModel, "script": RootModel}, {"cluster": "c1", "script": "job.py"})
+        'script'
+        >>> _kind({"jar": BaseModel, "script": RootModel}, {"jar": "a", "script": "b"}) is None
+        True
+    """
+    if isinstance(value, dict):
+        held = [field for field in members if field in value]
+    else:  # a member already built: pydantic asks again when it writes the body out
+        held = [field for field, member in members.items() if type(value) is member]
+    return held[0] if len(held) == 1 else None
 
 
 def _keeps_null(field: FieldInfo) -> bool:

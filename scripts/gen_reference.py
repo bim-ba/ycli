@@ -70,8 +70,9 @@ def _schema_type(schema: dict[str, Any]) -> str:
     """A JSON schema's type in a few words: ``integer``, ``string or null``, ``BoardCreate``."""
     if "$ref" in schema:
         return schema["$ref"].rsplit("/", 1)[-1]
-    if "anyOf" in schema:
-        return " or ".join(_schema_type(option) for option in schema["anyOf"])
+    for union in ("anyOf", "oneOf"):
+        if union in schema:
+            return " or ".join(_schema_type(option) for option in schema[union])
     if schema.get("type") == "array":
         return f"array of {_schema_type(schema.get('items', {}))}"
     if "enum" in schema:
