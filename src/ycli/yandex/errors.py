@@ -125,6 +125,25 @@ def _field_errors(details: object) -> str:
     return "; ".join(found)
 
 
+def status_line(code: int) -> str:
+    """The status of a reply as an error says it: the code and the name HTTP gives it.
+
+    Not the server's own words beside the code: for a code HTTP does not name a server says
+    anything ("Unknown" beside DataLens's 427) and over HTTP/2 nothing, which left two spaces.
+
+    Args:
+        code: The HTTP status code.
+
+    Returns:
+        ``"404 Not Found"``; the code alone when HTTP has no name for it.
+
+    Examples:
+        >>> status_line(404), status_line(427)
+        ('404 Not Found', '427')
+    """
+    return f"{code} {HTTPStatus(code).phrase}" if code in HTTPStatus else str(code)
+
+
 def describe_error_body(body: str) -> str:
     """The human-readable line from a Yandex error body, or a raw snippet as a fallback.
 
