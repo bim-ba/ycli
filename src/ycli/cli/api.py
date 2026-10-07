@@ -117,6 +117,10 @@ def api(
     ycli api issues/DE-1/comments --service tracker -F text=@note.md   (POST)
 
     ycli api pages/descendants --service wiki -f slug=docs --paginate
+
+    A field makes the call a POST, which on many paths changes the object: to read with a
+    parameter say -X GET (ycli api pages/7 --service wiki -X GET -f fields=content) or put
+    it in the path (pages/7?fields=content). --paginate reads, so it stays a GET.
     """
     fields = parse_fields(field, raw=raw_field, structured=True)
     content = _read_input(input_file)
