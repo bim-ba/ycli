@@ -26,6 +26,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - cloud environments and their storage bucket (experimental in the API; the listing measured, the rest written from the document and never called)
 - REST catalogs and Lakehouse operations (experimental in the API; the listing of catalogs measured, the rest written from the document and never called)
 - Trino clusters and their resource presets (experimental in the API; the listing of clusters measured, the rest written from the document and never called)
+- Spark clusters and their resource presets (experimental in the API; written from the document, not measured, the writes never called)
 - Spark applications: listing, reading, making, cancelling one and reading its log (experimental in the API; written from the document, not measured)
 - the members of the organization and the details of the DataLens instance (reads)
 - the licences (seats) of the instance: reads measured; giving a licence and setting the limit written from the document, never called
@@ -136,6 +137,7 @@ DataLens differs from the other services in both credentials:
 | One chart, by how it is built | `uv run ycli datalens charts wizard get <chart_id>` · `charts ql get <chart_id>` · `charts editor get <chart_id>` | `datalens_charts_wizard_get` · `datalens_charts_ql_get` · `datalens_charts_editor_get` |
 | One report: its slides and what stands on them | `uv run ycli datalens reports get <entry_id>` | `datalens_reports_get` |
 | One dashboard (large: write it to a file) | `uv run ycli -o json datalens dashboards get <dashboard_id> > dash.json` | `datalens_dashboards_get` |
+| Spark clusters, one of them, the sizes an instance can take (experimental, not measured) | `uv run ycli datalens sparkclusters list` · `sparkclusters get <cluster_id>` · `sparkclusters resource-presets-list --cloud-environment-id <id>` · `sparkclusters resource-presets-get <preset_id> --cloud-environment-id <id>` | `datalens_sparkclusters_list` · `datalens_sparkclusters_get` · `datalens_sparkclusters_resource_presets_list` · `datalens_sparkclusters_resource_presets_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -196,6 +198,7 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Create a dashboard | `uv run ycli datalens dashboards create --body-file dash.json` | `datalens_dashboards_create` |
 | Save a dashboard as given | `uv run ycli datalens dashboards update --mode save --body-file dash.json [--lock-token …]` | `datalens_dashboards_update` |
 | Delete a dashboard | `uv run ycli datalens dashboards delete <dashboard_id>` | `datalens_dashboards_delete` |
+| Create, start, stop, delete a Spark cluster (paid for while it runs: only when asked; experimental, not measured) | `uv run ycli datalens sparkclusters create --collection-id <id> --cloud-environment-id <id> --name … --config '{…}'` · `sparkclusters start <cluster_id>` · `sparkclusters stop <cluster_id>` · `sparkclusters delete <cluster_id>` | `datalens_sparkclusters_create` · `datalens_sparkclusters_start` · `datalens_sparkclusters_stop` · `datalens_sparkclusters_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
