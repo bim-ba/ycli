@@ -1,13 +1,6 @@
-"""Wiki FastMCP subserver — mounts the per-resource tool servers.
+"""Wiki FastMCP subserver — mounts the per-resource tool servers."""
 
-The server of one resource (``…<resource>.mcp.mcp``) is a building block: whoever mounts one
-in a server of their own adds ``ArgumentRefusals`` to it, or a refusal of arguments repeats
-what was sent. This server carries it.
-"""
-
-from fastmcp import FastMCP
-
-from ycli.yandex.mcp import ArgumentRefusals
+from ycli.yandex.mcp import new_server
 from ycli.yandex.wiki.access.mcp import mcp as access_mcp
 from ycli.yandex.wiki.attachments.mcp import mcp as attachments_mcp
 from ycli.yandex.wiki.comments.mcp import mcp as comments_mcp
@@ -21,7 +14,7 @@ from ycli.yandex.wiki.recovery.mcp import mcp as recovery_mcp
 from ycli.yandex.wiki.resources.mcp import mcp as resources_mcp
 from ycli.yandex.wiki.uploadsessions.mcp import mcp as uploadsessions_mcp
 
-mcp = FastMCP(
+mcp = new_server(
     "wiki",
     instructions=(
         "Yandex Wiki, reads and writes. Pages are addressed by their permanent slug: "
@@ -34,8 +27,6 @@ mcp = FastMCP(
         "recovery_token that recovery_recover redeems."
     ),
 )
-# The root server carries it too; this one for whoever mounts the service alone.
-mcp.add_middleware(ArgumentRefusals())
 mcp.mount(me_mcp)
 mcp.mount(pages_mcp)
 mcp.mount(access_mcp)

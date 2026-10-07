@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, RootModel
 from scripts import api_drift
 
 import ycli.yandex
-from tests.architecture.scanners import GENERATED, is_generated, unexplained
+from tests.architecture.scanners import GENERATED, _import_aliases, is_generated, unexplained
 from tests.full_server import tools_with_output_schemas
 from ycli.yandex.core.pagination import BodyCursorPagination
 from ycli.yandex.models import (
@@ -755,3 +755,49 @@ def test_the_boolean_pair_check_bites():
     assert _unpaired_boolean_options(sources) == ["a/cli.py:3", "a/cli.py:4", "a/typedefs.py:1"]
     paired = {"a/cli.py": 'X = Annotated[bool | None, typer.Option("--x/--no-x")]\n'}
     assert _unpaired_boolean_options(paired) == []
+
+
+SERVER_CONSTRUCTOR = "yandex/mcp.py"
+
+
+def _servers_built_directly(sources: dict[str, str]) -> list[str]:
+    """Where a server is built with ``FastMCP(...)`` itself: ``["a/mcp.py:3"]``.
+
+    The constructor's own module is the one place that may; the name is followed through an
+    alias (``from fastmcp import FastMCP as Server``) and a module (``fastmcp.FastMCP``).
+    """
+    found = []
+    for path, source in sorted(sources.items()):
+        if path == SERVER_CONSTRUCTOR:
+            continue
+        tree = ast.parse(source)
+        aliases = _import_aliases(tree)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            head, _, rest = ast.unparse(node.func).partition(".")
+            called = ".".join(filter(None, [aliases.get(head, head), rest]))
+            if called in {"fastmcp.FastMCP", "fastmcp.server.FastMCP"}:
+                found.append(f"{path}:{node.lineno}")
+    return found
+
+
+def test_every_server_is_built_by_the_shared_constructor():
+    """Section 3, "One constructor for every server" (#489): the rule is stated there.
+
+    The constructor adds ``ArgumentRefusals``; a server built beside it repeats in a refusal
+    the secret a caller sent.
+    """
+    assert _servers_built_directly(_sources()) == []
+
+
+def test_the_server_constructor_check_bites():
+    sources = {
+        "a/mcp.py": 'from fastmcp import FastMCP\n\nmcp = FastMCP("a")\n',
+        "b/mcp.py": 'from fastmcp import FastMCP as Server\n\n\nmcp = Server("b")\n',
+        "c/mcp.py": 'import fastmcp\nmcp = fastmcp.FastMCP("c")\n',
+        "d/mcp.py": 'from ycli.yandex.d.dependencies import mcp_server\nmcp = mcp_server("d")\n',
+        "e/mcp.py": "from fastmcp import FastMCP\n\n\ndef build() -> FastMCP: ...\n",
+        SERVER_CONSTRUCTOR: "from fastmcp import FastMCP\nserver = FastMCP('x')\n",
+    }
+    assert _servers_built_directly(sources) == ["a/mcp.py:3", "b/mcp.py:4", "c/mcp.py:2"]

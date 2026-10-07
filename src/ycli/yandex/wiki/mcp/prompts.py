@@ -4,12 +4,10 @@ A prompt's text names the tools to call; ``NEEDS_TOOLS`` lists them, so a server
 serve one of them does not offer the prompt.
 """
 
-from fastmcp import FastMCP
-
-from ycli.yandex.mcp import NEEDS_TOOLS
+from ycli.yandex.mcp import NEEDS_TOOLS, new_server
 from ycli.yandex.wiki.dependencies import WRITE_TAGS
 
-mcp = FastMCP("wiki-prompts")
+mcp = new_server("wiki-prompts")
 
 
 @mcp.prompt(

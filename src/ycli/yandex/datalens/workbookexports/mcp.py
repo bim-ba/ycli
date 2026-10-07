@@ -2,12 +2,17 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import RO, WRITE, WRITE_IDEMPOTENT, datalens_client
+from ycli.yandex.datalens.dependencies import (
+    RO,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    datalens_client,
+    new_server,
+)
 from ycli.yandex.datalens.workbookexports.models import (
     WorkbookExport,
     WorkbookExportCancelled,
@@ -15,7 +20,7 @@ from ycli.yandex.datalens.workbookexports.models import (
     WorkbookExportStatus,
 )
 
-mcp = FastMCP("datalens-workbookexports")
+mcp = new_server("datalens-workbookexports")
 
 ExportID = Annotated[str, Field(description="Export id, from ``workbookexports_start``.")]
 

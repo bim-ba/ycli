@@ -4,12 +4,10 @@ A prompt's text names the tools to call; ``NEEDS_TOOLS`` lists them, so a server
 serve one of them does not offer the prompt.
 """
 
-from fastmcp import FastMCP
-
 from ycli.yandex.forms.dependencies import TAGS
-from ycli.yandex.mcp import NEEDS_TOOLS
+from ycli.yandex.mcp import NEEDS_TOOLS, new_server
 
-mcp = FastMCP("forms-prompts")
+mcp = new_server("forms-prompts")
 
 
 @mcp.prompt(

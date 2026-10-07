@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,12 +12,13 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
 from ycli.yandex.tracker.queues.models import Queue
 
-mcp = FastMCP("tracker-projects")
+mcp = new_server("tracker-projects")
 
 ProjectID = Annotated[int, Field(description="Numeric id of the project, from ``projects_list``.")]
 ProjectExpand = Annotated[

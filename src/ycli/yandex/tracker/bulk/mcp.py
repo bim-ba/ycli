@@ -6,7 +6,6 @@ operation these two reads observe.
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -18,10 +17,11 @@ from ycli.yandex.tracker.bulk.models import (
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
+    new_server,
     tracker_client,
 )
 
-mcp = FastMCP("tracker-bulk")
+mcp = new_server("tracker-bulk")
 
 
 @mcp.tool(name="bulk_get", annotations={**RO, "title": "Get Tracker bulk-change status"})

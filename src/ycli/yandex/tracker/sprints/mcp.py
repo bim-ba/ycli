@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,11 +14,12 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_IDEMPOTENT,
     SprintID,
     Version,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintUpdate
 
-mcp = FastMCP("tracker-sprints")
+mcp = new_server("tracker-sprints")
 
 
 @mcp.tool(name="sprints_list", annotations={**RO, "title": "List Tracker board sprints"})

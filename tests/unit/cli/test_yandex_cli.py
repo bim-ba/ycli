@@ -93,7 +93,7 @@ def test_mcp_start_passes_every_selection_flag(monkeypatch):
 )
 def test_mcp_bad_selection_is_a_usage_error(monkeypatch, command, flag, message):
     """A bad name is a usage error naming the fix, and nothing is served."""
-    monkeypatch.setattr("ycli.mcp.server.FastMCP.run", lambda self: pytest.fail("served"))
+    monkeypatch.setattr("fastmcp.FastMCP.run", lambda self: pytest.fail("served"))
     res = runner.invoke(cli.app, ["mcp", command, flag])
     assert res.exit_code == 2
     assert message in " ".join(res.output.replace("│", " ").split())  # the error box wraps lines

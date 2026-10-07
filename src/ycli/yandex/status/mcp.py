@@ -1,14 +1,13 @@
 """Status FastMCP tool (read-only) — whose token it is, its organization, one probe per service."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.settings import AppConfig
-from ycli.yandex.mcp import RO, app_config, caller_credentials
+from ycli.yandex.mcp import RO, app_config, caller_credentials, new_server
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import build_report
 
-mcp = FastMCP("status")
+mcp = new_server("status")
 
 
 @mcp.tool(name="get", annotations={**RO, "title": "Check Yandex 360 auth status"})

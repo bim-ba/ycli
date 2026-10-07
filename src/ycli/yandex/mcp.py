@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from importlib.resources import files
 from typing import TYPE_CHECKING, Any
 
+from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.exceptions import ValidationError as ArgumentsRefused
 from fastmcp.server.dependencies import get_access_token, get_http_request
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     from contextlib import AbstractContextManager
 
     import mcp.types as mt
+    from fastmcp.server.auth import AuthProvider
     from fastmcp.server.middleware import CallNext, MiddlewareContext
     from fastmcp.tools.base import ToolResult
 
@@ -223,10 +225,7 @@ class ArgumentRefusals(Middleware):
     A request the tool's body could not build from arguments that fit is said the same way,
     under the CLI's heading: FastMCP alone answers it "Invalid request parameters".
 
-    The root server and the server of each service carry it. The server of one resource
-    (``ycli.yandex.<service>.<resource>.mcp.mcp``) is a building block and does not: whoever
-    mounts one in a server of their own adds this to that server, or its refusals repeat
-    what was sent.
+    :func:`new_server` adds it to every server of ycli.
     """
 
     async def on_call_tool(
@@ -252,3 +251,30 @@ class ArgumentRefusals(Middleware):
             raise ToolError(
                 "The request cannot be built:\n" + "\n".join(map(field_error, wrong))
             ) from None
+
+
+def new_server(
+    name: str, *, instructions: str | None = None, auth: AuthProvider | None = None
+) -> FastMCP:
+    """A server of ycli: the root one, a service's, a resource's. Every one is built here.
+
+    What all of them must do is added in this one place, so a server run alone does it as the
+    root server does: today :class:`ArgumentRefusals`. One mounted in another carries it
+    twice, which changes nothing: the inner one has already written the refusal.
+    The function goes when it adds nothing to ``FastMCP(name)``.
+
+    Args:
+        name: The server's name.
+        instructions: What a client is told about the server.
+        auth: The sign-in provider for HTTP; ``None`` over stdio.
+
+    Returns:
+        The server, with nothing mounted and no tool yet.
+
+    Examples:
+        >>> new_server("forms-surveys").name
+        'forms-surveys'
+    """
+    server = FastMCP(name, instructions=instructions, auth=auth)
+    server.add_middleware(ArgumentRefusals())
+    return server

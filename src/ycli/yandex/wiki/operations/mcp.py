@@ -2,19 +2,18 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import RO, wiki_client
+from ycli.yandex.wiki.dependencies import RO, new_server, wiki_client
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
     GridCloneOperationStatus,
     MoveOperationStatus,
 )
 
-mcp = FastMCP("wiki-operations")
+mcp = new_server("wiki-operations")
 
 
 @mcp.tool(

@@ -7,7 +7,6 @@ Every write except ``grids_create`` and ``grids_clone`` carries the grid's curre
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -18,6 +17,7 @@ from ycli.yandex.wiki.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     wiki_client,
 )
 from ycli.yandex.wiki.grids.models import (
@@ -44,7 +44,7 @@ from ycli.yandex.wiki.grids.models import (
 )
 from ycli.yandex.wiki.models import AsyncOperation
 
-mcp = FastMCP("wiki-grids")
+mcp = new_server("wiki-grids")
 
 GridIDParam = Annotated[str, Field(description="The grid's permanent UUID4 id.")]
 

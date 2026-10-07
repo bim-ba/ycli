@@ -46,6 +46,16 @@ def _secret_paths(schema: dict, definitions: dict, path: tuple = (), seen: tuple
         yield from _secret_paths(schema["additionalProperties"], definitions, (*path, "{}"), seen)
 
 
+def _resource_servers() -> dict[str, Any]:
+    """The server of every resource by its module: ``{"ycli.yandex.forms.surveys.mcp": ...}``."""
+    return {
+        module.name: importlib.import_module(module.name).mcp
+        for module in pkgutil.walk_packages(ycli.yandex.__path__, "ycli.yandex.")
+        # ycli.yandex.<service>.<resource>.mcp
+        if module.name.endswith(".mcp") and len(module.name.split(".")) == 5
+    }
+
+
 def _tools_with_a_secret() -> dict[str, list[tuple]]:
     """Every served tool that takes a secret, with the paths to its secrets, read from types.
 
@@ -53,11 +63,8 @@ def _tools_with_a_secret() -> dict[str, list[tuple]]:
     listed as a free-form object, and is validated as its model all the same.
     """
     found: dict[str, list[tuple]] = {}
-    for module in pkgutil.walk_packages(ycli.yandex.__path__, "ycli.yandex."):
-        parts = module.name.split(".")
-        if parts[-1] != "mcp" or len(parts) != 5:  # ycli.yandex.<service>.<resource>.mcp
-            continue
-        server = importlib.import_module(module.name).mcp
+    for module, server in _resource_servers().items():
+        parts = module.split(".")
         for tool in asyncio.run(server.list_tools()):
             hints = typing.get_type_hints(tool.fn, include_extras=True)
             paths: set[tuple] = set()
@@ -187,8 +194,18 @@ async def test_the_server_of_one_service_refuses_the_same_way_alone(service):
     assert MARK not in said and "input_value" not in said
 
 
-async def test_the_root_server_refuses_once_though_both_servers_carry_the_middleware():
-    """The service's middleware answers first, and the root's has nothing left to rewrite."""
+@pytest.mark.parametrize("module", _resource_servers())
+async def test_the_server_of_one_resource_refuses_the_same_way_alone(module):
+    """Imported from the SDK and run by itself (#489): the same refusal, with no input."""
+    server = _resource_servers()[module]
+    for tool in await server.list_tools():
+        said = await _answer(server, tool.name, {"zz_unknown": MARK})
+        assert said.startswith("The arguments do not fit the tool:\n"), (tool.name, said)
+        assert MARK not in said and "input_value" not in said, (tool.name, said)
+
+
+async def test_the_root_server_refuses_once_though_every_server_carries_the_middleware():
+    """The resource's middleware answers first, and the ones above have nothing to rewrite."""
     said = await _answer(mcp, "wiki_pages_get", {"zz_unknown": MARK})
     assert said.count("The arguments do not fit the tool:") == 1
     assert said.splitlines()[1:] == [

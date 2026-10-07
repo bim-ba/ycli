@@ -7,7 +7,6 @@ replacement), delete and update_operator (the operator BETWEEN the target's grou
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -21,11 +20,12 @@ from ycli.yandex.forms.dependencies import (
     HookID,
     SurveyID,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("forms-conditions")
+mcp = new_server("forms-conditions")
 
 QuestionID = Annotated[str, Field(description="Question id (integer) from questions_list.")]
 FormPageID = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]

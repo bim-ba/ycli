@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,6 +14,7 @@ from ycli.yandex.datalens.dependencies import (
     WRITE,
     app_config,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.sparkclusters.models import (
@@ -24,7 +24,7 @@ from ycli.yandex.datalens.sparkclusters.models import (
 )
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-sparkclusters")
+mcp = new_server("datalens-sparkclusters")
 
 ClusterID = Annotated[str, Field(description="Spark cluster id.")]
 Environment = Annotated[str, Field(description="The cloud environment the presets are for.")]

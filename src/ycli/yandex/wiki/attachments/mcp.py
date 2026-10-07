@@ -6,7 +6,6 @@ upload direction is exposed — an agent supplies small file bytes as base64 in 
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
@@ -21,10 +20,11 @@ from ycli.yandex.wiki.dependencies import (
     WRITE,
     PageID,
     app_config,
+    new_server,
     wiki_client,
 )
 
-mcp = FastMCP("wiki-attachments")
+mcp = new_server("wiki-attachments")
 
 
 @mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"})

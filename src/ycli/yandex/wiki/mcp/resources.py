@@ -1,14 +1,13 @@
 """Wiki MCP resources: what a user attaches, each repeating one read tool."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.mcp import REPEATS_TOOL, guide
+from ycli.yandex.mcp import REPEATS_TOOL, guide, new_server
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import TAGS, wiki_client
 from ycli.yandex.wiki.pages.mcp import get as pages_get
 
-mcp = FastMCP("wiki-resources")
+mcp = new_server("wiki-resources")
 
 
 @mcp.resource(

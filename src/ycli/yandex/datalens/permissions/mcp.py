@@ -2,15 +2,14 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import RO, datalens_client
+from ycli.yandex.datalens.dependencies import RO, datalens_client, new_server
 from ycli.yandex.datalens.permissions.models import PermissionsBulk
 
-mcp = FastMCP("datalens-permissions")
+mcp = new_server("datalens-permissions")
 
 
 @mcp.tool(

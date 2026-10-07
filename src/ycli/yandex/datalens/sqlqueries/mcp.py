@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,6 +12,7 @@ from ycli.yandex.datalens.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     datalens_client,
+    new_server,
 )
 from ycli.yandex.datalens.sqlqueries.models import (
     SqlQueryCreated,
@@ -25,7 +25,7 @@ from ycli.yandex.datalens.sqlqueries.models import (
 )
 from ycli.yandex.models import Ack
 
-mcp = FastMCP("datalens-sqlqueries")
+mcp = new_server("datalens-sqlqueries")
 
 SqlQueryID = Annotated[str, Field(description="SQL query id.")]
 Connection = Annotated[

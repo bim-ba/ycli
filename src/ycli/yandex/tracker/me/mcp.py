@@ -1,13 +1,12 @@
 """Tracker /myself FastMCP tool (reads-only) — Depends DI."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, tracker_client
+from ycli.yandex.tracker.dependencies import RO, new_server, tracker_client
 from ycli.yandex.tracker.me.models import Me
 
-mcp = FastMCP("tracker-me")
+mcp = new_server("tracker-me")
 
 
 @mcp.tool(name="me_get", annotations={**RO, "title": "Get current Tracker user"})

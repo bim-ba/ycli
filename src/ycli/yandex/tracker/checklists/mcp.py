@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -20,11 +19,12 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_IDEMPOTENT,
     ChecklistItemID,
     IssueKey,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.models import Issue
 
-mcp = FastMCP("tracker-checklists")
+mcp = new_server("tracker-checklists")
 
 
 @mcp.tool(name="checklists_list", annotations={**RO, "title": "Get Tracker issue checklist"})

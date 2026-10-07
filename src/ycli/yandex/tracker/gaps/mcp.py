@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,11 +14,12 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate, UserGaps
 
-mcp = FastMCP("tracker-gaps")
+mcp = new_server("tracker-gaps")
 
 
 @mcp.tool(name="gaps_search", annotations={**RO, "title": "Search Tracker employee absences"})

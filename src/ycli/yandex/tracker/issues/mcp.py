@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -21,6 +20,7 @@ from ycli.yandex.tracker.dependencies import (
     NotifyAuthor,
     ReplyFields,
     app_config,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.issues.models import (
@@ -34,7 +34,7 @@ from ycli.yandex.tracker.issues.models import (
     filter_body,
 )
 
-mcp = FastMCP("tracker-issues")
+mcp = new_server("tracker-issues")
 
 _LIMIT = f"Max issues to return; {LIMIT_CAP}"
 

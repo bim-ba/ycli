@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -18,10 +17,11 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     QueueID,
+    new_server,
     tracker_client,
 )
 
-mcp = FastMCP("tracker-autoactions")
+mcp = new_server("tracker-autoactions")
 
 
 @mcp.tool(name="autoactions_get", annotations={**RO, "title": "Get Tracker queue autoaction"})

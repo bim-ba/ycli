@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,6 +12,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.workflows.models import (
@@ -23,7 +23,7 @@ from ycli.yandex.tracker.workflows.models import (
     WorkflowUpdate,
 )
 
-mcp = FastMCP("tracker-workflows")
+mcp = new_server("tracker-workflows")
 
 WorkflowID = Annotated[str, Field(description="Workflow id, from ``workflows_list``.")]
 WorkflowVersion = Annotated[

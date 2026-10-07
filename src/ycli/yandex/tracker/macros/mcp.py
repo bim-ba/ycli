@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -15,11 +14,12 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_IDEMPOTENT,
     MacroID,
     QueueID,
+    new_server,
     tracker_client,
 )
 from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 
-mcp = FastMCP("tracker-macros")
+mcp = new_server("tracker-macros")
 
 
 @mcp.tool(name="macros_list", annotations={**RO, "title": "List Tracker queue macros"})

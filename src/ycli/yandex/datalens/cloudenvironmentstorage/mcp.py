@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,10 +12,17 @@ from ycli.yandex.datalens.cloudenvironmentstorage.models import (
     BucketObjectMetadata,
     BucketUploadUrl,
 )
-from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, WRITE, app_config, datalens_client
+from ycli.yandex.datalens.dependencies import (
+    LIMIT_CAP,
+    RO,
+    WRITE,
+    app_config,
+    datalens_client,
+    new_server,
+)
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-cloudenvironmentstorage")
+mcp = new_server("datalens-cloudenvironmentstorage")
 
 StorageEnvironment = Annotated[
     str, Field(description="Id of the cloud environment the bucket belongs to.")

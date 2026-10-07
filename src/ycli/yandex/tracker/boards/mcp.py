@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -18,10 +17,11 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_IDEMPOTENT,
     BoardID,
     app_config,
+    new_server,
     tracker_client,
 )
 
-mcp = FastMCP("tracker-boards")
+mcp = new_server("tracker-boards")
 
 
 @mcp.tool(name="boards_list", annotations={**RO, "title": "List Tracker boards"})

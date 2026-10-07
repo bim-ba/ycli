@@ -2,17 +2,16 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import RO, app_config, wiki_client
+from ycli.yandex.wiki.dependencies import RO, app_config, new_server, wiki_client
 from ycli.yandex.wiki.resources.models import ResourceItem, ResourceOrder
 
-mcp = FastMCP("wiki-resources")
+mcp = new_server("wiki-resources")
 
 
 @mcp.tool(name="resources_list", annotations={**RO, "title": "List Wiki page resources"})

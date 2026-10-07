@@ -6,7 +6,6 @@ payload and stays CLI/SDK-only.
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -17,11 +16,12 @@ from ycli.yandex.forms.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     forms_client,
+    new_server,
 )
 from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
 from ycli.yandex.models import Ack, ItemList
 
-mcp = FastMCP("forms-keysets")
+mcp = new_server("forms-keysets")
 
 
 @mcp.tool(name="keysets_list", annotations={**RO, "title": "List Forms key sets"})

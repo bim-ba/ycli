@@ -120,15 +120,14 @@ The scaffolded tool is a read (`RO` annotations). For write tools use the `WRITE
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.{domain}.client import {domain_cls}Client
-from ycli.yandex.{domain}.dependencies import RO, {domain}_client
+from ycli.yandex.{domain}.dependencies import RO, {mcp_names}
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
-mcp = FastMCP("{domain}-{resource}")
+mcp = new_server("{domain}-{resource}")
 
 
 @mcp.tool(
@@ -173,6 +172,8 @@ def scaffold(domain: str, resource: str, root: Path = ROOT) -> Path:
             for service in SERVICES
             if service.name == domain
         ),
+        # As ruff sorts them: a service's name falls on either side of ``new_server``.
+        "mcp_names": ", ".join(sorted([f"{domain}_client", "new_server"])),
     }
     for filename, template in (
         ("__init__.py", INIT),

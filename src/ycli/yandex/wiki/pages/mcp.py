@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -17,6 +16,7 @@ from ycli.yandex.wiki.dependencies import (
     WRITE_IDEMPOTENT,
     Slug,
     app_config,
+    new_server,
     wiki_client,
 )
 from ycli.yandex.wiki.models import AsyncOperation
@@ -36,7 +36,7 @@ from ycli.yandex.wiki.pages.models import (
     SearchRequest,
 )
 
-mcp = FastMCP("wiki-pages")
+mcp = new_server("wiki-pages")
 
 RevisionID = Annotated[
     int | None,

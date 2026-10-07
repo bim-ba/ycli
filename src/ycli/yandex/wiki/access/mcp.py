@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -13,10 +12,11 @@ from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     wiki_client,
 )
 
-mcp = FastMCP("wiki-access")
+mcp = new_server("wiki-access")
 
 _PAGE_ID = Field(description="Numeric id of the page.")
 _ACCESS_ID = Field(description="Id of the access entry, from the page's ``access_lists``.")

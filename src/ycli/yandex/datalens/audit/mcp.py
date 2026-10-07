@@ -2,17 +2,16 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.audit.models import AuditEntry, UserEntryPermissions
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, app_config, datalens_client
+from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, app_config, datalens_client, new_server
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-audit")
+mcp = new_server("datalens-audit")
 
 
 @mcp.tool(

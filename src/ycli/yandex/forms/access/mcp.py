@@ -2,7 +2,6 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
@@ -14,10 +13,11 @@ from ycli.yandex.forms.dependencies import (
     WRITE_IDEMPOTENT,
     SurveyID,
     forms_client,
+    new_server,
 )
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("forms-access")
+mcp = new_server("forms-access")
 
 
 @mcp.tool(name="access_list", annotations={**RO, "title": "Get Forms survey access"})

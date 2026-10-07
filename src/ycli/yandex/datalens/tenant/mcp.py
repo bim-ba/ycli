@@ -1,13 +1,12 @@
 """DataLens tenant FastMCP tool (read-only) — Depends DI, native error handling."""
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import RO, datalens_client
+from ycli.yandex.datalens.dependencies import RO, datalens_client, new_server
 from ycli.yandex.datalens.tenant.models import TenantDetails
 
-mcp = FastMCP("datalens-tenant")
+mcp = new_server("datalens-tenant")
 
 
 @mcp.tool(name="tenant_details_get", annotations={**RO, "title": "Get the DataLens instance"})

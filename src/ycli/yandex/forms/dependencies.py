@@ -15,6 +15,7 @@ from ycli.yandex.mcp import (
     OverBudget,
     app_config,
     client_provider,
+    new_server,
 )
 
 TAGS: set[str] = {"forms"}
@@ -35,5 +36,6 @@ __all__ = [
     "SurveyID",
     "app_config",
     "forms_client",
+    "new_server",
 ]
 HookID = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]

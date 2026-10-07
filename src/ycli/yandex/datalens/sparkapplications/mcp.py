@@ -2,13 +2,19 @@
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, WRITE, app_config, datalens_client
+from ycli.yandex.datalens.dependencies import (
+    LIMIT_CAP,
+    RO,
+    WRITE,
+    app_config,
+    datalens_client,
+    new_server,
+)
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.sparkapplications.models import (
     SparkApplication,
@@ -17,7 +23,7 @@ from ycli.yandex.datalens.sparkapplications.models import (
 )
 from ycli.yandex.models import ItemList
 
-mcp = FastMCP("datalens-sparkapplications")
+mcp = new_server("datalens-sparkapplications")
 
 SparkCluster = Annotated[str, Field(description="Id of the Spark cluster.")]
 Application = Annotated[str, Field(description="Id of the Spark application.")]

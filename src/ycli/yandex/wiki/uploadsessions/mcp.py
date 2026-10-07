@@ -8,7 +8,6 @@ to a page (``attachments_upload`` runs all four steps for one small file).
 
 from typing import Annotated
 
-from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
@@ -18,6 +17,7 @@ from ycli.yandex.wiki.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    new_server,
     wiki_client,
 )
 from ycli.yandex.wiki.uploadsessions.models import (
@@ -26,7 +26,7 @@ from ycli.yandex.wiki.uploadsessions.models import (
     UploadSessionCreate,
 )
 
-mcp = FastMCP("wiki-uploadsessions")
+mcp = new_server("wiki-uploadsessions")
 
 SessionIDParam = Annotated[str, Field(description="UUID4 of the upload session.")]
 
