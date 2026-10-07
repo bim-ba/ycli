@@ -3,6 +3,7 @@
 The API is a ``httpx2.MockTransport`` here; the CLI, the tool and the method are the real ones.
 """
 
+import json
 import subprocess
 import sys
 from collections.abc import Iterator, Sequence
@@ -83,6 +84,18 @@ def test_a_surface_that_answers_differently_is_a_defect(driver, api):
     fail_on_data(driver.report, 2)
 
 
+def test_a_list_the_service_orders_anew_is_time_at_every_item(driver, api):
+    """Two reads of the CLI differ at one item and, by chance, agree at the other."""
+    api.replies = [
+        {"tags": ["a", "b", "c"]},
+        {"tags": ["b", "c", "a"]},
+        {"tags": ["b", "c", "a"]},
+        {"tags": ["a", "c", "b"]},
+    ]
+    driver.run(["tracker", "issues", "get", "A-1"])
+    assert {(f.kind, f.what) for f in driver.report.findings} == {("time", "$.tags[]: str != str")}
+
+
 def test_what_the_cli_itself_answers_differently_a_moment_later_is_time(driver, api):
     api.replies = [
         {"key": "A-1", "summary": "one"},
@@ -157,6 +170,7 @@ def test_the_report_lists_where_the_surfaces_are_not_one_operation(driver):
 def test_a_key_that_no_model_names_is_not_printed():
     report = Report(public=frozenset({"fields", "id"}))
     assert report.path("$.fields.ivan-petrov[0]: str != str") == "$.fields.<key>: str != str"
+    assert report.path("$[4].id: str != str") == "$[].id: str != str"
     assert report.path("$.fields[12].id: list[2] != list[3]") == (
         "$.fields[].id: list[2] != list[3]"
     )
@@ -194,3 +208,91 @@ def test_the_live_suite_is_collected_where_fastmcp_is_not_installed():
         check=False,
     )
     assert collected.returncode == 0, collected.stdout[-2000:]
+
+
+@pytest.mark.parametrize("surface", ["mcp", "sdk"])
+def test_a_write_is_carried_out_once_by_the_surface_of_the_run(listener, api, surface):
+    driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener, writes_through=surface)
+    completed = driver.run(["tracker", "issues", "create", "--queue", "Q", "--summary", "S"])
+    driver.close()
+    assert completed.exit_code == 0, completed.stderr
+    # What the surface answered is what the command printed.
+    assert json.loads(completed.stdout)["key"] == "A-1"
+    assert [(call.method, json.loads(call.content)) for call in api.calls] == [
+        ("POST", {"queue": "Q", "summary": "S"})
+    ]
+    assert driver.report.written[surface] == {"tracker.issues.create"}
+    assert f"1 {'operations by MCP' if surface == 'mcp' else 'by the SDK'}" in driver.report.text()
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "tracker boards create --name B --owner me --permissions private --backlog --sprints",
+        "tracker queues versions-create --queue Q --name V --start-date 2027-01-04",
+        "tracker comments create A-1 --text hello",
+        # The bytes of a file: a tool takes them as base64.
+        f"tracker attachments upload A-1 {Path(__file__)}",
+    ],
+)
+def test_mcp_sends_the_request_the_command_would(listener, api, command):
+    """A body with fields the API names differently, and a reply a client only names."""
+    alone = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener)
+    assert alone.run(command.split()).exit_code == 0
+    alone.close()
+    driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener, writes_through="mcp")
+    completed = driver.run(command.split())
+    driver.close()
+    assert completed.exit_code == 0, completed.stderr
+    own, through = api.calls
+    assert (through.method, through.url) == (own.method, own.url)
+    # A multipart body draws a boundary of its own each time: the lengths are equal.
+    multipart = "multipart" in own.headers.get("content-type", "")
+    assert len(through.content) == len(own.content) if multipart else through.content == own.content
+    assert len(driver.report.written["mcp"]) == 1
+    assert "a write runs once" not in driver.report.left_out
+
+
+def test_a_read_is_left_to_the_command_and_still_compared(listener, api):
+    driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener, writes_through="mcp")
+    driver.run(["tracker", "issues", "get", "A-1"])
+    driver.close()
+    assert len(api.calls) == 3
+    assert driver.report.written == {"mcp": set(), "sdk": set()}
+    assert driver.report.compared["mcp"] == {"tracker.issues.get"}
+
+
+def test_a_write_that_returns_nothing_prints_nothing_through_mcp(listener, api):
+    """The tool answers a delete with an ``Ack`` of its own; the method returns ``None``."""
+    driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener, writes_through="mcp")
+    completed = driver.run(["tracker", "components", "delete", "7"])
+    driver.close()
+    assert completed.exit_code == 0, completed.stderr
+    assert [call.method for call in api.calls] == ["DELETE"]
+    assert driver.report.written["mcp"] == {"tracker.components.delete"}
+
+
+def test_a_command_that_adds_to_the_body_itself_is_not_handed_over(listener, api):
+    """``-F`` reaches only the request the command sends: no other surface would send it."""
+    driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), listener, writes_through="mcp")
+    completed = driver.run(
+        ["tracker", "issues", "create", "--queue", "Q", "--summary", "S", "-F", "x=1"]
+    )
+    driver.close()
+    assert completed.exit_code == 0, completed.stderr
+    assert json.loads(api.calls[0].content) == {"queue": "Q", "summary": "S", "x": 1}
+    assert driver.report.written == {"mcp": set(), "sdk": set()}
+    assert driver.report.left_out == {
+        "the command adds to the body itself (-F)": {"tracker.issues.create"},
+        "a write runs once": {"tracker.issues.create"},
+    }
+
+
+def test_a_write_the_tool_refuses_fails_the_step(listener, monkeypatch):
+    refuse = httpx2.MockTransport(lambda request: httpx2.Response(403, json={"errors": {}}))
+    monkeypatch.setattr("ycli.yandex.core.session.default_transport", lambda: refuse)
+    with listening(monkeypatch) as heard:
+        driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), heard, writes_through="mcp")
+        with pytest.raises(ScenarioError, match=r"tracker\.issues\.create through MCP: "):
+            driver.run(["tracker", "issues", "create", "--queue", "Q", "--summary", "S"])
+        driver.close()
