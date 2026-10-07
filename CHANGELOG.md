@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.116.2 (2026-10-07)
+
+### Bug Fixes
+
+- **datalens**: The help says which version a read gives, and what a save and a delete do not check
+  ([`7042918`](https://github.com/bim-ba/ycli/commit/704291880a1340d44f864be8b150dc9a5a08a665))
+
+### Build System
+
+- Re-lock uv.lock for 0.116.1
+  ([`6e4cf7d`](https://github.com/bim-ba/ycli/commit/6e4cf7d70e849331dfe63b682e5763df95c6a9b9))
+
+
 ## v0.116.1 (2026-10-07)
 
 ### Bug Fixes
