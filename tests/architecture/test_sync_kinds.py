@@ -77,8 +77,11 @@ def _problems(kind: Kind[Any, Any], recorded: set[str]) -> list[str]:
                 found.append(f"{role}: the container of {name} is no resource of {service}: {held}")
     if secrets := secret_keys(kind.content):
         found.append(f"the content carries a secret, which a file would hold: {sorted(secrets)}")
-    if not summary_of(kind).about:
+    about = summary_of(kind).about
+    if not about:
         found.append("the module that declares the kind has no docstring to say what it is")
+    if "`" in about or "*" in about:
+        found.append(f"what the listing says of the kind is not plain text: {about}")
     return found
 
 
@@ -101,6 +104,16 @@ class _Undescribed(Link):
 _SILENT = ModuleType("a_module_with_no_docstring")
 sys.modules[_SILENT.__name__] = _SILENT
 _Undescribed.__module__ = _SILENT.__name__
+
+
+class _Marked(Link):
+    pass
+
+
+# As a link declared in a module whose first line carries marks of its own.
+_MARKED = ModuleType("a_module_with_marks", "A `thing` as a file.")
+sys.modules[_MARKED.__name__] = _MARKED
+_Marked.__module__ = _MARKED.__name__
 
 
 class _Connection(RequestBody):
@@ -166,6 +179,7 @@ def _kind(**changed: Any) -> Kind[Any, Any]:
         (_kind(delete=_unreadable), "cannot be read"),
         (_kind(content=_Connection), "carries a secret, which a file would hold: ['password']"),
         (_kind(link=_Undescribed), "has no docstring to say what it is"),
+        (_kind(link=_Marked), "is not plain text: A `thing` as a file."),
         # A container is a resource of the kind's own service, named by its package.
         (_kind(read=_in_a_queue), None),
         # An argument that must have a value and that nobody names: the kind cannot be called.
