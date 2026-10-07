@@ -24,11 +24,11 @@
 
     CLI · MCP · Python
 
--   📊 **[DataLens](services/datalens.md)** <mark>в работе</mark>
+-   📊 **[DataLens](services/datalens.md)**
 
     Воркбуки, подключения, датасеты, чарты, дашборды.
 
-    `операций: 129 из 141`
+    `операций: 134`
 
     CLI · MCP · Python
 

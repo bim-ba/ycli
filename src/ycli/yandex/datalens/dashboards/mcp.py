@@ -23,7 +23,7 @@ from ycli.yandex.datalens.dependencies import (
     PermissionsInfo,
     datalens_client,
 )
-from ycli.yandex.datalens.models import SaveMode
+from ycli.yandex.datalens.models import RevisionBranch, SaveMode
 from ycli.yandex.models import Ack
 
 mcp = FastMCP("datalens-dashboards")
@@ -51,7 +51,7 @@ def get(
         bool | None, Field(description="Also say whether the dashboard is a favourite.")
     ] = None,
     branch: Annotated[
-        str | None, Field(description="Which version of it to read: `saved` or `published`.")
+        RevisionBranch | None, Field(description="Which version of it to read.")
     ] = None,
     workbook_id: Annotated[
         str | None, Field(description="The workbook the dashboard lies in.")
@@ -89,6 +89,7 @@ def create(
     """Create a dashboard and return it with its id.
 
     ``data`` needs ``counter``, ``salt``, ``settings`` and ``tabs``; a tab may be empty.
+    ``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers 400.
     """
     return client.dashboards.create(entry)
 

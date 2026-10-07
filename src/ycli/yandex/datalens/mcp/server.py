@@ -19,6 +19,7 @@ from ycli.yandex.datalens.embeddingsecrets.mcp import mcp as embeddingsecrets_mc
 from ycli.yandex.datalens.embeds.mcp import mcp as embeds_mcp
 from ycli.yandex.datalens.entries.mcp import mcp as entries_mcp
 from ycli.yandex.datalens.entrylocks.mcp import mcp as entrylocks_mcp
+from ycli.yandex.datalens.htmlpages.mcp import mcp as htmlpages_mcp
 from ycli.yandex.datalens.lakehouseoperations.mcp import mcp as lakehouseoperations_mcp
 from ycli.yandex.datalens.licensing.mcp import mcp as licensing_mcp
 from ycli.yandex.datalens.mcp.resources import mcp as mcp_resources_mcp
@@ -51,6 +52,7 @@ mcp.mount(collections_mcp)
 mcp.mount(workbooks_mcp)
 mcp.mount(entrylocks_mcp)
 mcp.mount(sparkclusters_mcp)
+mcp.mount(htmlpages_mcp)
 mcp.mount(members_mcp)
 mcp.mount(entries_mcp)
 mcp.mount(permissions_mcp)

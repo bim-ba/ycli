@@ -21,6 +21,7 @@ from ycli.yandex.datalens.embeddingsecrets.client import EmbeddingSecretsClient
 from ycli.yandex.datalens.embeds.client import EmbedsClient
 from ycli.yandex.datalens.entries.client import EntriesClient
 from ycli.yandex.datalens.entrylocks.client import EntryLocksClient
+from ycli.yandex.datalens.htmlpages.client import HTMLPagesClient
 from ycli.yandex.datalens.lakehouseoperations.client import LakehouseOperationsClient
 from ycli.yandex.datalens.licensing.client import LicensingClient
 from ycli.yandex.datalens.members.client import MembersClient
@@ -62,6 +63,7 @@ class DataLensClient(DomainClient):
         self.permissions = PermissionsClient(session=session)
         self.connections = ConnectionsClient(session=session)
         self.sparkclusters = SparkClustersClient(session=session)
+        self.htmlpages = HTMLPagesClient(session=session)
         self.datasets = DatasetsClient(session=session)
         self.charts = ChartsClient(session=session)
         self.dashboards = DashboardsClient(session=session)

@@ -15,6 +15,7 @@ from ycli.yandex.datalens.embeddingsecrets.cli import app as embeddingsecrets_ap
 from ycli.yandex.datalens.embeds.cli import app as embeds_app
 from ycli.yandex.datalens.entries.cli import app as entries_app
 from ycli.yandex.datalens.entrylocks.cli import app as entrylocks_app
+from ycli.yandex.datalens.htmlpages.cli import app as htmlpages_app
 from ycli.yandex.datalens.lakehouseoperations.cli import app as lakehouseoperations_app
 from ycli.yandex.datalens.licensing.cli import app as licensing_app
 from ycli.yandex.datalens.members.cli import app as members_app
@@ -41,6 +42,7 @@ app.add_typer(collections_app)
 app.add_typer(workbooks_app)
 app.add_typer(entrylocks_app)
 app.add_typer(sparkclusters_app)
+app.add_typer(htmlpages_app)
 app.add_typer(members_app)
 app.add_typer(entries_app)
 app.add_typer(permissions_app)
