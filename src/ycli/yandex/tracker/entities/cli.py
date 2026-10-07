@@ -404,15 +404,20 @@ def comments_list(
     entity_id: EntityIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Comment]:
-    """List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative)."""
+    """List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative).
+
+    ``--expand`` (``html``, ``attachments``, ``reactions`` or ``all``) goes with the plain
+    listing: the paged one does not take it.
+    """
     if all_ or limit is not None:
         cap = config.http.cap(limit, all_=all_)
         return tracker.entities.comments_list_relative(entity_type, entity_id, limit=cap)
-    return tracker.entities.comments_list(entity_type, entity_id)
+    return tracker.entities.comments_list(entity_type, entity_id, expand=expand)
 
 
 @comments_app.command("get")
@@ -420,11 +425,12 @@ def comments_get(
     entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
     comment_id: EntityCommentIDArg,
+    expand: ExpandOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Comment:
     """Get one comment on an entity (GET …/comments/COMMENT_ID)."""
-    return tracker.entities.comments_get(entity_type, entity_id, comment_id)
+    return tracker.entities.comments_get(entity_type, entity_id, comment_id, expand=expand)
 
 
 @comments_app.command("create")
@@ -712,10 +718,14 @@ app.add_typer(links_app)
 
 @links_app.command("list")
 def links_list(
-    entity_type: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
+    entity_type: EntityTypeArg,
+    entity_id: EntityIDArg,
+    fields: ReplyFieldsOpt = None,
+    *,
+    tracker: TrackerClient,
 ) -> ItemList[Link]:
     """List an entity's links to other entities (GET …/links)."""
-    return tracker.entities.links_list(entity_type, entity_id)
+    return tracker.entities.links_list(entity_type, entity_id, fields=fields)
 
 
 @links_app.command("create")

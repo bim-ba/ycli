@@ -193,10 +193,11 @@ def permissions_get_direct(
 def comments_list(
     entity_type: EntityTypeName,
     entity_id: EntityID,
+    expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Comment]:
     """All comments on an entity — author, text, timestamps and summoned users."""
-    return client.entities.comments_list(entity_type, entity_id)
+    return client.entities.comments_list(entity_type, entity_id, expand=expand)
 
 
 @mcp.tool(
@@ -207,20 +208,22 @@ def comments_get(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     comment_id: Annotated[str, Field(description="Comment id (numeric id or longId).")],
+    expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """A single comment on an entity by id."""
-    return client.entities.comments_get(entity_type, entity_id, comment_id)
+    return client.entities.comments_get(entity_type, entity_id, comment_id, expand=expand)
 
 
 @mcp.tool(name="entities_links_list", annotations={**RO, "title": "List Tracker entity links"})
 def links_list(
     entity_type: EntityTypeName,
     entity_id: EntityID,
+    fields: ReplyFields = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Link]:
     """An entity's links to other entities — the link type and the linked entity's summary + id."""
-    return client.entities.links_list(entity_type, entity_id)
+    return client.entities.links_list(entity_type, entity_id, fields=fields)
 
 
 @mcp.tool(
