@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.122.2 (2026-10-07)
+
+### Bug Fixes
+
+- **cli**: `ycli api --body-file F` sends the file as the body with no -F beside it
+  ([`3fe7792`](https://github.com/bim-ba/ycli/commit/3fe77927fc58c5e1918a1e582b230f4e6a25f995))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.1
+  ([`a01ffd3`](https://github.com/bim-ba/ycli/commit/a01ffd33e6af1a2baee88a37ce537515c81c9ff0))
+
+
 ## v0.122.1 (2026-10-07)
 
 ### Bug Fixes
