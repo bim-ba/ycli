@@ -427,7 +427,10 @@ check of its own to say it. A reply that does not fit its model is another error
   dump, a command's output, a tool's reply); it goes out as its own value in one place, the
   dump of a request body (`APIModel._as_sent` under `WIRE`). A value that fails validation is
   raw, so no model quotes its input in the text of an error (`hide_input_in_errors` on
-  `APIModel` and on every generated `RootModel`); the error still names the field. `--dry-run`
+  `APIModel` and on every generated `RootModel`); the error still names the field. The arguments of
+  an MCP tool are validated by FastMCP, which that setting does not reach: the root server
+  writes their refusal itself (`ArgumentRefusals`), with the same line the CLI prints
+  (`field_error`): the path and what is wrong, never the value. `--dry-run`
   prints `***` under every key that the request's model types as a secret (`secret_keys`), at
   any depth and whoever gave it (a flag, `-F`, `--body-file`): `PlannedRequest.of` (#388). That
   mask goes by the key's name within one request, so a field of the same name elsewhere in the

@@ -12,7 +12,7 @@ is the one mapping from an error to the process exit status (see :class:`ExitCod
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import TYPE_CHECKING, TypeGuard
+from typing import TypeGuard
 
 from pydantic import ValidationError
 
@@ -35,9 +35,7 @@ from ycli.yandex.errors import (
     YandexServerError,
     YandexTimeoutError,
 )
-
-if TYPE_CHECKING:
-    from pydantic_core import ErrorDetails
+from ycli.yandex.models import field_error
 
 _AUTH_HINT = (
     "\nHint: run `ycli auth login` to (re)authenticate, or check that "
@@ -55,30 +53,6 @@ _NOT_FOUND_HINT = (
 
 
 _SETTINGS_TITLES = frozenset({AppConfig.__name__, Credentials.__name__})
-
-
-def _field_error(error: ErrorDetails) -> str:
-    """One line per field of a model that does not validate.
-
-    Args:
-        error: One error of a pydantic ``ValidationError``.
-
-    Returns:
-        The field and what is wrong with it, indented under a heading.
-
-    Examples:
-        >>> _field_error(
-        ...     {"type": "missing", "loc": ("items",), "msg": "Field required", "input": {}}
-        ... )
-        '  items: is required'
-    """
-    where = ".".join(str(part) for part in error["loc"]) or "body"
-    if error["type"] == "missing":
-        return f"  {where}: is required"
-    if error["type"] == "union_tag_not_found":
-        field = error.get("ctx", {}).get("discriminator", "its kind").strip("'")
-        return f"  {where}: needs `{field}` to tell which kind it is"
-    return f"  {where}: {error['msg']}"
 
 
 def format_cli_error(exc: Exception) -> str:
@@ -102,7 +76,7 @@ def format_cli_error(exc: Exception) -> str:
     if isinstance(exc, ProfileError):
         return f"Invalid configuration:\n  {exc}"
     if isinstance(exc, ValidationError):
-        return "The request cannot be built:\n" + "\n".join(map(_field_error, exc.errors()))
+        return "The request cannot be built:\n" + "\n".join(map(field_error, exc.errors()))
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
         return message + (_PERMISSION_HINT if exc.status == HTTPStatus.FORBIDDEN else _AUTH_HINT)
