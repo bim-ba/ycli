@@ -1,0 +1,18 @@
+id: no-direct-fastmcp
+valid:
+  - |
+    from ycli.yandex.d.dependencies import new_server
+    mcp = new_server("d")
+  - |
+    from fastmcp import FastMCP
+    def build() -> FastMCP: ...
+invalid:
+  - |
+    from fastmcp import FastMCP
+    mcp = FastMCP("a")
+  - |
+    import fastmcp
+    mcp = fastmcp.FastMCP("c")
+  - |
+    import fastmcp.server
+    mcp = fastmcp.server.FastMCP("c", instructions="x")

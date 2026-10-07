@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.119.0"
+version = "0.120.0"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
@@ -117,6 +117,7 @@ exclude_also = [
 
 [dependency-groups]
 dev = [
+    "ast-grep-cli>=0.45.3",
     "datamodel-code-generator==0.83.0",
     "import-linter>=2.12",
     "jmespath>=1.1.0",

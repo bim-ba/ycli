@@ -1,0 +1,24 @@
+id: no-tool-tags
+language: python
+severity: error
+message: Remove `tags=`; the root server derives a tool's tags from its name and `readOnlyHint`.
+note: |-
+  A tool that states its tags states its service and its effect a second time, and the two can
+  disagree. ARCHITECTURE.md, ARCH-3.
+url: https://github.com/bim-ba/ycli/blob/main/ARCHITECTURE.md#arch-3--honest-effects
+files:
+  - src/ycli/**/mcp.py
+rule:
+  kind: keyword_argument
+  has:
+    field: name
+    regex: ^tags$
+  inside:
+    kind: argument_list
+    inside:
+      kind: call
+      has:
+        field: function
+        pattern: mcp.tool
+      inside:
+        kind: decorator

@@ -8,8 +8,15 @@ from typing import Any
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.sync.document import Document, UnreadableFile, document_of, fingerprint
+from ycli.yandex.sync.document import (
+    Document,
+    UnreadableFile,
+    document_of,
+    fields_marked,
+    fingerprint,
+)
 from ycli.yandex.sync.kind import Kind
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.sync.paths import tree_of
 
 
@@ -19,6 +26,7 @@ class State(enum.StrEnum):
     UNCHANGED = "unchanged"
     EDITED = "edited"
     NEW = "new"
+    UNTRACKED = "untracked"
     UNREADABLE = "unreadable"
 
 
@@ -27,7 +35,9 @@ class FileState(APIModel):
 
     path: str = Field(description="Where the file lies, from the root of the repository.")
     kind: str | None = Field(default=None, description="The kind the file names.")
-    state: State = Field(description="Unchanged, edited since it was read, new, or unreadable.")
+    state: State = Field(
+        description="Unchanged, edited since it was read, new, untracked, or unreadable."
+    )
     detail: str | None = Field(default=None, description="Why a file is unreadable.")
 
 
@@ -55,8 +65,16 @@ def read_file(
     kind = kinds.get(parts.kind)
     if kind is None:
         raise UnreadableFile(path, parts.lines.get("ycli", 1), f"no such kind: {parts.kind}")
-    tree_of(kind).split(path)
-    return kind, document_of(parts, link=kind.link, content=kind.content)
+    tree = tree_of(kind)
+    _, leaf = tree.split(path)
+    document = document_of(parts, link=kind.link, content=kind.content)
+    keys = fields_marked(kind.link, Identity)
+    held = [str(value) for key in keys if (value := getattr(document.link, key)) is not None]
+    # A file that lies under its identity is named by it: a copy keeps the name of its own.
+    if tree.resource and held and "/".join(held) != leaf:
+        line = parts.lines.get(keys[0], 1)
+        raise UnreadableFile(path, line, f"the file is named {leaf} and holds {'/'.join(held)}")
+    return kind, document
 
 
 def _files(root: Path, scope: PurePosixPath, suffixes: set[str]) -> Iterator[PurePosixPath]:
@@ -73,8 +91,9 @@ def examine(
 ) -> list[FileState]:
     """Say what each file under ``scopes`` is now, reading nothing but the files.
 
-    A file is edited when the fingerprint of its content is not the ``hash`` it carries, and
-    new when it carries none: it was written by hand and never read from the server.
+    A file is edited when the fingerprint of its content is not the ``hash`` it carries. One
+    that carries none was written by hand: new when it names no object (``push`` creates one),
+    untracked when it names one that it was never read from.
 
     Args:
         root: The root of the repository.
@@ -97,8 +116,9 @@ def examine(
                 detail = f"line {refusal.line}: {refusal.reason}"
                 states.append(FileState(path=str(path), state=State.UNREADABLE, detail=detail))
                 continue
+            named = any(getattr(document.link, key) for key in fields_marked(kind.link, Identity))
             if document.link.hash is None:
-                state = State.NEW
+                state = State.UNTRACKED if named else State.NEW
             elif document.link.hash == fingerprint(document.content):
                 state = State.UNCHANGED
             else:

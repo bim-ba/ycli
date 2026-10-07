@@ -2,7 +2,7 @@
 
 import ast
 
-from tests.architecture.scanners import SRC, YANDEX, _mcp_tools, _probe_tools, unexplained
+from tests.architecture.scanners import YANDEX, _mcp_tools, _probe_tools, unexplained
 
 
 def _effect_overrides(source: str, module: str) -> list[tuple[int, str]]:
@@ -80,42 +80,6 @@ def test_arch3_write_tools_carry_write_tag():
     tools = _mcp_tools()
     assert tools, "no MCP tools discovered"
     assert _write_tag_mismatches(tools, WRITE_TAG) == []
-
-
-def _tools_with_their_own_tags(source: str) -> list[str]:
-    """Functions of ``source`` whose ``@mcp.tool`` passes ``tags=``."""
-    return [
-        function.name
-        for function in ast.walk(ast.parse(source))
-        if isinstance(function, ast.FunctionDef)
-        for decorator in function.decorator_list
-        if isinstance(decorator, ast.Call)
-        and ast.unparse(decorator.func) == "mcp.tool"
-        and any(keyword.arg == "tags" for keyword in decorator.keywords)
-    ]
-
-
-def test_arch3_no_tool_states_its_tags_itself():
-    """A tool's tags are derived at the root from its name and ``readOnlyHint`` (#232).
-
-    A tool that passed ``tags=`` would state its service and its effect a second time, and the
-    two statements could disagree.
-    """
-    offenders = {
-        str(path.relative_to(SRC)): found
-        for path in SRC.rglob("mcp.py")
-        if (found := _tools_with_their_own_tags(path.read_text(encoding="utf-8")))
-    }
-    assert offenders == {}
-
-
-def test_arch3_own_tags_check_bites():
-    source = (
-        "@mcp.tool(name='a_get', annotations=RO, tags=TAGS)\ndef get(): ...\n"
-        "@mcp.tool(name='a_list', annotations=RO)\ndef list_(): ...\n"
-        "@mcp.prompt(name='digest', tags=TAGS)\ndef digest(): ...\n"
-    )
-    assert _tools_with_their_own_tags(source) == ["get"]
 
 
 def _write_tag_mismatches(tools, write_tag: str) -> list[str]:
