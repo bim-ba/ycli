@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.115.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.114.1
+  ([`1ddbfcf`](https://github.com/bim-ba/ycli/commit/1ddbfcfb76f31009f6fd0520ab9a1648d362c934))
+
+### Features
+
+- **datalens**: Spark clusters are listed, read, created, started, stopped and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`cba2d46`](https://github.com/bim-ba/ycli/commit/cba2d467136e0513d2e3606477d5050622a418aa))
+
+
 ## v0.114.1 (2026-10-07)
 
 ### Bug Fixes
