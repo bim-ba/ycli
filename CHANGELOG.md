@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.122.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.121.0
+  ([`ce5f32c`](https://github.com/bim-ba/ycli/commit/ce5f32c4f38c1f82ef973fb32e79ad80bc2bea06))
+
+### Features
+
+- **sync**: `ycli sync diff` shows what a push would change
+  ([`144617b`](https://github.com/bim-ba/ycli/commit/144617b8029078e9cd4435044ea67f4ae8bd7fff))
+
+### Breaking Changes
+
+- **sync**: `ycli sync status` names its states by what `push` would do: `edited` is now `update`
+  and `new` is now `create`, in the output and in the summary line, which also counts `unsupported`.
+  `status wiki/team` now covers `wiki/team.md` as well as the files under `wiki/team/`.
+
+
 ## v0.121.0 (2026-10-07)
 
 ### Build System
