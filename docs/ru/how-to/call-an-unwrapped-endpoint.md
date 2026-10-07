@@ -13,6 +13,7 @@ type: how-to
 ycli api issues/TRACKER-1 --service tracker | jq -r .summary             # GET по умолчанию
 ycli api issues/TRACKER-1/comments --service tracker -F text=@note.md    # поле превращает запрос в POST
 ycli api pages/descendants --service wiki -f slug=docs --paginate        # все страницы одним JSON-массивом
+ycli api pages/7 --service wiki -X GET -f fields=content                 # чтение с параметром: назовите GET
 ```
 
 - `PATH` задаётся относительно базового URL сервиса. Полному URL сервиса `--service` не нужен;

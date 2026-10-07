@@ -227,6 +227,16 @@ def test_a_value_stays_only_where_the_model_lists_it():
     }
 
 
+def test_an_empty_string_stays_empty():
+    """A listing ends with ``"nextPageToken": ""``; a placeholder there reads as a next page."""
+    reply = {"display": "", "since": "", "<x>": ""}
+    assert scrub(reply, _Status, frozenset()).body == {
+        "display": "",
+        "since": "",
+        "<unknown-1>": "",
+    }
+
+
 def test_a_list_keeps_one_item_of_each_shape_and_a_map_loses_its_keys():
     reply = {
         "name": "Sprint",

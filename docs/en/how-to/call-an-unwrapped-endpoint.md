@@ -13,6 +13,7 @@ output and exit codes as every other command.
 ycli api issues/TRACKER-1 --service tracker | jq -r .summary             # GET is the default
 ycli api issues/TRACKER-1/comments --service tracker -F text=@note.md    # a field makes it a POST
 ycli api pages/descendants --service wiki -f slug=docs --paginate        # every page, one JSON array
+ycli api pages/7 --service wiki -X GET -f fields=content                 # a read with a parameter: say GET
 ```
 
 - `PATH` is relative to the service's base URL. A full URL of a service needs no `--service`;

@@ -1,6 +1,6 @@
 {
   "body": {
-    "nextPageToken": "<nextPageToken>",
+    "nextPageToken": "",
     "restCatalogs": []
   },
   "status": 200,
