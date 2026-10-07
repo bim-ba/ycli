@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.115.1 (2026-10-07)
+
+### Bug Fixes
+
+- **mcp**: The server of one service refuses arguments without repeating them too
+  ([`13ba44b`](https://github.com/bim-ba/ycli/commit/13ba44bbd7a2e9f769ede12a67ff8fcd02cf6a3b))
+
+### Build System
+
+- Re-lock uv.lock for 0.115.0
+  ([`4cb641e`](https://github.com/bim-ba/ycli/commit/4cb641ebf192883e4ebcb8e88e54abd17e6ba7ad))
+
+
 ## v0.115.0 (2026-10-07)
 
 ### Build System

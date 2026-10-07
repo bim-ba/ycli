@@ -19,7 +19,8 @@ from pydantic import BaseModel, SecretStr, TypeAdapter
 
 import ycli.yandex
 from tests.full_server import mcp
-from ycli.mcp.server import ArgumentRefusals
+from ycli.yandex.mcp import ArgumentRefusals
+from ycli.yandex.registry import SERVICES
 
 MARK = "MARK7SECRET"  # made up: no test here holds a real secret
 INJECTED = {"return", "client", "config"}
@@ -174,3 +175,23 @@ async def test_a_refusal_that_is_not_pydantics_is_left_as_it_is():
         raise ArgumentsRefused("not one of ours")
 
     assert "not one of ours" in await _answer(server, "refuse", {})
+
+
+@pytest.mark.parametrize("service", SERVICES, ids=lambda service: service.name)
+async def test_the_server_of_one_service_refuses_the_same_way_alone(service):
+    """Mounted by somebody else, outside ``build_server``: the same refusal, with no input."""
+    server = service.mcp_server()
+    tool = (await server.list_tools())[0].name
+    said = await _answer(server, tool, {"zz_unknown": MARK})
+    assert said.startswith("The arguments do not fit the tool:\n")
+    assert MARK not in said and "input_value" not in said
+
+
+async def test_the_root_server_refuses_once_though_both_servers_carry_the_middleware():
+    """The service's middleware answers first, and the root's has nothing left to rewrite."""
+    said = await _answer(mcp, "wiki_pages_get", {"zz_unknown": MARK})
+    assert said.count("The arguments do not fit the tool:") == 1
+    assert said.splitlines()[1:] == [
+        "  slug: Missing required argument",
+        "  zz_unknown: Unexpected keyword argument",
+    ]

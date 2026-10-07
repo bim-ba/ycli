@@ -1,4 +1,9 @@
-"""Forms FastMCP subserver — mounts the per-resource tool servers (reads + writes)."""
+"""Forms FastMCP subserver — mounts the per-resource tool servers (reads + writes).
+
+The server of one resource (``…<resource>.mcp.mcp``) is a building block: whoever mounts one
+in a server of their own adds ``ArgumentRefusals`` to it, or a refusal of arguments repeats
+what was sent. This server carries it.
+"""
 
 from fastmcp import FastMCP
 
@@ -20,6 +25,7 @@ from ycli.yandex.forms.questions.mcp import mcp as questions_mcp
 from ycli.yandex.forms.subscriptions.mcp import mcp as subscriptions_mcp
 from ycli.yandex.forms.surveys.mcp import mcp as surveys_mcp
 from ycli.yandex.forms.variables.mcp import mcp as variables_mcp
+from ycli.yandex.mcp import ArgumentRefusals
 
 mcp = FastMCP(
     "forms",
@@ -31,6 +37,8 @@ mcp = FastMCP(
         "CLI/SDK-only."
     ),
 )
+# The root server carries it too; this one for whoever mounts the service alone.
+mcp.add_middleware(ArgumentRefusals())
 mcp.mount(me_mcp)
 mcp.mount(surveys_mcp)
 mcp.mount(questions_mcp)
