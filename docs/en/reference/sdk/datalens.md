@@ -47,6 +47,10 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 
 ::: ycli.yandex.datalens.sparkclusters.client.SparkClustersClient
 
+## htmlpages
+
+::: ycli.yandex.datalens.htmlpages.client.HTMLPagesClient
+
 ## datasets
 
 ::: ycli.yandex.datalens.datasets.client.DatasetsClient

@@ -24,6 +24,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - charts built in the wizard, in QL and in the editor, and the data of a saved chart
 - reports
 - dashboards
+- HTML pages, with a temporary link that shows one
 - the embeds of an entry and the keys for embedding that sign them
 - the roles on a shared entry
 - the audit (reads)
@@ -143,6 +144,7 @@ DataLens differs from the other services in both credentials:
 | One report: its slides and what stands on them | `uv run ycli datalens reports get <entry_id>` | `datalens_reports_get` |
 | One dashboard (large: write it to a file) | `uv run ycli -o json datalens dashboards get <dashboard_id> > dash.json` | `datalens_dashboards_get` |
 | Spark clusters, one of them, the sizes an instance can take (experimental, not measured) | `uv run ycli datalens sparkclusters list` · `sparkclusters get <cluster_id>` · `sparkclusters resource-presets-list --cloud-environment-id <id>` · `sparkclusters resource-presets-get <preset_id> --cloud-environment-id <id>` | `datalens_sparkclusters_list` · `datalens_sparkclusters_get` · `datalens_sparkclusters_resource_presets_list` · `datalens_sparkclusters_resource_presets_get` |
+| One HTML page (not its HTML), and a temporary link that shows it | `uv run ycli datalens htmlpages get <entry_id>` · `htmlpages preview-url-get <entry_id>` | `datalens_htmlpages_get` · `datalens_htmlpages_preview_url_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -204,6 +206,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Save a dashboard as given | `uv run ycli datalens dashboards update --mode save --body-file dash.json [--lock-token …]` | `datalens_dashboards_update` |
 | Delete a dashboard | `uv run ycli datalens dashboards delete <dashboard_id>` | `datalens_dashboards_delete` |
 | Create, start, stop, delete a Spark cluster (paid for while it runs: only when asked; experimental, not measured) | `uv run ycli datalens sparkclusters create --collection-id <id> --cloud-environment-id <id> --name … --config '{…}'` · `sparkclusters start <cluster_id>` · `sparkclusters stop <cluster_id>` · `sparkclusters delete <cluster_id>` | `datalens_sparkclusters_create` · `datalens_sparkclusters_start` · `datalens_sparkclusters_stop` · `datalens_sparkclusters_delete` |
+| Create an HTML page | `uv run ycli datalens htmlpages create --workbook-id <id> --name … --content '<p>…</p>'` | `datalens_htmlpages_create` |
+| Save new HTML of a page, or make a revision current (one of the two) | `uv run ycli datalens htmlpages update <entry_id> --mode save --content '…'` · `htmlpages update <entry_id> --mode publish --rev-id <rev>` | `datalens_htmlpages_update` |
+| Delete an HTML page | `uv run ycli datalens htmlpages delete <entry_id>` | `datalens_htmlpages_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |

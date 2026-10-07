@@ -22,6 +22,10 @@ EntryScope = (
     ]
     | str
 )
+#: A language DataLens answers in: of the names of members, of a preview.
+Language = Literal["en", "ru"] | str
+#: Which revision of an entry is meant: the one saved last, or the one everyone sees.
+RevisionBranch = Literal["saved", "published"] | str
 #: How a chart or a dashboard is saved: as a draft, or as the version everyone sees.
 SaveMode = Literal["save", "publish"] | str
 #: What a listing of collections or workbooks is sorted by.
@@ -32,8 +36,10 @@ __all__ = [
     "AccessBindingsPage",
     "EntryScope",
     "LakehouseOperation",
+    "Language",
     "Operation",
     "OrderField",
+    "RevisionBranch",
     "SaveMode",
     "SubjectWithBindings",
 ]

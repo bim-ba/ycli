@@ -24,11 +24,11 @@
 
     CLI · MCP · Python
 
--   📊 **[DataLens](services/datalens.md)** <mark>in progress</mark>
+-   📊 **[DataLens](services/datalens.md)**
 
     Workbooks, connections, datasets, charts, dashboards.
 
-    `129 of 141 operations`
+    `134 operations`
 
     CLI · MCP · Python
 

@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-129 tools.
+134 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -465,6 +465,74 @@ One resource preset: its cores and its memory. Experimental API, not measured.
 |---|---|:---:|---|
 | `resource_preset_id` | string | yes | Resource preset id. |
 | `cloud_environment_id` | string | yes | The cloud environment the presets are for. |
+
+## `datalens_htmlpages_get`
+
+*Get DataLens HTML page* · read-only
+
+One HTML page: where it lies and its revisions.
+
+The reply has no HTML of the page; ``htmlpages_preview_url_get`` gives a link that shows
+it. ``entries_list`` with the scope ``artifact`` finds the pages.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `rev_id` | string or null |  | A revision of the page. |
+| `branch` | `saved` · `published` or string or null |  | The revision saved last (`saved`), or the public one (`published`). |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_favorite` | boolean or null |  | Also say whether the page is a favourite. |
+
+## `datalens_htmlpages_create`
+
+*Create DataLens HTML page* · write
+
+Create an HTML page; the reply has it under ``entry`` and ``warnings`` about its HTML.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `content` | string | yes | The HTML of the page. |
+| `annotation` | object or null |  | A description of the page. |
+| `key` | string or null |  | The page's key, in a folder. |
+| `workbook_id` | string or null |  | The workbook to create the page in. |
+| `name` | string or null |  | The page's name, in a workbook. |
+
+## `datalens_htmlpages_update`
+
+*Update DataLens HTML page* · idempotent write
+
+Save new HTML of a page, or make one of its revisions the current one.
+
+``mode`` ``save`` makes a new revision and leaves the public one; ``publish`` shows it to
+everyone. With ``revId``, ``save`` copies that revision as the current draft.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object or object | yes | Either new HTML, `{entryId, content, mode}`, or a revision to make current, `{entryId, revId, mode}`: one of the two, not both. |
+
+## `datalens_htmlpages_delete`
+
+*Delete DataLens HTML page* · destructive write
+
+Delete an HTML page.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+
+## `datalens_htmlpages_preview_url_get`
+
+*Get a preview link of a DataLens HTML page* · read-only
+
+A temporary signed link that shows the page; it stops working after a while.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry_id` | string | yes | Entry id. |
+| `branch` | `saved` · `published` or string or null |  | The revision saved last (`saved`), or the public one (`published`). |
+| `rev_id` | string or null |  | A revision of the page. |
+| `lang` | `en` · `ru` or string or null |  | Language of the preview: `en` or `ru`. |
+| `theme` | `light` · `dark` · `light-hc` · `dark-hc` · `system` or string or null |  | Theme of the preview. |
 
 ## `datalens_members_list`
 
@@ -927,7 +995,7 @@ tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > das
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what the dashboard is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether the dashboard is a favourite. |
-| `branch` | string or null |  | Which version of it to read: `saved` or `published`. |
+| `branch` | `saved` · `published` or string or null |  | Which version of it to read. |
 | `workbook_id` | string or null |  | The workbook the dashboard lies in. |
 
 ## `datalens_dashboards_create`
@@ -937,6 +1005,7 @@ tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > das
 Create a dashboard and return it with its id.
 
 ``data`` needs ``counter``, ``salt``, ``settings`` and ``tabs``; a tab may be empty.
+``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers 400.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

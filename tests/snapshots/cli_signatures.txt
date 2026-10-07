@@ -70,6 +70,11 @@ datalens entries revisions-list: --all:BOOLEAN=False --body-file:FILE --dry-run:
 datalens entrylocks create: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --params:TEXT! --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens entrylocks extend: --body-file:FILE --data:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens htmlpages create: --annotation:TEXT --body-file:FILE --content:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --key:TEXT --name:TEXT --profile:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
+datalens htmlpages delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens htmlpages get: --body-file:FILE --branch:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens htmlpages preview-url-get: --body-file:FILE --branch:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --lang:TEXT --profile:TEXT --rev-id:TEXT --theme:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
+datalens htmlpages update: --annotation:TEXT --body-file:FILE --content:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --mode:TEXT --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False ENTRY_ID:TEXT!
 datalens lakehouseoperations get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
 datalens licensing licenses-assign: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False USER_IDS:TEXT!
 datalens licensing licenses-list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --order:TEXT --profile:TEXT --sort-by:TEXT --status:TEXT --user-ids:TEXT --yes:BOOLEAN=False
