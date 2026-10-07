@@ -13,6 +13,8 @@ _FENCE = "---"
 class FileFormat(Protocol):
     """One layout of a file: how its text is taken apart and put together again."""
 
+    suffix: str
+
     def read(self, path: PurePosixPath, text: str) -> Parts:
         """Take ``text`` apart; refuse it with its path and line if it is not such a file."""
         ...
@@ -70,6 +72,8 @@ class YAMLFile:
         True
     """
 
+    suffix = ".yaml"
+
     def read(self, path: PurePosixPath, text: str) -> Parts:
         """Take a YAML file apart.
 
@@ -111,6 +115,8 @@ class MarkdownWithHeader:
         >>> MarkdownWithHeader().write(parts) == text
         True
     """
+
+    suffix = ".md"
 
     def read(self, path: PurePosixPath, text: str) -> Parts:
         """Take a Markdown file apart.

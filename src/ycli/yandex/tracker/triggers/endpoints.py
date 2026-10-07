@@ -8,10 +8,13 @@ Examples:
 """
 
 from http import HTTPMethod
+from typing import Annotated
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
+from ycli.yandex.sync.marks import Container, Identity, Version
+from ycli.yandex.tracker import queues
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
     TriggerCreate,
@@ -30,7 +33,9 @@ def _trigger_path(queue_id: str, trigger_id: int) -> str:
     return f"queues/{segment(queue_id)}/triggers/{segment(trigger_id)}"
 
 
-def list_(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Trigger], Trigger]:
+def list_(
+    queue_id: Annotated[str, Container(queues)], *, page_size: int = PAGE_SIZE
+) -> Paged[ItemList[Trigger], Trigger]:
     """``GET /queues/{id}/triggers``, ascending by id, each next page from ``id=<last id>``."""
     return Paged(
         Endpoint(
@@ -44,16 +49,22 @@ def list_(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Trigge
     )
 
 
-def get(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:
+def get(
+    queue_id: Annotated[str, Container(queues)], trigger_id: Annotated[int, Identity()]
+) -> Endpoint[Trigger]:
     return Endpoint(HTTPMethod.GET, _trigger_path(queue_id, trigger_id), Trigger)
 
 
-def create(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
+def create(queue_id: Annotated[str, Container(queues)], body: TriggerCreate) -> Endpoint[Trigger]:
     return Endpoint(HTTPMethod.POST, f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
 
 
 def update(
-    queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None
+    queue_id: Annotated[str, Container(queues)],
+    trigger_id: Annotated[int, Identity()],
+    body: TriggerUpdate,
+    *,
+    version: Annotated[int | None, Version()],
 ) -> Endpoint[Trigger]:
     path = _trigger_path(queue_id, trigger_id)
     return Endpoint(HTTPMethod.PATCH, path, Trigger, json=body, params={"version": version})
