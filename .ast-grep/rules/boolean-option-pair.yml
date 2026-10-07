@@ -1,0 +1,28 @@
+id: boolean-option-pair
+language: python
+severity: error
+message: Declare the option as a pair, `typer.Option("--x/--no-x", ...)`.
+note: |-
+  Without `--no-x` a caller cannot say `False`, and `None` and `False` would be one.
+  docs/conventions/resources.md, section 6, "ycli sends what the caller gave".
+url: https://github.com/bim-ba/ycli/blob/main/docs/conventions/resources.md#6-writing-a-client-and-its-cli-commands
+files:
+  - src/ycli/**/*.py
+rule:
+  kind: call
+  has:
+    field: function
+    regex: Option$
+  not:
+    has:
+      field: arguments
+      has:
+        kind: string
+        regex: /
+  inside:
+    stopBy: end
+    # An alias is a `subscript`; the same text in a signature is a `generic_type`.
+    any:
+      - kind: subscript
+      - kind: generic_type
+    regex: ^Annotated\[\s*(bool\s*\|\s*None|None\s*\|\s*bool)\s*,
