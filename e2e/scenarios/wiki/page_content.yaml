@@ -102,8 +102,6 @@ steps:
       operation.type: clone_inline_grid
     save:
       grid_clone_op: operation.id
-  - id: grid-delete
-    run: wiki grids delete ${grid}
   - id: upload
     run: wiki attachments upload ${id} ${FILES}/note.txt
     expect:
@@ -261,11 +259,15 @@ steps:
     run: wiki operations move-get ${move_op}
     expect:
       status: success
+      result.page_count: 1
   - id: grid-clone-status
     run: wiki operations clone-inline-grid-get ${grid_clone_op}
     expect:
       status: success
       "result.grid_id != null": true
+  # Only now: the clone above was still reading this grid while it ran.
+  - id: grid-delete
+    run: wiki grids delete ${grid}
   - id: tree
     run: wiki pages descendants-list ${RUN} --include-self --all
     expect:
