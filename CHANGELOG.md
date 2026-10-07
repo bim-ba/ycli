@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.119.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.118.0
+  ([`34e55aa`](https://github.com/bim-ba/ycli/commit/34e55aa3c20c452c62f7069003543e3f0ca9b8d1))
+
+### Features
+
+- **sync**: `ycli sync status` and `ycli sync validate` look at the files with no network
+  ([`fe8bd17`](https://github.com/bim-ba/ycli/commit/fe8bd17f7dbae2514c949c0311e58ef7a8331306))
+
+### Testing
+
+- **e2e**: A run can repeat every read through MCP and the SDK and compare the replies
+  ([`18835ca`](https://github.com/bim-ba/ycli/commit/18835cac6faa9e5eeab2b2972b4b94edc908f697))
+
+
 ## v0.118.0 (2026-10-07)
 
 ### Build System
