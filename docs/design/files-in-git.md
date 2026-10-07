@@ -60,7 +60,7 @@ Two rules bound the engine.
 ```console
 $ ycli sync kinds                   # what can be kept as files: each kind in one line of its own words
 $ ycli sync pull wiki/team          # server -> files, under this path
-$ ycli sync status                  # which files were edited since pull; no network
+$ ycli sync status                  # what push would do, as far as the files alone say; no network
 $ ycli sync diff                    # what push would change; sends nothing that writes
 $ ycli sync push                    # files -> server
 $ ycli sync push --prune main       # also delete the objects whose files were deleted since `main`
@@ -76,7 +76,7 @@ What every command prints ([#492](https://github.com/bim-ba/ycli/issues/492)):
 
 | What | How |
 |---|---|
-| A summary line last | `2 to create, 1 to update, 1 conflict, 14 unchanged` |
+| A summary line last | `14 unchanged, 1 update, 2 create, … 1 changed-on-server, 0 gone, 0 no-file`: every state, in one order |
 | Unchanged files | hidden; `--show-unchanged` lists them |
 | `-o json` | one object a line (`{"path": …, "kind": …, "action": "update"}`), the summary last |
 | `-o paths` | the paths touched, one a line: `ycli sync push -o paths \| xargs git add` |
@@ -84,8 +84,31 @@ What every command prints ([#492](https://github.com/bim-ba/ycli/issues/492)):
 | Under GitHub Actions | a failure of `push` is an annotation on its file; the plan is a table in the job summary |
 
 Exit codes are those of every ycli command, `0` to `6`, and two of `sync`'s own in the same
-table: `7`, there are changes, given only when `--exit-code` asks for it (`status` and `diff` exit
-with `0` without the flag); `8`, a file stopped because its object changed on the server.
+table, one meaning each: `7`, there is something to push; `8`, a file and its object went apart
+(`changed-on-server`, `untracked`, `gone`). `8` outweighs `7`. `status` and `diff` give them only
+when `--exit-code` asks; without the flag they exit with `0`.
+
+One vocabulary says what `push` would do with a file, in `status`, `diff` and `push` alike:
+
+| State | When | Seen with no network |
+|---|---|---|
+| `unchanged` | the content has the fingerprint in `hash`, and the object is as it was read | yes |
+| `update` | the content was edited since it was read | yes |
+| `create` | the file names no object | yes |
+| `untracked` | the file names an object and has no `hash`: it was never read from it | yes |
+| `unsupported` | the API of the kind cannot do what the file asks, or the object is not one the kind keeps | the first, yes |
+| `unreadable` | the file is not a file of a declared kind | yes |
+| `changed-on-server` | the version or the fingerprint of the object is not the file's | no |
+| `gone` | the file names an object the server no longer has | no |
+| `no-file` | a container holds an object that has no file | no |
+
+`status` reads nothing but the files, so an edited file is `update` there even when its object has
+changed meanwhile; `diff` reads the server and says `changed-on-server`. The file keeps no copy of
+what was read, only its fingerprint: where the object changed, `diff` shows the file against the
+server as it is now and cannot say whose change a line is.
+
+A directory names the files under it and the file beside it of the same name: `wiki/team` is the
+page `wiki/team.md` and the pages under `wiki/team/`, in every command.
 
 `pull --dry-run` names the files it would overwrite that hold uncommitted work: `pull` overwrites
 them, and git is the only protection.
@@ -285,14 +308,14 @@ flowchart TD
 
 | File | Server | `pull` | `diff` | `push` |
 |---|---|---|---|---|
-| absent | object exists | writes the file | "no file" | nothing |
+| absent | object exists | writes the file | `no-file` | nothing |
 | deleted since the commit `--prune` names | object exists | writes the file again | "would delete" | with `--prune` asks, then deletes |
-| has no identity | no such object | nothing | "would create" | creates, writes the link into the file |
+| has no identity | no such object | nothing | `create` | creates, writes the link into the file |
 | unchanged | unchanged | nothing | nothing | nothing |
-| edited | unchanged | overwrites the file | the difference | updates, writes the new link |
-| any | changed since `pull` | overwrites the file | "changed on the server" and the difference | stops, writes nothing |
-| has an identity | object is gone | reports it, keeps the file | "gone on the server" | stops for that file |
-| asks for an operation the API lacks | | | says which | says which, counts the file as failed |
+| edited | unchanged | overwrites the file | `update` and the difference | updates, writes the new link |
+| any | changed since `pull` | overwrites the file | `changed-on-server` and the difference | stops, writes nothing |
+| has an identity | object is gone | reports it, keeps the file | `gone` | stops for that file |
+| asks for an operation the API lacks | | | `unsupported`, says which | says which, counts the file as failed |
 
 Two consequences of keeping the link in the file:
 
@@ -370,7 +393,8 @@ trigger: for a trigger file deleted with `--prune` the engine says so.
 | `wiki/page` and `tracker/trigger` declared | built |
 | `status`, `validate`, where a file lies (`ycli.yandex.sync.files`, `paths`) | built |
 | `pull` (`ycli.yandex.sync.pull`) | built |
-| `diff`, `push`, `--on-error`, the exit codes, the output of #492 | not built |
+| `diff`, the plan it shares with `push`, the exit codes (`ycli.yandex.sync.plan`) | built |
+| `push`, `--on-error`, the rest of the output of #492 | not built |
 | `--prune` | not built |
 | The MCP tools, in one change with `pull` / `diff` / `push` | not built |
 | A how-to page in `docs/en` and `docs/ru`, with the recipe "the plan as a comment on a pull request" | not built |

@@ -14,9 +14,10 @@ from ycli.cli.output import ExitWith
 from ycli.yandex.models import ItemList
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.registry import kinds as declared_kinds
-from ycli.yandex.sync.files import FileState, State, examine
+from ycli.yandex.sync.files import OFFLINE, FileState, State, examine
 from ycli.yandex.sync.git import uncommitted
 from ycli.yandex.sync.kind import KindSummary, summary_of
+from ycli.yandex.sync.plan import Planned, plan
 from ycli.yandex.sync.pull import Action, Pulled, ScopeError, Sender
 from ycli.yandex.sync.pull import pull as pull_objects
 
@@ -38,7 +39,7 @@ def _examined(paths: list[Path] | None, only: list[str] | None) -> list[FileStat
     found = examine(Path.cwd(), scopes, declared_kinds())
     kept = [file for file in found if not only or file.kind in only or file.kind is None]
     counted = Counter(file.state for file in kept)
-    typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
+    typer.echo(", ".join(f"{counted[state]} {state}" for state in OFFLINE), err=True)
     return kept
 
 
@@ -57,13 +58,14 @@ def status(
     ] = False,
     exit_code: Annotated[
         bool,
-        typer.Option("--exit-code", help="Exit with 7 when a file was edited or is new."),
+        typer.Option("--exit-code", help="Exit with 7 when there is something to push."),
     ] = False,
 ) -> ItemList[FileState] | ExitWith:
-    """Say which files were edited since they were read from the server; uses no network.
+    """Say what `push` would do with each file, as far as the files alone say; uses no network.
 
-    A file is edited when its content no longer has the fingerprint in its `hash` key, and
-    new when it has no `hash`: it was written by hand.
+    A file is to `update` when its content no longer has the fingerprint in its `hash` key. One
+    with no `hash` was written by hand: to `create` when it names no object, `untracked` when
+    it names one. Whether the object changed on the server meanwhile, only `diff` can say.
     """
     kept = _examined(paths, kind)
     listed = ItemList[FileState](
@@ -139,3 +141,55 @@ def pull(
     return ItemList[Pulled](
         [one for one in found if show_unchanged or one.action is not Action.UNCHANGED]
     )
+
+
+@app.command()
+def diff(
+    context: typer.Context,
+    paths: Paths = None,
+    kind: Kinds = None,
+    show_unchanged: Annotated[
+        bool, typer.Option("--show-unchanged", help="Also list the files with nothing to push.")
+    ] = False,
+    show_secrets: Annotated[
+        bool, typer.Option("--show-secrets", help="Show secrets as they are, not masked.")
+    ] = False,
+    exit_code: Annotated[
+        bool,
+        typer.Option(
+            "--exit-code",
+            help="Exit with 7 when there is something to push, 8 when a file and its object "
+            "went apart.",
+        ),
+    ] = False,
+) -> ItemList[Planned] | ExitWith:
+    """Show what `push` would change: each file against its object on the server, as it is now.
+
+    The difference runs from the server to the file. Under a directory that names a container
+    (wiki/team, tracker/queues/DE) an object with no file is listed too. Where the object
+    changed since the file was read, the difference is the file against the server now: the
+    file keeps no copy of what was read, so whose change a line is cannot be said.
+    """
+    application = context.find_root().obj
+    clients = {service.name: service.client_class for service in SERVICES}
+
+    def sender(service: str) -> Sender:
+        return application.resolve(clients[service]())
+
+    scopes = [PurePosixPath(path.as_posix()) for path in paths or []]
+    kinds = [one for one in declared_kinds() if not kind or one.name in kind]
+    found = plan(Path.cwd(), scopes, kinds, sender, show_secrets=show_secrets)
+    counted = Counter(one.state for one in found)
+    typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
+    listed = ItemList[Planned](
+        [one for one in found if show_unchanged or one.state is not State.UNCHANGED]
+    )
+    if counted[State.UNREADABLE]:
+        return ExitWith(listed, exit_code=ExitCode.FAILURE)
+    if not exit_code:
+        return listed
+    apart = {State.CHANGED_ON_SERVER, State.UNTRACKED, State.GONE}
+    if any(counted[state] for state in apart):
+        return ExitWith(listed, exit_code=ExitCode.DIVERGED)
+    to_push = counted[State.UPDATE] + counted[State.CREATE]
+    return ExitWith(listed, exit_code=ExitCode.CHANGES) if to_push else listed
