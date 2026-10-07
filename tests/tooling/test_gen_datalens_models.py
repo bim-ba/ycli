@@ -140,9 +140,12 @@ def test_the_specification_is_prepared_for_ycli_rules():
     # A reply is read as it comes; only the envelope of a request is closed, unless the
     # document itself leaves that envelope open.
     assert "additionalProperties" not in schemas["charts.Chart"]
-    assert schemas["charts.GetChartRequest"]["additionalProperties"] is False
-    assert schemas["charts.UpdateChartArgs"]["additionalProperties"] is False
+    # Closed is said as the base class, by the code generator's own key (``gen._BASE``).
+    assert schemas["charts.GetChartRequest"][gen._BASE] == gen._CLOSED
+    assert schemas["charts.UpdateChartArgs"][gen._BASE] == gen._CLOSED
+    assert "additionalProperties" not in schemas["charts.GetChartRequest"]
     assert schemas["dashboards.DeleteArgs"]["additionalProperties"] == {}
+    assert gen._BASE not in schemas["dashboards.DeleteArgs"]
     # A set of values is open, with or without `null`; a single value is a tag and stays.
     assert chart["mode"] == {
         "anyOf": [{"enum": ["save", "publish"], "type": "string"}, {"type": "string"}]
@@ -228,6 +231,13 @@ def test_the_small_specification_becomes_modules_that_follow_the_rules():
     # No default of the document, no directive to the generator, nothing but plain models.
     assert '"save"\n' not in charts and "subprocess" not in "".join(modules.values())
     assert [gen.foreign(text) for text in modules.values()] == [[], [], [], []]
+    # The base class is the code generator's doing: the last step rewrites no class, so one
+    # written the old way (open, with a config that forbids) is left exactly as it came.
+    old_way = (
+        'class GetArgs(APIModel):\n    model_config = ConfigDict(\n        extra="forbid",\n    )\n'
+    )
+    assert old_way in gen.finish(gen.HEADER + old_way)
+    assert gen._BASE not in charts and "customBasePath" not in "".join(modules.values())
     # What was written is what the last step leaves: finishing it again changes nothing.
     assert gen._ruff(gen.finish(charts), "charts.py") == charts
 
@@ -810,7 +820,7 @@ def test_a_request_envelope_given_in_parts_is_one_closed_object():
     }
     envelope = gen.prepare(spec)["components"]["schemas"]["things.CreateThingRequest"]
     assert sorted(envelope["properties"]) == ["data", "name"]
-    assert envelope["required"] == ["data"] and envelope["additionalProperties"] is False
+    assert envelope["required"] == ["data"] and envelope[gen._BASE] == gen._CLOSED
     module = gen.generate(spec)["things.py"]
     assert "class CreateThingRequest(RequestBody):" in module
     kinds = {"oneOf": [_kind("a"), _kind("b")]}
@@ -979,7 +989,7 @@ def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
     ]
     first, second = (schemas[f"things.UpdateThingRequestVariant{n}"] for n in (1, 2))
     assert (first["required"], second["required"]) == (["id", "content"], ["id", "revId"])
-    assert first["additionalProperties"] is False and second["additionalProperties"] is False
+    assert first[gen._BASE] == gen._CLOSED and second[gen._BASE] == gen._CLOSED
     # The other side: the same union one level down belongs to no operation's arguments.
     inner = {"type": "object", "properties": {"change": {"anyOf": [new, old]}}}
     spec["paths"]["/rpc/updateThing"] = _operation(inner, {})
@@ -988,7 +998,7 @@ def test_a_request_given_as_a_union_of_objects_has_an_envelope_per_member():
         "things.UpdateThingRequestChangeVariant1",
         "things.UpdateThingRequestChangeVariant2",
     ):
-        assert prepared[name]["required"] == [] and "additionalProperties" not in prepared[name]
+        assert prepared[name]["required"] == [] and gen._BASE not in prepared[name]
     # The layer as committed: the model itself refuses both bodies, and names the fields.
     from pydantic import ValidationError
 

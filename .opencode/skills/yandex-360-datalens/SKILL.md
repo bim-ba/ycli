@@ -23,6 +23,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - datasets, with their rows
 - charts built in the wizard, in QL and in the editor, and the data of a saved chart
 - reports
+- dashboards
 - the embeds of an entry and the keys for embedding that sign them
 - the roles on a shared entry
 - the audit (reads)
@@ -33,8 +34,6 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 - Spark applications: listing, reading, making, cancelling one and reading its log (experimental in the API; written from the document, not measured)
 - the members of the organization and the details of the DataLens instance (reads)
 - the licences (seats) of the instance: reads measured; giving a licence and setting the limit written from the document, never called
-
-Not wrapped yet: dashboards are found and listed as entries, but their content is not opened or changed.
 
 ## When to use
 
@@ -53,6 +52,7 @@ Not wrapped yet: dashboards are found and listed as entries, but their content i
 - Reading, creating, changing, checking or deleting a dataset, and reading its rows
 - Reading the data a saved chart shows
 - Reading, creating, saving or deleting a chart of the wizard, a QL chart or a chart of the editor
+- Reading, creating, saving or deleting a dashboard
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -61,7 +61,6 @@ Not wrapped yet: dashboards are found and listed as entries, but their content i
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
 - Reading or editing Forms — use `yandex-360-forms`
-- Opening or changing the content of a dashboard — not wrapped yet
 
 ## Surfaces
 
@@ -141,6 +140,7 @@ DataLens differs from the other services in both credentials:
 | The data a saved chart shows, as tables | `uv run ycli datalens charts data-get <chart_id> [--params '{"year": "2026"}']` | `datalens_charts_data_get` |
 | One chart, by how it is built | `uv run ycli datalens charts wizard get <chart_id>` · `charts ql get <chart_id>` · `charts editor get <chart_id>` | `datalens_charts_wizard_get` · `datalens_charts_ql_get` · `datalens_charts_editor_get` |
 | One report: its slides and what stands on them | `uv run ycli datalens reports get <entry_id>` | `datalens_reports_get` |
+| One dashboard (large: write it to a file) | `uv run ycli -o json datalens dashboards get <dashboard_id> > dash.json` | `datalens_dashboards_get` |
 
 **`workbooks list` does not descend.** It lists one collection (the root by default); to find a workbook anywhere, walk `collections content-list`.
 
@@ -198,6 +198,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Create a report (at least one slide) | `uv run ycli datalens reports create --workbook-id <id> --name … --meta null --body-file report.json` | `datalens_reports_create` |
 | Save a report (loses the layout of slide elements: ask first) | `uv run ycli datalens reports update <entry_id> --mode save --body-file report.json` | `datalens_reports_update` |
 | Delete a report | `uv run ycli datalens reports delete <entry_id>` | `datalens_reports_delete` |
+| Create a dashboard | `uv run ycli datalens dashboards create --body-file dash.json` | `datalens_dashboards_create` |
+| Save a dashboard as given | `uv run ycli datalens dashboards update --mode save --body-file dash.json [--lock-token …]` | `datalens_dashboards_update` |
+| Delete a dashboard | `uv run ycli datalens dashboards delete <dashboard_id>` | `datalens_dashboards_delete` |
 | Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
 | Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
 | Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
@@ -253,3 +256,5 @@ The subject's `id` is the `sub` of a member (`members list`). `action` is `ADD` 
 **Rows are asked for by guid.** `datasets data-get` takes the guids of fields (`dataset.result_schema[].guid`), not their titles. One call is one page: `--limit` rows (100 by default) from `--offset`, and an offset above zero needs `--sort`, or the API refuses the request.
 
 **A chart is read by how it is built.** An entry of the scope `widget` is a chart, and its `type` says which command reads it: `…_wizard_node` is `charts wizard`, `…_ql_node` is `charts ql`, the rest (`table_node`, `d3_node`, `markdown_node`, `advanced-chart_node`, `control_node`) is `charts editor`. A chart is changed whole, like a dataset: read it, change `entry.data`, send it back with `--mode save` (a draft) or `--mode publish`. `--body-file` gives the request itself (`data`, `workbookId`, `name`), and a flag lies over it. Over MCP the content of a wizard chart is read with `schema_get(service="datalens", name="WizardChartData")`. QL charts take `--template ql`, the only value the API accepts today, and come flat, with no `entry` around them.
+
+**A dashboard is large and changed whole.** A real one is 100 KB and more, which may be over what a client shows of a tool's reply: read a big one into a file with the CLI and work on the file. To change it, read it, change `entry.data` (tabs, and the charts, selectors and texts on them) and send it back in `--body-file` as `{"entry": {"entryId": …, "data": …, "meta": …, "revId": …}}` with `--mode save` or `--mode publish`. A new dashboard needs `counter`, `salt`, `settings` and `tabs` in its `data`; a tab may be empty. Over MCP the entry is read with `schema_get(service="datalens", name="DashboardUpdate")`.

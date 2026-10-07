@@ -15,6 +15,7 @@ from ycli.yandex.datalens.cloudenvironments.client import CloudEnvironmentsClien
 from ycli.yandex.datalens.cloudenvironmentstorage.client import CloudEnvironmentStorageClient
 from ycli.yandex.datalens.collections.client import CollectionsClient
 from ycli.yandex.datalens.connections.client import ConnectionsClient
+from ycli.yandex.datalens.dashboards.client import DashboardsClient
 from ycli.yandex.datalens.datasets.client import DatasetsClient
 from ycli.yandex.datalens.embeddingsecrets.client import EmbeddingSecretsClient
 from ycli.yandex.datalens.embeds.client import EmbedsClient
@@ -61,6 +62,7 @@ class DataLensClient(DomainClient):
         self.connections = ConnectionsClient(session=session)
         self.datasets = DatasetsClient(session=session)
         self.charts = ChartsClient(session=session)
+        self.dashboards = DashboardsClient(session=session)
         self.reports = ReportsClient(session=session)
         self.workbookexports = WorkbookExportsClient(session=session)
         self.workbookimports = WorkbookImportsClient(session=session)

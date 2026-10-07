@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.114.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.113.2
+  ([`e690544`](https://github.com/bim-ba/ycli/commit/e690544280ae95dbb6f37ac96db2e37eb54457d7))
+
+### Features
+
+- **datalens**: Dashboards are read, created, saved and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`89346c3`](https://github.com/bim-ba/ycli/commit/89346c32870d963b925c1231935dfdf3773d5004))
+
+### Refactoring
+
+- **datalens**: A closed envelope gets its base class from the code generator
+  ([`4b92793`](https://github.com/bim-ba/ycli/commit/4b9279345b6efa6be941df15fcb0a31116bb5781))
+
+
 ## v0.113.2 (2026-10-06)
 
 ### Bug Fixes
