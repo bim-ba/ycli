@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.gaps import endpoints
-from ycli.yandex.tracker.gaps.models import UserGaps
+from ycli.yandex.tracker.gaps.models import GapsSearch, UserGaps
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -74,8 +74,7 @@ class GapsClient(Resource):
             >>> [(user.user.login, len(user.gaps)) for user in found.root]
             [('ann', 1), ('bob', 0)]
         """
-        window = {"from": date_from, "to": date_to}
-        body = {"users": list(users), **{name: value for name, value in window.items() if value}}
+        body = GapsSearch(users=list(users), date_from=date_from or None, date_to=date_to or None)
         paged = endpoints.search(body)
         return ItemList[UserGaps](list(self._session.iterate(paged, limit=limit)))
 
