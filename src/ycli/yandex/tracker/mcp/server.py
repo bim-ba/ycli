@@ -1,7 +1,13 @@
-"""Tracker FastMCP subserver — mounts the per-resource tool servers (reads + writes)."""
+"""Tracker FastMCP subserver — mounts the per-resource tool servers (reads + writes).
+
+The server of one resource (``…<resource>.mcp.mcp``) is a building block: whoever mounts one
+in a server of their own adds ``ArgumentRefusals`` to it, or a refusal of arguments repeats
+what was sent. This server carries it.
+"""
 
 from fastmcp import FastMCP
 
+from ycli.yandex.mcp import ArgumentRefusals
 from ycli.yandex.tracker.applications.mcp import mcp as applications_mcp
 from ycli.yandex.tracker.attachments.mcp import mcp as attachments_mcp
 from ycli.yandex.tracker.autoactions.mcp import mcp as autoactions_mcp
@@ -50,6 +56,8 @@ mcp = FastMCP(
         "before mutating; destructive tools delete data irreversibly."
     ),
 )
+# The root server carries it too; this one for whoever mounts the service alone.
+mcp.add_middleware(ArgumentRefusals())
 mcp.mount(me_mcp)
 mcp.mount(issues_mcp)
 mcp.mount(comments_mcp)

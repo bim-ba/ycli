@@ -1,7 +1,18 @@
-import pytest
-from pydantic import SecretStr, ValidationError
+from typing import Annotated
 
-from ycli.yandex.models import WIRE, Ack, APIModel, DisplayStr, KeyStr, RequestBody, _extract
+import pytest
+from pydantic import Field, RootModel, SecretStr, ValidationError
+
+from ycli.yandex.models import (
+    WIRE,
+    Ack,
+    APIModel,
+    DisplayStr,
+    KeyStr,
+    KindByOwnField,
+    RequestBody,
+    _extract,
+)
 
 
 def test_a_reply_keeps_a_field_the_model_does_not_declare():
@@ -231,3 +242,91 @@ def test_only_a_marked_field_keeps_its_null():
         "default": None,
         "title": "Note",
     }
+
+
+class _Jar(RequestBody):
+    cluster_id: str = Field(alias="clusterId")
+    name: str | None = None
+    jar_application: dict[str, str] = Field(alias="jarApplication")
+
+
+class _Script(RequestBody):
+    cluster_id: str = Field(alias="clusterId")
+    name: str | None = None
+    script_application: dict[str, list[str]] = Field(alias="scriptApplication")
+
+
+class _Marked(RootModel, hide_input_in_errors=True):
+    root: Annotated[_Jar | _Script, KindByOwnField()]
+
+
+class _Unmarked(RootModel[_Jar | _Script], hide_input_in_errors=True):
+    pass
+
+
+def _refusals(model: type[RootModel], body: dict) -> list[tuple[str, str]]:
+    with pytest.raises(ValidationError) as refused:
+        model.model_validate(body)
+    return [(error["type"], ".".join(map(str, error["loc"]))) for error in refused.value.errors()]
+
+
+@pytest.mark.parametrize(
+    ("body", "unmarked", "marked"),
+    [
+        ({"clusterId": "c1"}, 2, [("one_kind", "")]),
+        ({"clusterId": "c1", "jarApplication": {}, "scriptApplication": {}}, 2, [("one_kind", "")]),
+        (
+            {"clusterId": "c1", "scriptApplication": {}, "nmae": "x"},
+            4,
+            [("extra_forbidden", "scriptApplication.nmae")],
+        ),
+        (
+            {"clusterId": "c1", "scriptApplication": {"args": 5}},
+            3,
+            [("list_type", "scriptApplication.scriptApplication.args")],
+        ),
+    ],
+    ids=["no kind", "two kinds", "a mistyped key", "a wrong type inside the kind"],
+)
+def test_a_union_told_apart_by_a_field_is_refused_once(body, unmarked, marked):
+    """#459: unmarked, every member says what it lacks, under the name of its class."""
+    before = _refusals(_Unmarked, body)
+    assert len(before) == unmarked
+    assert all(where.startswith(("_Jar", "_Script")) for _, where in before)
+    assert _refusals(_Marked, body) == marked
+
+
+def test_the_refusal_names_the_fields_that_tell_the_kinds_apart():
+    with pytest.raises(ValidationError) as refused:
+        _Marked.model_validate({"clusterId": "c1"})
+    assert refused.value.errors()[0]["msg"] == (
+        "give exactly one of: jarApplication, scriptApplication"
+    )
+
+
+def test_a_marked_union_takes_a_body_and_a_member_and_writes_them_as_given(recwarn):
+    body = {"clusterId": "c1", "scriptApplication": {"args": ["a"]}}
+    parsed = _Marked.model_validate(body)
+    assert type(parsed.root) is _Script
+    assert parsed.model_dump(by_alias=True, exclude_none=True) == body
+    built = _Marked(_Jar(clusterId="c2", jarApplication={"main": "Etl"}))
+    assert built.model_dump(by_alias=True, exclude_none=True) == {
+        "clusterId": "c2",
+        "jarApplication": {"main": "Etl"},
+    }
+    assert [str(warning.message) for warning in recwarn] == []
+
+
+def test_a_marked_union_is_published_as_exactly_one_of_its_members():
+    assert [*_Marked.model_json_schema()] == ["$defs", "oneOf", "title"]
+    assert [*_Unmarked.model_json_schema()] == ["$defs", "anyOf", "title"]
+
+
+def test_the_mark_refuses_a_union_no_field_tells_apart():
+    class Same(RequestBody):
+        cluster_id: str = Field(alias="clusterId")
+
+    with pytest.raises(TypeError, match="Same is told apart by no field"):
+
+        class _Wrong(RootModel):
+            root: Annotated[_Jar | Same, KindByOwnField()]

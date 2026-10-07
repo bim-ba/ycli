@@ -14,7 +14,7 @@ from ycli.yandex.datalens.dashboards.models import (
     DashboardCreated,
     DashboardSaved,
 )
-from ycli.yandex.datalens.models import SaveMode
+from ycli.yandex.datalens.models import RevisionBranch, SaveMode
 from ycli.yandex.datalens.schemas.dashboard import CreateDashboardV2Args, UpdateDashboardV2Args
 from ycli.yandex.models import Ack
 
@@ -70,7 +70,7 @@ def get(
     ] = None,
     branch: Annotated[
         str | None,
-        typer.Option("--branch", help="Which version of it to read: saved or published."),
+        values_option(RevisionBranch, "--branch", help="Which version of it to read."),
     ] = None,
     workbook_id: Annotated[
         str | None, typer.Option("--workbook-id", help="The workbook the dashboard lies in.")
@@ -100,7 +100,10 @@ def create(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> DashboardCreated:
-    """Create a dashboard from --entry or --body-file."""
+    """Create a dashboard from --entry or --body-file.
+
+    `entry.meta` must be an object, `{}` when empty: without it DataLens answers 400.
+    """
     body = _body(CreateDashboardV2Args, caller, {"entry": entry})
     return datalens.dashboards.create(body.entry)
 

@@ -4,7 +4,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.models import APIModel, KindByOwnField, NoDropNull, RequestBody
 
 
 class GetHtmlPageArgs(RequestBody):
@@ -497,6 +497,7 @@ class UpdateHtmlPageResult(APIModel):
 
 
 class UpdateHtmlPageArgs(
-    RootModel[UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2], hide_input_in_errors=True
+    RootModel[Annotated[UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2, KindByOwnField()]],
+    hide_input_in_errors=True,
 ):
-    root: UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2
+    root: Annotated[UpdateHtmlPageArgsVariant1 | UpdateHtmlPageArgsVariant2, KindByOwnField()]

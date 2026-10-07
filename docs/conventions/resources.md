@@ -447,6 +447,11 @@ check of its own to say it. A reply that does not fit its model is another error
   the agent's context.
 - A trait of a field or a parameter is a typed object in its `Annotated` metadata
   (`NoDropNull()`, `OverBudget(…)`), not a string key, a list of names or an edit of text.
+- A request the API takes as one of several objects, told apart by the field each alone requires,
+  carries `KindByOwnField()` on the root of its union (#459): pydantic then validates a body
+  against the one member whose field it holds, and a body with none of those fields, or with
+  two, is refused once (`give exactly one of: a, b`). The fields are read from the members;
+  the generator of the DataLens layer places the mark on every such request.
 - Every command that sends a JSON object takes `-F key=value` and `--body-file file` (JSON or YAML) for a
   field that has no flag of its own (#354). They are declared once, beside `--yes` and
   `--dry-run`, and a command writes no code for them: the CLI lays them under the body the

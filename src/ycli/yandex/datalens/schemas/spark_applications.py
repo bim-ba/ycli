@@ -1,10 +1,10 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, KindByOwnField, RequestBody
 
 
 class ListSparkApplicationsArgs(RequestBody):
@@ -452,14 +452,18 @@ class CreateSparkApplicationArgsVariant3(RequestBody):
 
 class CreateSparkApplicationArgs(
     RootModel[
-        CreateSparkApplicationArgsVariant1
-        | CreateSparkApplicationArgsVariant2
-        | CreateSparkApplicationArgsVariant3
+        Annotated[
+            CreateSparkApplicationArgsVariant1
+            | CreateSparkApplicationArgsVariant2
+            | CreateSparkApplicationArgsVariant3,
+            KindByOwnField(),
+        ]
     ],
     hide_input_in_errors=True,
 ):
-    root: (
+    root: Annotated[
         CreateSparkApplicationArgsVariant1
         | CreateSparkApplicationArgsVariant2
-        | CreateSparkApplicationArgsVariant3
-    )
+        | CreateSparkApplicationArgsVariant3,
+        KindByOwnField(),
+    ]
