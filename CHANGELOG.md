@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.117.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.116.2
+  ([`d0d2a79`](https://github.com/bim-ba/ycli/commit/d0d2a79a019843e35c11e5bb1abcd8b86962f7fd))
+
+- **deps**: Bump setup-uv to 10.2.0 and python-semantic-release to 10.7.0 in the workflows
+  ([`deef441`](https://github.com/bim-ba/ycli/commit/deef4413d8728539d817dd9e3ff462da57c0ce74))
+
+### Chores
+
+- **sync**: A file of a repository is read and written as a document of a kind
+  ([`4e9c967`](https://github.com/bim-ba/ycli/commit/4e9c96796e6314eac3c41ed9849e5bd8edc60286))
+
+### Features
+
+- **datalens**: A read of a chart, a dashboard or an HTML page names its version
+  ([`3a55682`](https://github.com/bim-ba/ycli/commit/3a55682ea66a97e844518186d11238eebb9e26a9))
+
+### Breaking Changes
+
+- **datalens**: `charts wizard get`, `charts ql get`, `charts editor get`, `dashboards get`,
+  `htmlpages get` and `htmlpages preview-url-get` no longer run without a version. Before: `ycli
+  datalens dashboards get ID` read the published version. Now: `ycli datalens dashboards get ID
+  --branch published` for the same, `--branch saved` for the version a save writes, or `--rev-id
+  REV` for one revision; `--branch` together with `--rev-id` is refused. The same holds for `branch`
+  / `rev_id` of the SDK methods and of the MCP tools.
+
+
 ## v0.116.2 (2026-10-07)
 
 ### Bug Fixes
