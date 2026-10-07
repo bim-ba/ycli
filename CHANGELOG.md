@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.121.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.120.0
+  ([`59743fc`](https://github.com/bim-ba/ycli/commit/59743fc688fbd3014e5e7c749b2a14870886b12c))
+
+### Features
+
+- **tracker,wiki**: The commands and the tools take every argument their SDK method takes
+  ([`35e21c3`](https://github.com/bim-ba/ycli/commit/35e21c3dd30feb7a6e27645920640c687314261f))
+
+### Testing
+
+- **e2e**: A run can hand every write to MCP or to the SDK
+  ([`4be41ae`](https://github.com/bim-ba/ycli/commit/4be41ae32bf14d9e02da2af821d6a5b726d015fa))
+
+
 ## v0.120.0 (2026-10-07)
 
 ### Build System

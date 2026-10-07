@@ -810,8 +810,11 @@ CASES = [
         "tracker.entities.comments_list",
         args=("goal", "g21"),
         kwargs={"expand": "html"},
-        cli=None,
-        mcp=None,
+        cli=["tracker", "entities", "comments", "list", "goal", "g21", "--expand", "html"],
+        mcp=(
+            "tracker_entities_comments_list",
+            {"entity_type": "goal", "entity_id": "g21", "expand": "html"},
+        ),
         exchanges=[
             (Sent("GET", "entities/goal/g21/comments", {"expand": "html"}), Reply(json=[])),
         ],
@@ -873,8 +876,21 @@ CASES = [
         "tracker.entities.comments_get",
         args=("goal", "g24", "24"),
         kwargs={"expand": "reactions"},
-        cli=None,
-        mcp=None,
+        cli=[
+            "tracker",
+            "entities",
+            "comments",
+            "get",
+            "goal",
+            "g24",
+            "24",
+            "--expand",
+            "reactions",
+        ],
+        mcp=(
+            "tracker_entities_comments_get",
+            {"entity_type": "goal", "entity_id": "g24", "comment_id": "24", "expand": "reactions"},
+        ),
         exchanges=[
             (
                 Sent("GET", "entities/goal/g24/comments/24", {"expand": "reactions"}),
@@ -1270,8 +1286,11 @@ CASES = [
         "tracker.entities.links_list",
         args=("goal", "g39"),
         kwargs={"fields": "summary"},
-        cli=None,
-        mcp=None,
+        cli=["tracker", "entities", "links", "list", "goal", "g39", "--fields", "summary"],
+        mcp=(
+            "tracker_entities_links_list",
+            {"entity_type": "goal", "entity_id": "g39", "fields": "summary"},
+        ),
         exchanges=[
             (Sent("GET", "entities/goal/g39/links", {"fields": "summary"}), Reply(json=[])),
         ],

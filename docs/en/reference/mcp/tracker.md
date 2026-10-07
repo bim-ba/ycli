@@ -1962,6 +1962,7 @@ All comments on an entity — author, text, timestamps and summoned users.
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_entities_comments_get`
 
@@ -1974,6 +1975,7 @@ A single comment on an entity by id.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `comment_id` | string | yes | Comment id (numeric id or longId). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_entities_links_list`
 
@@ -1985,6 +1987,7 @@ An entity's links to other entities — the link type and the linked entity's su
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
 
 ## `tracker_entities_attachments_list`
 

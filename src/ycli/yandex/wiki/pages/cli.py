@@ -63,6 +63,9 @@ IncludeSelfOption = Annotated[
 ShowAllOption = Annotated[
     bool | None, typer.Option("--show-all/--no-show-all", help="The API's show_all flag.")
 ]
+ActualityOption = Annotated[
+    str | None, typer.Option(help="Only the pages in this state: actual or obsolete.")
+]
 
 
 @app.command()
@@ -95,6 +98,7 @@ def descendants_list(
     all_: AllOption = False,
     include_self: IncludeSelfOption = None,
     show_all: ShowAllOption = None,
+    actuality: ActualityOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -102,7 +106,7 @@ def descendants_list(
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_list(
-        slug=slug, limit=cap, include_self=include_self, show_all=show_all
+        slug=slug, limit=cap, actuality=actuality, include_self=include_self, show_all=show_all
     )
 
 
@@ -133,6 +137,7 @@ def descendants_list_by_id(
     all_: AllOption = False,
     include_self: IncludeSelfOption = None,
     show_all: ShowAllOption = None,
+    actuality: ActualityOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -140,7 +145,11 @@ def descendants_list_by_id(
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_list_by_id(
-        page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
+        page_id=page_id,
+        limit=cap,
+        actuality=actuality,
+        include_self=include_self,
+        show_all=show_all,
     )
 
 

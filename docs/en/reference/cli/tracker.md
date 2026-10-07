@@ -4825,6 +4825,9 @@ $ ycli tracker entities comments [OPTIONS] COMMAND [ARGS]...
 
 List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative).
 
+``--expand`` (``html``, ``attachments``, ``reactions`` or ``all``) goes with the plain
+listing: the paged one does not take it.
+
 **Usage**:
 
 ```console
@@ -4840,6 +4843,7 @@ $ ycli tracker entities comments list [OPTIONS] ENTITY_TYPE ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -4866,6 +4870,7 @@ $ ycli tracker entities comments get [OPTIONS] ENTITY_TYPE ID COMMENT_ID
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -5212,6 +5217,7 @@ $ ycli tracker entities links list [OPTIONS] ENTITY_TYPE ID
 
 **Options**:
 
+* `--fields TEXT`: Comma-separated fields to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
