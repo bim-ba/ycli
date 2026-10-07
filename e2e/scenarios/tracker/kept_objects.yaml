@@ -15,8 +15,17 @@ steps:
     run: tracker triggers get ${QUEUE} ${TRIGGER}
     save:
       version: version
+      trigger_name: name
   - id: trigger-rename
     needs: [TRIGGER]
     run: tracker triggers update ${QUEUE} ${TRIGGER} --name "kept for e2e, edited by ${RUN}" --version ${version}
     expect:
       name: kept for e2e, edited by ${RUN}
+    save:
+      version: version
+  # The trigger is shared with the other scenarios that edit it: it gets its name back.
+  - id: trigger-name-back
+    needs: [TRIGGER]
+    run: tracker triggers update ${QUEUE} ${TRIGGER} --name '${trigger_name}' --version ${version}
+    expect:
+      name: ${trigger_name}
