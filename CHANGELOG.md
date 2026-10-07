@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.122.3 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A recorded reply keeps an empty string empty
+  ([`a1dda2f`](https://github.com/bim-ba/ycli/commit/a1dda2f8768c763514e30467970d24fdaaf90420))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.2
+  ([`e5ec0f5`](https://github.com/bim-ba/ycli/commit/e5ec0f5e49416f309ce31f24388aa5a23de24ad4))
+
+### Documentation
+
+- **cli**: The help of `ycli api` says a field makes the call a POST and how to read with a
+  parameter
+  ([`00744a7`](https://github.com/bim-ba/ycli/commit/00744a773e38a391028c7856ea52b151cfc88e1b))
+
+### Refactoring
+
+- **core**: An endpoint's effect is typed as always set
+  ([`4632b5d`](https://github.com/bim-ba/ycli/commit/4632b5d606789d403b497c93f442d472671d3937))
+
+
 ## v0.122.2 (2026-10-07)
 
 ### Bug Fixes
