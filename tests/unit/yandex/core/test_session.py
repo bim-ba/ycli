@@ -11,7 +11,7 @@ from tests.mock_api import MockAPI
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION, Endpoint, Paged
-from ycli.yandex.core.pagination import PageNumberPagination
+from ycli.yandex.core.pagination import CursorPagination, PageNumberPagination
 from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import connect, connect_async, default_transport
 from ycli.yandex.errors import (
@@ -164,6 +164,19 @@ def test_iterate_stops_on_an_empty_page():
     api = MockAPI()
     api.add("GET", URL, json=[])
     assert list(_session(api).iterate(_listing())) == []
+
+
+def test_an_empty_page_ends_a_listing_even_when_it_names_a_next_one():
+    """No service of ycli answers an empty page that is not the last (measured, see ``iterate``)."""
+    api = MockAPI()
+    api.add("GET", URL, json={"items": [], "next": "c2"})
+    paged = Paged(
+        Endpoint(HTTPMethod.GET, "items", dict),
+        CursorPagination(cursor_of=lambda response: response.json()["next"]),
+        lambda page: page["items"],
+    )
+    assert list(_session(api).iterate(paged)) == []
+    assert len(api.calls) == 1
 
 
 def test_iterate_stops_after_max_pages(caplog):

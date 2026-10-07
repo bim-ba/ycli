@@ -21,13 +21,31 @@ from ycli.yandex.sync.paths import tree_of
 
 
 class State(enum.StrEnum):
-    """What a file is, compared with what it was read from."""
+    """What ``push`` would do with a file: one vocabulary for ``status``, ``diff`` and ``push``.
+
+    ``status`` reads nothing but the files, so it says the first six; the rest need the server.
+    """
 
     UNCHANGED = "unchanged"
-    EDITED = "edited"
-    NEW = "new"
+    UPDATE = "update"
+    CREATE = "create"
     UNTRACKED = "untracked"
+    UNSUPPORTED = "unsupported"
     UNREADABLE = "unreadable"
+    CHANGED_ON_SERVER = "changed-on-server"
+    GONE = "gone"
+    NO_FILE = "no-file"
+
+
+#: What can be said of a file with no network.
+OFFLINE = (
+    State.UNCHANGED,
+    State.UPDATE,
+    State.CREATE,
+    State.UNTRACKED,
+    State.UNSUPPORTED,
+    State.UNREADABLE,
+)
 
 
 class FileState(APIModel):
@@ -35,10 +53,10 @@ class FileState(APIModel):
 
     path: str = Field(description="Where the file lies, from the root of the repository.")
     kind: str | None = Field(default=None, description="The kind the file names.")
-    state: State = Field(
-        description="Unchanged, edited since it was read, new, untracked, or unreadable."
+    state: State = Field(description="What `push` would do with the file.")
+    detail: str | None = Field(
+        default=None, description="Why a file is unreadable, or what its kind cannot do."
     )
-    detail: str | None = Field(default=None, description="Why a file is unreadable.")
 
 
 def read_file(
@@ -77,10 +95,41 @@ def read_file(
     return kind, document
 
 
-def _files(root: Path, scope: PurePosixPath, suffixes: set[str]) -> Iterator[PurePosixPath]:
-    """The files under ``scope`` that a kind could keep, by path."""
+def offline_state(kind: Kind[Any, Any], document: Document[Any, Any]) -> tuple[State, str | None]:
+    """What ``push`` would do with ``document``, as far as the file alone says.
+
+    Args:
+        kind: The kind of the file.
+        document: The file, read.
+
+    Returns:
+        The state, and what the kind cannot do when that is why.
+    """
+    named = any(getattr(document.link, key) for key in fields_marked(kind.link, Identity))
+    if document.link.hash is None:
+        state = State.UNTRACKED if named else State.CREATE
+    elif document.link.hash == fingerprint(document.content):
+        state = State.UNCHANGED
+    else:
+        state = State.UPDATE
+    needed = {State.CREATE: kind.create, State.UPDATE: kind.update}
+    if state in needed and needed[state] is None:
+        return State.UNSUPPORTED, f"the API cannot {state} a {kind.name}"
+    return state, None
+
+
+def files_under(root: Path, scope: PurePosixPath, suffixes: set[str]) -> Iterator[PurePosixPath]:
+    """The files that ``scope`` names and that a kind could keep, by path.
+
+    A directory names the files under it and the file beside it of the same name: the page
+    ``wiki/team.md`` and the pages under ``wiki/team/``, as ``pull wiki/team`` writes them.
+    """
     start = root / scope
-    found = [start] if start.is_file() else sorted(start.rglob("*")) if start.is_dir() else []
+    if start.is_file():
+        found = [start]
+    else:
+        beside = [start.with_name(start.name + suffix) for suffix in sorted(suffixes)]
+        found = [*beside, *(sorted(start.rglob("*")) if start.is_dir() else [])]
     for path in found:
         if path.is_file() and path.suffix in suffixes:
             yield PurePosixPath(path.relative_to(root).as_posix())
@@ -91,9 +140,10 @@ def examine(
 ) -> list[FileState]:
     """Say what each file under ``scopes`` is now, reading nothing but the files.
 
-    A file is edited when the fingerprint of its content is not the ``hash`` it carries. One
-    that carries none was written by hand: new when it names no object (``push`` creates one),
-    untracked when it names one that it was never read from.
+    A file is to ``update`` when the fingerprint of its content is not the ``hash`` it
+    carries. One that carries none was written by hand: to ``create`` when it names no object,
+    ``untracked`` when it names one that it was never read from. Where the API of its kind
+    cannot create or update, the file is ``unsupported``.
 
     Args:
         root: The root of the repository.
@@ -109,19 +159,13 @@ def examine(
     everything = sorted({PurePosixPath(tree_of(kind).service) for kind in kinds})
     states = []
     for scope in scopes or everything:
-        for path in _files(root, scope, suffixes):
+        for path in files_under(root, scope, suffixes):
             try:
                 kind, document = read_file(path, (root / path).read_text("utf-8"), by_name)
             except UnreadableFile as refusal:
                 detail = f"line {refusal.line}: {refusal.reason}"
                 states.append(FileState(path=str(path), state=State.UNREADABLE, detail=detail))
                 continue
-            named = any(getattr(document.link, key) for key in fields_marked(kind.link, Identity))
-            if document.link.hash is None:
-                state = State.UNTRACKED if named else State.NEW
-            elif document.link.hash == fingerprint(document.content):
-                state = State.UNCHANGED
-            else:
-                state = State.EDITED
-            states.append(FileState(path=str(path), kind=kind.name, state=state))
+            state, detail = offline_state(kind, document)
+            states.append(FileState(path=str(path), kind=kind.name, state=state, detail=detail))
     return states
