@@ -43,7 +43,8 @@ def _states(found: list[FileState]) -> dict[str, State]:
 
 def test_each_file_is_unchanged_edited_or_new_by_its_fingerprint(repository):
     assert _states(examine(repository, [], kinds())) == {
-        "tracker/queues/DE/triggers/16.yaml": State.NEW,  # no `hash`: never read from the server
+        # It names an object and carries no `hash`: written by hand, never read from it.
+        "tracker/queues/DE/triggers/16.yaml": State.UNTRACKED,
         "wiki/team.md": State.UNCHANGED,
         "wiki/team/edited.md": State.EDITED,
         "wiki/team/new.md": State.NEW,
@@ -67,6 +68,12 @@ def test_a_run_is_limited_by_a_path(repository):
         # A trigger that lies where triggers do not, and a file of a kind with another suffix.
         ("tracker/queues/DE/16.yaml", TRIGGER, "lies at tracker/queues/*/triggers/*.yaml"),
         ("wiki/trigger.md", "---\nycli: tracker/trigger\n---\n", "lies at tracker/queues/*/"),
+        # A trigger file copied under another name still holds the id of the first.
+        (
+            "tracker/queues/DE/triggers/17.yaml",
+            TRIGGER,
+            "line 2: the file is named 17 and holds 16",
+        ),
     ],
 )
 def test_a_file_that_is_not_one_is_unreadable_and_the_rest_are_still_read(
@@ -95,11 +102,11 @@ def test_sync_status_lists_what_was_edited_and_sums_up(repository, monkeypatch):
     code, listed, summary = _run(repository, monkeypatch, "status")
     assert code == 0
     assert {row["path"]: row["state"] for row in listed} == {
-        "tracker/queues/DE/triggers/16.yaml": "new",
+        "tracker/queues/DE/triggers/16.yaml": "untracked",
         "wiki/team/edited.md": "edited",
         "wiki/team/new.md": "new",
     }
-    assert summary.strip() == "1 unchanged, 1 edited, 2 new, 0 unreadable"
+    assert summary.strip() == "1 unchanged, 1 edited, 1 new, 1 untracked, 0 unreadable"
     # Changes are an exit code only when asked for: 7, in the one table of every ycli command.
     assert _run(repository, monkeypatch, "status", "--exit-code")[0] == 7
     assert _run(repository, monkeypatch, "status", "--exit-code", "wiki/team.md")[0] == 0
@@ -123,3 +130,10 @@ def test_sync_validate_passes_a_clean_tree_and_fails_on_a_file_that_is_not_one(
     assert [(row["path"], row["state"]) for row in listed] == [("wiki/extra.md", "unreadable")]
     assert "line 3: keywords" in listed[0]["detail"]
     assert "1 unreadable" in summary
+
+
+def test_a_file_that_cannot_be_read_fails_status_whatever_else_is_there(repository, monkeypatch):
+    """An error is more than a change: 1, with `--exit-code` or without, never 7."""
+    (repository / "wiki/extra.md").write_text("---\nycli: wiki/page\nkeywords: [a]\n---\n")
+    assert _run(repository, monkeypatch, "status")[0] == 1
+    assert _run(repository, monkeypatch, "status", "--exit-code")[0] == 1

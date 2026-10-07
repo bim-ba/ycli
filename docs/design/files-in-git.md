@@ -198,7 +198,14 @@ Marks on the arguments of the operations say the rest, so the declaration does n
 | `Body()` | a field of the content model | the text under a Markdown header |
 | `Place()` | a field of the reply and of the body of a create | where the file of the object lies (the `slug` of a page) |
 
-The body of a write needs no mark: it is the argument whose type is a model.
+The body of a write needs no mark: it is the argument whose type is a model. The link model of a
+kind carries the same marks on its fields (`id: Annotated[int | None, Identity()]`,
+`revision: Annotated[int | None, Version()]`): a field of the link takes its value from the
+field of the reply that has its name, and gives it to the argument that has its mark.
+
+A kind keeps only the objects it is a file of: `only=lambda page: page.page_type in {…}` in
+its declaration. An object that was found and that the kind does not keep is named by `pull` as
+skipped and counted apart.
 
 Removal condition for the declaration: if a third kind needs a branch on its name inside the
 engine, the declaration did not hold, and each service gets plain functions per command instead.
@@ -297,6 +304,11 @@ Two consequences of keeping the link in the file:
   about each object before deleting it; `--yes` answers for all of them. Outside a git repository
   `--prune` is refused. An object that never had a file is never a candidate.
 
+A known price: `pull` lists a container and then reads every object in it with one request
+each, even where the listing already answers the whole object (a trigger). One path for every
+kind is worth more than the requests; a kind may say its listing is enough when a container
+grows too large to read this way.
+
 ### What the engine does and does not check
 
 | The engine refuses | The engine sends as it is |
@@ -356,7 +368,8 @@ trigger: for a trigger file deleted with `--prune` the engine says so.
 | A file as a document: the two layouts, the link, the content, the fingerprint, the refusals (`ycli.yandex.sync.document`, `formats`) | built |
 | The declaration of a kind, the marks, the registry, `ycli sync kinds`, one check over every declared kind (`ycli.yandex.sync.kind`, `marks`; `ycli.yandex.registry.kinds`) | built |
 | `wiki/page` and `tracker/trigger` declared | built |
-| `pull`, `status`, `validate` | not built |
+| `status`, `validate`, where a file lies (`ycli.yandex.sync.files`, `paths`) | built |
+| `pull` (`ycli.yandex.sync.pull`) | built |
 | `diff`, `push`, `--on-error`, the exit codes, the output of #492 | not built |
 | `--prune` | not built |
 | The MCP tools, in one change with `pull` / `diff` / `push` | not built |

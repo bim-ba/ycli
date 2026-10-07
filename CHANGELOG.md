@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.120.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.119.0
+  ([`183b967`](https://github.com/bim-ba/ycli/commit/183b967c5cc4671b790688702d2d6de80c5cd5f2))
+
+### Chores
+
+- **lint**: The first rules of the code's text are ast-grep rules, seen in the editor
+  ([`afb1e38`](https://github.com/bim-ba/ycli/commit/afb1e3805c09804c095821fb695026ca5c4dd6cf))
+
+### Features
+
+- **sync**: `ycli sync pull` writes the objects of a service as files
+  ([`77ed247`](https://github.com/bim-ba/ycli/commit/77ed24724deeea9e73279e2fe0e8502e313e2078))
+
+
 ## v0.119.0 (2026-10-07)
 
 ### Build System

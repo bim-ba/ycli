@@ -7,7 +7,7 @@ from typing import Any, get_args, get_type_hints
 
 from pydantic import BaseModel
 
-from ycli.yandex.sync.document import UnreadableFile
+from ycli.yandex.sync.document import UnreadableFile, fields_marked
 from ycli.yandex.sync.kind import Kind, Operation
 from ycli.yandex.sync.marks import Container, Place
 
@@ -99,7 +99,9 @@ def tree_of(kind: Kind[Any, Any]) -> Tree:
     hints = get_type_hints(read, include_extras=True)
     reply = next(iter(get_args(hints.get("return"))), None)
     marks = [mark for hint in hints.values() for mark in getattr(hint, "__metadata__", ())]
-    placed = isinstance(reply, type) and issubclass(reply, BaseModel) and _marked(reply, Place)
+    placed = (
+        isinstance(reply, type) and issubclass(reply, BaseModel) and fields_marked(reply, Place)
+    )
     return Tree(
         service=kind.name.partition("/")[0],
         containers=tuple(
@@ -107,10 +109,4 @@ def tree_of(kind: Kind[Any, Any]) -> Tree:
         ),
         resource=None if placed else _resource(read.__module__),
         suffix=kind.layout.suffix,
-    )
-
-
-def _marked(model: type[BaseModel], mark: type) -> bool:
-    return any(
-        isinstance(held, mark) for info in model.model_fields.values() for held in info.metadata
     )

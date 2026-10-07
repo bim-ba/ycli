@@ -95,6 +95,31 @@ class Document[L: Link, C: BaseModel](APIModel):
     content: C = Field(description="What a person edits and a push sends.")
 
 
+def fields_marked(model: type[BaseModel], mark: type) -> list[str]:
+    """The fields of ``model`` that carry a mark of the type ``mark``, in the order declared.
+
+    Args:
+        model: A model whose fields may be marked in ``Annotated``.
+        mark: The class of the mark.
+
+    Returns:
+        The names of the marked fields.
+
+    Examples:
+        >>> from typing import Annotated
+        >>> class Page(BaseModel):
+        ...     title: str
+        ...     content: Annotated[str | None, Body()] = None
+        >>> fields_marked(Page, Body)
+        ['content']
+    """
+    return [
+        name
+        for name, info in model.model_fields.items()
+        if any(isinstance(held, mark) for held in info.metadata)
+    ]
+
+
 def body_field(content: type[BaseModel]) -> str | None:
     """The name of the field of ``content`` marked :class:`Body`, if it has one.
 
@@ -117,11 +142,7 @@ def body_field(content: type[BaseModel]) -> str | None:
         >>> body_field(Link) is None
         True
     """
-    marked = [
-        name
-        for name, info in content.model_fields.items()
-        if any(isinstance(mark, Body) for mark in info.metadata)
-    ]
+    marked = fields_marked(content, Body)
     if len(marked) > 1:
         raise TypeError(f"{content.__name__} marks more than one field as its body: {marked}")
     return marked[0] if marked else None

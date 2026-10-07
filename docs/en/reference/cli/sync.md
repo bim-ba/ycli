@@ -24,6 +24,7 @@ $ ycli sync [OPTIONS] COMMAND [ARGS]...
 * `kinds`: List the kinds of object that can be kept...
 * `status`: Say which files were edited since they...
 * `validate`: Check that every file reads as a file of...
+* `pull`: Read the objects under PATH from the...
 
 ## `ycli sync kinds`
 
@@ -95,6 +96,36 @@ $ ycli sync validate [OPTIONS] [PATHS]...
 **Options**:
 
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli sync pull`
+
+Read the objects under PATH from the server and write each as its file.
+
+A file is written over whatever is there: commit your edits first, git is what protects
+them. With --dry-run nothing is written, and a file that holds uncommitted work is named.
+An object no kind keeps (a grid among Wiki pages) is listed as skipped.
+
+**Usage**:
+
+```console
+$ ycli sync pull [OPTIONS] PATH
+```
+
+**Arguments**:
+
+* `PATH`: What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>.  [required]
+
+**Options**:
+
+* `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
+* `--show-unchanged`: Also list the files that were the same.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
