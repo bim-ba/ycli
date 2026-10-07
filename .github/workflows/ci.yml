@@ -51,6 +51,12 @@ jobs:
       - name: Check architecture boundaries
         if: matrix.python-version == '3.12'
         run: uv run lint-imports
+      # The conventions of one file's text (.ast-grep/rules/), then each rule against its cases.
+      - name: Check ast-grep rules
+        if: matrix.python-version == '3.12'
+        run: |
+          uv run ast-grep scan --format github
+          uv run ast-grep test --skip-snapshot-tests
       - name: Type check
         if: matrix.python-version == '3.12'
         run: uv run ty check

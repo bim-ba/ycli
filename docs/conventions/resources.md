@@ -220,7 +220,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
 | parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/unit/mcp/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueID`, `Version`, `SurveyID`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
 | `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
-| `tags` | never passed | The root server derives them (`ycli.mcp.listing.DerivedTags`): the service from the tool's name, `write` when `readOnlyHint` is not true — the tag `ycli mcp start --read-only` disables wholesale. A tool that passes `tags=` fails `test_arch3_no_tool_states_its_tags_itself` |
+| `tags` | never passed | The root server derives them (`ycli.mcp.listing.DerivedTags`): the service from the tool's name, `write` when `readOnlyHint` is not true — the tag `ycli mcp start --read-only` disables wholesale. A tool that passes `tags=` fails the ast-grep rule `no-tool-tags` |
 
 ### Prohibited
 
@@ -575,7 +575,7 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | `APIModel` base | `tests/architecture/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
 | No list class of a resource's own | `tests/architecture/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
 | `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
-| Every server is built by `new_server` | `tests/architecture/test_conventions.py::test_every_server_is_built_by_the_shared_constructor` |
+| Every server is built by `new_server` | ast-grep rule `no-direct-fastmcp`, and `tests/architecture/test_conventions.py::test_every_server_is_built_by_the_shared_constructor` for a `FastMCP` imported under another name, which the rule cannot see |
 | MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/contract/test_contract.py`, `tests/architecture/test_arch3.py` |
 | Serialization confinement | `tests/architecture/test_arch4.py` |
 | Discriminated MCP output unions | `tests/architecture/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
@@ -586,4 +586,4 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | An `Annotated` alias is defined once | `tests/architecture/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |
-| A three-valued boolean option is a `--x/--no-x` pair ([section 6](#6-writing-a-client-and-its-cli-commands)) | `tests/architecture/test_conventions.py::test_a_three_valued_boolean_option_is_declared_as_a_pair` |
+| A three-valued boolean option is a `--x/--no-x` pair ([section 6](#6-writing-a-client-and-its-cli-commands)) | ast-grep rule `boolean-option-pair` |
