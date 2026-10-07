@@ -9,6 +9,75 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.122.3 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A recorded reply keeps an empty string empty
+  ([`a1dda2f`](https://github.com/bim-ba/ycli/commit/a1dda2f8768c763514e30467970d24fdaaf90420))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.2
+  ([`e5ec0f5`](https://github.com/bim-ba/ycli/commit/e5ec0f5e49416f309ce31f24388aa5a23de24ad4))
+
+### Documentation
+
+- **cli**: The help of `ycli api` says a field makes the call a POST and how to read with a
+  parameter
+  ([`00744a7`](https://github.com/bim-ba/ycli/commit/00744a773e38a391028c7856ea52b151cfc88e1b))
+
+### Refactoring
+
+- **core**: An endpoint's effect is typed as always set
+  ([`4632b5d`](https://github.com/bim-ba/ycli/commit/4632b5d606789d403b497c93f442d472671d3937))
+
+
+## v0.122.2 (2026-10-07)
+
+### Bug Fixes
+
+- **cli**: `ycli api --body-file F` sends the file as the body with no -F beside it
+  ([`3fe7792`](https://github.com/bim-ba/ycli/commit/3fe77927fc58c5e1918a1e582b230f4e6a25f995))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.1
+  ([`a01ffd3`](https://github.com/bim-ba/ycli/commit/a01ffd33e6af1a2baee88a37ce537515c81c9ff0))
+
+
+## v0.122.1 (2026-10-07)
+
+### Bug Fixes
+
+- **core**: A query value that would be sent as Python text fails when the request is described
+  ([`5402362`](https://github.com/bim-ba/ycli/commit/5402362f0957117bccc1cd2a381103350ce353f8))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.0
+  ([`c553d1a`](https://github.com/bim-ba/ycli/commit/c553d1af47015d824ceb7a5631f57c8d21a960f2))
+
+
+## v0.122.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.121.0
+  ([`ce5f32c`](https://github.com/bim-ba/ycli/commit/ce5f32c4f38c1f82ef973fb32e79ad80bc2bea06))
+
+### Features
+
+- **sync**: `ycli sync diff` shows what a push would change
+  ([`144617b`](https://github.com/bim-ba/ycli/commit/144617b8029078e9cd4435044ea67f4ae8bd7fff))
+
+### Breaking Changes
+
+- **sync**: `ycli sync status` names its states by what `push` would do: `edited` is now `update`
+  and `new` is now `create`, in the output and in the summary line, which also counts `unsupported`.
+  `status wiki/team` now covers `wiki/team.md` as well as the files under `wiki/team/`.
+
+
 ## v0.121.0 (2026-10-07)
 
 ### Build System

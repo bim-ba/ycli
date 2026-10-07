@@ -116,6 +116,11 @@ def check_path(raw_path: str) -> None:
         raise YandexClientError(f"refusing a path that leaves its endpoint: {raw_path}")
 
 
+type _Scalar = str | int | float | bool | None
+#: What a query parameter may be; ``None`` is dropped, a list repeats the name.
+type QueryValue = _Scalar | Sequence[_Scalar]
+
+
 @cache
 def _adapter(response_type: Any) -> TypeAdapter[Any]:
     """One TypeAdapter per response type: building it is the expensive part of parsing."""
@@ -127,8 +132,10 @@ class Endpoint[T]:
     """An API operation: ``method`` + ``path`` (relative to the service's base URL) and its I/O.
 
     ``params`` with a ``None`` value are dropped, so optional query parameters can be passed
-    through unconditionally. ``json`` is the request body: a request model, dumped here and
-    nowhere else (API field names, unset fields left out), or plain JSON data.
+    through unconditionally; a value that is not a string, a number, a boolean or a list of
+    them (a dict, a set, bytes) fails here, at construction. ``json`` is the request body: a
+    request model, dumped here and nowhere else (API field names, unset fields left out), or
+    plain JSON data.
     ``files`` sends a ``multipart/form-data`` body (field name →
     ``(filename, bytes)``). ``response_type=None`` means the response body is ignored and
     ``bytes`` returns it raw; ``parser`` reads a response that is not one JSON type.
@@ -142,12 +149,13 @@ class Endpoint[T]:
     path: str
     response_type: type[T] | None = None
     _: KW_ONLY
-    params: Mapping[str, Any] = field(default_factory=dict)
+    params: Mapping[str, QueryValue] = field(default_factory=dict)
     json: Any = None
     content: bytes | None = None
     files: Mapping[str, tuple[str, bytes]] | None = None
     headers: Mapping[str, str] = field(default_factory=dict)
-    effect: Effect | None = None
+    # Filled at construction when left out: no reader ever sees it empty.
+    effect: Effect = None  # ty: ignore[invalid-assignment]
     parser: Callable[[httpx2.Response], T] | None = None
     follow_redirects: bool = True
 
@@ -159,6 +167,15 @@ class Endpoint[T]:
         if self.effect is None:
             # A frozen dataclass can fill a derived field only this way (the documented idiom).
             object.__setattr__(self, "effect", implied)
+        for name, value in self.params.items():
+            items = value if isinstance(value, list | tuple) else [value]
+            if not all(item is None or isinstance(item, str | int | float) for item in items):
+                # httpx would send the text of the Python object (``%7B%27k%27…``).
+                raise TypeError(
+                    f"the query parameter {name!r} of {self.method} {self.path} is a "
+                    f"{type(value).__name__}; a query takes a string, a number, a boolean or a "
+                    "list of them"
+                )
 
     @property
     def idempotent(self) -> bool:

@@ -162,7 +162,9 @@ def _scrub(
         if literal or (named and abs(value) < SMALL_NUMBER):
             return value
         return 1 if isinstance(value, int) else 1.0
-    if value in _allowed_strings(members):
+    # An empty string says nothing of anyone, and says something of the reply: a listing
+    # ends with an empty token, and a placeholder there would read as a next page.
+    if value == "" or value in _allowed_strings(members):
         return value
     if datetime.datetime in members:
         return DATE_TIME

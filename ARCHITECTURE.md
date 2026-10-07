@@ -225,15 +225,15 @@ program stays a test.
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
 - **Check:** `test_every_tool_lists_a_schema_within_the_budget` (with a bite test: the same
   body is over the budget unmarked and within it marked),
-  `test_arch8_mcp_write_tool_bodies_are_typed` (no `body: dict` in an MCP tool, a
+  the ast-grep rule `body-is-a-model` (no `body: dict` in an MCP tool, a
   client method or an endpoint builder), `test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
   (none of the three dumps a model) and
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
   nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no
   hand-built status-carrying `YandexError` (AST, import aliases resolved).
-- **Exceptions:** `# violation(arch-8): <reason>` above a `dict` body (there is none) or above a
-  status error built by hand (a path refused before it is sent);
-  `test_arch8_a_marker_stands_above_what_it_explains` keeps a marker from outliving either.
+- **Exceptions:** `# violation(arch-8): <reason>` above a status error built by hand (a path
+  refused before it is sent); `test_arch8_a_marker_stands_above_what_it_explains` keeps a marker
+  from outliving it. A `dict` body has no exception.
   Definitions, not exceptions: `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange
   and the OAuth login flow, whose device-flow polling states arrive as HTTP 400) and
   `ARCH8_STATUSLESS_ERRORS` (a timeout, a lost connection or a service that is not configured

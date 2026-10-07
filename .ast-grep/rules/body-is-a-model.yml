@@ -1,0 +1,21 @@
+id: body-is-a-model
+language: python
+severity: error
+message: Type `body` as a request model (a `RequestBody`), not as a `dict`.
+note: |-
+  A request body crosses every boundary as a parsed model, from the tool and the command down
+  to the endpoint, which dumps it once: a malformed value fails at the edge with its field
+  named, and the tool lists its fields. ARCHITECTURE.md, ARCH-8.
+url: https://github.com/bim-ba/ycli/blob/main/ARCHITECTURE.md#arch-8--typed-boundaries
+files:
+  - src/ycli/yandex/**/endpoints.py
+  - src/ycli/yandex/**/client.py
+  - src/ycli/yandex/**/mcp.py
+rule:
+  any:
+    - kind: typed_parameter
+    - kind: typed_default_parameter
+  regex: '^body\s*:'
+  has:
+    field: type
+    regex: '^(dict|Dict|Mapping|MutableMapping)\b'
