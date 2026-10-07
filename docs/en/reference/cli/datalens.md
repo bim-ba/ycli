@@ -1759,6 +1759,8 @@ $ ycli datalens datasets create [OPTIONS]
 
 Save a dataset as given: read it, change what it holds, send it back whole.
 
+The reply holds the content and the revisions; its `id` is `null` (measured).
+
 **Usage**:
 
 ```console
@@ -2360,7 +2362,8 @@ $ ycli datalens dashboards get [OPTIONS] DASHBOARD_ID
 
 Create a dashboard from --entry or --body-file.
 
-`entry.meta` must be an object, `{}` when empty: without it DataLens answers 400.
+`entry.meta` must be an object, `{}` when empty: without it DataLens answers
+`400 entry.meta: expected record, received undefined`.
 
 **Usage**:
 

@@ -93,7 +93,8 @@ def create(
     """Create a dashboard and return it with its id.
 
     ``data`` needs ``counter``, ``salt``, ``settings`` and ``tabs``; a tab may be empty.
-    ``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers 400.
+    ``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers
+    ``400 entry.meta: expected record, received undefined``.
     """
     return client.dashboards.create(entry)
 

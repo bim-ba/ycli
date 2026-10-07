@@ -118,8 +118,8 @@ class DatasetsClient(Resource):
         """``updateDataset`` — save a dataset as given in ``data`` → what was saved.
 
         Read the dataset, change what it holds and send it back whole: ``data.dataset`` replaces
-        the content. The reply holds the content and the revisions, not the id. Read the
-        dataset again after every save: content of an older revision is refused
+        the content. The reply holds the content and the revisions; its ``id`` is ``null``
+        (measured). Read the dataset again after every save: content of an older revision is refused
         (``400 ERR.DS_API.DATASET_REVISION_MISMATCH``), by ``validate`` too.
 
         Args:

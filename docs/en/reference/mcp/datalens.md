@@ -748,6 +748,7 @@ Save a dataset as given: read it, change what it holds, send it back whole.
 
 ``data.dataset`` replaces the content. Check a change first with ``datasets_validate``.
 Read the dataset again after every save: content of an older revision is refused.
+The reply holds the content and the revisions; its ``id`` is ``null`` (measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1022,7 +1023,8 @@ tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > das
 Create a dashboard and return it with its id.
 
 ``data`` needs ``counter``, ``salt``, ``settings`` and ``tabs``; a tab may be empty.
-``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers 400.
+``entry.meta`` must be an object, ``{}`` when empty: without it DataLens answers
+``400 entry.meta: expected record, received undefined``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

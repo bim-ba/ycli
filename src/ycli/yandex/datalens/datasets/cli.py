@@ -153,7 +153,10 @@ def update(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> Dataset:
-    """Save a dataset as given: read it, change what it holds, send it back whole."""
+    """Save a dataset as given: read it, change what it holds, send it back whole.
+
+    The reply holds the content and the revisions; its `id` is `null` (measured).
+    """
     flags = {"datasetId": dataset_id, "data": data, "workbookId": workbook_id}
     body, given = _request(UpdateDatasetRequest, DatasetUpdate, flags, caller)
     return datalens.datasets.update(body.dataset_id, data=given, workbook_id=body.workbook_id)

@@ -107,7 +107,8 @@ def create(
 ) -> DashboardCreated:
     """Create a dashboard from --entry or --body-file.
 
-    `entry.meta` must be an object, `{}` when empty: without it DataLens answers 400.
+    `entry.meta` must be an object, `{}` when empty: without it DataLens answers
+    `400 entry.meta: expected record, received undefined`.
     """
     body = _body(CreateDashboardV2Args, caller, {"entry": entry})
     return datalens.dashboards.create(body.entry)
