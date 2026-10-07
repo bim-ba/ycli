@@ -1,0 +1,50 @@
+{
+  "body": {
+    "entry": {
+      "annotation": null,
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "data": {
+        "counter": 1,
+        "salt": "<salt>",
+        "settings": {
+          "autoupdateInterval": null,
+          "dependentSelectors": true,
+          "expandTOC": false,
+          "maxConcurrentRequests": null,
+          "silentLoading": false
+        },
+        "tabs": [
+          {
+            "aliases": {},
+            "connections": [],
+            "id": "<id>",
+            "items": [],
+            "layout": [],
+            "title": "<title>"
+          }
+        ]
+      },
+      "entryId": "<entryId>",
+      "hidden": false,
+      "key": "<key>",
+      "meta": {},
+      "public": false,
+      "publishedId": "<publishedId>",
+      "revId": "<revId>",
+      "revUpdatedAt": "<revUpdatedAt>",
+      "revUpdatedBy": "<revUpdatedBy>",
+      "savedId": "<savedId>",
+      "scope": "dash",
+      "tenantId": "<tenantId>",
+      "type": "",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>",
+      "version": 2,
+      "workbookId": "<workbookId>"
+    },
+    "isFavorite": false
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

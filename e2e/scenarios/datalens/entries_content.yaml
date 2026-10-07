@@ -1,0 +1,185 @@
+# What a workbook holds, written: a connection, a dataset, a chart of each of the three kinds,
+# a dashboard and a report are made in a workbook of the run, saved again and deleted. The
+# connection points at a host that does not exist: DataLens saves a connection without trying
+# it, and making a chart asks its source for nothing. Each "save again" sends what was just
+# read, so no step invents the content of an entry. Run by hand only (the README says how):
+# CI has no token DataLens takes.
+name: datalens/entries-content
+steps:
+  - id: collection
+    run: datalens collections create --title "${RUN} content"
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: workbook
+    run: datalens workbooks create --title "${RUN} content" --collection-id ${collection}
+    save:
+      workbook: workbookId
+    cleanup: datalens workbooks delete ${workbook}
+  - id: connection
+    # The password is a made-up word: the host does not exist and nothing ever signs in to it.
+    run: >-
+      datalens connections create -F type=clickhouse -F 'name="${RUN} connection"'
+      -F workbook_id=${workbook} -F host=db.e2e.invalid -F port=8443 -F username=reader
+      -F password=example-password
+    save:
+      connection: id
+    cleanup: datalens connections delete ${connection}
+  - id: connection-update
+    run: >-
+      datalens connections update ${connection} --data '{"host": "db2.e2e.invalid"}'
+    expect:
+      ok: true
+  - id: connection-read
+    run: datalens connections get ${connection}
+    expect:
+      host: db2.e2e.invalid
+      db_type: clickhouse
+  - id: dataset
+    run: >-
+      datalens datasets create --name "${RUN} dataset" --workbook-id ${workbook}
+      --dataset '{"sources": [], "result_schema": []}'
+    save:
+      dataset: id
+      held: "to_string({dataset: dataset})"
+    cleanup: datalens datasets delete ${dataset}
+  - id: dataset-update
+    run: datalens datasets update ${dataset} --data '${held}'
+    expect:
+      "type(dataset)": object
+  - id: dataset-read
+    # Read again: a check against the content of an older revision is refused (400).
+    run: datalens datasets get ${dataset}
+    save:
+      held: "to_string({dataset: dataset})"
+  - id: dataset-validate
+    run: datalens datasets validate ${dataset} --workbook-id ${workbook} --data '${held}'
+    expect:
+      "type(dataset)": object
+  - id: editor-chart
+    # A table drawn by code: it needs no connection and no dataset.
+    run: >-
+      datalens charts editor create --entry '{"type": "table_node",
+      "workbookId": "${workbook}", "name": "${RUN} editor", "data": {
+      "prepare": "module.exports = {head: [], rows: []};", "params": "module.exports = {};",
+      "sources": "module.exports = {};", "config": "module.exports = {};",
+      "controls": "module.exports = {};", "meta": "{}"}}'
+    save:
+      editor: entry.entryId
+      drawn: "to_string({entryId: entry.entryId, type: entry.type, data: entry.data, revId: entry.revId})"
+    cleanup: datalens charts editor delete ${editor}
+  - id: editor-chart-publish
+    run: datalens charts editor update --mode publish --entry '${drawn}'
+    expect:
+      entry.entryId: ${editor}
+  - id: ql-chart
+    run: >-
+      datalens charts ql create --template ql --workbook-id ${workbook} --name "${RUN} ql"
+      --data '{"queryValue": "select 1",
+      "connection": {"entryId": "${connection}", "type": "clickhouse"}}'
+    save:
+      ql: entryId
+    cleanup: datalens charts ql delete ${ql}
+  - id: ql-chart-update
+    run: >-
+      datalens charts ql update ${ql} --template ql --mode save
+      --data '{"queryValue": "select 2",
+      "connection": {"entryId": "${connection}", "type": "clickhouse"}}'
+    expect:
+      entryId: ${ql}
+  - id: wizard-chart
+    # Over the run's dataset, which has no field: a table with no column.
+    run: >-
+      datalens charts wizard create --workbook-id ${workbook} --name "${RUN} wizard"
+      --data '{"sources": {"datasetsIds": ["${dataset}"]},
+      "visualization": {"type": "flatTable", "columns": {"items": []}}}'
+    save:
+      wizard: entry.entryId
+      shown: "to_string(entry.data)"
+    cleanup: datalens charts wizard delete ${wizard}
+  - id: wizard-chart-update
+    run: datalens charts wizard update ${wizard} --mode save --data '${shown}'
+    expect:
+      entry.entryId: ${wizard}
+  - id: dashboard
+    # One tab with nothing on it. DataLens requires every one of these keys.
+    run: >-
+      datalens dashboards create --entry '{"workbookId": "${workbook}",
+      "name": "${RUN} dashboard", "meta": {}, "data": {"counter": 1, "salt": "e2e",
+      "settings": {"autoupdateInterval": null, "maxConcurrentRequests": null,
+      "silentLoading": false, "dependentSelectors": true, "expandTOC": false},
+      "tabs": [{"id": "t1", "title": "Tab", "items": [], "layout": [], "connections": [],
+      "aliases": {}}]}}'
+    save:
+      dashboard: entry.entryId
+    cleanup: datalens dashboards delete ${dashboard}
+  - id: dashboard-read
+    run: datalens dashboards get ${dashboard}
+    save:
+      laid: "to_string({entryId: entry.entryId, data: entry.data, meta: entry.meta})"
+  - id: dashboard-update
+    run: datalens dashboards update --mode save --entry '${laid}'
+    expect:
+      entry.entryId: ${dashboard}
+  - id: report
+    # One slide with nothing on it. DataLens requires every one of these keys.
+    run: >-
+      datalens reports create --workbook-id ${workbook} --name "${RUN} report" --meta null
+      --data '{"counter": 1, "salt": "e2e", "slides": [{"id": "s1"}], "slideGroups": [],
+      "slidesOrder": ["s1"], "visualSettings": {}, "slideSettings": {}}'
+    save:
+      report: entry.entryId
+    cleanup: datalens reports delete ${report}
+  - id: report-read
+    run: datalens reports get ${report}
+    save:
+      told: "to_string(entry.data)"
+  - id: report-update
+    run: datalens reports update ${report} --mode save --meta null --data '${told}'
+    expect:
+      entry.entryId: ${report}
+  - id: report-delete
+    run: datalens reports delete ${report}
+    expect:
+      ok: true
+    disarms: [report]
+  - id: dashboard-delete
+    run: datalens dashboards delete ${dashboard}
+    expect:
+      ok: true
+    disarms: [dashboard]
+  - id: wizard-chart-delete
+    run: datalens charts wizard delete ${wizard}
+    expect:
+      ok: true
+    disarms: [wizard-chart]
+  - id: ql-chart-delete
+    run: datalens charts ql delete ${ql}
+    expect:
+      ok: true
+    disarms: [ql-chart]
+  - id: editor-chart-delete
+    run: datalens charts editor delete ${editor}
+    expect:
+      ok: true
+    disarms: [editor-chart]
+  - id: dataset-delete
+    run: datalens datasets delete ${dataset}
+    expect:
+      ok: true
+    disarms: [dataset]
+  - id: connection-delete
+    run: datalens connections delete ${connection}
+    expect:
+      ok: true
+    disarms: [connection]
+  - id: workbook-delete
+    run: datalens workbooks delete ${workbook}
+    disarms: [workbook]
+  - id: collection-delete
+    run: datalens collections delete ${collection}
+    disarms: [collection]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0
