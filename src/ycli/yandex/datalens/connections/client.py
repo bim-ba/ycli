@@ -105,6 +105,9 @@ class ConnectionsClient(Resource):
     def delete(self, connection_id: str) -> None:
         """``deleteConnection`` — delete a connection (``200``, empty body).
 
+        The API has no way to bring it back, and a chart that reads through it keeps naming its id
+        (measured).
+
         The datasets built on it lose their source.
 
         Args:

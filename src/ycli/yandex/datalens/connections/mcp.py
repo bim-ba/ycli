@@ -100,6 +100,10 @@ def update(
     name="connections_delete", annotations={**DESTRUCTIVE, "title": "Delete DataLens connection"}
 )
 def delete(connection_id: ConnectionID, client: DataLensClient = Depends(datalens_client)) -> Ack:
-    """Delete a connection; the datasets built on it lose their source."""
+    """Delete a connection; the datasets built on it lose their source.
+
+    The API has no way to bring it back, and a chart that reads through it keeps naming its id
+    (measured).
+    """
     client.connections.delete(connection_id)
     return Ack.deleted("connection", connection_id)

@@ -695,6 +695,9 @@ Change the fields given of a connection; returns an acknowledgement.
 
 Delete a connection; the datasets built on it lose their source.
 
+The API has no way to bring it back, and a chart that reads through it keeps naming its id
+(measured).
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `connection_id` | string | yes | Connection id. |
@@ -758,6 +761,8 @@ The reply holds the content and the revisions; its ``id`` is ``null`` (measured)
 *Delete DataLens dataset* · destructive write
 
 Delete a dataset; the charts built on it lose their data.
+
+The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -833,7 +838,7 @@ One chart built in the wizard: the datasets it reads and what it shows.
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_wizard_create`
 
@@ -857,19 +862,25 @@ The ``entry.data`` of a chart read with ``charts_wizard_get`` is a valid ``data`
 
 Save a chart of the wizard as given: read it, change it, send it back whole.
 
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
 | `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
 | `data` | object | yes | What the chart holds; it replaces the whole of it. Its schema is not listed here: read `WizardChartData` with schema_get(service="datalens", name="WizardChartData"), then the definitions it refers to. |
 | `annotation` | object or null |  | A description of the chart. |
-| `rev_id` | string or null |  | The revision the change is made on. |
+| `rev_id` | string or null |  | The revision the change is made on; DataLens does not check it (measured). |
 
 ## `datalens_charts_wizard_delete`
 
 *Delete DataLens wizard chart* · destructive write
 
 Delete a chart; the dashboards that show it lose it.
+
+The API has no way to bring it back, and a dashboard that shows it keeps naming its id
+(measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -889,7 +900,7 @@ One QL chart. Unlike a chart of the wizard it comes flat, with no ``entry`` arou
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_ql_create`
 
@@ -913,6 +924,9 @@ The specification describes neither the content of a QL chart nor the reply.
 *Update DataLens QL chart* · idempotent write
 
 Save a QL chart as given; the reply is what DataLens answers, as it came.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -946,7 +960,7 @@ One chart written in the editor: its kind (``entry.type``) and its tabs of code.
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what it is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether it is a favourite of the caller. |
-| `branch` | string or null |  | Which version to read: `saved` or `published`. |
+| `branch` | string or null |  | Which version to read: `saved` or `published`; the published one when left out (measured). A save writes the saved one: read `saved` before changing a chart. |
 
 ## `datalens_charts_editor_create`
 
@@ -963,6 +977,9 @@ Create a chart of the editor and return it with its id.
 *Update DataLens editor chart* · idempotent write
 
 Save a chart of the editor as given.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -996,7 +1013,7 @@ tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > das
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `include_links` | boolean or null |  | Also say what the dashboard is linked to. |
 | `include_favorite` | boolean or null |  | Also say whether the dashboard is a favourite. |
-| `branch` | `saved` · `published` or string or null |  | Which version of it to read. |
+| `branch` | `saved` · `published` or string or null |  | Which version of it to read; the published one when left out (measured). A save writes the saved one: read `saved` before changing a dashboard. |
 | `workbook_id` | string or null |  | The workbook the dashboard lies in. |
 
 ## `datalens_dashboards_create`
@@ -1018,6 +1035,9 @@ Create a dashboard and return it with its id.
 *Update DataLens dashboard* · idempotent write
 
 Save a dashboard as given: read it, change ``data``, send it back whole.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1078,6 +1098,9 @@ refuses a report with no slide: ``data.slides`` holds at least one.
 *Update DataLens report* · idempotent write
 
 Save a report; it LOSES the ``layout`` of its slide elements and some ``settings``.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 Measured (2026-10-06): DataLens drops them on a save through the API, without a word,
 though every value is sent. Ask the person before saving an existing report. Otherwise:

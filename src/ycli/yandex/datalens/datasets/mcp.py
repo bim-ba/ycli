@@ -127,7 +127,10 @@ def update(
 
 @mcp.tool(name="datasets_delete", annotations={**DESTRUCTIVE, "title": "Delete DataLens dataset"})
 def delete(dataset_id: DatasetID, client: DataLensClient = Depends(datalens_client)) -> Ack:
-    """Delete a dataset; the charts built on it lose their data."""
+    """Delete a dataset; the charts built on it lose their data.
+
+    The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
+    """
     client.datasets.delete(dataset_id)
     return Ack.deleted("dataset", dataset_id)
 

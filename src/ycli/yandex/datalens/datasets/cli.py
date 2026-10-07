@@ -164,7 +164,10 @@ def update(
 
 @app.command()
 def delete(dataset_id: DatasetIDArg, *, datalens: DataLensClient) -> Ack:
-    """Delete a dataset; the charts built on it lose their data."""
+    """Delete a dataset; the charts built on it lose their data.
+
+    The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
+    """
     datalens.datasets.delete(dataset_id)
     return Ack.deleted("dataset", dataset_id)
 

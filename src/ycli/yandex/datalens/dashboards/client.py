@@ -41,7 +41,9 @@ class DashboardsClient(Resource):
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``.
+            branch: Which version to read: ``saved`` or ``published``; the published one when
+                left out (measured). A save writes the saved one: read ``saved`` before
+                changing the dashboard.
             workbook_id: The workbook the dashboard lies in.
 
         Returns:
@@ -98,6 +100,9 @@ class DashboardsClient(Resource):
         self, entry: DashboardUpdate, *, mode: str, lock_token: str | None = None
     ) -> DashboardSaved:
         """``updateDashboard`` — save a dashboard as given → what was saved.
+
+        DataLens does not check a revision here: a save overwrites what was saved since you read it
+        (measured).
 
         ``entry`` names the dashboard by its ``entryId`` and replaces what it holds: read it,
         change ``data``, send it back whole. ``save`` keeps a draft, ``publish`` makes it the

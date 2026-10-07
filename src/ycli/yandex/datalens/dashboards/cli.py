@@ -70,7 +70,12 @@ def get(
     ] = None,
     branch: Annotated[
         str | None,
-        values_option(RevisionBranch, "--branch", help="Which version of it to read."),
+        values_option(
+            RevisionBranch,
+            "--branch",
+            help="Which version of it to read; the published one if left out (measured). A save "
+            "writes the saved one: read `saved` before you change a dashboard.",
+        ),
     ] = None,
     workbook_id: Annotated[
         str | None, typer.Option("--workbook-id", help="The workbook the dashboard lies in.")
@@ -121,7 +126,11 @@ def update(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> DashboardSaved:
-    """Save a dashboard as given; `entryId` in the entry says which."""
+    """Save a dashboard as given; `entryId` in the entry says which.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     flags = {"entry": entry, "mode": mode, "lockToken": lock_token}
     body = _body(UpdateDashboardV2Args, caller, flags)
     return datalens.dashboards.update(body.entry, mode=body.mode.root, lock_token=body.lock_token)

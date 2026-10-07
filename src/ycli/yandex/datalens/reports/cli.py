@@ -150,7 +150,11 @@ def update(
     data: DataOption = None,
     meta: MetaOption = None,
     rev_id: Annotated[
-        str | None, typer.Option("--rev-id", help="The revision of the report to change.")
+        str | None,
+        typer.Option(
+            "--rev-id",
+            help="The revision of the report to change; DataLens does not check it (measured).",
+        ),
     ] = None,
     annotation: NoteOption = None,
     *,
@@ -158,6 +162,9 @@ def update(
     datalens: DataLensClient,
 ) -> ReportSaved:
     """Save a report; it LOSES the `layout` of its slide elements and some `settings`.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
 
     Measured: DataLens drops them on a save through the API, without a word. Do not save
     a report that exists unless that loss is fine. Otherwise: read it, change it, send it

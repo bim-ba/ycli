@@ -78,7 +78,9 @@ class ChartsClient(Resource):
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``.
+            branch: Which version to read: ``saved`` or ``published``; the published one when
+                left out (measured). A save writes the saved one: read ``saved`` before
+                changing the chart.
 
         Returns:
             The chart.
@@ -153,6 +155,9 @@ class ChartsClient(Resource):
     ) -> WizardChartSaved:
         """``updateWizardChart`` — save a chart of the wizard as given → what was saved.
 
+        DataLens does not check a revision here: a save overwrites what was saved since you read it
+        (measured).
+
         ``data`` replaces what the chart holds: read it, change it, send it back whole.
         ``save`` keeps the change as a draft (``savedId`` moves, ``publishedId`` stays);
         ``publish`` makes it the version everyone sees.
@@ -162,7 +167,7 @@ class ChartsClient(Resource):
             mode: ``save`` or ``publish``.
             data: The datasets the chart reads and what it shows.
             annotation: A description of the chart.
-            rev_id: The revision the change is made on.
+            rev_id: The revision the change is made on; DataLens does not check it (measured).
 
         Returns:
             The chart as saved.
@@ -185,6 +190,9 @@ class ChartsClient(Resource):
 
     def wizard_delete(self, chart_id: str) -> None:
         """``deleteWizardChart`` — delete a chart of the wizard; dashboards that show it lose it.
+
+        The API has no way to bring it back, and a dashboard that shows it keeps naming its
+        id (measured).
 
         Args:
             chart_id: The chart's id.
@@ -214,7 +222,9 @@ class ChartsClient(Resource):
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``.
+            branch: Which version to read: ``saved`` or ``published``; the published one when
+                left out (measured). A save writes the saved one: read ``saved`` before
+                changing the chart.
 
         Returns:
             The chart.
@@ -293,6 +303,9 @@ class ChartsClient(Resource):
     ) -> QLChartSaved:
         """``updateQLChart`` — save a QL chart as given → what DataLens answers.
 
+        DataLens does not check a revision here: a save overwrites what was saved since you read it
+        (measured).
+
         Args:
             entry_id: The chart's id.
             template: The template of the chart; the API takes only ``ql`` today.
@@ -349,7 +362,9 @@ class ChartsClient(Resource):
             include_permissions: Also say what the caller may do with it.
             include_links: Also say what it is linked to.
             include_favorite: Also say whether it is a favourite of the caller.
-            branch: Which version to read: ``saved`` or ``published``.
+            branch: Which version to read: ``saved`` or ``published``; the published one when
+                left out (measured). A save writes the saved one: read ``saved`` before
+                changing the chart.
 
         Returns:
             The chart.
@@ -396,6 +411,9 @@ class ChartsClient(Resource):
 
     def editor_update(self, entry: EditorChartUpdate, *, mode: str) -> EditorChartSaved:
         """``updateEditorChart`` — save a chart of the editor as given → what was saved.
+
+        DataLens does not check a revision here: a save overwrites what was saved since you read it
+        (measured).
 
         Args:
             entry: The chart to save: its ``entryId``, its kind and its code.
