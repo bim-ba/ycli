@@ -52,6 +52,9 @@ PageReplyFields = Annotated[
 Silent = Annotated[bool | None, Field(description="Do not notify the page's subscribers.")]
 IncludeSelf = Annotated[bool | None, Field(description="Also return the ancestor page itself.")]
 ShowAll = Annotated[bool | None, Field(description="The API's ``show_all`` flag.")]
+Actuality = Annotated[
+    str | None, Field(description="Only the pages in this state: `actual` or `obsolete`.")
+]
 OrderDirection = Annotated[
     SortDirection | None, Field(description="Sort direction for ``order_by``.")
 ]
@@ -87,6 +90,7 @@ def descendants_list(
     ] = None,
     include_self: IncludeSelf = None,
     show_all: ShowAll = None,
+    actuality: Actuality = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -96,7 +100,7 @@ def descendants_list(
     """
     cap = config.http.cap(limit)
     return client.pages.descendants_list(
-        slug=slug, limit=cap, include_self=include_self, show_all=show_all
+        slug=slug, limit=cap, actuality=actuality, include_self=include_self, show_all=show_all
     )
 
 
@@ -166,6 +170,7 @@ def descendants_list_by_id(
     ] = None,
     include_self: IncludeSelf = None,
     show_all: ShowAll = None,
+    actuality: Actuality = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -177,7 +182,11 @@ def descendants_list_by_id(
     """
     cap = config.http.cap(limit)
     return client.pages.descendants_list_by_id(
-        page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
+        page_id=page_id,
+        limit=cap,
+        actuality=actuality,
+        include_self=include_self,
+        show_all=show_all,
     )
 
 

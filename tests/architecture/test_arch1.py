@@ -850,3 +850,89 @@ def test_arch1_name_parity_check_bites():
     assert _name_mismatches(
         {"tracker_boards_update": op}, {"tracker_boards_update": op}, {"tracker_boards_update"}
     ) == ["tracker_boards_update: marked `# violation(arch-1)` but no longer needs it"]
+
+
+def _passed(source: str, resource_attr: str, op: str) -> tuple[int, set[str], bool] | None:
+    """What the calls ``….<resource_attr>.<op>(…)`` of ``source`` pass; ``None`` with no call.
+
+    How many arguments by position, which by name, and whether one of them is unpacked
+    (``*args`` / ``**kwargs``: then anything may be passed).
+    """
+    found: tuple[int, set[str], bool] | None = None
+    for node in ast.walk(ast.parse(source)):
+        if not (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == op
+            and isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr == resource_attr
+        ):
+            continue
+        unpacked = any(isinstance(argument, ast.Starred) for argument in node.args) or any(
+            keyword.arg is None for keyword in node.keywords
+        )
+        named = {keyword.arg for keyword in node.keywords if keyword.arg is not None}
+        before = found or (0, set(), False)
+        found = (max(before[0], len(node.args)), before[1] | named, before[2] or unpacked)
+    return found
+
+
+def _not_passed(parameters: list[str], passed: tuple[int, set[str], bool]) -> list[str]:
+    """The parameters of a method that a surface's calls never pass."""
+    by_position, named, unpacked = passed
+    if unpacked:
+        return []
+    return [name for name in parameters[by_position:] if name not in named]
+
+
+# An argument of a method that neither surface passes, and why.
+ARCH1_ARGUMENTS_KEPT_FROM_SURFACES: dict[str, tuple[frozenset[str], str]] = {
+    "tracker.entities.search": (
+        frozenset({"per_page", "page"}),
+        "the pages of a listing: #502 gives every listing one way to limit and to continue",
+    ),
+}
+
+
+def _argument_gaps() -> dict[str, dict[str, list[str]]]:
+    """``{"wiki.pages.descendants_list": {"cli": ["actuality"], "mcp": ["actuality"]}}``."""
+    gaps: dict[str, dict[str, list[str]]] = {}
+    for operation, method in _operation_methods():
+        slug, attr, op = operation.split(".")
+        parameters = [name for name in inspect.signature(method).parameters if name != "self"]
+        kept = ARCH1_ARGUMENTS_KEPT_FROM_SURFACES.get(operation, (frozenset(), ""))[0]
+        for surface in ("cli", "mcp"):
+            path = YANDEX / slug / attr / f"{surface}.py"
+            passed = _passed(path.read_text(encoding="utf-8"), attr, op) if path.exists() else None
+            if passed is None:  # the operation is not on this surface: the parity check's matter
+                continue
+            missing = [name for name in _not_passed(parameters, passed) if name not in kept]
+            if missing:
+                gaps.setdefault(operation, {})[surface] = missing
+    return gaps
+
+
+def test_arch1_each_surface_passes_every_argument_of_the_operation():
+    """An argument the SDK method takes is one the command and the tool take too (ARCH-1).
+
+    Read from each surface's call into the client: an argument the call never passes cannot
+    be given on that surface. A value a surface fixes (``fields="content"``) is passed.
+    """
+    assert _argument_gaps() == {}
+
+
+def test_arch1_argument_check_bites():
+    source = (
+        "def tool(client):\n"
+        "    client.pages.get(slug, fields='content')\n"
+        "    client.pages.list(*where)\n"
+        "    other.get(slug, revision=1)\n"
+    )
+    passed = _passed(source, "pages", "get")
+    assert passed is not None and passed == (1, {"fields"}, False)
+    assert _not_passed(["slug", "fields", "revision"], passed) == ["revision"]
+    assert _not_passed(["slug", "fields"], passed) == []
+    # An unpacked argument may be any of them.
+    assert _passed(source, "pages", "list") == (1, set(), True)
+    assert _not_passed(["slug", "limit"], (0, set(), True)) == []
+    assert _passed(source, "boards", "get") is None

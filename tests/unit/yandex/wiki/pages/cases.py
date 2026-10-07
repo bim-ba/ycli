@@ -225,8 +225,8 @@ CASES = [
         "wiki.pages.descendants_list",
         args=("hr",),
         kwargs={"limit": 7, "actuality": "actual"},
-        cli=None,
-        mcp=None,
+        cli=["wiki", "pages", "descendants-list", "hr", "--limit", "7", "--actuality", "actual"],
+        mcp=("wiki_pages_descendants_list", {"slug": "hr", "limit": 7, "actuality": "actual"}),
         exchanges=[
             (
                 Sent(
@@ -258,12 +258,26 @@ CASES = [
     Case(
         "wiki.pages.descendants_list_by_id",
         args=(4220,),
-        kwargs={"limit": 9, "actuality": "deleted"},
-        cli=None,
-        mcp=None,
+        kwargs={"limit": 9, "actuality": "obsolete"},
+        cli=[
+            "wiki",
+            "pages",
+            "descendants-list-by-id",
+            "4220",
+            "--limit",
+            "9",
+            "--actuality",
+            "obsolete",
+        ],
+        mcp=(
+            "wiki_pages_descendants_list_by_id",
+            {"page_id": 4220, "limit": 9, "actuality": "obsolete"},
+        ),
         exchanges=[
             (
-                Sent("GET", "pages/4220/descendants", {"page_size": "100", "actuality": "deleted"}),
+                Sent(
+                    "GET", "pages/4220/descendants", {"page_size": "100", "actuality": "obsolete"}
+                ),
                 Reply(json=_refs((4221, "legal/old"))),
             )
         ],

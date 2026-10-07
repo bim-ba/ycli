@@ -51,6 +51,7 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 | `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `include_self` | boolean or null |  | Also return the ancestor page itself. |
 | `show_all` | boolean or null |  | The API's ``show_all`` flag. |
+| `actuality` | string or null |  | Only the pages in this state: `actual` or `obsolete`. |
 
 ## `wiki_pages_grids_list`
 
@@ -103,6 +104,7 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
 | `include_self` | boolean or null |  | Also return the ancestor page itself. |
 | `show_all` | boolean or null |  | The API's ``show_all`` flag. |
+| `actuality` | string or null |  | Only the pages in this state: `actual` or `obsolete`. |
 
 ## `wiki_pages_create`
 

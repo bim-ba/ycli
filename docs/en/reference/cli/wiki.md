@@ -211,6 +211,7 @@ $ ycli wiki pages descendants-list [OPTIONS] SLUG
 * `--all`: Fetch everything, ignoring the cap.
 * `--include-self / --no-include-self`: Also list the ancestor page itself.
 * `--show-all / --no-show-all`: The API's show_all flag.
+* `--actuality TEXT`: Only the pages in this state: actual or obsolete.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -266,6 +267,7 @@ $ ycli wiki pages descendants-list-by-id [OPTIONS] PAGE_ID
 * `--all`: Fetch everything, ignoring the cap.
 * `--include-self / --no-include-self`: Also list the ancestor page itself.
 * `--show-all / --no-show-all`: The API's show_all flag.
+* `--actuality TEXT`: Only the pages in this state: actual or obsolete.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
