@@ -1,0 +1,63 @@
+{
+  "body": {
+    "<unknown-1>": null,
+    "<unknown-2>": "<unknown-2>",
+    "ai_access_level": "allow",
+    "cache_invalidation_throttling_interval_sec": null,
+    "cache_ttl_sec": null,
+    "connection_manager_cloud_id": null,
+    "connection_manager_connection_id": null,
+    "connection_manager_delegation_is_set": null,
+    "connection_manager_folder_id": null,
+    "created_at": "<created_at>",
+    "data_export_forbidden": "off",
+    "db_name": null,
+    "description": "<description>",
+    "dlp_managed_cloud_id": null,
+    "dlp_managed_cluster_id": null,
+    "dlp_managed_connection_manager_connection_id": null,
+    "dlp_managed_connection_manager_delegation_is_set": null,
+    "dlp_managed_connection_manager_delegation_is_set_current": null,
+    "dlp_managed_folder_id": null,
+    "experimental_features": "off",
+    "host": "<host>",
+    "id": "<id>",
+    "key": "<key>",
+    "mdb_cluster_id": null,
+    "mdb_folder_id": null,
+    "meta": {
+      "<key-1>": null,
+      "<key-2>": null,
+      "<key-3>": null,
+      "<key-4>": null,
+      "<key-5>": null
+    },
+    "mode": null,
+    "name": "<name>",
+    "options": {
+      "allow_dashsql_usage": false,
+      "allow_dataset_usage": true,
+      "allow_pagination_usage": true,
+      "allow_typed_query_usage": true,
+      "query_types": [
+        {
+          "allow_selector": true,
+          "query_type": "generic_query",
+          "query_type_label": "<query_type_label>",
+          "required_parameters": []
+        }
+      ]
+    },
+    "port": 8443,
+    "raw_sql_level": "off",
+    "readonly": 2,
+    "secure": "off",
+    "ssl_ca_verify": "on",
+    "updated_at": "<updated_at>",
+    "username": "<username>",
+    "variant": "default",
+    "workbook_id": "<workbook_id>"
+  },
+  "status": 200,
+  "unknown_keys": 2
+}
