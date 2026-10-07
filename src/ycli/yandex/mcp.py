@@ -13,7 +13,9 @@ from importlib.resources import files
 from typing import TYPE_CHECKING, Any
 
 from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ValidationError as ArgumentsRefused
 from fastmcp.server.dependencies import get_access_token, get_http_request
+from fastmcp.server.middleware import Middleware
 from pydantic import SecretStr, ValidationError
 
 from ycli.settings import (
@@ -24,10 +26,15 @@ from ycli.settings import (
     missing_credentials,
 )
 from ycli.yandex.factory import build_client
+from ycli.yandex.models import field_error
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from contextlib import AbstractContextManager
+
+    import mcp.types as mt
+    from fastmcp.server.middleware import CallNext, MiddlewareContext
+    from fastmcp.tools.base import ToolResult
 
     from ycli.yandex.base import DomainClient
 
@@ -204,3 +211,35 @@ def client_provider[C: DomainClient](
             yield client
 
     return provide
+
+
+class ArgumentRefusals(Middleware):
+    """Says what is wrong with a tool's arguments without repeating what was sent.
+
+    FastMCP answers arguments that do not fit with the text of pydantic's error, which quotes
+    the value given: for a field that is missing, the whole object it is missing from, and
+    with it a password or a key the caller sent beside it. This writes the refusal as the CLI
+    does, :func:`~ycli.yandex.models.field_error`: the path and what is wrong, nothing else.
+
+    The root server and the server of each service carry it. The server of one resource
+    (``ycli.yandex.<service>.<resource>.mcp.mcp``) is a building block and does not: whoever
+    mounts one in a server of their own adds this to that server, or its refusals repeat
+    what was sent.
+    """
+
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[mt.CallToolRequestParams],
+        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        """The tool's result; arguments that do not fit are refused with our own text."""
+        try:
+            return await call_next(context)
+        except ArgumentsRefused as refused:
+            if not isinstance(refused.__cause__, ValidationError):
+                raise
+            wrong = refused.__cause__.errors(include_input=False, include_url=False)
+            # ``from None``: the cause holds the arguments, and a client may be shown it.
+            raise ToolError(
+                "The arguments do not fit the tool:\n" + "\n".join(map(field_error, wrong))
+            ) from None

@@ -11,9 +11,6 @@ import asyncio
 from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import ToolError
-from fastmcp.exceptions import ValidationError as ArgumentsRefused
-from fastmcp.server.middleware import Middleware
 from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
@@ -28,45 +25,14 @@ from ycli.settings import (
     MCPHTTPConfig,
     OAuthAppConfig,
 )
-from ycli.yandex.mcp import WRITE_TAG, guide
-from ycli.yandex.models import field_error
+from ycli.yandex.mcp import WRITE_TAG, ArgumentRefusals, guide
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.mcp import mcp as status_mcp
 
 if TYPE_CHECKING:
-    import mcp.types as mt
     from fastmcp.server.auth import AuthProvider
-    from fastmcp.server.middleware import CallNext, MiddlewareContext
-    from fastmcp.tools.base import ToolResult
 
     from ycli.yandex.service import Service
-
-
-class ArgumentRefusals(Middleware):
-    """Says what is wrong with a tool's arguments without repeating what was sent.
-
-    FastMCP answers arguments that do not fit with the text of pydantic's error, which quotes
-    the value given: for a field that is missing, the whole object it is missing from, and
-    with it a password or a key the caller sent beside it. This writes the refusal as the CLI
-    does, :func:`~ycli.yandex.models.field_error`: the path and what is wrong, nothing else.
-    """
-
-    async def on_call_tool(
-        self,
-        context: MiddlewareContext[mt.CallToolRequestParams],
-        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
-    ) -> ToolResult:
-        """The tool's result; arguments that do not fit are refused with our own text."""
-        try:
-            return await call_next(context)
-        except ArgumentsRefused as refused:
-            if not isinstance(refused.__cause__, ValidationError):
-                raise
-            wrong = refused.__cause__.errors(include_input=False, include_url=False)
-            # ``from None``: the cause holds the arguments, and a client may be shown it.
-            raise ToolError(
-                "The arguments do not fit the tool:\n" + "\n".join(map(field_error, wrong))
-            ) from None
 
 
 def build_server(selection: Selection, auth: AuthProvider | None = None) -> FastMCP:
