@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.118.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.117.1
+  ([`226c867`](https://github.com/bim-ba/ycli/commit/226c867353bb6ec18af0f74d7332a6e4a1d93126))
+
+### Features
+
+- **sync**: A resource declares itself a kind of file, and `ycli sync kinds` lists them
+  ([`270488f`](https://github.com/bim-ba/ycli/commit/270488f2244cf0d2d1980a8488624f3cb64a0c0b))
+
+
 ## v0.117.1 (2026-10-07)
 
 ### Bug Fixes
