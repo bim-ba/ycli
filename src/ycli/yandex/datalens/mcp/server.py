@@ -28,6 +28,7 @@ from ycli.yandex.datalens.reports.mcp import mcp as reports_mcp
 from ycli.yandex.datalens.restcatalogs.mcp import mcp as restcatalogs_mcp
 from ycli.yandex.datalens.sharedentries.mcp import mcp as sharedentries_mcp
 from ycli.yandex.datalens.sparkapplications.mcp import mcp as sparkapplications_mcp
+from ycli.yandex.datalens.sparkclusters.mcp import mcp as sparkclusters_mcp
 from ycli.yandex.datalens.sqlqueries.mcp import mcp as sqlqueries_mcp
 from ycli.yandex.datalens.tenant.mcp import mcp as tenant_mcp
 from ycli.yandex.datalens.trinoclusters.mcp import mcp as trinoclusters_mcp
@@ -49,6 +50,7 @@ mcp.mount(tenant_mcp)
 mcp.mount(collections_mcp)
 mcp.mount(workbooks_mcp)
 mcp.mount(entrylocks_mcp)
+mcp.mount(sparkclusters_mcp)
 mcp.mount(members_mcp)
 mcp.mount(entries_mcp)
 mcp.mount(permissions_mcp)

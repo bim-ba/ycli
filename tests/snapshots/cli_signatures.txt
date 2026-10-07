@@ -90,6 +90,14 @@ datalens sparkapplications create: --body-file:FILE --catalogs:TEXT --dry-run:BO
 datalens sparkapplications get: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sparkapplications list: --all:BOOLEAN=False --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sparkapplications log-list: --application-id:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --page-size:INTEGER --page-token:TEXT --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkclusters create: --body-file:FILE --cloud-environment-id:TEXT --collection-id:TEXT --config:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --labels:TEXT --name:TEXT --profile:TEXT --yes:BOOLEAN=False
+datalens sparkclusters delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkclusters get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkclusters list: --all:BOOLEAN=False --body-file:FILE --collection-id:TEXT --dry-run:BOOLEAN=False --field:TEXT --filter:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
+datalens sparkclusters resource-presets-get: --body-file:FILE --cloud-environment-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False RESOURCE_PRESET_ID:TEXT!
+datalens sparkclusters resource-presets-list: --all:BOOLEAN=False --body-file:FILE --cloud-environment-id:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
+datalens sparkclusters start: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
+datalens sparkclusters stop: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False CLUSTER_ID:TEXT!
 datalens sqlqueries create: --body-file:FILE --connection-id:TEXT --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name:TEXT --params:TEXT --profile:TEXT --query:TEXT --workbook-id:TEXT --yes:BOOLEAN=False
 datalens sqlqueries delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
 datalens sqlqueries get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --include-favorite:BOOLEAN --include-permissions:BOOLEAN --profile:TEXT --rev-id:TEXT --yes:BOOLEAN=False SQL_QUERY_ID:TEXT!
