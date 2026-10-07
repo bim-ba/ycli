@@ -48,7 +48,13 @@ WithLinks = Annotated[bool | None, Field(description="Also say what it is linked
 WithFavorite = Annotated[
     bool | None, Field(description="Also say whether it is a favourite of the caller.")
 ]
-Branch = Annotated[str | None, Field(description="Which version to read: `saved` or `published`.")]
+Branch = Annotated[
+    str | None,
+    Field(
+        description="Which version to read: `saved` or `published`; the published one when left "
+        "out (measured). A save writes the saved one: read `saved` before changing a chart."
+    ),
+]
 Mode = Annotated[
     SaveMode, Field(description="`save` keeps a draft; `publish` makes it the version shown.")
 ]
@@ -141,10 +147,19 @@ def wizard_update(
         OverBudget(WIZARD_DATA, "What the chart holds; it replaces the whole of it."),
     ],
     annotation: Annotation = None,
-    rev_id: Annotated[str | None, Field(description="The revision the change is made on.")] = None,
+    rev_id: Annotated[
+        str | None,
+        Field(
+            description="The revision the change is made on; DataLens does not check it (measured)."
+        ),
+    ] = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> WizardChartSaved:
-    """Save a chart of the wizard as given: read it, change it, send it back whole."""
+    """Save a chart of the wizard as given: read it, change it, send it back whole.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     return client.charts.wizard_update(
         chart_id, mode=mode, data=data, annotation=annotation, rev_id=rev_id
     )
@@ -155,7 +170,11 @@ def wizard_update(
     annotations={**DESTRUCTIVE, "title": "Delete DataLens wizard chart"},
 )
 def wizard_delete(chart_id: ChartID, client: DataLensClient = Depends(datalens_client)) -> Ack:
-    """Delete a chart; the dashboards that show it lose it."""
+    """Delete a chart; the dashboards that show it lose it.
+
+    The API has no way to bring it back, and a dashboard that shows it keeps naming its id
+    (measured).
+    """
     client.charts.wizard_delete(chart_id)
     return Ack.deleted("chart", chart_id)
 
@@ -223,7 +242,11 @@ def ql_update(
     annotation: Annotation = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> QLChartSaved:
-    """Save a QL chart as given; the reply is what DataLens answers, as it came."""
+    """Save a QL chart as given; the reply is what DataLens answers, as it came.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     return client.charts.ql_update(
         entry_id, template=template, mode=mode, data=data, annotation=annotation
     )
@@ -288,7 +311,11 @@ def editor_update(
     mode: Mode,
     client: DataLensClient = Depends(datalens_client),
 ) -> EditorChartSaved:
-    """Save a chart of the editor as given."""
+    """Save a chart of the editor as given.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     return client.charts.editor_update(entry, mode=mode)
 
 

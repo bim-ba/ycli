@@ -121,6 +121,9 @@ def update(
 ) -> ReportSaved:
     """Save a report; it LOSES the ``layout`` of its slide elements and some ``settings``.
 
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+
     Measured (2026-10-06): DataLens drops them on a save through the API, without a word,
     though every value is sent. Ask the person before saving an existing report. Otherwise:
     read it, change ``data``, send it back whole.

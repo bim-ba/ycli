@@ -88,6 +88,10 @@ def update(
 
 @app.command()
 def delete(connection_id: ConnectionIDArg, *, datalens: DataLensClient) -> Ack:
-    """Delete a connection; the datasets on it lose their source."""
+    """Delete a connection; the datasets on it lose their source.
+
+    The API has no way to bring it back, and a chart that reads through it keeps naming its id
+    (measured).
+    """
     datalens.connections.delete(connection_id)
     return Ack.deleted("connection", connection_id)

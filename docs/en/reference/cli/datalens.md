@@ -1652,6 +1652,9 @@ Give a password or a token from a file outside the repository, mode 600: in --bo
 
 Delete a connection; the datasets on it lose their source.
 
+The API has no way to bring it back, and a chart that reads through it keeps naming its id
+(measured).
+
 **Usage**:
 
 ```console
@@ -1781,6 +1784,8 @@ $ ycli datalens datasets update [OPTIONS] DATASET_ID
 ### `ycli datalens datasets delete`
 
 Delete a dataset; the charts built on it lose their data.
+
+The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
 
 **Usage**:
 
@@ -1948,7 +1953,7 @@ $ ycli datalens charts wizard get [OPTIONS] CHART_ID
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published.
+* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -1989,6 +1994,9 @@ $ ycli datalens charts wizard create [OPTIONS]
 
 Save a chart of the wizard as given: read it, change it, send it back whole.
 
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
+
 `data` is required, from --data or under `data` of --body-file.
 
 **Usage**:
@@ -2006,7 +2014,7 @@ $ ycli datalens charts wizard update [OPTIONS] CHART_ID
 * `--mode TEXT`: Keep the change as a draft, or publish it. Known values: save, publish.  [required]
 * `--data TEXT`: What the chart holds, as a JSON object; --body-file gives it under `data`.
 * `--annotation TEXT`: A description, as a JSON object: {"description": "…"}.
-* `--rev-id TEXT`: The revision the change is made on.
+* `--rev-id TEXT`: The revision the change is made on; DataLens does not check it (measured).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2018,6 +2026,9 @@ $ ycli datalens charts wizard update [OPTIONS] CHART_ID
 #### `ycli datalens charts wizard delete`
 
 Delete a chart of the wizard; dashboards that show it lose it.
+
+The API has no way to bring it back, and a dashboard that shows it keeps naming its
+id (measured).
 
 **Usage**:
 
@@ -2081,7 +2092,7 @@ $ ycli datalens charts ql get [OPTIONS] CHART_ID
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published.
+* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2119,6 +2130,9 @@ $ ycli datalens charts ql create [OPTIONS]
 #### `ycli datalens charts ql update`
 
 Save a QL chart as given; `data` is required, from --data or --body-file.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 **Usage**:
 
@@ -2210,7 +2224,7 @@ $ ycli datalens charts editor get [OPTIONS] CHART_ID
 * `--include-permissions / --no-include-permissions`: Also say what you may do with it.
 * `--include-links / --no-include-links`: Also say what it is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether it is a favourite.
-* `--branch TEXT`: Which version to read: saved or published.
+* `--branch TEXT`: Which version to read: saved or published; the published one if left out (measured). A save writes the saved one: read `saved` before you change a chart.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2243,6 +2257,9 @@ $ ycli datalens charts editor create [OPTIONS]
 #### `ycli datalens charts editor update`
 
 Save a chart of the editor as given; `entryId` in the entry says which.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 **Usage**:
 
@@ -2329,7 +2346,7 @@ $ ycli datalens dashboards get [OPTIONS] DASHBOARD_ID
 * `--include-permissions / --no-include-permissions`: Also say what you may do with the dashboard.
 * `--include-links / --no-include-links`: Also say what the dashboard is linked to.
 * `--include-favorite / --no-include-favorite`: Also say whether the dashboard is a favourite.
-* `--branch TEXT`: Which version of it to read. Known values: saved, published.
+* `--branch TEXT`: Which version of it to read; the published one if left out (measured). A save writes the saved one: read `saved` before you change a dashboard. Known values: saved, published.
 * `--workbook-id TEXT`: The workbook the dashboard lies in.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2365,6 +2382,9 @@ $ ycli datalens dashboards create [OPTIONS]
 ### `ycli datalens dashboards update`
 
 Save a dashboard as given; `entryId` in the entry says which.
+
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
 
 **Usage**:
 
@@ -2492,6 +2512,9 @@ $ ycli datalens reports create [OPTIONS]
 
 Save a report; it LOSES the `layout` of its slide elements and some `settings`.
 
+DataLens does not check a revision here: a save overwrites what was saved since you read it
+(measured).
+
 Measured: DataLens drops them on a save through the API, without a word. Do not save
 a report that exists unless that loss is fine. Otherwise: read it, change it, send it
 back whole.
@@ -2511,7 +2534,7 @@ $ ycli datalens reports update [OPTIONS] ENTRY_ID
 * `--mode TEXT`: Keep the report as a draft, or publish it. Known values: save, publish.  [required]
 * `--data TEXT`: What the report holds, as a JSON object (the `entry.data` of a report read with `get`); --body-file gives it under `data`.
 * `--meta TEXT`: Metadata of the entry, as a JSON object or `null`; the API requires it.
-* `--rev-id TEXT`: The revision of the report to change.
+* `--rev-id TEXT`: The revision of the report to change; DataLens does not check it (measured).
 * `--annotation TEXT`: A description of the report, as JSON: {"description": "…"}.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

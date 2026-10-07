@@ -59,7 +59,12 @@ FavoriteOption = Annotated[
     ),
 ]
 BranchOption = Annotated[
-    str | None, typer.Option("--branch", help="Which version to read: saved or published.")
+    str | None,
+    typer.Option(
+        "--branch",
+        help="Which version to read: saved or published; the published one if left out "
+        "(measured). A save writes the saved one: read `saved` before you change a chart.",
+    ),
 ]
 ModeOption = Annotated[
     str, values_option(SaveMode, "--mode", help="Keep the change as a draft, or publish it.")
@@ -199,13 +204,20 @@ def wizard_update(
         typer.Option("--annotation", help='A description, as a JSON object: {"description": "…"}.'),
     ] = None,
     rev_id: Annotated[
-        str | None, typer.Option("--rev-id", help="The revision the change is made on.")
+        str | None,
+        typer.Option(
+            "--rev-id",
+            help="The revision the change is made on; DataLens does not check it (measured).",
+        ),
     ] = None,
     *,
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> WizardChartSaved:
     """Save a chart of the wizard as given: read it, change it, send it back whole.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
 
     `data` is required, from --data or under `data` of --body-file.
     """
@@ -231,7 +243,11 @@ def wizard_update(
 
 @wizard_app.command("delete")
 def wizard_delete(chart_id: ChartIDArg, *, datalens: DataLensClient) -> Ack:
-    """Delete a chart of the wizard; dashboards that show it lose it."""
+    """Delete a chart of the wizard; dashboards that show it lose it.
+
+    The API has no way to bring it back, and a dashboard that shows it keeps naming its
+    id (measured).
+    """
     datalens.charts.wizard_delete(chart_id)
     return Ack.deleted("chart", chart_id)
 
@@ -314,7 +330,11 @@ def ql_update(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> QLChartSaved:
-    """Save a QL chart as given; `data` is required, from --data or --body-file."""
+    """Save a QL chart as given; `data` is required, from --data or --body-file.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     body = _body(
         UpdateQLChartArgs,
         caller,
@@ -387,7 +407,11 @@ def editor_update(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> EditorChartSaved:
-    """Save a chart of the editor as given; `entryId` in the entry says which."""
+    """Save a chart of the editor as given; `entryId` in the entry says which.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     body = _body(UpdateEditorChartArgs, caller, {"entry": entry, "mode": mode})
     return datalens.charts.editor_update(body.entry, mode=body.mode)
 

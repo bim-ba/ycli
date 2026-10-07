@@ -51,7 +51,11 @@ def get(
         bool | None, Field(description="Also say whether the dashboard is a favourite.")
     ] = None,
     branch: Annotated[
-        RevisionBranch | None, Field(description="Which version of it to read.")
+        RevisionBranch | None,
+        Field(
+            description="Which version of it to read; the published one when left out "
+            "(measured). A save writes the saved one: read `saved` before changing a dashboard."
+        ),
     ] = None,
     workbook_id: Annotated[
         str | None, Field(description="The workbook the dashboard lies in.")
@@ -113,7 +117,11 @@ def update(
     lock_token: LockToken = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> DashboardSaved:
-    """Save a dashboard as given: read it, change ``data``, send it back whole."""
+    """Save a dashboard as given: read it, change ``data``, send it back whole.
+
+    DataLens does not check a revision here: a save overwrites what was saved since you read it
+    (measured).
+    """
     return client.dashboards.update(entry, mode=mode, lock_token=lock_token)
 
 

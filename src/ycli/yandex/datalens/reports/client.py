@@ -125,6 +125,9 @@ class ReportsClient(Resource):
     ) -> ReportSaved:
         """``updateReport`` — save a report as given → what was saved.
 
+        DataLens does not check a revision here: a save overwrites what was saved since you read it
+        (measured).
+
         Measured (2026-10-06): a report saved through the API loses the ``layout`` of the elements
         of its slides and part of its ``settings``; DataLens drops them without a word.
         So do not save a report that exists without telling its owner what it will lose.
@@ -136,7 +139,7 @@ class ReportsClient(Resource):
             data: What the report holds.
             mode: ``save`` or ``publish``.
             meta: Metadata of the entry; ``None`` for none.
-            rev_id: The revision the change is made on.
+            rev_id: The revision the change is made on; DataLens does not check it (measured).
             annotation: A description of the report.
 
         Returns:
