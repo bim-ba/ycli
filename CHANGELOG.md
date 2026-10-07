@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.123.1 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A signed link is masked in the excerpt a failed step prints
+  ([`a70a96a`](https://github.com/bim-ba/ycli/commit/a70a96a7b18408cb72f50f303cefeb72b256d299))
+
+### Build System
+
+- Re-lock uv.lock for 0.123.0
+  ([`cf6ae61`](https://github.com/bim-ba/ycli/commit/cf6ae6135fc3e1a30c6dc8bf70c4d4f93a4349ab))
+
+
 ## v0.123.0 (2026-10-07)
 
 ### Build System
