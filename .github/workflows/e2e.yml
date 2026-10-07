@@ -81,6 +81,9 @@ jobs:
       YCLI_E2E_QUEUE: ${{ vars.YCLI_E2E_QUEUE || 'YCLIPAGE' }}
       # Whom the access steps grant a page, a form and a project to; unset, they are skipped.
       YCLI_E2E_GRANTEE: ${{ vars.YCLI_E2E_GRANTEE }}
+      # The trigger kept in the sandbox queue, switched off, for the scenarios that edit one
+      # (the API cannot delete a trigger, so a run makes none); unset, they are skipped.
+      YCLI_E2E_TRIGGER: ${{ vars.YCLI_E2E_TRIGGER }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
