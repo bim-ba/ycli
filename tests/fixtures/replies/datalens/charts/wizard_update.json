@@ -1,0 +1,42 @@
+{
+  "body": {
+    "entry": {
+      "annotation": null,
+      "createdAt": "<createdAt>",
+      "createdBy": "<createdBy>",
+      "data": {
+        "sources": {
+          "datasetsIds": [
+            "<datasetsIds>"
+          ]
+        },
+        "visualization": {
+          "columns": {
+            "items": []
+          },
+          "type": "flatTable"
+        }
+      },
+      "entryId": "<entryId>",
+      "hidden": false,
+      "key": "<key>",
+      "links": {
+        "<key-1>": "<key-1>"
+      },
+      "meta": {},
+      "public": false,
+      "publishedId": "<publishedId>",
+      "revId": "<revId>",
+      "savedId": "<savedId>",
+      "scope": "widget",
+      "tenantId": "<tenantId>",
+      "type": "table_wizard_node",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": "<updatedBy>",
+      "version": 1,
+      "workbookId": "<workbookId>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

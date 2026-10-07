@@ -1,0 +1,119 @@
+{
+  "body": {
+    "dataset": {
+      "<unknown-1>": {
+        "<unknown-1>": null,
+        "<unknown-2>": [],
+        "<unknown-3>": [],
+        "<unknown-4>": "<unknown-4>",
+        "<unknown-5>": [],
+        "<unknown-6>": "<unknown-6>",
+        "<unknown-7>": true
+      },
+      "<unknown-2>": {},
+      "avatar_relations": [],
+      "cache_invalidation_source": {
+        "cache_invalidation_error": null,
+        "field": null,
+        "filters": [],
+        "mode": "off",
+        "sql": null
+      },
+      "component_errors": {
+        "items": []
+      },
+      "data_export_forbidden": false,
+      "description": "<description>",
+      "load_preview_by_default": true,
+      "obligatory_filters": [],
+      "preview_enabled": true,
+      "result_schema": [],
+      "result_schema_aux": {
+        "inter_dependencies": {
+          "deps": []
+        }
+      },
+      "revision_id": "<revision_id>",
+      "rls": {},
+      "rls2": {},
+      "source_avatars": [],
+      "sources": [],
+      "template_enabled": false
+    },
+    "options": {
+      "<unknown-1>": false,
+      "connections": {
+        "compatible_types": [
+          {
+            "conn_type": "<conn_type>"
+          }
+        ],
+        "items": [],
+        "max": 20
+      },
+      "data_types": {
+        "items": [
+          {
+            "aggregations": [],
+            "casts": [
+              "unsupported"
+            ],
+            "filter_operations": [
+              "ISNOTNULL"
+            ],
+            "type": "unsupported"
+          },
+          {
+            "aggregations": [
+              "avg"
+            ],
+            "casts": [
+              "boolean"
+            ],
+            "filter_operations": [
+              "BETWEEN"
+            ],
+            "type": "date"
+          }
+        ]
+      },
+      "fields": {
+        "items": []
+      },
+      "is_cache_invalidation_enabled_in_conn": false,
+      "join": {
+        "operators": [
+          "eq"
+        ],
+        "types": [
+          "full"
+        ]
+      },
+      "preview": {
+        "enabled": true
+      },
+      "schema_update_enabled": false,
+      "source_avatars": {
+        "items": [],
+        "max": 32
+      },
+      "sources": {
+        "compatible_types": [
+          {
+            "source_type": "<source_type>"
+          }
+        ],
+        "items": []
+      },
+      "supported_functions": [
+        "<supported_functions>"
+      ],
+      "supports_offset": true
+    },
+    "publishedId": "<publishedId>",
+    "revId": "<revId>",
+    "savedId": "<savedId>"
+  },
+  "status": 200,
+  "unknown_keys": 3
+}
