@@ -154,7 +154,8 @@ class Endpoint[T]:
     content: bytes | None = None
     files: Mapping[str, tuple[str, bytes]] | None = None
     headers: Mapping[str, str] = field(default_factory=dict)
-    effect: Effect | None = None
+    # Filled at construction when left out: no reader ever sees it empty.
+    effect: Effect = None  # ty: ignore[invalid-assignment]
     parser: Callable[[httpx2.Response], T] | None = None
     follow_redirects: bool = True
 
