@@ -76,7 +76,7 @@ _CLOSED = "ycli.yandex.models.RequestBody"
 # What a generated module may import, inherit from and call (``foreign``).
 _MODULES = {"typing", "datetime", "pydantic", "ycli.yandex.models"}
 _BASES = {"APIModel", "RequestBody", "RootModel"}
-_CALLS = {"Field", "ConfigDict", "NoDropNull"}
+_CALLS = {"Field", "ConfigDict", "NoDropNull", "KindByOwnField"}
 
 
 def _snake(name: str) -> str:
@@ -684,6 +684,30 @@ def _one_value(schema: object) -> bool:
 
 # How ``prepare`` says which fields keep their ``null`` (``_mark_nulls_to_keep``): a key of
 # the prepared document that ``generate`` takes out and hands to the template of the model.
+_TOLD_APART = "x-ycli-kind-by-own-field"
+
+
+def _mark_union_envelopes(spec: dict[str, Any]) -> int:
+    """Mark each request the document writes as a union of objects; return how many.
+
+    Such a body is one of several envelopes (``createSparkApplication``: a JAR, a Python file
+    or Spark Connect), told apart by the field each alone requires. Unmarked, pydantic tries
+    every member and each says what it lacks, under the name of its class. The mark becomes
+    ``Annotated[..., KindByOwnField()]`` on the root of the generated union
+    (``ycli.yandex.models``), which reads those fields from the members.
+    """
+    marked = 0
+    for _, _, kind, holder in _bodies(spec):
+        union = _target(spec, holder["schema"]) if kind == "Request" else None
+        if union is None or "properties" in union:
+            continue
+        members = [_target(spec, member) for member in union.get("anyOf", union.get("oneOf", []))]
+        if members and all(member and "properties" in member for member in members):
+            union[_TOLD_APART] = True
+            marked += 1
+    return marked
+
+
 _KEEPS_NULL = "x-ycli-no-drop-null"
 TEMPLATES = ROOT / "scripts" / "datalens_templates"
 
@@ -905,6 +929,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     _mark_nulls_to_keep(spec)
     _require_only_kinds(spec, keep=tags)
     _close_only_requests(spec)
+    _mark_union_envelopes(spec)
     _name_every_object(spec)
     section = _sections(spec)
     schemas = {
@@ -1093,14 +1118,19 @@ def generate(spec: dict[str, Any]) -> dict[str, str]:
         prepared = prepare(spec)
         # What keeps its null is told to the template of each model, by the names of its
         # fields: the generator's own way to pass data a schema keyword cannot carry.
-        marked: dict[str, dict[str, list[str]]] = {}
+        marked: dict[str, dict[str, Any]] = {}
         for name, schema in prepared["components"]["schemas"].items():
+            data: dict[str, Any] = {}
             if kept := _taken_marks(schema):
+                data["no_drop_null"] = kept
+            if schema.pop(_TOLD_APART, False):
+                data["kind_by_own_field"] = True
+            if data:
                 # The generator looks a model up by the name of its schema or of its class:
                 # ``connection.ydb`` is the class ``connection.Ydb``.
                 section, _, own = name.partition(".")
                 for key in {name, f"{section}.{_pascal(own)}"}:
-                    marked[key] = {"no_drop_null": kept}
+                    marked[key] = data
         source = Path(scratch) / "spec.json"
         source.write_text(json.dumps(prepared), encoding="utf-8")
         extra = Path(scratch) / "template_data.json"
@@ -1115,7 +1145,11 @@ def generate(spec: dict[str, Any]) -> dict[str, str]:
                 *("--output", str(output), "--output-model-type", "pydantic_v2.BaseModel"),
                 *("--target-python-version", "3.12", "--formatters", "builtin"),
                 *("--custom-template-dir", str(TEMPLATES), "--extra-template-data", str(extra)),
-                *("--additional-imports", "typing.Annotated,ycli.yandex.models.NoDropNull"),
+                *(
+                    "--additional-imports",
+                    "typing.Annotated,ycli.yandex.models.NoDropNull,"
+                    "ycli.yandex.models.KindByOwnField",
+                ),
                 *("--base-class", "ycli.yandex.models.APIModel", "--openapi-scopes", "schemas"),
                 *("--enum-field-as-literal", "all", "--treat-dot-as-module"),
                 "--use-union-operator",
