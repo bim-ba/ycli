@@ -72,6 +72,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "the `mcp` extra): `report` lists where the replies differ, `strict` also fails on it.",
     )
     parser.addoption(
+        "--writes-through",
+        choices=("cli", "mcp", "sdk"),
+        default="cli",
+        help="With --surfaces: the surface that carries out every write of the run. The step's "
+        "expectations are checked against its answer; a write still runs once.",
+    )
+    parser.addoption(
         "--surfaces-report",
         type=Path,
         default=Path(tempfile.gettempdir()) / "ycli-surfaces-report.txt",
@@ -116,8 +123,11 @@ def surfaces(
     from e2e.surfaces import ThreeSurfaces, listening
 
     with pytest.MonkeyPatch.context() as monkeypatch, listening(monkeypatch) as listener:
+        through = request.config.getoption("--writes-through")
         driver = ThreeSurfaces(
-            InProcessDriver(request.config.getoption("--record-pause")), listener
+            InProcessDriver(request.config.getoption("--record-pause")),
+            listener,
+            writes_through=None if through == "cli" else through,
         )
         yield driver
         driver.close()

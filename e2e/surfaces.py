@@ -15,11 +15,14 @@ What a run found is a :class:`Report`; it holds names, paths and shapes, never a
 """
 
 import asyncio
+import base64
 import contextlib
 import functools
+import importlib
 import inspect
 import json
 import re
+import typing
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
@@ -29,7 +32,7 @@ import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 from fastmcp.tools import Tool
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, TypeAdapter
 from pydantic_core import to_jsonable_python
 
 from e2e.recording import NotAReadError, operations, public_names
@@ -47,6 +50,8 @@ from ycli.yandex.registry import SERVICES
 MAX_PATHS = 20
 Surface = Literal["mcp", "sdk"]
 _NO_JSON = object()
+# The options of the CLI that put fields into the body of the request a command sends.
+BODY_OPTIONS = frozenset({"-F", "--field", "--body-file"})
 _INDEX = re.compile(r"\[\d+\]")
 
 
@@ -71,6 +76,9 @@ class Listener:
     calls: list[Call] = field(default_factory=list)
     running: Call | None = None
     reads_only: bool = False
+    # Who carries a call out instead of the command itself: given the call and the way to
+    # make it as the command would, it returns what the method returns.
+    through: Callable[[Call, Callable[[], Any]], Any] | None = None
 
     def heard(self, operation: str, method: Callable[..., Any]) -> Callable[..., Any]:
         """``method`` wrapped to note its call; a call made inside another is part of it."""
@@ -90,7 +98,9 @@ class Listener:
             self.running = Call(operation, given, defaults)
             self.calls.append(self.running)
             try:
-                return method(*args, **kwargs)
+                if self.through is None:
+                    return method(*args, **kwargs)
+                return self.through(self.running, lambda: method(*args, **kwargs))
             finally:
                 self.running = None
 
@@ -201,6 +211,8 @@ class Report:
 
     public: frozenset[str] = field(default_factory=public_names)
     compared: dict[Surface, set[str]] = field(default_factory=lambda: {"mcp": set(), "sdk": set()})
+    # The writes a surface other than the CLI carried out (``--writes-through``).
+    written: dict[Surface, set[str]] = field(default_factory=lambda: {"mcp": set(), "sdk": set()})
     findings: list[Finding] = field(default_factory=list)
     # Why a command was not repeated, or a surface not asked: reason -> what it was.
     left_out: dict[str, set[str]] = field(default_factory=dict)
@@ -219,7 +231,7 @@ class Report:
         head, *rest = path.split(": ", 1)
         head = _INDEX.sub("[]", head)
         parts = [
-            part if part == "$" or part.split("[")[0] in self.public else "<key>"
+            part if part.split("[")[0] in {"$", *self.public} else "<key>"
             for part in head.split(".")
         ]
         return ": ".join([".".join(parts), *rest])
@@ -233,6 +245,8 @@ class Report:
         lines = [
             f"reads compared with the CLI: {len(self.compared['mcp'])} operations through MCP, "
             f"{len(self.compared['sdk'])} through the SDK",
+            f"writes carried out by a surface other than the CLI: "
+            f"{len(self.written['mcp'])} operations by MCP, {len(self.written['sdk'])} by the SDK",
         ]
         for kind, title in (
             ("data", "DATA: a surface answered differently (defects)"),
@@ -263,14 +277,15 @@ def _document(result: Any) -> Any:
     return result if result is None or isinstance(result, str | int) else _NO_JSON
 
 
-def _holds_a_secret(value: Any) -> bool:
-    if isinstance(value, SecretStr):
-        return True
-    if isinstance(value, BaseModel):
-        return any(_holds_a_secret(item) for item in dict(value).values())
-    if isinstance(value, dict):
-        return any(map(_holds_a_secret, value.values()))
-    return isinstance(value, list | tuple) and any(map(_holds_a_secret, value))
+def _unwrapped(tool: Tool, data: Any) -> Any:
+    """A tool's reply as the tool returned it: FastMCP wraps what is not an object."""
+    wrapped = tool.output_schema and tool.output_schema.get("x-fastmcp-wrap-result")
+    return (data or {}).get("result") if wrapped else data
+
+
+def _only_reads(tool: Tool) -> bool:
+    """What the tool says of itself (``readOnlyHint``), which ARCH-3 holds to its endpoint."""
+    return tool.annotations is not None and bool(tool.annotations.read_only_hint)
 
 
 def tool_name(operation: str) -> str:
@@ -303,12 +318,23 @@ def unequal(tools: dict[str, Tool]) -> dict[str, list[str]]:
 class ThreeSurfaces(Driver):
     """Runs a command as ``driver`` does, then repeats a read through MCP and the SDK."""
 
-    def __init__(self, driver: Driver, listener: Listener) -> None:
+    def __init__(
+        self, driver: Driver, listener: Listener, writes_through: Surface | None = None
+    ) -> None:
         self._driver = driver
         self._listener = listener
+        self._writes_through = writes_through
+        self._own_body = False
+        if writes_through is not None:
+            listener.through = self._carry_out
         self._runner = asyncio.Runner()
         self._server = build_server(Selection())
         self._services = {service.name: service for service in SERVICES}
+        # As they were before anything listened: the annotations are read from them.
+        self._methods = {
+            operation: inspect.unwrap(getattr(owner, method))
+            for operation, (owner, method) in operations().items()
+        }
         self._tools = {
             tool.name: tool
             for listed in self._runner.run(self._server.list_tools())
@@ -324,6 +350,9 @@ class ThreeSurfaces(Driver):
     def run(self, arguments: Sequence[str]) -> CommandResult:
         """The command's result; what the other surfaces answered goes to the report."""
         del self._listener.calls[:]
+        # ``-F`` and ``--body-file`` are added to the request the command itself sends, after
+        # the method was called: no other surface would send them.
+        self._own_body = any(argument in BODY_OPTIONS for argument in arguments)
         completed = self._driver.run(arguments)
         calls = list(self._listener.calls)
         command = " ".join(arguments[:3])
@@ -333,7 +362,8 @@ class ThreeSurfaces(Driver):
             reason = "the command called no operation" if not calls else "several operations"
             self.report.leave_out(reason, command)
         elif not calls[0].is_read():
-            self.report.leave_out("a write runs once", calls[0].operation)
+            if calls[0].operation not in self.report.written.get(self._writes_through or "", ()):
+                self.report.leave_out("a write runs once", calls[0].operation)
         else:
             self._listener.reads_only = True
             try:
@@ -341,6 +371,44 @@ class ThreeSurfaces(Driver):
             finally:
                 self._listener.reads_only = False
         return completed
+
+    def _carry_out(self, call: Call, itself: Callable[[], Any]) -> Any:
+        """Make a write through the surface of this run; a read is left to the command.
+
+        The command still prints what came back, so the expectations of the step are checked
+        against the answer of that surface. Whether an operation writes is what its tool says
+        (``readOnlyHint``, which ARCH-3 holds to the effect of the endpoint); an operation
+        with no tool is left to the command.
+        """
+        tool = self._tools.get(tool_name(call.operation))
+        if tool is None or _only_reads(tool):
+            return itself()
+        if self._own_body:
+            self.report.leave_out("the command adds to the body itself (-F)", call.operation)
+            return itself()
+        service, resource, method = call.operation.split(".")
+        if self._writes_through == "sdk":
+            client_class = self._services[service].client_class()
+            with build_client(client_class, Credentials(), AppConfig()) as client:
+                result = getattr(getattr(client, resource), method)(**call.arguments)
+            self.report.written["sdk"].add(call.operation)
+            return result
+        sent = self._tool_arguments(call, tool)
+        if sent is None:
+            return itself()
+        try:
+            data = self._runner.run(self._call_tool(tool.name, sent))
+        except ToolError as error:
+            raise ScenarioError(f"{call.operation} through MCP: {scrub(str(error))}") from None
+        self.report.written["mcp"].add(call.operation)
+        if inspect.signature(self._methods[call.operation]).return_annotation in (None, "None"):
+            return None  # the tool answers such a write with an ``Ack`` of its own
+        # The tool returns what the method does, and its module imports the type for real;
+        # a client names it for type checkers only.
+        local = importlib.import_module(f"ycli.yandex.{service}.{resource}.mcp").mcp
+        function = self._runner.run(local.get_tool(tool.name.removeprefix(f"{service}_"))).fn
+        returned = typing.get_type_hints(function)["return"]
+        return TypeAdapter(returned).validate_python(_unwrapped(tool, data))
 
     def _compare(self, call: Call, arguments: Sequence[str], stdout: str) -> None:
         try:
@@ -362,9 +430,15 @@ class ThreeSurfaces(Driver):
                 # Once more through the CLI: what it answers differently now moved by itself.
                 repeated = self._driver.run(arguments)
                 again = json.loads(repeated.stdout) if repeated.stdout.strip() else None
-            changed = [] if again is _NO_JSON else [_where(d) for d in differences(first, again)]
+            # Without the indexes: a list the service orders anew on every call differs at
+            # some items between two reads of the CLI and, by chance, not at others.
+            changed = (
+                []
+                if again is _NO_JSON
+                else [_INDEX.sub("[]", _where(d)) for d in differences(first, again)]
+            )
             for difference in found:
-                kind = "time" if _moved(_where(difference), changed) else "data"
+                kind = "time" if _moved(_INDEX.sub("[]", _where(difference)), changed) else "data"
                 self.report.findings.append(
                     Finding(call.operation, surface, kind, self.report.path(difference))
                 )
@@ -382,11 +456,12 @@ class ThreeSurfaces(Driver):
             self.report.leave_out("the method returns what has no JSON form", call.operation)
         return document
 
-    def _mcp(self, call: Call) -> Any:
-        name = tool_name(call.operation)
-        tool = self._tools.get(name)
-        if tool is None:  # listed with the operations that have no tool
-            return _NO_JSON
+    def _tool_arguments(self, call: Call, tool: Tool) -> dict[str, Any] | None:
+        """The arguments of ``call`` as its tool takes them; ``None`` when it does not take one.
+
+        An argument left at its default is not sent. A body goes as a request body does
+        (``WIRE``): only what was set, and a secret as its own value.
+        """
         known = tool.parameters.get("properties") or {}
         given = {
             argument: value
@@ -398,17 +473,28 @@ class ThreeSurfaces(Driver):
             self.report.leave_out(
                 "the method takes what the tool does not", f"{call.operation}: {', '.join(wider)}"
             )
+            return None
+        # By the names of the fields: a tool takes a body as its schema names it, and a name
+        # the API alone uses (``boardPermissionsTemplate``) is refused as an unknown key.
+        given = {
+            # A tool takes the bytes of a file as base64 (``Base64Bytes``).
+            argument: base64.b64encode(value).decode() if isinstance(value, bytes) else value
+            for argument, value in given.items()
+        }
+        return to_jsonable_python(given, by_alias=False, context=WIRE)
+
+    def _mcp(self, call: Call) -> Any:
+        tool = self._tools.get(tool_name(call.operation))
+        if tool is None:  # listed with the operations that have no tool
             return _NO_JSON
-        if _holds_a_secret(list(given.values())):
-            self.report.leave_out("an argument holds a secret", call.operation)
+        sent = self._tool_arguments(call, tool)
+        if sent is None:
             return _NO_JSON
-        sent = to_jsonable_python(given, by_alias=True, context=WIRE)
         try:
-            data = self._runner.run(self._call_tool(name, sent))
+            data = self._runner.run(self._call_tool(tool.name, sent))
         except ToolError as error:
             return _Failed(scrub(str(error)))
-        wrapped = tool.output_schema and tool.output_schema.get("x-fastmcp-wrap-result")
-        return (data or {}).get("result") if wrapped else data
+        return _unwrapped(tool, data)
 
     async def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         async with Client(self._server) as client:

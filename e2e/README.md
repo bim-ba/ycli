@@ -118,6 +118,8 @@ The report ends the log and goes to the file `--surfaces-report` names. It holds
 
 The commands follow each other at the pace of a recording run, so `--record-pause` applies here too: with the default second Tracker refused a sprint's change of state with 412 twice, and with 2.5 it passed (measured).
 
+`--writes-through mcp` (or `sdk`) hands every write of the run to that surface instead: the command still parses its flags and prints what came back, but the call it would make is carried out by the tool, or by the method on a client of its own, so the expectations of the step are checked against that surface's answer. A write still runs once. Left to the command: an operation with no tool, an argument its tool does not take, and a command that adds to the body itself (`-F`, `--body-file`: those fields exist only in the request the command sends). A write that reached the service and whose reply the runner then could not read leaves its object without a cleanup; the janitor removes it.
+
 `--surfaces report` never fails on a difference; `--surfaces strict` fails the scenario that showed a `DATA` one. It needs the `mcp` extra; a run without the flag needs none and drives the installed binary.
 
 ## Janitor
