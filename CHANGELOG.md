@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.116.1 (2026-10-07)
+
+### Bug Fixes
+
+- **datalens**: The examples of creating a dashboard and a report are bodies DataLens takes
+  ([`e7e5737`](https://github.com/bim-ba/ycli/commit/e7e5737add00a29671a2a544f7da3d08b10f5baa))
+
+### Build System
+
+- Re-lock uv.lock for 0.116.0
+  ([`e5ef129`](https://github.com/bim-ba/ycli/commit/e5ef129f922646bb06860398197aafd003d9d25f))
+
+### Testing
+
+- **datalens**: Saving an HTML page with both kinds of change, or neither, is refused once
+  ([`f83379b`](https://github.com/bim-ba/ycli/commit/f83379b630c8bcb9a339d7cd21c629d401a0c004))
+
+- **e2e**: What a workbook holds is written live: connection, dataset, charts, dashboard, report
+  ([`fd1cde0`](https://github.com/bim-ba/ycli/commit/fd1cde0e817f5a6aafd361f359fd7f52bdc580a3))
+
+
 ## v0.116.0 (2026-10-07)
 
 ### Build System
