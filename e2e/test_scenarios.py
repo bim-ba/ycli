@@ -14,6 +14,7 @@ from e2e.runner import CliDriver, run_scenario
 if TYPE_CHECKING:
     from e2e.models import Scenario
     from e2e.recording import Recorder
+    from e2e.surfaces import ThreeSurfaces
 
 
 def _parameters() -> list[object]:
@@ -31,14 +32,23 @@ def test_scenario(
     scenario: Scenario,
     variables: dict[str, str],
     recorder: Recorder | None,
+    surfaces: ThreeSurfaces | None,
     request: pytest.FixtureRequest,
 ) -> None:
     print(f"RUN={variables['RUN']}")  # shown on failure: every object of this run carries it
-    if recorder is None:
+    read = None if recorder is None else recorder.read
+    if recorder is None and surfaces is None:
         skipped = run_scenario(scenario, CliDriver(), variables)
-    else:
+    elif surfaces is None:
         driver = InProcessDriver(request.config.getoption("--record-pause"))
-        skipped = run_scenario(scenario, driver, variables, read=recorder.read)
+        skipped = run_scenario(scenario, driver, variables, read=read)
+    else:
+        from e2e.surfaces import fail_on_data
+
+        seen = len(surfaces.report.data())
+        skipped = run_scenario(scenario, surfaces, variables, read=read)
+        if request.config.getoption("--surfaces") == "strict":
+            fail_on_data(surfaces.report, seen)
     SKIPPED_STEPS.extend(skipped)
     if len(skipped) == len(scenario.steps):
         pytest.skip("; ".join(skipped))
