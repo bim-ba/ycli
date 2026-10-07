@@ -149,14 +149,44 @@ def test_the_cli_driver_confirms_deletes(monkeypatch):
 
     sent: list[list[str]] = []
 
-    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[bytes]:
         sent.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "{}", "")
+        return subprocess.CompletedProcess(argv, 0, b"{}", b"")
 
     monkeypatch.setattr(runner.shutil, "which", lambda *_args, **_kwargs: "/venv/bin/ycli")
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
     runner.CliDriver().run(["wiki", "pages", "delete", "7"])
     assert sent == [["/venv/bin/ycli", "-o", "json", "--yes", "wiki", "pages", "delete", "7"]]
+
+
+PNG = bytes.fromhex("89504e470d0a1a0a") + b"\x00\xff" * 40
+
+
+def test_a_step_can_hold_the_bytes_a_command_printed():
+    """A download is not text: the step sees how many bytes came and how they begin."""
+    driver = ScriptedDriver({"thumb": CommandResult(0, "", "", PNG)})
+    held = {"size": len(PNG), "starts_with(head, '89504e47')": True}
+    run_scenario(
+        _scenario({"id": "a", "run": "thumb", "output": "bytes", "expect": held}), driver, {}
+    )
+    wrong = _scenario({"id": "a", "run": "thumb", "output": "bytes", "expect": {"size": 0}})
+    with pytest.raises(ScenarioError, match=r"expected `size` == 0, got 88"):
+        run_scenario(wrong, driver, {})
+
+
+def test_the_installed_command_may_print_bytes_that_are_not_text(monkeypatch):
+    import subprocess
+
+    from e2e import runner
+
+    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[bytes]:
+        return subprocess.CompletedProcess(argv, 0, PNG, b"")
+
+    monkeypatch.setattr(runner.shutil, "which", lambda *_args, **_kwargs: "/venv/bin/ycli")
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    completed = runner.CliDriver().run(["tracker", "attachments", "thumbnails-download", "A-1"])
+    assert completed.stdout_bytes == PNG
+    assert completed.exit_code == 0
 
 
 def test_a_step_that_needs_a_variable_nobody_set_is_skipped_with_its_cleanup():
