@@ -12,12 +12,16 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from importlib import import_module
+from importlib.util import find_spec
+from pkgutil import iter_modules
+from typing import TYPE_CHECKING, Any
 
 from ycli.yandex import datalens, forms, tracker, wiki
 
 if TYPE_CHECKING:
     from ycli.yandex.service import Service
+    from ycli.yandex.sync.kind import Kind
 
 SERVICES: tuple[Service, ...] = (
     tracker.SERVICE,
@@ -25,3 +29,31 @@ SERVICES: tuple[Service, ...] = (
     forms.SERVICE,
     datalens.SERVICE,
 )
+
+
+def kinds() -> tuple[Kind[Any, Any], ...]:
+    """Every kind of file a resource of a registered service declares, by name.
+
+    A resource declares a kind in its ``sync`` module; nothing lists them. The modules are
+    found by walking the packages of the services, so a new resource is picked up by the file
+    it adds.
+
+    Returns:
+        The declared kinds, by name.
+
+    Examples:
+        >>> [kind.name for kind in kinds()] == sorted(kind.name for kind in kinds())
+        True
+    """
+    # Imported here: reading the list of services must not load the file engine.
+    from ycli.yandex.sync.kind import Kind
+
+    found: list[Kind[Any, Any]] = []
+    for service in SERVICES:
+        package = import_module(f"{__package__}.{service.name}")
+        for resource in iter_modules(package.__path__):
+            name = f"{package.__name__}.{resource.name}.sync"
+            if resource.ispkg and find_spec(name) is not None:
+                declared = vars(import_module(name)).values()
+                found += [value for value in declared if isinstance(value, Kind)]
+    return tuple(sorted(found, key=lambda kind: kind.name))
