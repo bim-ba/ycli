@@ -73,7 +73,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
-    server.mount(schema_server(server.list_tools), namespace="schema")
+    server.mount(schema_server(server.list_tools, server.get_tool), namespace="schema")
     server.add_transform(DerivedTags())
     _apply_selection(server, selection)
     return server
