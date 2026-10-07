@@ -1655,6 +1655,9 @@ Delete a connection; the datasets on it lose their source.
 The API has no way to bring it back, and a chart that reads through it keeps naming its id
 (measured).
 
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
+
 **Usage**:
 
 ```console
@@ -1789,6 +1792,9 @@ Delete a dataset; the charts built on it lose their data.
 
 The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
 
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
+
 **Usage**:
 
 ```console
@@ -1891,6 +1897,9 @@ $ ycli datalens charts [OPTIONS] COMMAND [ARGS]...
 ### `ycli datalens charts data-get`
 
 Print the data a saved chart shows, as tables; a pivot table is not supported.
+
+A chart of the editor with no source did not answer within the client's wait: the command
+ends with a timeout after about two minutes (measured, twice).
 
 **Usage**:
 
@@ -2031,6 +2040,9 @@ Delete a chart of the wizard; dashboards that show it lose it.
 
 The API has no way to bring it back, and a dashboard that shows it keeps naming its
 id (measured).
+
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
 
 **Usage**:
 
