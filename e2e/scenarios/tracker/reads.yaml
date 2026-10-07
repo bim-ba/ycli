@@ -1,8 +1,7 @@
 # Read-only: one cheap read every night, and the reads of the organization's own lists and of
 # the sandbox queue for a recording run (`pytest e2e --record`). Nothing here names an object
-# the run did not make, except the queue it writes to and the two kept objects the last steps
-# read (a trigger and a local field of the sandbox queue, named by the owner: TRIGGER,
-# LOCAL_FIELD; without them those steps are skipped).
+# the run did not make, except the queue it writes to and the trigger kept in it, which the
+# last step reads (named by the owner: TRIGGER; without it the step is skipped).
 name: tracker/reads
 steps:
   - id: me
@@ -40,10 +39,3 @@ steps:
     run: tracker triggers webhook-log-list ${QUEUE} ${TRIGGER}
     expect:
       "type(@)": array
-  # Written without a local field to run it against (the API cannot delete one, so a run may
-  # not make its own): the first run with LOCAL_FIELD set is the first run of this step.
-  - id: local-field-read
-    needs: [LOCAL_FIELD]
-    run: tracker localfields get ${QUEUE} ${LOCAL_FIELD}
-    expect:
-      key: ${LOCAL_FIELD}

@@ -111,6 +111,7 @@ steps:
     run: tracker entities bulk-get ${bulk}
     expect:
       id: ${bulk}
+      "status != null": true
   - id: delete
     run: tracker entities delete project ${project}
     disarms: [first]

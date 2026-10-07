@@ -83,44 +83,6 @@ steps:
   - id: board-delete
     run: tracker boards delete ${board}
     disarms: [board]
-  # A group that may write in the sandbox queue, found through the permissions of the caller
-  # (Tracker has no list of groups): the component of the run is asked about the same group.
-  - id: queue-group
-    run: tracker queues user-permissions-get ${QUEUE} ${me}
-    save:
-      group: permissions.WRITE.groups[0].id
-  - id: queue-group-permissions
-    run: tracker queues group-permissions-get ${QUEUE} ${group}
-    expect:
-      "to_string(group.id)": ${group}
-  - id: component
-    run: tracker components create --name "${RUN} component" --queue ${QUEUE} --description Frontend
-    save:
-      component: id
-      version: version
-    cleanup: tracker components delete ${component}
-  - id: component-rename
-    run: tracker components update ${component} --name "${RUN} component renamed" --description Renamed --version ${version}
-    expect:
-      name: ${RUN} component renamed
-  - id: component-read
-    run: tracker components get ${component}
-    expect:
-      "to_string(id)": ${component}
-      name: ${RUN} component renamed
-  - id: component-user-permissions
-    run: tracker components user-permissions-get ${component} ${me}
-    expect:
-      "to_string(component.id)": ${component}
-      "to_string(user.id)": ${me}
-  - id: component-group-permissions
-    run: tracker components group-permissions-get ${component} ${group}
-    expect:
-      "to_string(component.id)": ${component}
-      "to_string(group.id)": ${group}
-  - id: component-delete
-    run: tracker components delete ${component}
-    disarms: [component]
   - id: filter
     run: 'tracker filters create --name "${RUN} filter" --query "Queue: ${QUEUE}"'
     save:
@@ -179,3 +141,42 @@ steps:
   - id: project-delete
     run: tracker projects delete ${project}
     disarms: [project]
+  # Last, because it stands on how the caller got its access: a group that may write in the
+  # sandbox queue, found through the permissions of the caller
+  # (Tracker has no list of groups): the component of the run is asked about the same group.
+  - id: queue-group
+    run: tracker queues user-permissions-get ${QUEUE} ${me}
+    save:
+      group: permissions.WRITE.groups[0].id
+  - id: queue-group-permissions
+    run: tracker queues group-permissions-get ${QUEUE} ${group}
+    expect:
+      "to_string(group.id)": ${group}
+  - id: component
+    run: tracker components create --name "${RUN} component" --queue ${QUEUE} --description Frontend
+    save:
+      component: id
+      version: version
+    cleanup: tracker components delete ${component}
+  - id: component-rename
+    run: tracker components update ${component} --name "${RUN} component renamed" --description Renamed --version ${version}
+    expect:
+      name: ${RUN} component renamed
+  - id: component-read
+    run: tracker components get ${component}
+    expect:
+      "to_string(id)": ${component}
+      name: ${RUN} component renamed
+  - id: component-user-permissions
+    run: tracker components user-permissions-get ${component} ${me}
+    expect:
+      "to_string(component.id)": ${component}
+      "to_string(user.id)": ${me}
+  - id: component-group-permissions
+    run: tracker components group-permissions-get ${component} ${group}
+    expect:
+      "to_string(component.id)": ${component}
+      "to_string(group.id)": ${group}
+  - id: component-delete
+    run: tracker components delete ${component}
+    disarms: [component]
