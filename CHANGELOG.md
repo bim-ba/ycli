@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.116.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.115.2
+  ([`4f14771`](https://github.com/bim-ba/ycli/commit/4f14771ce6568c1e259c77bd23e61056995986ac))
+
+### Features
+
+- **datalens**: HTML pages are read, created, saved, previewed and deleted
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`6a89821`](https://github.com/bim-ba/ycli/commit/6a898213488c5fbde2f7cfb6457dcbebf1332d1c))
+
+
 ## v0.115.2 (2026-10-07)
 
 ### Bug Fixes
