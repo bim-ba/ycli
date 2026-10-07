@@ -9,6 +9,7 @@ from ycli.yandex.datalens.cloudenvironments.cli import app as cloudenvironments_
 from ycli.yandex.datalens.cloudenvironmentstorage.cli import app as cloudenvironmentstorage_app
 from ycli.yandex.datalens.collections.cli import app as collections_app
 from ycli.yandex.datalens.connections.cli import app as connections_app
+from ycli.yandex.datalens.dashboards.cli import app as dashboards_app
 from ycli.yandex.datalens.datasets.cli import app as datasets_app
 from ycli.yandex.datalens.embeddingsecrets.cli import app as embeddingsecrets_app
 from ycli.yandex.datalens.embeds.cli import app as embeds_app
@@ -44,6 +45,7 @@ app.add_typer(permissions_app)
 app.add_typer(connections_app)
 app.add_typer(datasets_app)
 app.add_typer(charts_app)
+app.add_typer(dashboards_app)
 app.add_typer(reports_app)
 app.add_typer(workbookexports_app)
 app.add_typer(workbookimports_app)

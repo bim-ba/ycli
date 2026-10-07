@@ -65,11 +65,9 @@ class QLChart(APIModel):
     key: str | None = Field(default=None, description="The chart's key: its path and name.")
     scope: str | None = Field(default=None, description="The kind of entry: `widget`.")
     type: str | None = Field(default=None, description="How it is built, e.g. `table_ql_node`.")
-    # Both came as ``null`` from the live charts: their type is not known.
-    version: int | str | None = Field(
-        default=None, description="The version of the entry's format."
-    )
-    source_version: int | str | None = Field(
+    # Both came as ``null`` from the live charts; DataLens declares them a number or null.
+    version: int | None = Field(default=None, description="The version of the entry's format.")
+    source_version: int | None = Field(
         default=None, alias="sourceVersion", description="The version it was saved in."
     )
     workbook_id: str | None = Field(

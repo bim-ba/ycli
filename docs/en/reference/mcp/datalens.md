@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-117 tools.
+121 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -804,6 +804,61 @@ Delete a chart; the dashboards that show it lose it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
+
+## `datalens_dashboards_get`
+
+*Get DataLens dashboard* · read-only
+
+One dashboard: its tabs and the charts, selectors and texts on them.
+
+A real dashboard is large, 100 KB and more, which may be over what a client shows of a
+tool's reply: read a big one as a file (`ycli datalens dashboards get <id> > dash.json`).
+``entry.data`` is what ``dashboards_update`` takes back.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dashboard_id` | string | yes | Dashboard id. |
+| `rev_id` | string or null |  | The revision of the dashboard to read; the current when left out. |
+| `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
+| `include_links` | boolean or null |  | Also say what the dashboard is linked to. |
+| `include_favorite` | boolean or null |  | Also say whether the dashboard is a favourite. |
+| `branch` | string or null |  | Which version of it to read: `saved` or `published`. |
+| `workbook_id` | string or null |  | The workbook the dashboard lies in. |
+
+## `datalens_dashboards_create`
+
+*Create DataLens dashboard* · write
+
+Create a dashboard and return it with its id.
+
+``data`` needs ``counter``, ``salt``, ``settings`` and ``tabs``; a tab may be empty.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry` | object | yes | The new dashboard: where it lies (`workbookId`, `name`), `data` and `meta`. Its schema is not listed here: read `DashboardCreate` with schema_get(service="datalens", name="DashboardCreate"), then the definitions it refers to. |
+
+## `datalens_dashboards_update`
+
+*Update DataLens dashboard* · idempotent write
+
+Save a dashboard as given: read it, change ``data``, send it back whole.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `entry` | object | yes | The dashboard to save: its `entryId`, `data`, `meta` and `revId`. Its schema is not listed here: read `DashboardUpdate` with schema_get(service="datalens", name="DashboardUpdate"), then the definitions it refers to. |
+| `mode` | `save` · `publish` or string | yes | `save` keeps the dashboard as a draft; `publish` shows it to all. |
+| `lock_token` | string or null |  | The token of the lock held on the dashboard, when it is locked. |
+
+## `datalens_dashboards_delete`
+
+*Delete DataLens dashboard* · destructive write
+
+Delete a dashboard.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dashboard_id` | string | yes | Dashboard id. |
+| `lock_token` | string or null |  | The token of the lock held on the dashboard, when it is locked. |
 
 ## `datalens_reports_get`
 
