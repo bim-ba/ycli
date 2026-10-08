@@ -74,7 +74,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.mount(service.mcp_server(), namespace=service.name)
     # No tools for `ycli sync`: it works in the caller's working tree, and a server has none.
     server.mount(status_mcp, namespace="status")
-    server.mount(schema_server(server.list_tools), namespace="schema")
+    server.mount(schema_server(server.list_tools, server.get_tool), namespace="schema")
     server.add_transform(DerivedTags())
     _apply_selection(server, selection)
     return server
