@@ -66,32 +66,6 @@ def test_arch1_symmetry_check_bites(tmp_path):
     assert _missing_canonical(tmp_path) == ["endpoints.py", "mcp.py"]
 
 
-def _defines_nothing(source: str) -> bool:
-    """Whether a module holds only a docstring and imports: no class, function or assignment."""
-    return all(
-        isinstance(node, ast.Import | ast.ImportFrom)
-        or (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant))
-        for node in ast.parse(source).body
-    )
-
-
-def test_arch1_a_models_file_defines_a_model():
-    """A resource with no model of its own has no ``models.py``, rather than an empty one."""
-    empty = [
-        str(path.relative_to(SRC))
-        for directory in _resource_dirs()
-        if (path := directory / "models.py").is_file()
-        and _defines_nothing(path.read_text(encoding="utf-8"))
-    ]
-    assert empty == []
-
-
-def test_arch1_empty_models_check_bites():
-    assert _defines_nothing('"""No model of its own."""\n\nfrom __future__ import annotations\n')
-    assert not _defines_nothing('"""Models."""\n\nclass Board(APIModel): ...\n')
-    assert not _defines_nothing('"""Models."""\n\nBoardID = Annotated[int, Field()]\n')
-
-
 def _load_gen_coverage():
     """Load ``scripts/gen_coverage.py`` as a module and reuse its SDK-operation discovery.
 

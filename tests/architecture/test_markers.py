@@ -1,6 +1,8 @@
 """The form of a ``# violation(<rule>): <reason>`` marker (docs/conventions/resources.md §7)."""
 
-from tests.architecture.scanners import SRC, malformed_markers
+import re
+
+from tests.architecture.scanners import CONVENTION_RULES, SRC, malformed_markers
 
 
 def test_a_violation_marker_is_well_formed():
@@ -39,3 +41,14 @@ def test_the_marker_form_check_bites():
         "8: no line of code right below",
         "11: no line of code right below",
     ]
+
+
+def test_the_rule_of_the_editor_names_the_rules_this_check_names():
+    """The ast-grep rule `violation-marker-form` shows a wrong marker as it is typed.
+
+    It reads the text of the comment; that a marker stands on a line of its own, right above
+    code, is about lines and stays with the check above. Both name one set of rules.
+    """
+    rule = (SRC.parents[1] / ".ast-grep/rules/violation-marker-form.yml").read_text("utf-8")
+    (named,) = re.findall(r"violation\\\(\((.+?)\)\\\): ", rule)
+    assert set(named.split("|")) == {"arch-[1-9]", *CONVENTION_RULES}
