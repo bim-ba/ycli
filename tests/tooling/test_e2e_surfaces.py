@@ -342,6 +342,6 @@ def test_a_surface_failure_is_worded_without_what_the_run_learned(listener, monk
             driver.run(["tracker", "issues", "create", "--queue", "Q", "--summary", "S"])
         driver.close()
     # The test's own credentials are single letters, which the scrub cuts out of every word:
-    # what is held is that the login is gone and its name stands at the end.
+    # what is held is that the login is gone and its name stands where it was, before the hint.
     assert "ivan.petrov" not in str(failed.value)
-    assert str(failed.value).endswith("gin>")
+    assert "gin>\nHin" in str(failed.value)
