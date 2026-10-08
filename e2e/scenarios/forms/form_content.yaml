@@ -195,9 +195,12 @@ steps:
       "id == `${keyset}`": true
       total: 3
       used: 0
-  # The keys come as a spreadsheet, which the runner cannot read as text: they go to the null device.
+  # The keys come as a spreadsheet, a zip archive by its first bytes.
   - id: keyset-download
-    run: forms keysets download ${id} ${keyset} --output /dev/null
+    output: bytes
+    run: forms keysets download ${id} ${keyset}
+    expect:
+      "starts_with(head, '504b0304')": true
   - id: keyset-update
     run: forms keysets update ${id} ${keyset} --name "${RUN} keys renamed" --total 5 --disabled
     expect:
