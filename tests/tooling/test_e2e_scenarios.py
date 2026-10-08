@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 import pytest
 from e2e.catalog import load, scenario_paths
 from e2e.conftest import of_service
+from e2e.models import Scenario
 from e2e.settings import CREDENTIAL_VARIABLES, OPTIONAL_VARIABLES, missing_credentials
 from pydantic import ValidationError
 from typer.testing import CliRunner
@@ -136,3 +137,24 @@ def test_a_service_is_reached_with_what_its_own_profile_takes(monkeypatch):
     assert missing_credentials(profiles["wiki"]) == (
         "set YANDEX_ID_ORGANIZATION_ID or YANDEX_CLOUD_ORGANIZATION_ID"
     )
+
+
+def test_a_scenario_that_leaves_a_permanent_trace_runs_only_on_purpose():
+    """What the API cannot delete is made once, by hand: never by a nightly run."""
+    from e2e.conftest import kept_out
+
+    step = {"id": "a", "run": "tracker statuses create --key k --type new"}
+    leaves = Scenario.model_validate({"name": "tracker/x", "permanent": True, "steps": [step]})
+    plain = Scenario.model_validate({"name": "tracker/y", "steps": [step]})
+    assert kept_out(leaves, permanent=False) == (
+        "leaves objects the API cannot delete: run it on purpose with --permanent"
+    )
+    assert kept_out(leaves, permanent=True) is None
+    assert kept_out(plain, permanent=False) is None
+
+
+def test_no_scenario_that_runs_by_itself_is_marked_permanent_and_smoke():
+    """A pull request's run must never be the one that leaves a trace."""
+    for path in scenario_paths():
+        scenario = load(path)
+        assert not (scenario.permanent and scenario.smoke), scenario.name

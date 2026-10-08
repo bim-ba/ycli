@@ -1,0 +1,89 @@
+# The dictionaries of the organization: statuses, priorities, resolutions, issue types and
+# fields. The API cannot delete an entry of any of them, so this scenario makes none: it edits
+# the test entry each dictionary already holds and leaves it as it was named. An entry is found
+# by reading the list, never by an id written here: the first whose key starts with `e2e`,
+# `yclilt` or `ycliE2e` (the keys of the entries the live tests made: `tracker/permanent-trace`).
+# A dictionary with no such entry fails its step loudly.
+name: tracker/dictionaries
+steps:
+  - id: status
+    run: tracker statuses list
+    save:
+      status: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].key"
+      status_version: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].version"
+  - id: status-edit
+    run: tracker statuses update ${status} --description "edited by ${RUN}" --version ${status_version}
+    expect:
+      key: ${status}
+      description: edited by ${RUN}
+    save:
+      status_version: version
+  - id: status-back
+    run: tracker statuses update ${status} --description "kept for the live tests of ycli" --version ${status_version}
+    expect:
+      description: kept for the live tests of ycli
+  - id: priority
+    run: tracker priorities list
+    save:
+      priority: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].key"
+      priority_version: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].version"
+  - id: priority-edit
+    run: tracker priorities update ${priority} --description "edited by ${RUN}" --version ${priority_version}
+    expect:
+      key: ${priority}
+      description: edited by ${RUN}
+    save:
+      priority_version: version
+  - id: priority-back
+    run: tracker priorities update ${priority} --description "kept for the live tests of ycli" --version ${priority_version}
+    expect:
+      description: kept for the live tests of ycli
+  - id: resolution
+    run: tracker resolutions list
+    save:
+      resolution: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].key"
+      resolution_version: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].version"
+  - id: resolution-edit
+    run: tracker resolutions update ${resolution} --description "edited by ${RUN}" --version ${resolution_version}
+    expect:
+      key: ${resolution}
+      description: edited by ${RUN}
+    save:
+      resolution_version: version
+  - id: resolution-back
+    run: tracker resolutions update ${resolution} --description "kept for the live tests of ycli" --version ${resolution_version}
+    expect:
+      description: kept for the live tests of ycli
+  # An issue type and a field have no description to edit: their name is, and it is given back.
+  - id: issue-type
+    run: tracker issuetypes list
+    save:
+      issue_type: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].key"
+      issue_type_version: "[?starts_with(key, 'e2e') || starts_with(key, 'yclilt') || starts_with(key, 'ycliE2e')] | [0].version"
+  - id: issue-type-edit
+    run: tracker issuetypes update ${issue_type} --name-en "${RUN} type" --name-ru "${RUN} type" --version ${issue_type_version}
+    expect:
+      key: ${issue_type}
+      name: ${RUN} type
+    save:
+      issue_type_version: version
+  - id: issue-type-back
+    run: tracker issuetypes update ${issue_type} --name-en "ycli-e2e issue type" --name-ru "ycli-e2e issue type" --version ${issue_type_version}
+    expect:
+      name: ycli-e2e issue type
+  - id: field
+    run: tracker fields list
+    save:
+      field: "[?starts_with(id, 'e2e') || starts_with(id, 'yclilt') || starts_with(id, 'ycliE2e')] | [0].id"
+      field_version: "[?starts_with(id, 'e2e') || starts_with(id, 'yclilt') || starts_with(id, 'ycliE2e')] | [0].version"
+  - id: field-edit
+    run: tracker fields update ${field} --name-en "${RUN} field" --name-ru "${RUN} field" --version ${field_version}
+    expect:
+      id: ${field}
+      name: ${RUN} field
+    save:
+      field_version: version
+  - id: field-back
+    run: tracker fields update ${field} --name-en "ycli-e2e field" --name-ru "ycli-e2e field" --version ${field_version}
+    expect:
+      name: ycli-e2e field

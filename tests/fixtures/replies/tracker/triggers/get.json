@@ -1,0 +1,51 @@
+{
+  "body": {
+    "<unknown-1>": false,
+    "<unknown-2>": true,
+    "actions": [
+      {
+        "<unknown-1>": false,
+        "id": 1,
+        "text": "<text>",
+        "type": "<type>"
+      }
+    ],
+    "active": false,
+    "conditions": [
+      {
+        "<unknown-1>": true,
+        "<unknown-2>": false,
+        "<unknown-3>": true,
+        "<unknown-4>": "<unknown-4>",
+        "type": "<type>"
+      }
+    ],
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "id": 1,
+    "name": "<name>",
+    "order": "<order>",
+    "owner": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "queue": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 11
+}

@@ -1,0 +1,123 @@
+# What the API cannot delete: an entry of each dictionary of the organization, a local field, an
+# auto-action, a trigger and a dashboard. `permanent: true`: it runs only with --permanent, on
+# purpose and by hand, and every run leaves for good what it made:
+#   a category of fields, a field, an issue type, a priority, a resolution, a status,
+#   a local field, an auto-action (switched off), a trigger (switched off) of the sandbox queue,
+#   a dashboard with one widget, and a queue when NEW_QUEUE names its key.
+# A name is unique within its dictionary, so each carries the tag of the run.
+# Each is named `ycli-e2e ...` and keyed `ycliE2e<tag>`: `tracker/dictionaries` then finds the
+# entries by that key and edits them every night without making more.
+name: tracker/permanent-trace
+permanent: true
+steps:
+  - id: me
+    run: tracker me get
+    save:
+      login: login
+  # A category has no list in the API: it can be edited only here, right after it is made.
+  - id: category
+    run: >-
+      tracker fields categories-create --name-en "ycli-e2e category ${TAG}"
+      --name-ru "ycli-e2e category ${TAG}" --order 400 --description "made by ${RUN}"
+    save:
+      category: id
+      category_version: version
+  - id: category-edit
+    run: tracker fields categories-update ${category} --description "edited by ${RUN}" --version ${category_version}
+    # The reply names the category and its version, not its description.
+    expect:
+      id: ${category}
+  - id: field
+    run: >-
+      tracker fields create --id ycliE2e${TAG} --type ru.yandex.startrek.core.fields.StringFieldType
+      --category ${category} --name-en "ycli-e2e field ${TAG}" --name-ru "ycli-e2e field ${TAG}"
+      --description "made by ${RUN}"
+    expect:
+      id: ycliE2e${TAG}
+  - id: issue-type
+    run: tracker issuetypes create --key ycliE2e${TAG} --name-en "ycli-e2e issue type ${TAG}" --name-ru "ycli-e2e issue type ${TAG}"
+    expect:
+      key: ycliE2e${TAG}
+  # The API requires an order for a priority, though the command lets it be left out.
+  - id: priority
+    run: >-
+      tracker priorities create --key ycliE2e${TAG} --name-en "ycli-e2e priority ${TAG}"
+      --name-ru "ycli-e2e priority ${TAG}" --description "made by ${RUN}" --order 60
+    expect:
+      key: ycliE2e${TAG}
+  - id: resolution
+    run: tracker resolutions create --key ycliE2e${TAG} --name-en "ycli-e2e resolution ${TAG}" --name-ru "ycli-e2e resolution ${TAG}"
+    expect:
+      key: ycliE2e${TAG}
+  - id: status
+    run: tracker statuses create --key ycliE2e${TAG} --name-en "ycli-e2e status ${TAG}" --name-ru "ycli-e2e status ${TAG}" --type new
+    expect:
+      key: ycliE2e${TAG}
+  - id: local-field
+    run: >-
+      tracker localfields create ${QUEUE} --id ycliE2eLocal${TAG}
+      --type ru.yandex.startrek.core.fields.StringFieldType --category ${category}
+      --name-en "ycli-e2e local field ${TAG}" --name-ru "ycli-e2e local field ${TAG}"
+    save:
+      local_field: "key || id"
+  - id: local-field-read
+    run: tracker localfields get ${QUEUE} ${local_field}
+    expect:
+      "key || id": ${local_field}
+  - id: local-field-edit
+    run: tracker localfields update ${QUEUE} ${local_field} --description "edited by ${RUN}"
+    expect:
+      description: edited by ${RUN}
+  # Switched off, and its query matches no issue: it never acts.
+  - id: auto-action
+    run: >-
+      tracker autoactions create ${QUEUE} --name "ycli-e2e auto-action ${TAG}" --inactive
+      --query 'Queue: ${QUEUE} AND Summary: "ycli-e2e-never"'
+      --action '{"type": "CreateComment", "text": "ycli-e2e: this auto-action is kept switched off"}'
+    expect:
+      active: false
+    save:
+      auto_action: id
+  - id: auto-action-read
+    run: tracker autoactions get ${QUEUE} ${auto_action}
+    expect:
+      "to_string(id)": ${auto_action}
+      active: false
+  - id: auto-action-log
+    run: tracker autoactions logs-list ${QUEUE} ${auto_action}
+    expect:
+      "type(@)": array
+  - id: trigger
+    run: >-
+      tracker triggers create ${QUEUE} --name "ycli-e2e trigger ${TAG}" --inactive
+      --action '{"type": "CreateComment", "text": "ycli-e2e: this trigger is kept switched off"}'
+      --condition '{"type": "CommentFullyMatchCondition", "word": "ycli-e2e-never"}'
+    expect:
+      active: false
+      name: ycli-e2e trigger ${TAG}
+  - id: dashboard
+    run: tracker dashboards create --name "ycli-e2e dashboard ${TAG}"
+    save:
+      dashboard: id
+  - id: widget
+    run: >-
+      tracker dashboards widgets-create-cycle-time ${dashboard} --description "ycli-e2e cycle time"
+      --query "Queue: ${QUEUE}" --from-status open --to-status closed
+    expect:
+      "id != null": true
+  # A deleted queue keeps its key, so the key is not the run's: the owner names it, once. The
+  # queue then serves as the second sandbox queue (QUEUE_2) of `tracker/second-queue`.
+  # It takes the issue types of the sandbox queue: the same type, workflow and resolutions.
+  - id: queue-types
+    needs: [NEW_QUEUE]
+    run: tracker queues get ${QUEUE} --expand issueTypesConfig
+    save:
+      types: "to_string({issueType: issueTypesConfig[0].issueType.key, workflow: issueTypesConfig[0].workflow.id, resolutions: issueTypesConfig[0].resolutions[].key})"
+  - id: queue
+    needs: [NEW_QUEUE]
+    run: >-
+      tracker queues create --key ${NEW_QUEUE} --name "ycli e2e second sandbox"
+      --lead ${login} --default-type task --default-priority normal
+      --issue-type-config '${types}'
+    expect:
+      key: ${NEW_QUEUE}
