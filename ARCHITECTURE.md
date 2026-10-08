@@ -77,7 +77,7 @@ program stays a test.
 - **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `endpoints.py`,
   `client.py`, `cli.py`, `mcp.py`, `__init__.py`, a `sync.py` when it declares itself a kind of file
   (`docs/design/files-in-git.md`), and a `models.py` when it has a model of its
-  own: `test_arch1_a_models_file_defines_a_model`; `/new-endpoint` scaffolds them;
+  own: the ast-grep rule `models-file-holds-a-model`; `/new-endpoint` scaffolds them;
   every directory of a service is a resource except `<domain>/mcp/`, the service's MCP server,
   a name `/new-endpoint` refuses: `test_arch1_a_reserved_directory_is_not_a_resource`) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually
@@ -103,11 +103,16 @@ program stays a test.
   `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/contract/test_contract.py`)
   replays every contract case with an empty object for a reply: the command and the tool
   return the same data or both fail, so neither judges a reply the other shows as it is.
+- **What works with a file on the caller's disk is not served over MCP.** A server has no disk
+  of the caller, and bytes do not round-trip a tool result. It is one rule for a client method
+  that gives or takes the bytes of a file (`-> bytes`, or a `bytes` argument: the check reads
+  the signature, so no marker says it; an upload that takes base64 is a tool like any other) and
+  for `ycli sync`, which reads and writes the caller's working tree and has no tool at all
+  ([#520](https://github.com/bim-ba/ycli/issues/520)): an agent runs the command.
 - **Exceptions:** `# violation(arch-1): <reason>` above a tool — it has no CLI command of its own
-  name because one command serves several tools; the same marker above a client method — a binary download is
-  CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file
-  from disk (the other uploads are MCP tools that take base64), plus a few SDK-internal primitives; a
-  resource whose every operation is marked so serves no MCP tool. `status/` and the `ycli.mcp` server package are
+  name because one command serves several tools; the same marker above a client method — an
+  SDK-internal primitive that is a step of another operation; a
+  resource whose every operation is a file's or marked so serves no MCP tool. `status/` and the `ycli.mcp` server package are
   cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
   service mounts that is no resource (`<service> auth`, built once from the registry).
 
@@ -226,7 +231,7 @@ program stays a test.
 - **Check:** `test_every_tool_lists_a_schema_within_the_budget` (with a bite test: the same
   body is over the budget unmarked and within it marked),
   the ast-grep rule `body-is-a-model` (no `body: dict` in an MCP tool, a
-  client method or an endpoint builder), `test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
+  client method or an endpoint builder), the ast-grep rule `body-is-dumped-once`
   (none of the three dumps a model) and
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
   nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no

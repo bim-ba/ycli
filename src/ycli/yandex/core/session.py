@@ -44,6 +44,7 @@ import stamina
 
 from ycli.log import HTTP_LOGGER_NAME
 from ycli.settings import HTTPConfig
+from ycli.yandex.core import continuation
 from ycli.yandex.core.endpoint import PAGED_EXTENSION, check_path
 from ycli.yandex.core.listing import AsyncListing, Listing, Walk
 from ycli.yandex.errors import (
@@ -54,6 +55,7 @@ from ycli.yandex.errors import (
     YandexStaleContinuationError,
     describe_error_body,
     error_for_status,
+    status_line,
 )
 
 if TYPE_CHECKING:
@@ -124,8 +126,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
         return response
     detail = describe_error_body(response.text)
     message = (
-        f"{response.status_code} {response.reason_phrase} for {request.method} "
-        f"{shown(request.url)}: {detail}"
+        f"{status_line(response.status_code)} for {request.method} {shown(request.url)}: {detail}"
     )
     raise error_for_status(
         response.status_code,
@@ -290,6 +291,17 @@ class SyncSession:
 
         return Listing(walk, pages)
 
+    def way_of(self, token: str) -> str:
+        """How the operation that gave ``token`` pages: the name of its pagination.
+
+        Args:
+            token: What an earlier call returned as ``next``.
+
+        Returns:
+            The name of the pagination, for a method that serves two operations of one path.
+        """
+        return continuation.way_of(token, longest=self._http.max_token_length)
+
     def close(self) -> None:
         """Close the underlying ``httpx2.Client``."""
         self._client.close()
@@ -389,6 +401,17 @@ class AsyncSession:
             _ended(walk, limit, asked, self._http.max_pages)
 
         return AsyncListing(walk, pages)
+
+    def way_of(self, token: str) -> str:
+        """How the operation that gave ``token`` pages: the name of its pagination.
+
+        Args:
+            token: What an earlier call returned as ``next``.
+
+        Returns:
+            The name of the pagination, for a method that serves two operations of one path.
+        """
+        return continuation.way_of(token, longest=self._http.max_token_length)
 
     async def aclose(self) -> None:
         """Close the underlying ``httpx2.AsyncClient``."""

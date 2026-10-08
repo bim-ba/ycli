@@ -8,6 +8,8 @@ import json
 from http import HTTPStatus
 from typing import cast
 
+from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV
+
 
 class YandexError(Exception):
     """Base for every Yandex API error. Carries the HTTP status and request URL."""
@@ -135,6 +137,69 @@ def _field_errors(details: object) -> str:
             and isinstance(value, str | int | float)
         ]
     return "; ".join(found)
+
+
+def status_line(code: int) -> str:
+    """The status of a reply as an error says it: the code and the name HTTP gives it.
+
+    Not the server's own words beside the code: for a code HTTP does not name a server says
+    anything ("Unknown" beside DataLens's 427) and over HTTP/2 nothing, which left two spaces.
+
+    Args:
+        code: The HTTP status code.
+
+    Returns:
+        ``"404 Not Found"``; the code alone when HTTP has no name for it.
+
+    Examples:
+        >>> status_line(404), status_line(427)
+        ('404 Not Found', '427')
+    """
+    return f"{code} {HTTPStatus(code).phrase}" if code in HTTPStatus else str(code)
+
+
+_SIGN_IN = (
+    "run `ycli auth login` to (re)authenticate, or check that "
+    f"{OAUTH_TOKEN_ENV} and {ORGANIZATION_ID_ENV} are set."
+)
+# A 403 comes with a valid token: signing in again does not help, a permission or scope does.
+_PERMISSION = (
+    "the token is valid but lacks access here — ask an administrator for permission "
+    "on this resource, or check that the token's OAuth scopes cover this service."
+)
+_NOT_FOUND = (
+    "check the id or key, and that the token's organization and user can see it "
+    "(Yandex answers 404 for an object the caller may not read)."
+)
+
+
+def next_step(exc: BaseException | None) -> str | None:
+    """What to do about ``exc``, when there is something to do: the hint of every surface.
+
+    The CLI prints it under ``Hint:`` and a tool of the MCP server ends its error with the same
+    line, so a person and an agent are told the same.
+
+    Args:
+        exc: The error a call ended with, if it is known.
+
+    Returns:
+        The next step, or ``None`` when the error names nothing the caller can do.
+
+    Examples:
+        >>> next_step(YandexRateLimitError("slow", status=429, retry_after=30))
+        'the API is rate limiting this token — wait 30 s (Retry-After), then try again.'
+        >>> next_step(YandexServerError("down", status=503)) is None
+        True
+    """
+    if isinstance(exc, YandexAuthError):
+        return _PERMISSION if exc.status == HTTPStatus.FORBIDDEN else _SIGN_IN
+    if isinstance(exc, YandexNotFoundError):
+        return _NOT_FOUND
+    if isinstance(exc, YandexRateLimitError):
+        after = exc.retry_after
+        wait = "wait a little" if after is None else f"wait {after:g} s (Retry-After)"
+        return f"the API is rate limiting this token — {wait}, then try again."
+    return None
 
 
 def describe_error_body(body: str) -> str:

@@ -39,7 +39,10 @@ class BulkClient(Resource):
         return self._session.send(endpoints.get(bulk_id))
 
     def issues_list(self, bulk_id: str) -> ItemList[BulkIssueResult]:
-        """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
+        """``GET /bulkchange/{bulk_id}/issues`` → every issue of the change, with how it went.
+
+        One record per issue, the ones that went well too: after a change that passed, each
+        reads ``COMPLETED`` (measured); a failed one carries its ``error``.
 
         Args:
             bulk_id: The bulk change's id.

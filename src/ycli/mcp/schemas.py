@@ -1,10 +1,13 @@
-"""``schema_get``: the schema of a tool's body that the tool's own listing leaves out.
+"""``schema_get``: the schemas a tool's own listing leaves out, one definition at a time.
 
 A body whose schema would take its tool over ``SCHEMA_BUDGET_BYTES`` is listed as a free-form
 object (:class:`ycli.yandex.mcp.OverBudget`) that names its model. This tool serves that model
 and each definition it refers to, one at a time, so an agent reads only the part it needs.
 
-It keeps no map of its own: the index is read from the listing of the server it is mounted on.
+The reply of a tool is not listed at all (the listing would be megabytes); this tool serves it
+the same way, addressed by the tool: its top schema, then a part by its name.
+
+It keeps no map of its own: the index is read from the server it is mounted on.
 """
 
 from __future__ import annotations
@@ -14,10 +17,10 @@ import pkgutil
 from typing import TYPE_CHECKING, Annotated, Any
 
 from fastmcp.exceptions import ToolError
-from pydantic import Field, TypeAdapter
+from pydantic import Field, RootModel, TypeAdapter
 
-from ycli.yandex.mcp import RO, SCHEMA_ADDRESS, new_server
-from ycli.yandex.models import APIModel
+from ycli.yandex.mcp import ALWAYS_LOAD, RO, SCHEMA_ADDRESS, new_server
+from ycli.yandex.models import APIModel, KindByOwnField, RequestBody
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
@@ -30,11 +33,37 @@ class SchemaDefinition(APIModel):
     """One definition of a body's schema: a model, or the named union of several."""
 
     service: str = Field(description="The service whose tools take it, e.g. `forms`.")
-    name: str = Field(description="The definition's name.")
+    name: str = Field(description="The definition's name; for a tool's reply, the tool's.")
     definition: dict[str, Any] = Field(
-        description="Its JSON schema. A `$ref` of `#/$defs/<name>` is another definition of the "
-        "same service: read it with the same tool."
+        description="Its JSON schema. A `$ref` of `#/$defs/<name>` is another definition: of "
+        "the same service for a body, of the same tool for a reply. Read it with this tool."
     )
+
+
+class _OfABody(RequestBody):
+    service: str = Field(description="The service of the tool.")
+    name: str = Field(description="The definition to read.")
+
+
+class _OfAReply(RequestBody):
+    tool: str = Field(description="The tool whose reply to read.")
+    name: str | None = Field(default=None, description="A part of the reply, by its name.")
+
+
+class Asked(RootModel, hide_input_in_errors=True):
+    """What ``schema_get`` is asked for: a definition of a body, or the reply of a tool.
+
+    Examples:
+        >>> type(Asked.model_validate({"tool": "tracker_issues_get"}).root).__name__
+        '_OfAReply'
+        >>> Asked.model_validate({"name": "Issue"})
+        Traceback (most recent call last):
+            ...
+        pydantic_core._pydantic_core.ValidationError: 1 validation error for Asked
+          give exactly one of: service, tool [type=one_kind]
+    """
+
+    root: Annotated[_OfABody | _OfAReply, KindByOwnField()]
 
 
 def definitions(tools: Sequence[Tool]) -> dict[str, dict[str, dict[str, Any]]]:
@@ -73,28 +102,19 @@ def definitions(tools: Sequence[Tool]) -> dict[str, dict[str, dict[str, Any]]]:
     return found
 
 
-def schema_server(list_tools: Callable[[], Awaitable[Sequence[Tool]]]) -> FastMCP:
-    """The server of ``schema_get`` for the root server whose tools ``list_tools`` lists.
+def schema_server(
+    list_tools: Callable[[], Awaitable[Sequence[Tool]]],
+    get_tool: Callable[[str], Awaitable[Tool | None]],
+) -> FastMCP:
+    """The server of ``schema_get`` for the root server that ``list_tools`` and ``get_tool`` read.
 
-    The index is built at the first call and kept: the tools a server serves do not change
-    after it starts.
+    The index of bodies is built at the first call and kept: the tools a server serves do not
+    change after it starts. A reply is read from its tool when asked for.
     """
     server = new_server("schema")
     index: dict[str, dict[str, dict[str, Any]]] = {}
 
-    @server.tool(name="get", annotations={**RO, "title": "Read the schema of a tool's body"})
-    async def get(
-        service: Annotated[str, Field(description="The service of the tool, e.g. `forms`.")],
-        name: Annotated[
-            str, Field(description="The definition to read, as the tool's parameter names it.")
-        ],
-    ) -> SchemaDefinition:
-        """Read one definition of a body that its tool lists as a free-form object.
-
-        Such a parameter says in its description which definition to start from. The answer
-        refers to others as ``#/$defs/<name>``: read those with this tool too, only the ones the
-        task needs.
-        """
+    async def of_a_body(service: str, name: str) -> SchemaDefinition:
         if not index:
             index.update(definitions(await list_tools()))
         if not index:
@@ -108,5 +128,63 @@ def schema_server(list_tools: Callable[[], Awaitable[Sequence[Tool]]]) -> FastMC
                 f"No definition {name!r} in {service}; did you mean: {', '.join(near)}?"
             )
         return SchemaDefinition(service=service, name=name, definition=known[name])
+
+    async def of_a_reply(tool: str, name: str | None) -> SchemaDefinition:
+        names = [listed.name for listed in await list_tools()]
+        held = await get_tool(tool) if tool in names else None
+        if held is None:
+            near = difflib.get_close_matches(tool, names, n=8, cutoff=0.4) or sorted(names)[:8]
+            raise ToolError(f"No tool {tool!r}; did you mean: {', '.join(near)}?")
+        schema = dict(held.output_schema or {})
+        parts = schema.pop("$defs", {})
+        if schema.pop("x-fastmcp-wrap-result", False):
+            # FastMCP wraps what is not an object; the schema of what the tool returns is inside.
+            schema = schema["properties"]["result"]
+        if name is not None and name not in parts:
+            near = difflib.get_close_matches(name, parts, n=8, cutoff=0.4) or sorted(parts)[:8]
+            raise ToolError(
+                f"No definition {name!r} in the reply of {tool}; did you mean: {', '.join(near)}?"
+            )
+        return SchemaDefinition(
+            service=tool.partition("_")[0],
+            name=name or tool,
+            definition=schema if name is None else parts[name],
+        )
+
+    @server.tool(
+        name="get",
+        annotations={**RO, "title": "Read the schema of a tool's body or reply"},
+        meta=ALWAYS_LOAD,
+    )
+    async def get(
+        service: Annotated[
+            str | None, Field(description="For a body: the service of the tool, e.g. `forms`.")
+        ] = None,
+        name: Annotated[
+            str | None,
+            Field(
+                description="The definition to read: for a body, as the tool's parameter names "
+                "it; for a reply, a part of it (left out: the reply itself)."
+            ),
+        ] = None,
+        tool: Annotated[
+            str | None,
+            Field(
+                description="For a reply: the tool whose answer to read, e.g. `forms_surveys_get`."
+            ),
+        ] = None,
+    ) -> SchemaDefinition:
+        """Read one definition: of a body its tool lists as a free-form object, or of a reply.
+
+        A body: give ``service`` and ``name``; such a parameter says in its description which
+        definition to start from. A reply, to know what a tool answers before calling it: give
+        ``tool``, then ``tool`` and ``name`` for a part. The answer refers to others as
+        ``#/$defs/<name>``: read those with this tool too, only the ones the task needs.
+        """
+        given = {"service": service, "name": name, "tool": tool}
+        asked = Asked.model_validate({key: value for key, value in given.items() if value}).root
+        if isinstance(asked, _OfAReply):
+            return await of_a_reply(asked.tool, asked.name)
+        return await of_a_body(asked.service, asked.name)
 
     return server

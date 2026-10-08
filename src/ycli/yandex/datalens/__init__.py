@@ -13,6 +13,7 @@ SERVICE = Service(
     client="ycli.yandex.datalens.client:DataLensClient",
     cli="ycli.yandex.datalens.cli:app",
     mcp="ycli.yandex.datalens.mcp.server:mcp",
+    start="datalens_workbooks_list",
     profile=ServiceProfile(
         "https://api.datalens.tech",
         org_header=None,

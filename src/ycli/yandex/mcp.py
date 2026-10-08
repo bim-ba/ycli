@@ -26,6 +26,7 @@ from ycli.settings import (
     ProfileError,
     missing_credentials,
 )
+from ycli.yandex.errors import next_step
 from ycli.yandex.factory import build_client
 from ycli.yandex.models import field_error
 
@@ -55,6 +56,10 @@ WRITE_IDEMPOTENT: dict[str, bool] = {**WRITE, "idempotentHint": True}
 DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 # Tag carried by every write tool — `ycli mcp start --read-only` disables it wholesale.
 WRITE_TAG = "write"
+# Meta of a tool an agent needs before any other (`status_get`, `schema_get`): a client that
+# hides tools behind a search step keeps it in sight. Claude Code reads this key
+# (https://code.claude.com/docs/en/mcp, "Exempt a server from deferral"); others pass it by.
+ALWAYS_LOAD: dict[str, bool] = {"anthropic/alwaysLoad": True}
 # Meta keys of a prompt and of a resource template: the root-server tool names a prompt's
 # text tells the model to call, and the read tool a resource repeats. The server offers
 # neither when one of those tools is not served (ycli.mcp.listing.ServedWithTheirTools).
@@ -253,6 +258,31 @@ class ArgumentRefusals(Middleware):
             ) from None
 
 
+class NextSteps(Middleware):
+    """Ends a tool's error with the next step the CLI prints under ``Hint:``.
+
+    An agent that gets a 403, a 404 or a 429 is told what a person is told
+    (:func:`~ycli.yandex.errors.next_step`): one place holds the words. An error with no next
+    step is left to FastMCP as it is.
+    """
+
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[mt.CallToolRequestParams],
+        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        """The tool's result; an error that has a next step says it."""
+        try:
+            return await call_next(context)
+        except ToolError as failed:
+            # FastMCP has worded the tool's failure already and keeps what failed as its cause.
+            hint = next_step(failed.__cause__)
+            # A server this one is mounted in gets the error with the hint under it already.
+            if hint is None or str(failed).endswith(hint):
+                raise
+            raise ToolError(f"{failed}\nHint: {hint}") from failed.__cause__
+
+
 def new_server(
     name: str, *, instructions: str | None = None, auth: AuthProvider | None = None
 ) -> FastMCP:
@@ -277,4 +307,5 @@ def new_server(
     """
     server = FastMCP(name, instructions=instructions, auth=auth)
     server.add_middleware(ArgumentRefusals())
+    server.add_middleware(NextSteps())
     return server

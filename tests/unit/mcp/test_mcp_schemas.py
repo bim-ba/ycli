@@ -3,6 +3,7 @@
 import asyncio
 import json
 import pkgutil
+import re
 from typing import Annotated, Any, get_args, get_type_hints
 
 import pytest
@@ -115,9 +116,71 @@ async def test_the_index_is_read_from_the_listing_and_every_address_resolves():
     assert {"Subscription", "EmailSubscription", "SubscriptionHeader"} <= set(index["forms"])
 
 
+async def _reply(client: Client, tool: str, name: str | None = None) -> dict[str, Any]:
+    arguments = {"tool": tool} | ({} if name is None else {"name": name})
+    content = (await client.call_tool("schema_get", arguments)).structured_content
+    assert content is not None
+    return content["definition"]
+
+
+async def test_schema_get_serves_the_reply_of_a_tool_one_definition_at_a_time():
+    """What a tool answers, before it is called (#492, idea 21)."""
+    async with Client(full) as client:
+        top = await _reply(client, "tracker_issues_get")
+        assert "summary" in top["properties"] and "$defs" not in top
+        # A part of it is read by its name, with the same tool beside it.
+        (name, *_) = re.findall(r'"#/\$defs/(\w+)"', json.dumps(top))
+        part = await _reply(client, "tracker_issues_get", name)
+        assert part["type"] == "object" and "$defs" not in part
+
+
+async def test_a_reply_that_is_a_list_is_shown_as_the_list_the_tool_returns():
+    """FastMCP wraps what is not an object as ``{"result": ...}``; the tool returns the list."""
+    async with Client(full) as client:
+        assert await _reply(client, "tracker_queues_list") == {"$ref": "#/$defs/ItemList_Queue_"}
+        assert (await _reply(client, "tracker_queues_list", "ItemList_Queue_"))["type"] == "array"
+        assert await _reply(client, "wiki_pages_get") == {"type": "string"}
+
+
+async def test_one_name_may_mean_two_definitions_in_two_tools():
+    """Replies are addressed within their tool: the names of one service clash (measured)."""
+    seen: dict[tuple[str, str], list[Any]] = {}
+    for tool in await full.list_tools():
+        held = await full.get_tool(tool.name)
+        assert held is not None
+        for name, definition in ((held.output_schema or {}).get("$defs") or {}).items():
+            known = seen.setdefault((tool.name.partition("_")[0], name), [])
+            if definition not in known:
+                known.append(definition)
+    assert any(len(definitions) > 1 for definitions in seen.values())
+
+
+async def test_schema_get_names_what_it_has_when_a_tool_or_a_part_is_not_there():
+    async with Client(full) as client:
+        with pytest.raises(
+            ToolError, match=r"No tool 'tracker_issues_gett'; did you mean: .*tracker_issues_get"
+        ):
+            await _reply(client, "tracker_issues_gett")
+        with pytest.raises(
+            ToolError, match="No definition 'Nope' in the reply of tracker_issues_get"
+        ):
+            await _reply(client, "tracker_issues_get", "Nope")
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [{}, {"service": "forms", "name": "Subscription", "tool": "forms_surveys_get"}, {"name": "X"}],
+    ids=["nothing", "both", "a name alone"],
+)
+async def test_schema_get_takes_a_body_or_a_tool_exactly_one(arguments):
+    async with Client(full) as client:
+        with pytest.raises(ToolError, match="give exactly one of: service, tool"):
+            await client.call_tool("schema_get", arguments)
+
+
 async def test_schema_get_is_annotated_as_a_read():
     """Like ``status_get`` it belongs to no resource, so the contract test does not see it."""
-    (tool,) = await schema_server(full.list_tools).list_tools()
+    (tool,) = await schema_server(full.list_tools, full.get_tool).list_tools()
     hints = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
     assert {key: hints.get(key) for key in RO} == RO
 
