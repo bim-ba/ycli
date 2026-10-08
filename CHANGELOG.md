@@ -9,6 +9,28 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.130.1 (2026-10-08)
+
+### Bug Fixes
+
+- **e2e**: A request the core sent again is worded without what the run learned
+  ([`0721167`](https://github.com/bim-ba/ycli/commit/0721167e625c5d3c61f2708d6b3ccb8faee62de0))
+
+### Build System
+
+- Re-lock uv.lock for 0.130.0
+  ([`12bd760`](https://github.com/bim-ba/ycli/commit/12bd7600ec0a4fea6bfaea4bd309138b267c1967))
+
+### Testing
+
+- **e2e**: The dictionaries of Tracker are edited every night, and what cannot be deleted is made
+  once on purpose
+  ([`322073c`](https://github.com/bim-ba/ycli/commit/322073c60f99231157d3d12343cd623947b07525))
+
+- **e2e**: The three downloads of a file are held by the first bytes of what came
+  ([`a288246`](https://github.com/bim-ba/ycli/commit/a2882465489d4f61e91d6c5b46948a4574b842bb))
+
+
 ## v0.130.0 (2026-10-08)
 
 ### Build System
