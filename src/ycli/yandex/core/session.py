@@ -44,6 +44,7 @@ import stamina
 
 from ycli.log import HTTP_LOGGER_NAME
 from ycli.settings import HTTPConfig
+from ycli.yandex.core import continuation
 from ycli.yandex.core.endpoint import PAGED_EXTENSION, check_path
 from ycli.yandex.core.listing import AsyncListing, Listing, Walk
 from ycli.yandex.errors import (
@@ -282,6 +283,17 @@ class SyncSession:
 
         return Listing(walk, pages)
 
+    def way_of(self, token: str) -> str:
+        """How the operation that gave ``token`` pages: the name of its pagination.
+
+        Args:
+            token: What an earlier call returned as ``next``.
+
+        Returns:
+            The name of the pagination, for a method that serves two operations of one path.
+        """
+        return continuation.way_of(token, longest=self._http.max_token_length)
+
     def close(self) -> None:
         """Close the underlying ``httpx2.Client``."""
         self._client.close()
@@ -377,6 +389,17 @@ class AsyncSession:
             _ended(walk, limit, asked, self._http.max_pages)
 
         return AsyncListing(walk, pages)
+
+    def way_of(self, token: str) -> str:
+        """How the operation that gave ``token`` pages: the name of its pagination.
+
+        Args:
+            token: What an earlier call returned as ``next``.
+
+        Returns:
+            The name of the pagination, for a method that serves two operations of one path.
+        """
+        return continuation.way_of(token, longest=self._http.max_token_length)
 
     async def aclose(self) -> None:
         """Close the underlying ``httpx2.AsyncClient``."""
