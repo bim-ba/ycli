@@ -73,6 +73,14 @@ steps:
     run: datalens charts editor update --mode publish --entry '${drawn}'
     expect:
       entry.entryId: ${editor}
+  - id: editor-chart-read
+    # A read names its version: a fresh entry has no published one.
+    run: datalens charts editor get ${editor} --branch saved --workbook-id ${workbook}
+    expect:
+      entry.entryId: ${editor}
+      entry.type: table_node
+      entry.workbookId: ${workbook}
+      entry.data.prepare: "module.exports = {head: [], rows: []};"
   - id: ql-chart
     run: >-
       datalens charts ql create --template ql --workbook-id ${workbook} --name "${RUN} ql"
@@ -88,6 +96,12 @@ steps:
       "connection": {"entryId": "${connection}", "type": "clickhouse"}}'
     expect:
       entryId: ${ql}
+  - id: ql-chart-read
+    run: datalens charts ql get ${ql} --branch saved --workbook-id ${workbook}
+    expect:
+      entryId: ${ql}
+      workbookId: ${workbook}
+      data.queryValue: select 2
   - id: wizard-chart
     # Over the run's dataset, which has no field: a table with no column.
     run: >-
@@ -102,6 +116,19 @@ steps:
     run: datalens charts wizard update ${wizard} --mode save --data '${shown}'
     expect:
       entry.entryId: ${wizard}
+  - id: wizard-chart-read
+    run: datalens charts wizard get ${wizard} --branch saved --workbook-id ${workbook}
+    expect:
+      entry.entryId: ${wizard}
+      entry.workbookId: ${workbook}
+      entry.data.visualization.type: flatTable
+  - id: wizard-chart-data
+    # The chart's source is the run's empty dataset, which has no field and reaches no host, so
+    # DataLens answers with no table: this proves the call and the reply, not a query.
+    run: datalens charts data-get ${wizard}
+    expect:
+      chartType: wizard
+      "length(results)": 0
   - id: dashboard
     # One tab with nothing on it. DataLens requires every one of these keys.
     run: >-

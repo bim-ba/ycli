@@ -20,6 +20,9 @@ from ycli.yandex.sync.kind import KindSummary, summary_of
 from ycli.yandex.sync.plan import Planned, plan
 from ycli.yandex.sync.pull import Action, Pulled, ScopeError, Sender
 from ycli.yandex.sync.pull import pull as pull_objects
+from ycli.yandex.sync.push import OnError, Pushed, Result, prunable
+from ycli.yandex.sync.push import prune as prune_objects
+from ycli.yandex.sync.push import push as push_files
 
 app = typer.Typer(name="sync", help="Yandex 360 content as files in git.", no_args_is_help=True)
 
@@ -180,7 +183,9 @@ def diff(
     kinds = [one for one in declared_kinds() if not kind or one.name in kind]
     found = plan(Path.cwd(), scopes, kinds, sender, show_secrets=show_secrets)
     counted = Counter(one.state for one in found)
-    typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
+    # Every state but the one only `push --prune` plans.
+    said = [state for state in State if state is not State.DELETE]
+    typer.echo(", ".join(f"{counted[state]} {state}" for state in said), err=True)
     listed = ItemList[Planned](
         [one for one in found if show_unchanged or one.state is not State.UNCHANGED]
     )
@@ -193,3 +198,75 @@ def diff(
         return ExitWith(listed, exit_code=ExitCode.DIVERGED)
     to_push = counted[State.UPDATE] + counted[State.CREATE]
     return ExitWith(listed, exit_code=ExitCode.CHANGES) if to_push else listed
+
+
+@app.command()
+def push(
+    context: typer.Context,
+    paths: Paths = None,
+    kind: Kinds = None,
+    show_unchanged: Annotated[
+        bool, typer.Option("--show-unchanged", help="Also list the files with nothing to push.")
+    ] = False,
+    prune: Annotated[
+        str | None,
+        typer.Option(
+            "--prune",
+            metavar="COMMIT",
+            help="Also delete the objects whose files were deleted since this commit.",
+        ),
+    ] = None,
+    on_error: Annotated[
+        OnError,
+        typer.Option("--on-error", help="After a file fails: go on to the next, or end the run."),
+    ] = OnError.FAIL,
+) -> ItemList[Pushed] | ItemList[Planned] | ExitWith:
+    """Send the files that differ from their objects, each write read back and compared.
+
+    A file is sent only when its object is as the file was read: one whose object changed on
+    the server, is gone, or was never read is stopped (exit 8) until a `pull`. After a write
+    the object is read again: the file gets its new link, and a value the server did not keep
+    fails the file and is named. A new file gets the identity of what was created. With
+    --dry-run nothing is sent and the plan is printed; `diff` shows it with the differences.
+    """
+    application = context.find_root().obj
+    clients = {service.name: service.client_class for service in SERVICES}
+
+    def sender(service: str) -> Sender:
+        return application.resolve(clients[service]())
+
+    root = Path.cwd()
+    scopes = [PurePosixPath(path.as_posix()) for path in paths or []]
+    kinds = [one for one in declared_kinds() if not kind or one.name in kind]
+    try:
+        doomed = prunable(root, prune, scopes, kinds) if prune else []
+    except ScopeError as refusal:
+        raise typer.BadParameter(str(refusal), param_hint="--prune") from None
+    if application.options.get("dry_run"):
+        planned = [
+            one.model_copy(update={"diff": None}) for one in plan(root, scopes, kinds, sender)
+        ]
+        planned += [one for one, _, _ in doomed]
+        counted = Counter(one.state for one in planned)
+        typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
+        return ItemList[Planned](
+            [one for one in planned if show_unchanged or one.state is not State.UNCHANGED]
+        )
+    done = list(push_files(root, scopes, kinds, sender, on_error=on_error))
+    aborted = on_error is OnError.ABORT and any(one.result is Result.FAILED for one in done)
+    if not aborted:
+        done += prune_objects(doomed, sender)
+    results = Counter(one.result for one in done)
+    summed = ", ".join(f"{results[result]} {result}" for result in Result)
+    added = sum(one.added for one in done)
+    # Said only when it happened: most runs add nothing.
+    holds = {0: "", 1: "; 1 file now holds what the service added"}.get(
+        added, f"; {added} files now hold what the service added"
+    )
+    typer.echo(summed + holds, err=True)
+    listed = ItemList[Pushed](
+        [one for one in done if show_unchanged or one.result is not Result.UNCHANGED]
+    )
+    if results[Result.FAILED]:
+        return ExitWith(listed, exit_code=ExitCode.FAILURE)
+    return ExitWith(listed, exit_code=ExitCode.DIVERGED) if results[Result.STOPPED] else listed

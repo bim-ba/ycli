@@ -130,6 +130,9 @@ def delete(dataset_id: DatasetID, client: DataLensClient = Depends(datalens_clie
     """Delete a dataset; the charts built on it lose their data.
 
     The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
+
+    The interface lists what was deleted under Service settings, Deleted objects, with a
+    Restore button (measured: the entry appears there; restoring was not tried).
     """
     client.datasets.delete(dataset_id)
     return Ack.deleted("dataset", dataset_id)

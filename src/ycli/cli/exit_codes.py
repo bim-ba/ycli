@@ -19,6 +19,7 @@ class ExitCode(enum.IntEnum):
     TRANSIENT = 6  # a 5xx, a timeout or a lost connection: worth trying again later
     CHANGES = 7  # nothing failed: with `--exit-code`, there is something to push
     DIVERGED = 8  # a file and its object went apart: it changed on the server, or is gone
+    STALE = 9  # a listing cannot go on from its token any more: start it again
 
 
 def exit_codes_summary() -> str:
@@ -32,6 +33,6 @@ def exit_codes_summary() -> str:
         >>> listed[:4]
         ['0 ok', '1 failure', '2 usage', '3 not found']
         >>> listed[4:]
-        ['4 auth', '5 rate limited', '6 transient', '7 changes', '8 diverged']
+        ['4 auth', '5 rate limited', '6 transient', '7 changes', '8 diverged', '9 stale']
     """
     return " · ".join(f"{code.value} {code.name.lower().replace('_', ' ')}" for code in ExitCode)
