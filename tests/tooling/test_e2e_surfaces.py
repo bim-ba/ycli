@@ -345,3 +345,19 @@ def test_a_surface_failure_is_worded_without_what_the_run_learned(listener, monk
     # what is held is that the login is gone and its name stands where it was, before the hint.
     assert "ivan.petrov" not in str(failed.value)
     assert "gin>\nHin" in str(failed.value)
+
+
+def test_a_request_sent_again_is_worded_without_what_the_run_learned(monkeypatch):
+    """A path holds what a step saved, a login or a queue's key: the report names it instead."""
+    limited = _Limited()
+    transport = httpx2.MockTransport(limited)
+    monkeypatch.setattr("ycli.yandex.core.session.default_transport", lambda: transport)
+    with listening(monkeypatch) as heard:
+        driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), heard)
+        driver.knows({"RUN": "e2e-1-ab12", "login": "ivan.petrov"})
+        assert driver.run(["tracker", "users", "get", "ivan.petrov"]).exit_code == 0
+        driver.close()
+    # As above: the scrub cuts the test's one-letter credentials out of the name too.
+    (line,) = driver.report.resent
+    assert "ivan.petrov" not in line
+    assert line.startswith("GET /v3/users/<") and line.endswith("gin>")
