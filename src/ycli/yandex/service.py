@@ -19,7 +19,9 @@ class Service:
     """One Yandex service as every surface sees it.
 
     ``name`` is the CLI group, the MCP tool prefix (``tracker_*``) and the ``auth status`` key;
-    ``profile`` is where its API lives and how it names the organization. ``pagination`` names
+    ``profile`` is where its API lives and how it names the organization. ``start`` is the tool
+    an agent begins with, by its served name (``tracker_me_get``): a read that needs nothing
+    known beforehand. ``pagination`` names
     (like ``client``) the one :class:`~ycli.yandex.core.pagination.Pagination` that every listing
     of the service shares, or is ``None`` when its listings page in more than one way.
     """
@@ -29,6 +31,7 @@ class Service:
     client: str
     cli: str
     mcp: str
+    start: str
     profile: ServiceProfile
     pagination: str | None = None
 
