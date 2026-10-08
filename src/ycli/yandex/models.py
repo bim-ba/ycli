@@ -431,6 +431,27 @@ class ItemList[T](RootModel[list[T]]):
     """
 
 
+class Listed[T](APIModel):
+    """What a listing gave, and whether there is more: the same on every surface.
+
+    ``next`` goes back to the same call, with the same arguments, to go on from where this
+    one stopped. ``total`` is how many items the whole listing has, where the service says.
+
+    Examples:
+        >>> Listed[int](items=[1, 2], truncated=True, next="eJw").model_dump()
+        {'items': [1, 2], 'truncated': True, 'next': 'eJw', 'total': None}
+    """
+
+    items: list[T] = Field(description="The items given.")
+    truncated: bool = Field(default=False, description="Whether the listing has more items.")
+    next: str | None = Field(
+        default=None, description="Give it back to the same call to go on; absent at the end."
+    )
+    total: int | None = Field(
+        default=None, description="How many items the whole listing has, where the service says."
+    )
+
+
 class Ack(APIModel):
     """Typed acknowledgement for write operations whose API response carries no body.
 
