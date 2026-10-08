@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.130.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.129.0
+  ([`89743b8`](https://github.com/bim-ba/ycli/commit/89743b8c089cb433769a2e947084a44e4c574366))
+
+### Features
+
+- **core**: The rule on writes lives in the core, where every surface's requests pass
+  ([`ff03d07`](https://github.com/bim-ba/ycli/commit/ff03d07010ae9905ebdd7323245286b0db91ad2d))
+
+
 ## v0.129.0 (2026-10-08)
 
 ### Build System
