@@ -36,14 +36,14 @@ up by the declarations its resources carry.
 | 16 | An object with no version | Every file carries `hash`, the fingerprint of its content, always; the server's version is a separate key where the service has one. Both are checked | #485 |
 | 17 | How a write proves its version | A class per way, not a flag | #485 |
 | 18 | Where a kind is declared | In its resource, beside the client | #485 |
-| 19 | Surfaces | CLI, SDK and MCP | #485 |
+| 19 | Surfaces | CLI and SDK. MCP was decided in #485 and withdrawn in #520: see 24 | #485, #520 |
 | 20 | How a resource becomes a kind | One declaration in the resource that names its operations, and marks on those operations | #488 |
 | 20a | Where the marks stand | On the functions of `endpoints.py`, the one place an operation is described; the declaration names those functions | #493 |
 | 21 | An object with no `id` | No key is invented: the identity is what the read operation is addressed by, which is none, one or several marked arguments | #488 |
 | 22 | An operation the API lacks | It is absent from the declaration; the engine says so aloud. No stub that does nothing | #488 |
 | 23 | Where the file of an object lies | A field marked `Place()` says it (the `slug` of a page); for a kind with none the path is its container and its identity, under the names of their resources | #493 |
 | 23a | Whether a kind may be written | No mark and no field says it. After every write the engine reads the object again and compares what was sent with what was saved; a loss is a loud refusal. A kind known to lose data names no `update` | #493 |
-| 24 | The MCP tools of `sync` | Always served, beside `status_get` and `schema_get`; not served by a server reached over HTTP, which has no working directory of the caller | #493, #485 |
+| 24 | The MCP tools of `sync` | **None** (#520, which withdraws #485 item 6 and #493 item 4). `sync` works in the caller's working tree and a server has none: an agent runs the command. The server's instructions say so in one line | #520 |
 | 25 | DataLens in files | A file per entry, not the export of a whole workbook | #484 |
 
 Two rules bound the engine.
@@ -101,11 +101,25 @@ One vocabulary says what `push` would do with a file, in `status`, `diff` and `p
 | `changed-on-server` | the version or the fingerprint of the object is not the file's | no |
 | `gone` | the file names an object the server no longer has | no |
 | `no-file` | a container holds an object that has no file | no |
+| `delete` | `push --prune <commit>`: the file was deleted since that commit | from git |
 
 `status` reads nothing but the files, so an edited file is `update` there even when its object has
 changed meanwhile; `diff` reads the server and says `changed-on-server`. The file keeps no copy of
 what was read, only its fingerprint: where the object changed, `diff` shows the file against the
 server as it is now and cannot say whose change a line is.
+
+What `push` did with a file is one of `created`, `updated`, `deleted`, `unchanged`, `stopped`
+(the file and its object went apart: exit `8`) and `failed` (exit `1`, which outweighs `8`). After
+a write the object is read again. A value that was sent and is not there fails the file and is
+named by its path (`written, and the server did not keep: actions.0.status`); the link of the
+file stays as it was, so the next `diff` shows the file against the server. What the server
+added of its own is no loss: the file is written anew as `pull` would write it, so it is
+`unchanged` from then on, and the summary counts such files when there are any (`2 files now hold what the
+service added`; whether a file should be rewritten so is with the owner). The plan says beforehand that
+a new file gets its identity and, where it applies, the name of its object. A new file that lies under an identity is moved to the name of its
+object (`triggers/assign.yaml` becomes `triggers/16.yaml`). `--on-error abort` ends the run at
+the first failed file; the default, `fail`, goes on. `push --dry-run` sends nothing and prints
+the plan.
 
 A directory names the files under it and the file beside it of the same name: `wiki/team` is the
 page `wiki/team.md` and the pages under `wiki/team/`, in every command.
@@ -394,10 +408,9 @@ trigger: for a trigger file deleted with `--prune` the engine says so.
 | `status`, `validate`, where a file lies (`ycli.yandex.sync.files`, `paths`) | built |
 | `pull` (`ycli.yandex.sync.pull`) | built |
 | `diff`, the plan it shares with `push`, the exit codes (`ycli.yandex.sync.plan`) | built |
-| `push`, `--on-error`, the rest of the output of #492 | not built |
-| `--prune` | not built |
-| The MCP tools, in one change with `pull` / `diff` / `push` | not built |
-| A how-to page in `docs/en` and `docs/ru`, with the recipe "the plan as a comment on a pull request" | not built |
+| `push`, `--on-error`, `--prune` (`ycli.yandex.sync.push`) | built; a live round trip of each kind is still to be recorded |
+| The rest of the output of #492: one JSON object a line, `-o paths`, the annotations of GitHub Actions | not built |
+| A how-to page in `docs/en` and `docs/ru`, with the recipe "the plan as a comment on a pull request" (`how-to/keep-content-in-git.md`) | built |
 
 Not planned until asked for: a manifest file listing what to synchronize, a three-way merge, moving
 pages from `push`, an external diff tool. Recorded for later: a check on the server before a write

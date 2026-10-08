@@ -43,7 +43,8 @@ class ChartsClient(Resource):
         the page of a table among them. ``chartType`` says how the chart is built (``wizard``,
         ``ql``, ``editor``), and each table of ``results`` has its columns and its rows. A
         pivot table is not supported (``422``), and a chart whose source cannot be reached
-        answers ``427``.
+        answers ``427``. A chart of the editor with no source did not answer within the
+        client's wait: the call ends with a timeout after about two minutes (measured, twice).
 
         Args:
             chart_id: The id of a saved chart.
@@ -194,6 +195,9 @@ class ChartsClient(Resource):
 
         The API has no way to bring it back, and a dashboard that shows it keeps naming its
         id (measured).
+
+        The interface lists what was deleted under Service settings, Deleted objects, with a
+        Restore button (measured: the entry appears there; restoring was not tried).
 
         Args:
             chart_id: The chart's id.

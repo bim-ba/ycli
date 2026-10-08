@@ -17,6 +17,7 @@ ARCH4_SERIALIZATION_HOMES = {
     Path("log.py"): "the JSON log formatter writes diagnostic records to stderr, not results",
     Path("yandex/sync/formats.py"): "writes a file of a repository, not a result of a command",
     Path("yandex/sync/document.py"): "the canonical form a fingerprint is taken from",
+    Path("yandex/core/continuation.py"): "packs where a listing stopped into a token",
 }
 
 

@@ -23,8 +23,27 @@ steps:
     run: tracker attachments get ${key} ${file}
     expect:
       name: kept.txt
+  - id: attachment-download
+    # The bytes go to stdout, so the reply is the file itself.
+    output: text
+    run: tracker attachments download ${key} ${file} kept.txt
+    expect:
+      "contains(@, 'a note for the live scenarios')": true
   - id: attachment-delete
     run: tracker attachments delete ${key} ${file}
+  - id: picture
+    run: tracker attachments upload ${key} ${FILES}/square.png
+    expect:
+      name: square.png
+    save:
+      picture: id
+  - id: thumbnail
+    # The thumbnail is a PNG, which the runner cannot read as text, so the bytes are written
+    # to /dev/null: the step proves that Tracker handed one over (the exit status), not what it
+    # shows.
+    run: tracker attachments thumbnails-download ${key} ${picture} --output /dev/null
+  - id: picture-delete
+    run: tracker attachments delete ${key} ${picture}
   - id: temporary-file
     run: tracker attachments upload-temp ${FILES}/note.txt --rename-to scratch.txt
     expect:
@@ -96,6 +115,20 @@ steps:
   - id: tag-both
     run: >-
       tracker issues update-bulk --issue ${key} --issue ${other} -F 'tags={"add": ["e2e"]}'
+    save:
+      bulk: id
+  - id: bulk-status
+    run: tracker bulk get ${bulk}
+    expect:
+      id: ${bulk}
+      totalIssues: 2
+      status: COMPLETE
+  - id: bulk-failures
+    # One record per issue of the change, each with the outcome of that issue.
+    run: tracker bulk issues-list ${bulk}
+    expect:
+      "length(@)": 2
+      "[?status == 'COMPLETED'] | length(@)": 2
   - id: tagged
     run: tracker issues get ${other}
     expect:

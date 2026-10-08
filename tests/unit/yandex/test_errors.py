@@ -18,6 +18,7 @@ from ycli.yandex.errors import (
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
+    status_line,
 )
 
 BASE = "https://api.tracker.yandex.net/v3"
@@ -102,3 +103,18 @@ def test_forms_validation_errors_read_as_text(body, line):
     from ycli.yandex.errors import describe_error_body
 
     assert describe_error_body(body) == line
+
+
+@pytest.mark.parametrize(
+    ("code", "line"),
+    [(404, "404 Not Found"), (503, "503 Service Unavailable"), (427, "427"), (599, "599")],
+)
+def test_the_status_of_an_error_is_the_code_and_the_name_http_gives_it(code, line):
+    assert status_line(code) == line
+
+
+def test_a_code_http_does_not_name_is_not_called_unknown():
+    """DataLens answers 427 and its server says "Unknown" beside it; over HTTP/2 nothing is said."""
+    with pytest.raises(YandexError) as refused:
+        _get_with(427, json={"message": "Failed to retrieve chart data"})
+    assert str(refused.value).startswith(f"427 for GET {BASE}/detail: ")

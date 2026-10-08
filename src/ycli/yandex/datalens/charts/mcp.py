@@ -78,7 +78,8 @@ def data_get(
 
     The chart runs with its saved settings. ``chartType`` says how it is built (``wizard``,
     ``ql``, ``editor``). A pivot table is not supported, and a chart whose source cannot be
-    reached answers with an error.
+    reached answers with an error. A chart of the editor with no source did not answer within
+    the client's wait: the call ends with a timeout after about two minutes (measured, twice).
     ``entries_list`` with the scope ``widget`` finds charts.
     """
     return client.charts.data_get(chart_id, params=params)
@@ -174,6 +175,9 @@ def wizard_delete(chart_id: ChartID, client: DataLensClient = Depends(datalens_c
 
     The API has no way to bring it back, and a dashboard that shows it keeps naming its id
     (measured).
+
+    The interface lists what was deleted under Service settings, Deleted objects, with a
+    Restore button (measured: the entry appears there; restoring was not tried).
     """
     client.charts.wizard_delete(chart_id)
     return Ack.deleted("chart", chart_id)

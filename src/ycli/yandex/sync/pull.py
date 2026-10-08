@@ -51,7 +51,7 @@ class ScopeError(ValueError):
     """A path that names nothing ``pull`` can fetch; the message says what to name."""
 
 
-def _ask(sender: Sender, operation: Operation, named: dict[str, Any]) -> Any:
+def ask(sender: Sender, operation: Operation, named: dict[str, Any]) -> Any:
     """Call ``operation`` with ``named``; what nobody names and may be nothing goes as ``None``."""
     request = operation(**named, **dict.fromkeys(arguments_of(operation).left_out))
     return sender.iterate(request) if isinstance(request, Paged) else sender.send(request)
@@ -86,10 +86,10 @@ def documents_under(
     found, read = arguments_of(kind.find), arguments_of(kind.read)
     places = dict(zip(read.container, held, strict=False))
     identity = fields_marked(kind.link, Identity)
-    for item in _ask(sender, kind.find, dict(zip(found.container, held, strict=True))):
+    for item in ask(sender, kind.find, dict(zip(found.container, held, strict=True))):
         ids = [getattr(item, name) for name in identity]
         named = places | dict(zip(read.identity, ids, strict=True))
-        reply: BaseModel = _ask(sender, kind.read, named)
+        reply: BaseModel = ask(sender, kind.read, named)
         leaf = [getattr(reply, name) for name in fields_marked(type(reply), Place)] or [
             getattr(reply, name) for name in identity
         ]
@@ -117,7 +117,7 @@ def _as_document(
     link = {name: getattr(reply, name) for name in identity} | {"hash": fingerprint(content)}
     if version:
         link[version] = kind.version.current(
-            reply, version, lambda operation: _ask(sender, operation, named)
+            reply, version, lambda operation: ask(sender, operation, named)
         )
     return Document(path=path, link=kind.link(**link), content=content)
 
@@ -142,7 +142,7 @@ def read_one(
     named = dict(zip(read.container, held, strict=False)) | dict(
         zip(read.identity, ids, strict=True)
     )
-    return _as_document(kind, sender, document.path, _ask(sender, kind.read, named), named)
+    return _as_document(kind, sender, document.path, ask(sender, kind.read, named), named)
 
 
 def pull(

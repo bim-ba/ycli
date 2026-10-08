@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.122.4"
+version = "0.124.2"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
@@ -158,6 +158,8 @@ version_variables = [
     "docs/en/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
     "docs/ru/how-to/use-in-ci.md:yandex-cli",
     "docs/ru/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
+    "docs/en/how-to/keep-content-in-git.md:yandex-cli",
+    "docs/ru/how-to/keep-content-in-git.md:yandex-cli",
     "docs/en/how-to/install-in-your-harness.md:yandex-cli[mcp]",
     "docs/ru/how-to/install-in-your-harness.md:yandex-cli[mcp]",
 ]

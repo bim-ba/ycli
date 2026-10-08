@@ -199,13 +199,34 @@ def _operation_methods():
             yield f"{slug}.{attr}.{op}", getattr(resource, op)
 
 
+def _moves_a_file(method: object) -> bool:
+    """Whether a client method gives the caller the bytes of a file, or takes them.
+
+    What works with a file on the caller's disk is not served over MCP: a server has no disk of
+    the caller, and bytes do not round-trip a tool result. The signature says it, so no marker
+    does: ``-> bytes`` or a ``bytes`` argument.
+    """
+    signature = inspect.signature(inspect.unwrap(method))  # ty: ignore[invalid-argument-type]
+    held = [signature.return_annotation, *(one.annotation for one in signature.parameters.values())]
+    return any(annotation in (bytes, "bytes") for annotation in held)
+
+
+def _marked_asymmetries() -> set[str]:
+    return {operation for operation, method in _operation_methods() if _is_marked(method)}
+
+
+def _file_operations() -> set[str]:
+    return {operation for operation, method in _operation_methods() if _moves_a_file(method)}
+
+
 def surface_asymmetries() -> set[str]:
-    """The client operations marked as served by one surface only, ``domain.resource.op``.
+    """The client operations served by one surface only, ``domain.resource.op``.
 
     ARCH-1 operation-level parity (D2): every public client operation is wrapped on BOTH the CLI
-    and the MCP surface, except the methods with ``# violation(arch-1): <reason>`` above them.
+    and the MCP surface, except a method that moves a file (the rule, read off its signature)
+    and the methods with ``# violation(arch-1): <reason>`` above them.
     """
-    return {operation for operation, method in _operation_methods() if _is_marked(method)}
+    return _marked_asymmetries() | _file_operations()
 
 
 def test_arch1_operation_level_parity():
@@ -223,15 +244,45 @@ def test_arch1_operation_level_parity():
         mcp_ops = _wrapped_ops(rdir / "mcp.py", attr)
         for op in _surface_gaps(sdk_ops, cli_ops, mcp_ops):
             gaps[f"{slug}.{attr}.{op}"] = (op in cli_ops, op in mcp_ops)
-    marked = surface_asymmetries()
-    unexpected = sorted(set(gaps) - marked)
+    marked = _marked_asymmetries()
+    # A file is the CLI's to move: such an operation may lack a tool, never a command.
+    files = {op for op in _file_operations() if op in gaps and gaps[op][0]}
+    unexpected = sorted(set(gaps) - marked - files)
     resolved = sorted(marked - set(gaps))
-    assert not unexpected and not resolved, (
+    needless = sorted(marked & _file_operations())
+    assert not unexpected and not resolved and not needless, (
         "operation-level surface parity drifted. Every client op must be wrapped on BOTH the "
         "CLI and MCP surfaces, or have `# violation(arch-1): <reason>` above the client method.\n"
         f"  newly unwrapped (wrap on both surfaces, or mark with a reason): {unexpected}\n"
-        f"  now wrapped (remove the marker): {resolved}"
+        f"  now wrapped (remove the marker): {resolved}\n"
+        f"  moves a file, which says it already (remove the marker): {needless}"
     )
+
+
+def test_arch1_a_file_operation_is_known_by_its_signature():
+    """Prove-it: bytes given or taken say a method moves a file; anything else does not."""
+
+    def download(self, file_id: str) -> bytes:
+        return b""
+
+    def upload(self, *, filename: str, data: bytes) -> dict:
+        return {}
+
+    def get(self, file_id: str) -> dict:
+        return {}
+
+    def deferred(self, file_id: str) -> "bytes":
+        return b""
+
+    assert [_moves_a_file(one) for one in (download, upload, get, deferred)] == [
+        True,
+        True,
+        False,
+        True,
+    ]
+    # The real ones are found, and each has a command: a file is the CLI's to move.
+    assert "tracker.attachments.download" in _file_operations()
+    assert "tracker.attachments.list" not in _file_operations()
 
 
 def test_arch1_parity_check_bites():

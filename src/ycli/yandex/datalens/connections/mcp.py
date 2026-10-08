@@ -104,6 +104,9 @@ def delete(connection_id: ConnectionID, client: DataLensClient = Depends(datalen
 
     The API has no way to bring it back, and a chart that reads through it keeps naming its id
     (measured).
+
+    The interface lists what was deleted under Service settings, Deleted objects, with a
+    Restore button (measured: the entry appears there; restoring was not tried).
     """
     client.connections.delete(connection_id)
     return Ack.deleted("connection", connection_id)

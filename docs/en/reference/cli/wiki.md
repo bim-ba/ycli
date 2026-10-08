@@ -1008,7 +1008,7 @@ $ ycli wiki attachments download-by-url [OPTIONS] URL
 
 **Arguments**:
 
-* `URL`: Page-slug URL: <slug>/.files/<filename>.  [required]
+* `URL`: Page-slug URL: <slug>/.files/<filename>, or an attachment's download_url.  [required]
 
 **Options**:
 
@@ -1586,6 +1586,8 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 #### `ycli wiki grids columns suggest`
 
 Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API).
+
+Give --slug or --title, exactly one: the API answers 400 for neither and for both.
 
 **Usage**:
 
