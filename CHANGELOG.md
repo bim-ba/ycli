@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.128.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.127.4
+  ([`d1f2416`](https://github.com/bim-ba/ycli/commit/d1f2416c244327c281274dd00c60c5c733d1e4a3))
+
+### Chores
+
+- **lint**: Three more rules of the code's text are ast-grep rules, shown as the code is typed
+  ([`bd7c9d7`](https://github.com/bim-ba/ycli/commit/bd7c9d784f50c166c2c43f895d5056b03911d5f6))
+
+### Features
+
+- **mcp**: The server's instructions come from the registry, and a check keeps a client from cutting
+  them ([`4cc0ff7`](https://github.com/bim-ba/ycli/commit/4cc0ff71245dd92d3299757a198a58aa1e33996b))
+
+
 ## v0.127.4 (2026-10-08)
 
 ### Bug Fixes
