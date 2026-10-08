@@ -3,14 +3,18 @@
 from fastmcp.dependencies import Depends
 
 from ycli.settings import AppConfig
-from ycli.yandex.mcp import RO, app_config, caller_credentials, new_server
+from ycli.yandex.mcp import ALWAYS_LOAD, RO, app_config, caller_credentials, new_server
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import build_report
 
 mcp = new_server("status")
 
 
-@mcp.tool(name="get", annotations={**RO, "title": "Check Yandex 360 auth status"})
+@mcp.tool(
+    name="get",
+    annotations={**RO, "title": "Check Yandex 360 auth status"},
+    meta=ALWAYS_LOAD,
+)
 def get(config: AppConfig = Depends(app_config)) -> AuthReport:
     """Report whose token this is, its organization and which services accept it.
 

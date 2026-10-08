@@ -1,0 +1,21 @@
+id: body-is-dumped-once
+language: python
+severity: error
+message: Hand the model on; `Endpoint` dumps a request body, once.
+note: |-
+  A tool, a client method and an endpoint builder pass the request model as it is, and
+  `Endpoint.body` dumps it through the serializer of `APIModel`: every surface sends the same
+  JSON. A CLI command may dump a model to merge `--field` values into it. ARCHITECTURE.md, ARCH-8.
+url: https://github.com/bim-ba/ycli/blob/main/ARCHITECTURE.md#arch-8--typed-boundaries
+files:
+  - src/ycli/yandex/**/endpoints.py
+  - src/ycli/yandex/**/client.py
+  - src/ycli/yandex/**/mcp.py
+rule:
+  kind: call
+  has:
+    field: function
+    kind: attribute
+    has:
+      field: attribute
+      regex: '^model_dump(_json)?$'

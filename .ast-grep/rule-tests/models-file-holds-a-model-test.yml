@@ -1,0 +1,30 @@
+id: models-file-holds-a-model
+valid:
+  - |
+    """Models."""
+
+    class Board(APIModel): ...
+  - |
+    """Models."""
+
+    BoardID = Annotated[int, Field()]
+  - |
+    """Models."""
+
+    def _board_id(board): ...
+  - |
+    """Models."""
+
+    type Boards = list[Board]
+invalid:
+  - |
+    """No model of its own."""
+
+    from __future__ import annotations
+  - |
+    """No model of its own."""
+
+    from ycli.yandex.tracker.models import Reference  # re-exported for nobody
+    import typing
+  - |
+    """Nothing here."""

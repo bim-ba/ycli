@@ -56,6 +56,10 @@ WRITE_IDEMPOTENT: dict[str, bool] = {**WRITE, "idempotentHint": True}
 DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 # Tag carried by every write tool — `ycli mcp start --read-only` disables it wholesale.
 WRITE_TAG = "write"
+# Meta of a tool an agent needs before any other (`status_get`, `schema_get`): a client that
+# hides tools behind a search step keeps it in sight. Claude Code reads this key
+# (https://code.claude.com/docs/en/mcp, "Exempt a server from deferral"); others pass it by.
+ALWAYS_LOAD: dict[str, bool] = {"anthropic/alwaysLoad": True}
 # Meta keys of a prompt and of a resource template: the root-server tool names a prompt's
 # text tells the model to call, and the read tool a resource repeats. The server offers
 # neither when one of those tools is not served (ycli.mcp.listing.ServedWithTheirTools).
