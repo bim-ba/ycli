@@ -63,6 +63,7 @@ An eighth, `datalens/html-pages`, is the life of an HTML page in a workbook of t
 | `steps[].cleanup` | command run when the scenario ends, newest first, even after a failure |
 | `steps[].disarms` | earlier step ids whose cleanup this step already did |
 | `steps[].needs` | variables only the owner of the organization can give (below); while one is not set the step is skipped, and the run lists what it skipped |
+| `steps[].retry` | `when` (a piece of the failure's text), `times` (2 by default, 5 at most), `pause_seconds` (5): run the step again on that one failure. For a refusal the service itself calls passing; the run lists at its end every step it ran again |
 | `steps[].reads` | commands that only read, run right after the step and only by a recording run (below) |
 
 Some steps need something a run must not make or pick for itself. Each is an environment variable, and a step that needs one that is not set is skipped:

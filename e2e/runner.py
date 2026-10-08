@@ -14,6 +14,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
@@ -157,10 +158,12 @@ def run_scenario(
     driver: Driver,
     variables: dict[str, str],
     read: Callable[[Driver, Sequence[Sequence[str]]], None] | None = None,
+    retried: list[str] | None = None,
 ) -> list[str]:
     """Run every step in order, then the registered cleanups last-in-first-out.
 
     ``read`` is given the reads of each step right after it; without it they are not run.
+    ``retried`` is given a line for each step that was run again (:class:`~e2e.models.Retry`).
     A step that needs a variable nobody set is not run; the steps skipped are returned, each
     with what it lacked (``"wiki/page-content/grant: needs GRANTEE"``).
 
@@ -176,7 +179,7 @@ def run_scenario(
             if missing:
                 skipped.append(f"{scenario.name}/{step.id}: needs {', '.join(missing)}")
                 continue
-            _run_step(scenario, step, driver, variables)
+            _run_step(scenario, step, driver, variables, retried)
             if step.cleanup is not None:
                 cleanups[step.id] = render_command(step.cleanup, variables)
             for target in step.disarms:
@@ -192,13 +195,35 @@ def run_scenario(
     return skipped
 
 
-def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[str, str]) -> None:
+def _run_step(
+    scenario: Scenario,
+    step: Step,
+    driver: Driver,
+    variables: dict[str, str],
+    retried: list[str] | None = None,
+) -> None:
     where = f"[{scenario.name}/{step.id}]"
     arguments = render_command(step.run, variables)
     completed = driver.run(arguments)
+    retries = 0
+    while (
+        completed.exit_code != 0
+        and step.retry is not None
+        and retries < step.retry.times
+        and step.retry.when in (completed.stderr or completed.stdout)
+    ):
+        time.sleep(step.retry.pause_seconds)
+        retries += 1
+        completed = driver.run(arguments)
+    if retries and retried is not None and step.retry is not None:
+        # Said whether it passed or not: a refusal that needed a second try is still a refusal.
+        outcome = "passed" if completed.exit_code == 0 else "failed"
+        count = "1 retry" if retries == 1 else f"{retries} retries"
+        retried.append(f"{scenario.name}/{step.id}: {outcome} after {count} ({step.retry.when})")
     if completed.exit_code != 0:
+        after = f" (after {retries} retries)" if retries else ""
         raise ScenarioError(
-            f"{where} `ycli {shlex.join(arguments)}` exited {completed.exit_code}: "
+            f"{where} `ycli {shlex.join(arguments)}` exited {completed.exit_code}{after}: "
             f"{scrub(completed.stderr or completed.stdout)}"
         )
     document = _parse(where, step, completed)

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from e2e.catalog import load, scenario_paths
-from e2e.conftest import SKIPPED_STEPS
+from e2e.conftest import RETRIED_STEPS, SKIPPED_STEPS
 from e2e.recording import InProcessDriver
 from e2e.runner import CliDriver, run_scenario
 
@@ -38,15 +38,15 @@ def test_scenario(
     print(f"RUN={variables['RUN']}")  # shown on failure: every object of this run carries it
     read = None if recorder is None else recorder.read
     if recorder is None and surfaces is None:
-        skipped = run_scenario(scenario, CliDriver(), variables)
+        skipped = run_scenario(scenario, CliDriver(), variables, retried=RETRIED_STEPS)
     elif surfaces is None:
         driver = InProcessDriver(request.config.getoption("--record-pause"))
-        skipped = run_scenario(scenario, driver, variables, read=read)
+        skipped = run_scenario(scenario, driver, variables, read=read, retried=RETRIED_STEPS)
     else:
         from e2e.surfaces import fail_on_data
 
         seen = len(surfaces.report.data())
-        skipped = run_scenario(scenario, surfaces, variables, read=read)
+        skipped = run_scenario(scenario, surfaces, variables, read=read, retried=RETRIED_STEPS)
         if request.config.getoption("--surfaces") == "strict":
             fail_on_data(surfaces.report, seen)
     SKIPPED_STEPS.extend(skipped)

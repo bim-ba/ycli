@@ -173,6 +173,53 @@ def test_the_cli_driver_confirms_deletes(monkeypatch):
     assert sent == [["/venv/bin/ycli", "-o", "json", "--yes", "wiki", "pages", "delete", "7"]]
 
 
+class _Flaky(Driver):
+    """Fails the first ``failures`` runs with ``said``, then answers ``{}``."""
+
+    def __init__(self, failures: int, said: str) -> None:
+        self.failures, self.said, self.calls = failures, said, 0
+
+    def run(self, arguments: Sequence[str]) -> CommandResult:
+        self.calls += 1
+        if self.calls <= self.failures:
+            return CommandResult(1, "", self.said)
+        return CommandResult(0, "{}", "")
+
+
+TRY_AGAIN = "Error: 412 Precondition Failed for POST https://x/_start: try again"
+RETRY = {"when": "412 Precondition Failed", "times": 2, "pause_seconds": 0}
+
+
+def test_a_step_is_run_again_only_on_the_failure_it_names(capsys):
+    step: dict[str, object] = {"id": "start", "run": "sprints start 7", "retry": RETRY}
+    driver = _Flaky(1, TRY_AGAIN)
+    retried: list[str] = []
+    run_scenario(_scenario(step), driver, {}, retried=retried)
+    assert driver.calls == 2
+    assert retried == ["s/start: passed after 1 retry (412 Precondition Failed)"]
+    # Another failure is not the one named: it fails at once, as any step does.
+    other = _Flaky(1, "Error: 403 Forbidden")
+    with pytest.raises(ScenarioError, match="403 Forbidden"):
+        run_scenario(_scenario(step), other, {}, retried=retried)
+    assert other.calls == 1
+
+
+def test_a_step_that_keeps_failing_fails_after_its_retries():
+    step: dict[str, object] = {"id": "start", "run": "sprints start 7", "retry": RETRY}
+    driver = _Flaky(9, TRY_AGAIN)
+    retried: list[str] = []
+    with pytest.raises(ScenarioError, match=r"\[s/start\] .* exited 1 \(after 2 retries\)"):
+        run_scenario(_scenario(step), driver, {}, retried=retried)
+    assert driver.calls == 3
+    assert retried == ["s/start: failed after 2 retries (412 Precondition Failed)"]
+
+
+@pytest.mark.parametrize("times", [0, 6])
+def test_a_retry_is_a_few_times_never_forever(times):
+    with pytest.raises(ValueError, match="times"):
+        _scenario({"id": "a", "run": "x", "retry": {"when": "412", "times": times}})
+
+
 PNG = bytes.fromhex("89504e470d0a1a0a") + b"\x00\xff" * 40
 
 
