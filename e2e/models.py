@@ -61,12 +61,21 @@ class Step(BaseModel):
 
 
 class Scenario(BaseModel):
-    """A named sequence of steps; ``smoke`` scenarios also run on every pull request."""
+    """A named sequence of steps; ``smoke`` scenarios also run on every pull request.
+
+    A ``permanent`` one leaves what the API cannot delete (an entry of a dictionary of the
+    organization, a trigger): it is run on purpose, once, and never by a run that starts by
+    itself.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
     smoke: bool = False
+    permanent: bool = Field(
+        default=False,
+        description="It makes objects the API cannot delete: it runs only with --permanent.",
+    )
     steps: tuple[Step, ...] = Field(min_length=1)
 
     @model_validator(mode="after")

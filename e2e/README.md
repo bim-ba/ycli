@@ -62,7 +62,8 @@ A log of the CI job is public. When a step fails, the runner prints its command 
 | Key | Meaning |
 |---|---|
 | `name`, `smoke` | test id; `smoke: true` also runs on pull requests |
-| `steps[].run` | arguments after `ycli -o json --yes`; `${RUN}`, `${QUEUE}`, `${FILES}` (the directory `e2e/files`) and saved names are substituted |
+| `permanent` | `true` for a scenario that makes what the API cannot delete: it is skipped unless the run is given `--permanent` |
+| `steps[].run` | arguments after `ycli -o json --yes`; `${RUN}`, `${TAG}` (the four hex digits of the run's name, for a key that takes no dash), `${QUEUE}`, `${FILES}` (the directory `e2e/files`) and saved names are substituted |
 | `steps[].output` | `json` (default); `text` for a command that prints raw text, such as `wiki pages get`; `bytes` for one that prints a file: `expect` then sees `size` and `head`, the first 16 bytes in hex (`"starts_with(head, '89504e47')": true` for a PNG) |
 | `steps[].expect` | JMESPath expression → expected value; `unique(array)` is added for duplicate checks |
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |
@@ -77,6 +78,7 @@ Some steps need something a run must not make or pick for itself. Each is an env
 | Variable (in a scenario) | What it names |
 |---|---|
 | `YCLI_E2E_GRANTEE` (`${GRANTEE}`) | the Yandex uid of someone else to grant access to; nobody is granted anything without it |
+| `YCLI_E2E_NEW_QUEUE` (`${NEW_QUEUE}`) | the key of a queue for `tracker/permanent-trace` to make, once (it then serves as the second sandbox queue) |
 | `YCLI_E2E_QUEUE_2` (`${QUEUE_2}`) | a second sandbox queue: issues are moved into it, and it is deleted and restored |
 | `YCLI_E2E_LOCAL_FIELD` (`${LOCAL_FIELD}`), `YCLI_E2E_TRIGGER` (`${TRIGGER}`) | a local field and a trigger kept in the sandbox queue for a run to edit; the API cannot delete either, so a run does not create its own |
 

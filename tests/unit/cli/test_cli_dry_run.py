@@ -13,11 +13,11 @@ from tests.hosts import TRACKER_BASE, WIKI_BASE
 from tests.mock_api import MockAPI
 from ycli.cli.app import app
 from ycli.cli.body_fields import CallerFields
-from ycli.cli.guard import DryRunPlanned, SendGuard
-from ycli.cli.planned_request import PlannedRequest
+from ycli.cli.guard import SendGuard, guard_of
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.endpoint import Effect, Endpoint
+from ycli.yandex.core.guard import Guard, PlannedRequest, RequestPlanned
 from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import connect
 from ycli.yandex.models import RequestBody, secret_keys
@@ -83,22 +83,24 @@ def test_a_plan_has_no_authorization_header():
 # --- the guard ---------------------------------------------------------------------------------
 
 
-def _session(api: MockAPI, guard: SendGuard):
+def _session(api: MockAPI, options: dict):
+    """A session as the CLI builds its clients' for the global ``options`` of an invocation."""
     return connect(
         ServiceProfile("https://api.test/v1"),
         auth=OAuthTokenAuth(SecretStr("t")),
         http=HTTPConfig(retries=0),
         transport=api.transport(),
-        before_send=guard,
+        before_send=SendGuard(CallerFields(options)),
+        guard=guard_of(options),
     )
 
 
 def test_reads_go_through_and_the_first_write_is_the_plan():
     api = MockAPI()
     api.add("GET", "https://api.test/v1/items", json=[1])
-    session = _session(api, SendGuard({"dry_run": True}, CallerFields({"dry_run": True})))
+    session = _session(api, {"dry_run": True})
     assert session.send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
-    with pytest.raises(DryRunPlanned) as planned:
+    with pytest.raises(RequestPlanned) as planned:
         session.send(Endpoint(HTTPMethod.PATCH, "items/1", json={"a": 1}))
     assert (planned.value.plan.method, planned.value.plan.body) == ("PATCH", {"a": 1})
     assert [call.method for call in api.calls] == ["GET"]  # the write never went out
@@ -107,8 +109,10 @@ def test_reads_go_through_and_the_first_write_is_the_plan():
 @pytest.mark.parametrize("effect", ["write", "idempotent_write", "destructive"])
 def test_every_kind_of_write_is_planned_and_a_dry_run_needs_no_yes(effect):
     request = httpx2.Request("POST", "https://api.test/v1/items")
-    with pytest.raises(DryRunPlanned):
-        SendGuard({"dry_run": True}, CallerFields({"dry_run": True}))(effect, request)
+    operation = Endpoint(HTTPMethod.POST, "items", effect=Effect(effect))
+    with pytest.raises(RequestPlanned):
+        # No terminal and no `--yes`: a plan is shown before anybody is asked.
+        Guard(dry_run=True, confirm=lambda plan: False).check(operation, request)
 
 
 # --- through the CLI ---------------------------------------------------------------------------
@@ -220,12 +224,12 @@ def test_the_mask_bites():
 def test_a_secret_given_by_a_field_flag_is_masked_like_one_given_to_the_model():
     """``-F`` and ``--body-file`` join the body after the model: the key is masked all the same."""
     options = {"dry_run": True, "field": ["proxy[password]=x", "proxy[port]=1"]}
-    guard = SendGuard(options, CallerFields(options))
     endpoint = Endpoint(HTTPMethod.POST, "connections", json=_Connection(host="db", logins=[]))
     with httpx2.Client(base_url="https://api.test/v1/") as client:
-        request = endpoint.request(client)
-        with pytest.raises(DryRunPlanned) as planned:
-            guard(Effect.WRITE, request)
+        # The fields join the body first, so the plan is of the request as it would go.
+        request = SendGuard(CallerFields(options))(Effect.WRITE, endpoint.request(client))
+        with pytest.raises(RequestPlanned) as planned:
+            guard_of(options).check(endpoint, request)
     assert planned.value.plan.body["proxy"] == {"password": "***", "port": 1}
 
 
