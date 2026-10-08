@@ -8,8 +8,10 @@ from pydantic import Field
 
 from tests.full_server import mcp as root_mcp
 from tests.full_server import tools_with_output_schemas
+from ycli.mcp.selection import Selection
+from ycli.mcp.server import build_server
 from ycli.yandex.models import APIModel
-from ycli.yandex.registry import SERVICES
+from ycli.yandex.registry import SERVICES, resources
 
 
 def _tools():
@@ -99,6 +101,33 @@ def test_the_parameter_description_check_bites():
 def test_servers_have_instructions():
     for server in (root_mcp, *(service.mcp_server() for service in SERVICES)):
         assert server.instructions and server.instructions.strip()
+
+
+def test_the_instructions_come_from_the_registry():
+    """Each service says what it is, how much it has and the tool to begin with: nothing by hand."""
+    served = {tool.name: tool for tool in asyncio.run(root_mcp.list_tools())}
+    told = root_mcp.instructions or ""
+    for service in SERVICES:
+        count = len(resources(service))
+        assert (
+            f"{service.name}_* — {service.help} {count} resources; start with {service.start}."
+            in told
+        )
+        # The tool to begin with exists, is of its service, and only reads.
+        start = served[service.start]
+        assert service.start.startswith(f"{service.name}_")
+        assert start.annotations is not None and start.annotations.read_only_hint
+    assert told.index("start with") < told.index("readOnlyHint")  # what is needed first is first
+
+
+def test_a_service_with_fewer_resources_says_so(monkeypatch):
+    """The count is read, not written: a service that loses a resource says one less."""
+    tracker = SERVICES[0]
+    before = len(resources(tracker))
+    monkeypatch.setattr("ycli.mcp.server.resources", lambda service: resources(service)[:-1])
+    told = build_server(Selection(toolsets=("tracker",))).instructions or ""
+    assert f"{before - 1} resources; start with tracker_me_get." in told
+    assert "wiki_*" not in told  # only what is mounted is told of
 
 
 def _subclasses(cls: type[APIModel]) -> list[type[APIModel]]:

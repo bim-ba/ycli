@@ -9,6 +9,7 @@ SERVICE = Service(
     client="ycli.yandex.wiki.client:WikiClient",
     cli="ycli.yandex.wiki.cli:app",
     mcp="ycli.yandex.wiki.mcp.server:mcp",
+    start="wiki_pages_get",
     profile=ServiceProfile("https://api.wiki.yandex.net/v1"),
     pagination="ycli.yandex.wiki.cursor:WIKI_CURSOR",
 )
