@@ -9,6 +9,93 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.123.1 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A signed link is masked in the excerpt a failed step prints
+  ([`a70a96a`](https://github.com/bim-ba/ycli/commit/a70a96a7b18408cb72f50f303cefeb72b256d299))
+
+### Build System
+
+- Re-lock uv.lock for 0.123.0
+  ([`cf6ae61`](https://github.com/bim-ba/ycli/commit/cf6ae6135fc3e1a30c6dc8bf70c4d4f93a4349ab))
+
+
+## v0.123.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.122.4
+  ([`60ecebf`](https://github.com/bim-ba/ycli/commit/60ecebf40d02df95650dec882339a5d145950668))
+
+### Features
+
+- **sync**: `ycli sync push` sends the files and reads each write back
+  ([`0a89d66`](https://github.com/bim-ba/ycli/commit/0a89d66abd166eeede9e4f0b281e6f42d925313e))
+
+
+## v0.122.4 (2026-10-07)
+
+### Bug Fixes
+
+- **tracker**: The body of `gaps search` is a request model, and a rule keeps every body one
+  ([`cf91012`](https://github.com/bim-ba/ycli/commit/cf910120af44ee2a1a503baf066a06c2d39d38e3))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.3
+  ([`f96b712`](https://github.com/bim-ba/ycli/commit/f96b71257aed3f48cb65062cf19951fb9edbe62a))
+
+### Continuous Integration
+
+- **e2e**: The nightly run takes its turn of three: the command, writes through MCP, writes through
+  the SDK
+  ([`7e2cf4d`](https://github.com/bim-ba/ycli/commit/7e2cf4d6d16bde5041fe161ee1d32dc355413510))
+
+### Testing
+
+- **e2e**: A page and a trigger read and sent back as read stay the same
+  ([`700c354`](https://github.com/bim-ba/ycli/commit/700c35456dfc4dd755cc8021a3cf51f471a6d24f))
+
+
+## v0.122.3 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A recorded reply keeps an empty string empty
+  ([`a1dda2f`](https://github.com/bim-ba/ycli/commit/a1dda2f8768c763514e30467970d24fdaaf90420))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.2
+  ([`e5ec0f5`](https://github.com/bim-ba/ycli/commit/e5ec0f5e49416f309ce31f24388aa5a23de24ad4))
+
+### Documentation
+
+- **cli**: The help of `ycli api` says a field makes the call a POST and how to read with a
+  parameter
+  ([`00744a7`](https://github.com/bim-ba/ycli/commit/00744a773e38a391028c7856ea52b151cfc88e1b))
+
+### Refactoring
+
+- **core**: An endpoint's effect is typed as always set
+  ([`4632b5d`](https://github.com/bim-ba/ycli/commit/4632b5d606789d403b497c93f442d472671d3937))
+
+
+## v0.122.2 (2026-10-07)
+
+### Bug Fixes
+
+- **cli**: `ycli api --body-file F` sends the file as the body with no -F beside it
+  ([`3fe7792`](https://github.com/bim-ba/ycli/commit/3fe77927fc58c5e1918a1e582b230f4e6a25f995))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.1
+  ([`a01ffd3`](https://github.com/bim-ba/ycli/commit/a01ffd33e6af1a2baee88a37ce537515c81c9ff0))
+
+
 ## v0.122.1 (2026-10-07)
 
 ### Bug Fixes

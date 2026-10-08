@@ -12,92 +12,9 @@ from tests.architecture.scanners import (
     violation_markers,
 )
 
-# ARCH-8 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
-# `body` parameter is the resource's request model, never a bare `dict`/`dict[...]`, in every
-# layer that hands it on: the MCP tool, the client method and the endpoint builder. Fail-closed;
-# an exception would carry `# violation(arch-8): <reason>` above the function, and there is none.
-# `Annotated[Base64Bytes, …]` (binary uploads) is an `ast.Subscript` whose `.value` is
-# `ast.Name(id="Annotated")`, never `dict`, so it never matches this check.
-
-
-def _bare_dict_annotation(annotation: ast.expr | None) -> bool:
-    """``True`` if ``annotation`` is bare ``dict`` or subscripted ``dict[...]``.
-
-    ``Annotated[Base64Bytes, …]`` is a subscript whose ``.value`` is ``ast.Name(id="Annotated")``
-    — never ``"dict"`` — so it is never flagged.
-    """
-    if annotation is None:
-        return False
-    if isinstance(annotation, ast.Name):
-        return annotation.id == "dict"
-    return (
-        isinstance(annotation, ast.Subscript)
-        and isinstance(annotation.value, ast.Name)
-        and annotation.value.id == "dict"
-    )
-
-
-def _bare_dict_bodies(source: str, module_label: str) -> list[tuple[int, str]]:
-    """(line, finding) for ``@mcp.tool`` functions in ``source`` with a bare-``dict`` ``body``.
-
-    The line is the first of the function's definition (its first decorator). Matches both
-    ``def`` and ``async def`` tool functions, so a future async write tool cannot slip a
-    bare-``dict`` ``body`` past the guard. Every positional-or-keyword and keyword-only parameter
-    named ``body`` is checked.
-    """
-    found: list[tuple[int, str]] = []
-    for node in ast.walk(ast.parse(source)):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        if not any(
-            isinstance(deco, ast.Call)
-            and isinstance(deco.func, ast.Attribute)
-            and deco.func.attr == "tool"
-            for deco in node.decorator_list
-        ):
-            continue
-        first = min(deco.lineno for deco in node.decorator_list)
-        found += [
-            (
-                first,
-                f"{module_label}: {node.name}(body: {ast.unparse(arg.annotation)}) "
-                "— must be a typed pydantic model, not dict",
-            )
-            for arg in (*node.args.args, *node.args.kwonlyargs)
-            if arg.arg == "body"
-            and arg.annotation is not None
-            and _bare_dict_annotation(arg.annotation)
-        ]
-    return found
-
-
-def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
-    """The :func:`_bare_dict_bodies` of ``source`` with no ``# violation(arch-8)`` above them.
-
-    Pure over source text so the guard can be exercised on a synthetic module (the prove-it
-    test).
-    """
-    markers = violation_markers(source, "arch-8")
-    return [text for line, text in _bare_dict_bodies(source, module_label) if line not in markers]
-
-
-def test_arch8_mcp_write_tool_bodies_are_typed():
-    """A ``body`` parameter is a typed pydantic model, never bare ``dict``, in every layer.
-
-    docs/conventions/resources.md §4: the model becomes the tool's input schema, so an agent
-    sees field names/types/aliases instead of an opaque ``object``, and a malformed payload
-    fails schema validation before the HTTP call. Fail-closed: only a function with
-    ``# violation(arch-8): <reason>`` above it is exempt.
-    """
-    offenders = []
-    for layer in ("mcp.py", "client.py", "endpoints.py"):
-        for path in YANDEX.rglob(layer):
-            rel = str(path.relative_to(SRC))
-            offenders += _untyped_body_offenders(path.read_text(encoding="utf-8"), rel)
-    assert not offenders, (
-        "a `body` parameter must be a typed pydantic model, not dict — convert the parameter, "
-        f"or put `# violation(arch-8): <reason>` above the function: {offenders}"
-    )
+# A `body` parameter is a request model, never a `dict`, in the tool, the client method and the
+# endpoint builder alike: the ast-grep rule `body-is-a-model` (.ast-grep/rules/) checks the text
+# of each, with its own cases beside it.
 
 
 def _dumps(source: str, module_label: str) -> list[str]:
@@ -126,56 +43,6 @@ def test_arch8_a_request_body_is_dumped_only_by_the_endpoint():
     assert _dumps("def f(body):\n    return send(body.model_dump())\n", "x/client.py") == [
         "x/client.py:2"
     ]
-
-
-def test_arch8_typed_body_guard_bites():
-    """Prove-it: the guard flags bare/subscripted ``dict`` bodies and respects a marker.
-
-    A typed model or ``Annotated[Base64Bytes, …]`` is not flagged.
-    """
-    bare = (
-        '@mcp.tool(name="widgets_create")\n'
-        "def create(body: dict, client=Depends(x)) -> Widget:\n"
-        "    return client.widgets.create(body)\n"
-    )
-    assert _untyped_body_offenders(bare, "synthetic/mcp.py") == [
-        "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
-    ]
-
-    async_bare = (
-        '@mcp.tool(name="widgets_create")\n'
-        "async def create(body: dict, client=Depends(x)) -> Widget:\n"
-        "    return await client.widgets.create(body)\n"
-    )
-    assert _untyped_body_offenders(async_bare, "synthetic/mcp.py") == [
-        "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
-    ]
-
-    subscripted = (
-        '@mcp.tool(name="widgets_create")\n'
-        "def create(body: dict[str, str], client=Depends(x)) -> Widget:\n"
-        "    return client.widgets.create(body)\n"
-    )
-    assert _untyped_body_offenders(subscripted, "synthetic/mcp.py") == [
-        "synthetic/mcp.py: create(body: dict[str, str]) — must be a typed pydantic model, not dict"
-    ]
-
-    typed = (
-        '@mcp.tool(name="widgets_create")\n'
-        "def create(body: WidgetCreate, client=Depends(x)) -> Widget:\n"
-        "    return client.widgets.create(body)\n"
-    )
-    assert _untyped_body_offenders(typed, "synthetic/mcp.py") == []
-
-    binary_upload = (
-        '@mcp.tool(name="files_upload")\n'
-        "def upload(body: Annotated[Base64Bytes, Field(...)], client=Depends(x)) -> Ack:\n"
-        "    return client.files.upload(body)\n"
-    )
-    assert _untyped_body_offenders(binary_upload, "synthetic/mcp.py") == []
-
-    marked = "# violation(arch-8): the API takes any object here\n" + bare
-    assert _untyped_body_offenders(marked, "synthetic/mcp.py") == []
 
 
 # Who may turn a status into a typed error, and why. ``raise_for_status``
@@ -316,8 +183,8 @@ def test_arch8_error_mapping_guard_bites():
 
 
 def _stale_markers(rel: str, source: str) -> list[str]:
-    """``# violation(arch-8)`` markers of ``source`` above neither a hand-built error nor a body."""
-    explained = set(_hand_raises(source)) | {line for line, _ in _bare_dict_bodies(source, rel)}
+    """``# violation(arch-8)`` markers of ``source`` that stand above no hand-built error."""
+    explained = set(_hand_raises(source))
     return [
         f"{rel}:{marker}: violation(arch-8) marks nothing the checks find"
         for line, marker in sorted(violation_markers(source, "arch-8").items())
@@ -326,7 +193,7 @@ def _stale_markers(rel: str, source: str) -> list[str]:
 
 
 def test_arch8_a_marker_stands_above_what_it_explains():
-    """Every ``# violation(arch-8)`` is above a hand-built status error or a ``dict`` body."""
+    """Every ``# violation(arch-8)`` is above a hand-built status error."""
     stale = [
         finding
         for path in sorted(SRC.rglob("*.py"))

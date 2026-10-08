@@ -37,7 +37,7 @@ from __future__ import annotations
 import logging
 import math
 import time
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import httpx2
 import stamina
@@ -92,7 +92,7 @@ def _announce(
     """
     if before_send is None:
         return request
-    return before_send(cast("Effect", endpoint.effect), request) or request  # set at construction
+    return before_send(endpoint.effect, request) or request
 
 
 def _retry_after(response: httpx2.Response) -> float | None:
