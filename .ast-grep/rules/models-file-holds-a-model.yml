@@ -1,0 +1,32 @@
+id: models-file-holds-a-model
+language: python
+severity: error
+message: Delete this `models.py`; a resource with no model of its own has no such file.
+note: |-
+  A `models.py` that holds only a docstring and imports defines nothing: the resource takes its
+  models from where they are declared. ARCHITECTURE.md, ARCH-1.
+url: https://github.com/bim-ba/ycli/blob/main/ARCHITECTURE.md#arch-1--surface-parity
+files:
+  - src/ycli/yandex/*/*/models.py
+rule:
+  kind: module
+  not:
+    has:
+      not:
+        any:
+          - kind: import_statement
+          - kind: import_from_statement
+          - kind: future_import_statement
+          - kind: comment
+          # A docstring, or any other bare constant: it defines nothing either.
+          - kind: expression_statement
+            has:
+              any:
+                - kind: string
+                - kind: concatenated_string
+                - kind: integer
+                - kind: float
+                - kind: ellipsis
+                - kind: "true"
+                - kind: "false"
+                - kind: none

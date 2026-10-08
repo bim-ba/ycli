@@ -1,0 +1,10 @@
+id: body-is-dumped-once
+valid:
+  - "def create(body: BoardCreate) -> Endpoint[Board]: return Endpoint(POST, 'boards', Board, json=body)"
+  - "def create(self, body: BoardCreate) -> Board: return self._session.send(endpoints.create(body))"
+  - "found = model_dump(body)"
+  - "kept = body.model_copy(update={'name': name})"
+invalid:
+  - "def create(self, body): return self._session.send(endpoints.create(body.model_dump()))"
+  - "payload = body.model_dump(by_alias=True, exclude_none=True)"
+  - "text = self.body.model_dump_json()"

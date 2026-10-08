@@ -1,0 +1,17 @@
+id: violation-marker-form
+language: python
+severity: error
+message: "Write the marker as `# violation(<rule>): <reason>`, with a rule that exists."
+note: |-
+  The rule is `arch-1` .. `arch-9` or a convention with a name: `naming`, `api-drift`,
+  `value-set`, `as-given`. A marker stands on a line of its own, right above the code it
+  explains: that part a test holds (`tests/architecture/test_markers.py`), since it is about
+  lines, which a rule of syntax does not see. docs/conventions/resources.md, section 7.
+url: https://github.com/bim-ba/ycli/blob/main/docs/conventions/resources.md#7-naming-an-operation
+files:
+  - src/ycli/**/*.py
+rule:
+  kind: comment
+  regex: 'violation\('
+  not:
+    regex: '^# violation\((arch-[1-9]|naming|api-drift|value-set|as-given)\): \S'
