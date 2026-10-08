@@ -35,6 +35,7 @@ class State(enum.StrEnum):
     CHANGED_ON_SERVER = "changed-on-server"
     GONE = "gone"
     NO_FILE = "no-file"
+    DELETE = "delete"
 
 
 #: What can be said of a file with no network.
@@ -115,6 +116,10 @@ def offline_state(kind: Kind[Any, Any], document: Document[Any, Any]) -> tuple[S
     needed = {State.CREATE: kind.create, State.UPDATE: kind.update}
     if state in needed and needed[state] is None:
         return State.UNSUPPORTED, f"the API cannot {state} a {kind.name}"
+    if state is State.CREATE:
+        # Said beforehand: `push` writes into the file, and may move it.
+        moved = " and the name of its object" if tree_of(kind).resource else ""
+        return state, f"once created, the file gets its identity{moved}"
     return state, None
 
 

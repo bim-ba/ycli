@@ -32,7 +32,16 @@ RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
 SKIPPED_STEPS: list[str] = []
 
 
+# The steps this run ran again on the failure they name, said at the end: a retry that passed
+# is still a refusal of the service.
+RETRIED_STEPS: list[str] = []
+
+
 def pytest_terminal_summary(terminalreporter: pytest.TerminalReporter) -> None:
+    if RETRIED_STEPS:
+        terminalreporter.section("steps run again: the service refused and asked to retry")
+        for step in RETRIED_STEPS:
+            terminalreporter.line(step)
     if SKIPPED_STEPS:
         terminalreporter.section("steps skipped: a variable they need is not set")
         for step in SKIPPED_STEPS:

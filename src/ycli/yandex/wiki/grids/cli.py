@@ -364,7 +364,10 @@ def columns_suggest(
     *,
     wiki: WikiClient,
 ) -> ColumnSuggestion:
-    """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API)."""
+    """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API).
+
+    Give --slug or --title, exactly one: the API answers 400 for neither and for both.
+    """
     body = ColumnSuggest(title=title, slug=slug)
     return wiki.grids.columns_suggest(grid_id, body=body)
 
