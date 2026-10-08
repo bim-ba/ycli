@@ -144,6 +144,9 @@ class DatasetsClient(Resource):
         The API has no way to bring it back, and a chart built on it keeps naming its id
         (measured).
 
+        The interface lists what was deleted under Service settings, Deleted objects, with a
+        Restore button (measured: the entry appears there; restoring was not tried).
+
         The charts built on it lose their data.
 
         Args:

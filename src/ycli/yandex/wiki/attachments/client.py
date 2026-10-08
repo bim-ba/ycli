@@ -116,7 +116,8 @@ class AttachmentsClient(Resource):
         id; follows page redirects server-side. Binary payload — SDK/CLI only.
 
         Args:
-            url: The file's ``<page-slug>/.files/<filename>`` URL.
+            url: The file's ``<page-slug>/.files/<filename>`` URL; the ``download_url`` of an
+                attachment, which has a slash in front, is taken as it is.
 
         Returns:
             The file's bytes.

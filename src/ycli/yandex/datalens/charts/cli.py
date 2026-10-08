@@ -114,7 +114,11 @@ def data_get(
     *,
     datalens: DataLensClient,
 ) -> ChartData:
-    """Print the data a saved chart shows, as tables; a pivot table is not supported."""
+    """Print the data a saved chart shows, as tables; a pivot table is not supported.
+
+    A chart of the editor with no source did not answer within the client's wait: the command
+    ends with a timeout after about two minutes (measured, twice).
+    """
     return datalens.charts.data_get(chart_id, params=None if params is None else json.loads(params))
 
 
@@ -249,6 +253,9 @@ def wizard_delete(chart_id: ChartIDArg, *, datalens: DataLensClient) -> Ack:
 
     The API has no way to bring it back, and a dashboard that shows it keeps naming its
     id (measured).
+
+    The interface lists what was deleted under Service settings, Deleted objects, with a
+    Restore button (measured: the entry appears there; restoring was not tried).
     """
     datalens.charts.wizard_delete(chart_id)
     return Ack.deleted("chart", chart_id)

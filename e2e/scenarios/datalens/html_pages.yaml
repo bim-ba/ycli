@@ -1,0 +1,68 @@
+# An HTML page made published: a save moves only the saved version, and the reads say which is which. By hand only (see the README).
+name: datalens/html-pages
+steps:
+  - id: collection
+    run: datalens collections create --title "${RUN} pages"
+    save:
+      collection: collectionId
+    cleanup: datalens collections delete ${collection}
+  - id: workbook
+    run: datalens workbooks create --title "${RUN} pages" --collection-id ${collection}
+    save:
+      workbook: workbookId
+    cleanup: datalens workbooks delete ${workbook}
+  - id: page
+    run: >-
+      datalens htmlpages create --content "<p>Hello</p>" --workbook-id ${workbook}
+      --name "${RUN} page"
+    expect:
+      entry.type: html-page
+      entry.workbookId: ${workbook}
+    save:
+      page: entry.entryId
+      first: entry.revId
+    cleanup: datalens htmlpages delete ${page}
+  - id: page-read
+    # A read names its version: --branch saved here, or --rev-id.
+    run: datalens htmlpages get ${page} --branch saved
+    expect:
+      entryId: ${page}
+      type: html-page
+      workbookId: ${workbook}
+      savedId: ${first}
+      publishedId: ${first}
+  - id: page-update
+    run: >-
+      datalens htmlpages update ${page} --mode save --content "<p>Bye</p>"
+      --annotation '{"description": "second"}'
+    expect:
+      entry.entryId: ${page}
+      entry.annotation.description: second
+      entry.publishedId: ${first}
+    save:
+      second: entry.revId
+  - id: page-read-again
+    run: datalens htmlpages get ${page} --branch saved
+    expect:
+      savedId: ${second}
+      publishedId: ${first}
+      annotation.description: second
+  - id: page-preview
+    run: datalens htmlpages preview-url-get ${page} --branch saved
+    expect:
+      "starts_with(url, 'https://')": true
+  - id: page-delete
+    run: datalens htmlpages delete ${page}
+    expect:
+      ok: true
+    disarms: [page]
+  - id: workbook-delete
+    run: datalens workbooks delete ${workbook}
+    disarms: [workbook]
+  - id: collection-delete
+    run: datalens collections delete ${collection}
+    disarms: [collection]
+  - id: gone
+    run: datalens collections list-by-ids ${collection}
+    expect:
+      "length(@)": 0

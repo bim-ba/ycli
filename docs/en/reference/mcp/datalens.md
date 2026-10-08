@@ -698,6 +698,9 @@ Delete a connection; the datasets built on it lose their source.
 The API has no way to bring it back, and a chart that reads through it keeps naming its id
 (measured).
 
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `connection_id` | string | yes | Connection id. |
@@ -764,6 +767,9 @@ Delete a dataset; the charts built on it lose their data.
 
 The API has no way to bring it back, and a chart built on it keeps naming its id (measured).
 
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `dataset_id` | string | yes | Dataset id. |
@@ -812,7 +818,8 @@ The data a saved chart shows, as tables of columns and rows.
 
 The chart runs with its saved settings. ``chartType`` says how it is built (``wizard``,
 ``ql``, ``editor``). A pivot table is not supported, and a chart whose source cannot be
-reached answers with an error.
+reached answers with an error. A chart of the editor with no source did not answer within
+the client's wait: the call ends with a timeout after about two minutes (measured, twice).
 ``entries_list`` with the scope ``widget`` finds charts.
 
 | Parameter | Type | Required | Description |
@@ -881,6 +888,9 @@ Delete a chart; the dashboards that show it lose it.
 
 The API has no way to bring it back, and a dashboard that shows it keeps naming its id
 (measured).
+
+The interface lists what was deleted under Service settings, Deleted objects, with a
+Restore button (measured: the entry appears there; restoring was not tried).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
