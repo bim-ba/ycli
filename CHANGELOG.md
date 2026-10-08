@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.4 (2026-10-08)
+
+### Bug Fixes
+
+- **e2e**: A surface's failure is worded without what the run learned
+  ([`a2ed5e8`](https://github.com/bim-ba/ycli/commit/a2ed5e8477d01801c1035b0f9649e44e0e37b397))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.3
+  ([`b15d1ce`](https://github.com/bim-ba/ycli/commit/b15d1cea16ead6ef01c3144a8f0fa040e72d70c8))
+
+### Testing
+
+- **e2e**: A form's notification is read, cancelled and started again, with nothing sent outward
+  ([`c59917f`](https://github.com/bim-ba/ycli/commit/c59917fa90041d8508eb866bb924f9ff253da9e5))
+
+
 ## v0.127.3 (2026-10-08)
 
 ### Bug Fixes
