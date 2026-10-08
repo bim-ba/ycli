@@ -158,6 +158,8 @@ version_variables = [
     "docs/en/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
     "docs/ru/how-to/use-in-ci.md:yandex-cli",
     "docs/ru/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
+    "docs/en/how-to/keep-content-in-git.md:yandex-cli",
+    "docs/ru/how-to/keep-content-in-git.md:yandex-cli",
     "docs/en/how-to/install-in-your-harness.md:yandex-cli[mcp]",
     "docs/ru/how-to/install-in-your-harness.md:yandex-cli[mcp]",
 ]

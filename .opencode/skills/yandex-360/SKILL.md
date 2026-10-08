@@ -63,6 +63,8 @@ it for you.
 
 An endpoint no command wraps: `ycli api PATH --service tracker|wiki|forms` (`gh api`-style `-f`/`-F` fields, `--paginate` for Tracker and Wiki; CLI only). A field makes the call a POST: a read with a parameter needs `-X GET`, or the parameter in the path (`pages/7?fields=content`).
 
+Objects as files in git (Wiki pages, Tracker triggers): `ycli sync pull | status | diff | push`, from the root of the repository (`ycli sync --help`). CLI only: it works in your working tree, which an MCP server does not have.
+
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 
 ```json

@@ -107,7 +107,6 @@ class SubscriptionsClient(Resource):
         """
         self._session.send(endpoints.delete(survey_id, hook_id, subscription_id))
 
-    # violation(arch-1): CLI-only, the file is read from disk as raw bytes
     def attach(
         self, survey_id: str, hook_id: int, subscription_id: int, *, filename: str, data: bytes
     ) -> FileOut:
