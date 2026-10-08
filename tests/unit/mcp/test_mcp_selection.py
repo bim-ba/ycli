@@ -252,3 +252,17 @@ async def test_tool_search_respects_the_selection(api):
             "call_tool", {"name": "tracker_issues_get", "arguments": {"issue_key": "QA-1"}}
         )
     assert result.structured_content == {"key": "QA-1"} or "QA-1" in str(result.content)
+
+
+async def test_the_always_served_tools_stay_in_sight_of_a_client_that_searches_its_tools():
+    """A client that defers tools behind a search loads these two with the session.
+
+    Claude Code reads `_meta["anthropic/alwaysLoad"]` of a tool, and takes only the JSON
+    boolean `true`. Exactly the always-served tools carry it: each one more is context every
+    session pays for.
+    """
+    async with Client(build_server(Selection())) as client:
+        listed = await client.list_tools()
+    marks = {tool.name: (tool.meta or {}).get("anthropic/alwaysLoad") for tool in listed}
+    assert {name for name, mark in marks.items() if mark is not None} == {*ALWAYS_SERVED}
+    assert all(marks[name] is True for name in ALWAYS_SERVED)
