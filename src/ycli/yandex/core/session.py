@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, Iterator
 
     from ycli.yandex.core.endpoint import Effect, Endpoint, Paged
+    from ycli.yandex.core.guard import Guard
     from ycli.yandex.core.profile import ServiceProfile
 
 # Called once per endpoint with what it does to the server and the request about to be sent.
@@ -78,21 +79,24 @@ def shown(url: httpx2.URL) -> httpx2.URL:
 
 
 def _announce(
-    before_send: BeforeSend | None, endpoint: Endpoint, request: httpx2.Request
+    before_send: BeforeSend | None, guard: Guard | None, endpoint: Endpoint, request: httpx2.Request
 ) -> httpx2.Request:
-    """Tell the ``before_send`` hook, if there is one, what ``endpoint`` is about to do.
+    """Hand the request of ``endpoint`` to the hook, then to the guard, before it is sent.
 
     Args:
-        before_send: The hook, or ``None``.
+        before_send: The hook that may rewrite the request, or ``None``.
+        guard: What shows or confirms a write before it goes, or ``None``.
         endpoint: The endpoint being sent.
         request: The request built for it.
 
     Returns:
         The request to send: the hook's own when it hands one back, else ``request``.
     """
-    if before_send is None:
-        return request
-    return before_send(endpoint.effect, request) or request
+    if before_send is not None:
+        request = before_send(endpoint.effect, request) or request
+    if guard is not None:
+        guard.check(endpoint, request)
+    return request
 
 
 def _retry_after(response: httpx2.Response) -> float | None:
@@ -201,11 +205,13 @@ class SyncSession:
         *,
         http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
+        guard: Guard | None = None,
     ) -> None:
         self._client = client
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send
+        self._guard = guard
 
     def _send(
         self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
@@ -235,7 +241,7 @@ class SyncSession:
     def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
         request = endpoint.request(self._client)
-        request = _announce(self._before_send, endpoint, request)
+        request = _announce(self._before_send, self._guard, endpoint, request)
         response = self._send(
             request,
             idempotent=endpoint.idempotent,
@@ -261,7 +267,9 @@ class SyncSession:
             The items, lazily; when they end, whether there is more and how to go on.
         """
         # The hook hears of a listing once, as before: its first request stands for all pages.
-        first = _announce(self._before_send, paged.endpoint, _first_page(paged, self._client))
+        first = _announce(
+            self._before_send, self._guard, paged.endpoint, _first_page(paged, self._client)
+        )
         longest = self._http.max_token_length
         walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
 
@@ -296,11 +304,13 @@ class AsyncSession:
         *,
         http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
+        guard: Guard | None = None,
     ) -> None:
         self._client = client
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send
+        self._guard = guard
 
     async def _send(
         self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
@@ -330,7 +340,7 @@ class AsyncSession:
     async def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
         request = endpoint.request(self._client)
-        request = _announce(self._before_send, endpoint, request)
+        request = _announce(self._before_send, self._guard, endpoint, request)
         response = await self._send(
             request,
             idempotent=endpoint.idempotent,
@@ -356,7 +366,9 @@ class AsyncSession:
             The items, lazily; when they end, whether there is more and how to go on.
         """
         # The hook hears of a listing once, as before: its first request stands for all pages.
-        first = _announce(self._before_send, paged.endpoint, _first_page(paged, self._client))
+        first = _announce(
+            self._before_send, self._guard, paged.endpoint, _first_page(paged, self._client)
+        )
         longest = self._http.max_token_length
         walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
 
@@ -401,6 +413,7 @@ def connect(
     http: HTTPConfig | None = None,
     transport: httpx2.BaseTransport | None = None,
     before_send: BeforeSend | None = None,
+    guard: Guard | None = None,
 ) -> SyncSession:
     """A :class:`SyncSession` for one service: base URL, org header, auth, timeout, retries.
 
@@ -417,7 +430,7 @@ def connect(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return SyncSession(client, http=http, before_send=before_send)
+    return SyncSession(client, http=http, before_send=before_send, guard=guard)
 
 
 def connect_async(
@@ -429,6 +442,7 @@ def connect_async(
     http: HTTPConfig | None = None,
     transport: httpx2.AsyncBaseTransport | None = None,
     before_send: BeforeSend | None = None,
+    guard: Guard | None = None,
 ) -> AsyncSession:
     """The :class:`AsyncSession` twin of :func:`connect`."""
     http = http or HTTPConfig()
@@ -441,4 +455,4 @@ def connect_async(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return AsyncSession(client, http=http, before_send=before_send)
+    return AsyncSession(client, http=http, before_send=before_send, guard=guard)

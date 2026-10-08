@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     from ycli.settings import AppConfig, Credentials
     from ycli.yandex.base import DomainClient
+    from ycli.yandex.core.guard import Guard
     from ycli.yandex.core.profile import ServiceProfile
     from ycli.yandex.core.session import BeforeSend
 
@@ -70,16 +71,19 @@ def build_client[C: DomainClient](
     credentials: Credentials,
     config: AppConfig,
     before_send: BeforeSend | None = None,
+    guard: Guard | None = None,
 ) -> C:
     """Construct ``client_cls`` from ``credentials`` + ``config`` — never reads the env.
 
-    ``before_send`` is the client's per-endpoint hook (see :class:`~ycli.yandex.base.DomainClient`).
+    ``before_send`` and ``guard`` are the client's own (see
+    :class:`~ycli.yandex.base.DomainClient`).
 
     Args:
         client_cls: The domain client class to build.
         credentials: The way to sign in and the organization of either kind.
         config: The HTTP settings.
         before_send: The client's per-endpoint hook.
+        guard: What shows or confirms a write before it is sent.
 
     Returns:
         The ready client.
@@ -118,4 +122,5 @@ def build_client[C: DomainClient](
         cloud_organization_id=credentials.cloud_organization_id,
         http=config.http,
         before_send=before_send,
+        guard=guard,
     )

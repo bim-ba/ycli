@@ -63,6 +63,7 @@ ARCH8_STATUSLESS_ERRORS = {
     "YandexInvalidRequestError": "a request of the wrong form, found before anything is sent",
     "YandexNotConfiguredError": "a service the credentials cannot reach; nothing is sent",
     "YandexUnexpectedReplyError": "a reply that does not fit its model; no status is mapped",
+    "YandexDeclinedError": "an operation nobody confirmed; nothing is sent",
 }
 
 

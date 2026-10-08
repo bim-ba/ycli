@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any, cast
 
 from ycli.cli.body_fields import CallerFields
-from ycli.cli.guard import SendGuard
+from ycli.cli.guard import SendGuard, guard_of
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.base import DomainClient
 from ycli.yandex.factory import build_client
@@ -64,8 +64,12 @@ class AppContext:
             # Raises a ValidationError naming the missing variables when credentials are unset,
             # a ProfileError when the named profile cannot be used.
             self._credentials = self._credentials or Credentials.load(self.profile)
-            guard = SendGuard(self.options, self.caller_fields)
+            # Built when a command first reaches for a client: the leaf's options are in by then.
             self._clients[kind] = build_client(
-                kind, self._credentials, self.config, before_send=guard
+                kind,
+                self._credentials,
+                self.config,
+                before_send=SendGuard(self.caller_fields),
+                guard=guard_of(self.options),
             )
         return cast("T", self._clients[kind])
