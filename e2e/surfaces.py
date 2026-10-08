@@ -79,6 +79,10 @@ class Listener:
     # Who carries a call out instead of the command itself: given the call and the way to
     # make it as the command would, it returns what the method returns.
     through: Callable[[Call, Callable[[], Any]], Any] | None = None
+    # The requests the core sent a second time (it does so when the service limits the rate,
+    # for a write too), by method and path: a write that went out twice is seen as such.
+    resent: list[str] = field(default_factory=list)
+    last_request: httpx2.Request | None = None
 
     def heard(self, operation: str, method: Callable[..., Any]) -> Callable[..., Any]:
         """``method`` wrapped to note its call; a call made inside another is part of it."""
@@ -124,6 +128,10 @@ class _Watched(httpx2.BaseTransport):
             raise NotAReadError(f"{request.method} {request.url.path} is not a read")
         if self._listener.running is not None:
             self._listener.running.effects.append(effect)
+        # The same request once more is the core's retry: every command builds its own.
+        if request is self._listener.last_request:
+            self._listener.resent.append(f"{request.method} {scrub(request.url.path)}")
+        self._listener.last_request = request
         if self._inner is not None:
             return self._inner.handle_request(request)
         return self._network.send(request)
@@ -218,6 +226,8 @@ class Report:
     left_out: dict[str, set[str]] = field(default_factory=dict)
     # Where the surfaces are not equal before any call is made (:func:`unequal`).
     unequal: dict[str, list[str]] = field(default_factory=dict)
+    # The requests the core sent a second time (:attr:`Listener.resent`).
+    resent: list[str] = field(default_factory=list)
 
     def leave_out(self, reason: str, what: str) -> None:
         """Note that ``what`` was not compared, and why."""
@@ -264,6 +274,9 @@ class Report:
         for reason, names in sorted(self.left_out.items()):
             lines.append(f"not compared, {reason}: {len(names)}")
             lines += [f"  {name}" for name in sorted(names)]
+        if self.resent:
+            lines.append(f"requests the core sent again: {len(self.resent)}")
+            lines += [f"  {line}" for line in self.resent]
         for title, names in self.unequal.items():
             lines.append(f"{title}: {len(names)}")
             lines += [f"  {name}" for name in names]
@@ -341,7 +354,7 @@ class ThreeSurfaces(Driver):
             # As the server holds it: the listing drops the output schemas.
             if (tool := self._runner.run(self._server.get_tool(listed.name))) is not None
         }
-        self.report = Report(unequal=unequal(self._tools))
+        self.report = Report(unequal=unequal(self._tools), resent=listener.resent)
 
     def close(self) -> None:
         """Close the loop the tools ran in."""
