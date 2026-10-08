@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.129.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.128.0
+  ([`0ca32c5`](https://github.com/bim-ba/ycli/commit/0ca32c5182966a9ae1490fa636ba07b020a39989))
+
+### Features
+
+- **mcp**: `status_get` and `schema_get` stay in sight of a client that searches its tools
+  ([`5b9c779`](https://github.com/bim-ba/ycli/commit/5b9c779ec53a07344b5ee041e86047ab970b7a10))
+
+
 ## v0.128.0 (2026-10-08)
 
 ### Build System
