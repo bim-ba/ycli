@@ -1,6 +1,7 @@
 # Read-only: one cheap read every night, and the reads of the organization's own lists and of
 # the sandbox queue for a recording run (`pytest e2e --record`). Nothing here names an object
-# the run did not make, except the queue it writes to.
+# the run did not make, except the queue it writes to and the trigger kept in it, which the
+# last step reads (named by the owner: TRIGGER; without it the step is skipped).
 name: tracker/reads
 steps:
   - id: me
@@ -31,3 +32,10 @@ steps:
       - tracker workflows list-for-queue ${QUEUE}
       - tracker worklog search --created-from 2026-01-01T00:00:00 --created-to 2026-01-02T00:00:00
       - tracker worklog list-global
+  - id: trigger-webhook-log
+    needs: [TRIGGER]
+    # The kept trigger is switched off, so its log may well be empty: only the reply's kind is
+    # asserted.
+    run: tracker triggers webhook-log-list ${QUEUE} ${TRIGGER}
+    expect:
+      "type(@)": array
