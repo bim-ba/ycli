@@ -30,13 +30,13 @@ def list_(
 @app.command()
 def create(
     key: Annotated[str, typer.Option(help="Key of the new priority.")],
+    order: Annotated[int, typer.Option(help="Display-order weight of the priority.")],
     name_ru: Annotated[
         str | None, typer.Option("--name-ru", help="Priority name in Russian.")
     ] = None,
     name_en: Annotated[
         str | None, typer.Option("--name-en", help="Priority name in English.")
     ] = None,
-    order: Annotated[int | None, typer.Option(help="Display-order weight of the priority.")] = None,
     description: Annotated[str | None, typer.Option(help="Description of the priority.")] = None,
     *,
     tracker: TrackerClient,

@@ -357,7 +357,7 @@ tracker macros get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --form
 tracker macros list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker macros update: --body-file:FILE --body:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --issue-update:TEXT --name:TEXT --profile:TEXT --yes:BOOLEAN=False MACRO_ID:INTEGER! QUEUE_ID:TEXT!
 tracker me get: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
-tracker priorities create: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --order:INTEGER --profile:TEXT --yes:BOOLEAN=False
+tracker priorities create: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --order:INTEGER! --profile:TEXT --yes:BOOLEAN=False
 tracker priorities list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --localized:BOOLEAN --profile:TEXT --yes:BOOLEAN=False
 tracker priorities update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --name-en:TEXT --name-ru:TEXT --profile:TEXT --version:INTEGER --yes:BOOLEAN=False PRIORITY_ID:TEXT!
 tracker projects create: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --field:TEXT --format:CHOICE --lead:TEXT --name:TEXT! --profile:TEXT --queues:TEXT! --start-date:TEXT --status:TEXT --yes:BOOLEAN=False
@@ -366,7 +366,7 @@ tracker projects get: --body-file:FILE --dry-run:BOOLEAN=False --expand:TEXT --f
 tracker projects list: --body-file:FILE --dry-run:BOOLEAN=False --expand:TEXT --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker projects queues-list: --body-file:FILE --dry-run:BOOLEAN=False --expand:TEXT --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False PROJECT_ID:INTEGER!
 tracker projects update: --body-file:FILE --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --expand:TEXT --field:TEXT --format:CHOICE --lead:TEXT --name:TEXT --profile:TEXT --queues:TEXT! --start-date:TEXT --status:TEXT --version:INTEGER! --yes:BOOLEAN=False PROJECT_ID:INTEGER!
-tracker queues create: --body-file:FILE --default-priority:TEXT! --default-type:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --issue-type-config:TEXT --key:TEXT! --lead:TEXT! --name:TEXT! --profile:TEXT --yes:BOOLEAN=False
+tracker queues create: --body-file:FILE --default-priority:TEXT! --default-type:TEXT! --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --issue-type-config:TEXT! --key:TEXT! --lead:TEXT! --name:TEXT! --profile:TEXT --yes:BOOLEAN=False
 tracker queues delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker queues fields-list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker queues get: --body-file:FILE --dry-run:BOOLEAN=False --expand:TEXT --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
