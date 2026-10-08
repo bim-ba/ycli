@@ -1,0 +1,27 @@
+id: violation-marker-form
+valid:
+  - |
+    # violation(arch-9): the option is JSON; text that does not parse gives no value
+    raise typer.BadParameter("not JSON")
+  - |
+    # violation(naming): one object
+    def logs_get(): ...
+  - |
+    # a comment that says the word violation and names no marker
+    x = 1
+invalid:
+  - |
+    # violation(taste): not a rule
+    z = 3
+  - |
+    # violation(arch-9) no colon
+    y = 2
+  - |
+    # violation(arch-10): no such invariant
+    w = 4
+  - |
+    #violation(arch-3): no space after the hash
+    v = 5
+  - |
+    # violation(arch-3):
+    u = 6

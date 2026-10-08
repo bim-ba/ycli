@@ -140,6 +140,13 @@ class QueuesClient(Resource):
             ...     lead="lead-login",
             ...     default_type="task",
             ...     default_priority="normal",
+            ...     issue_types_config=[
+            ...         {
+            ...             "issueType": "bug",
+            ...             "workflow": "oicn",
+            ...             "resolutions": ["wontFix", "fixed"],
+            ...         }
+            ...     ],
             ... )
             >>> tracker.queues.create(new_queue).key
             'DESIGN'

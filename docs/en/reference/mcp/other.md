@@ -23,15 +23,17 @@ the configured id and, when the token has the ``directory:read_organization`` sc
 
 ## `schema_get`
 
-*Read the schema of a tool's body* · read-only
+*Read the schema of a tool's body or reply* · read-only
 
-Read one definition of a body that its tool lists as a free-form object.
+Read one definition: of a body its tool lists as a free-form object, or of a reply.
 
-Such a parameter says in its description which definition to start from. The answer
-refers to others as ``#/$defs/<name>``: read those with this tool too, only the ones the
-task needs.
+A body: give ``service`` and ``name``; such a parameter says in its description which
+definition to start from. A reply, to know what a tool answers before calling it: give
+``tool``, then ``tool`` and ``name`` for a part. The answer refers to others as
+``#/$defs/<name>``: read those with this tool too, only the ones the task needs.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `service` | string | yes | The service of the tool, e.g. `forms`. |
-| `name` | string | yes | The definition to read, as the tool's parameter names it. |
+| `service` | string or null |  | For a body: the service of the tool, e.g. `forms`. |
+| `name` | string or null |  | The definition to read: for a body, as the tool's parameter names it; for a reply, a part of it (left out: the reply itself). |
+| `tool` | string or null |  | For a reply: the tool whose answer to read, e.g. `forms_surveys_get`. |

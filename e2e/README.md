@@ -49,7 +49,13 @@ A seventh, `datalens/entries-content`, writes what a workbook holds: a connectio
 
 An eighth, `datalens/html-pages`, is the life of an HTML page in a workbook of the run: made, read, saved again, its preview address read, and deleted. It holds that an update with `--mode save` moves the saved version and leaves the published one.
 
+## What no scenario reaches
+
+A notification of a form that is **delivered**: `forms/notifications` has one integration, an HTTP call to a host under `.invalid`, which resolves nowhere, so its notification waits and is never delivered (that nothing is sent rests on what `.invalid` is, RFC 6761; it was not read from an error of the service). The integration that would deliver inside the organization, a Tracker issue made from an answer, cannot be created with the token of the run: `400 ... Не удалось проверить права в Трекере` (measured). No right is granted to get past it.
+
 ## Scenario files
+
+A log of the CI job is public. When a step fails, the runner prints its command and a short excerpt of what came back with every value the run learned from the service or was given by the owner (a login, an id saved by `save`, `${GRANTEE}`) replaced by its name, `<login>`; only what the run made up itself is shown as it is (`${RUN}`, `${TAG}`, `${QUEUE}`, `${FILES}`). The objects of a run are found by its name, so nothing is lost for the reading.
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):
 
@@ -117,6 +123,7 @@ The report ends the log and goes to the file `--surfaces-report` names. It holds
 
 - `DATA`: the CLI answered the same before and after, and a surface answered something else. A defect.
 - `TIME`: the CLI itself answered differently a moment later, so the object changed between the calls. Noise of the runner.
+- the requests the core sent a second time, by method and path (it repeats a request the service rate-limited, a write too): a write that went out twice is seen as such;
 - what was not compared and why (a write, a command that prints no JSON, an argument the tool does not take), and the operations whose surfaces are not one operation before any call: no tool, or a method that takes what its tool does not.
 
 The commands follow each other at the pace of a recording run, so `--record-pause` applies here too: with the default second Tracker refused a sprint's change of state with 412 twice, and with 2.5 it passed (measured).
