@@ -1,0 +1,11 @@
+id: body-is-a-model
+valid:
+  - "def create(body: BoardCreate) -> Endpoint[Board]: ..."
+  - "def upload(body: bytes, *, filename: str) -> Endpoint[Attachment]: ..."
+  - "def search(filters: dict[str, Any]) -> Endpoint[Page]: ..."
+  - "def update(board_id: int, body: BoardUpdate | None = None) -> Endpoint[Board]: ..."
+invalid:
+  - "def search(body: dict[str, Any]) -> Paged[Page, Item]: ..."
+  - "def search(body: dict) -> Endpoint[Page]: ..."
+  - "def create(self, body: Mapping[str, Any]) -> Board: ..."
+  - "async def create(body: dict[str, Any] = {}) -> Board: ..."

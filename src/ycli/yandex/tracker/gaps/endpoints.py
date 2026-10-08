@@ -3,18 +3,24 @@
 Examples:
     >>> delete(["g1", "g2"]).params
     {'gapIds': 'g1,g2'}
-    >>> search({"users": ["ann"]}).endpoint.effect
+    >>> search(GapsSearch(users=["ann"])).endpoint.effect
     <Effect.READ: 'read'>
 """
 
 from __future__ import annotations
 
 from http import HTTPMethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged
 from ycli.yandex.core.pagination import PageNumberPagination
-from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate, GapSearchPage, UserGaps
+from ycli.yandex.tracker.gaps.models import (
+    GapCreated,
+    GapsCreate,
+    GapSearchPage,
+    GapsSearch,
+    UserGaps,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -27,7 +33,7 @@ def create(body: GapsCreate) -> Endpoint[GapCreated]:
     return Endpoint(HTTPMethod.POST, "gaps", GapCreated, json=body)
 
 
-def search(body: dict[str, Any]) -> Paged[GapSearchPage, UserGaps]:
+def search(body: GapsSearch) -> Paged[GapSearchPage, UserGaps]:
     """``POST /gaps/_search`` only reads; pages of users, each next page from ``page=``."""
     return Paged(
         # violation(arch-3): POST _search only reads
