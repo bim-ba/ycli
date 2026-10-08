@@ -25,7 +25,7 @@ from ycli.settings import (
     OAuthAppConfig,
 )
 from ycli.yandex.mcp import WRITE_TAG, guide, new_server
-from ycli.yandex.registry import SERVICES, resources
+from ycli.yandex.registry import SERVICES, about
 from ycli.yandex.status.mcp import mcp as status_mcp
 
 if TYPE_CHECKING:
@@ -88,9 +88,7 @@ def _instructions(mounted: list[Service]) -> str:
     needs first comes first; ``tests/architecture/test_tool_metadata.py`` holds the length.
     """
     services = " ".join(
-        f"{service.name}_* — {service.help} {len(resources(service))} resources; "
-        f"start with {service.start}."
-        for service in mounted
+        f"{service.name}_* — {about(service)}; start with {service.start}." for service in mounted
     )
     guides = ", ".join(f"ycli://{service.name}/guide" for service in mounted)
     return (

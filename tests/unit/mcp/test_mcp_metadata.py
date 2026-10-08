@@ -124,7 +124,8 @@ def test_a_service_with_fewer_resources_says_so(monkeypatch):
     """The count is read, not written: a service that loses a resource says one less."""
     tracker = SERVICES[0]
     before = len(resources(tracker))
-    monkeypatch.setattr("ycli.mcp.server.resources", lambda service: resources(service)[:-1])
+    whole = resources
+    monkeypatch.setattr("ycli.yandex.registry.resources", lambda service: whole(service)[:-1])
     told = build_server(Selection(toolsets=("tracker",))).instructions or ""
     assert f"{before - 1} resources; start with tracker_me_get." in told
     assert "wiki_*" not in told  # only what is mounted is told of

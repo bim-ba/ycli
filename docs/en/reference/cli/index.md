@@ -9,6 +9,14 @@ generated: true
 
 ycli — Yandex 360 API SDK CLI.
 
+tracker — Yandex Tracker: issues, queues, boards, sprints, fields, automation. 34 resources; start with `ycli tracker me get`.
+
+wiki — Yandex Wiki: pages, grids, comments, attachments. 10 resources; start with `ycli wiki pages get`.
+
+forms — Yandex Forms: surveys, questions, answers, publishing. 16 resources; start with `ycli forms surveys list`.
+
+datalens — Yandex DataLens: workbooks, connections, datasets, charts, dashboards. 28 resources; start with `ycli datalens workbooks list`.
+
 **Usage**:
 
 ```console

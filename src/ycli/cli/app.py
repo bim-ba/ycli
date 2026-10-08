@@ -20,7 +20,7 @@ from ycli.cli.typedefs import (
     ProfileOption,
     YesOption,
 )
-from ycli.yandex.registry import SERVICES
+from ycli.yandex.registry import SERVICES, about, start_command
 
 
 class _Ycli(RootGroup):
@@ -63,10 +63,19 @@ def _render(
     render(result, output_format or OutputFormat.auto)
 
 
+def _header() -> str:
+    """What `ycli --help` says first: each service in the words the MCP server says of it."""
+    services = "\n\n".join(
+        f"{service.name} — {about(service)}; start with `{start_command(service)}`."
+        for service in SERVICES
+    )
+    return f"ycli — Yandex 360 API SDK CLI.\n\n{services}"
+
+
 app = typer.Typer(
     cls=_Ycli,
     name="ycli",
-    help="ycli — Yandex 360 API SDK CLI.",
+    help=_header(),
     epilog=f"Exit codes: {exit_codes_summary()} (see the README).",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,

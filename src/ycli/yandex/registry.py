@@ -56,6 +56,47 @@ def resources(service: Service) -> tuple[str, ...]:
     )
 
 
+def about(service: Service) -> str:
+    """What ``service`` is and how much it has: the words every surface says of it.
+
+    The instructions of the MCP server and the header of ``ycli --help`` both read it.
+
+    Args:
+        service: A registered service.
+
+    Returns:
+        Its description and the number of its resources.
+
+    Examples:
+        >>> about(SERVICES[0]).startswith("Yandex Tracker: issues, queues")
+        True
+        >>> about(SERVICES[0]).endswith(" resources")
+        True
+    """
+    return f"{service.help} {len(resources(service))} resources"
+
+
+def start_command(service: Service) -> str:
+    """The command an agent or a person begins with: the tool ``service.start``, as the CLI.
+
+    A tool and its command are one name (ARCH-1): the service, the resource, the operation.
+
+    Args:
+        service: A registered service.
+
+    Returns:
+        The command line.
+
+    Examples:
+        >>> start_command(SERVICES[0])
+        'ycli tracker me get'
+    """
+    rest = service.start.removeprefix(f"{service.name}_")
+    resource = max((name for name in resources(service) if rest.startswith(f"{name}_")), key=len)
+    operation = rest.removeprefix(f"{resource}_").replace("_", "-")
+    return f"ycli {service.name} {resource} {operation}"
+
+
 def kinds() -> tuple[Kind[Any, Any], ...]:
     """Every kind of file a resource of a registered service declares, by name.
 
