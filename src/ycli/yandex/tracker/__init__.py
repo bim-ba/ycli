@@ -9,6 +9,7 @@ SERVICE = Service(
     client="ycli.yandex.tracker.client:TrackerClient",
     cli="ycli.yandex.tracker.cli:app",
     mcp="ycli.yandex.tracker.mcp.server:mcp",
+    start="tracker_me_get",
     profile=ServiceProfile("https://api.tracker.yandex.net/v3"),
     pagination="ycli.yandex.tracker.pages:LINK_NEXT",
 )

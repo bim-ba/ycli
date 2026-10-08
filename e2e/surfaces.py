@@ -36,7 +36,7 @@ from pydantic import BaseModel, TypeAdapter
 from pydantic_core import to_jsonable_python
 
 from e2e.recording import NotAReadError, operations, public_names
-from e2e.runner import CommandResult, Driver, ScenarioError, scrub
+from e2e.runner import CommandResult, Driver, ScenarioError, hidden, scrub
 from ycli.mcp.selection import Selection
 from ycli.mcp.server import build_server
 from ycli.settings import AppConfig, Credentials
@@ -337,6 +337,7 @@ class ThreeSurfaces(Driver):
         self._driver = driver
         self._listener = listener
         self._writes_through = writes_through
+        self._variables: dict[str, str] = {}
         self._own_body = False
         if writes_through is not None:
             listener.through = self._carry_out
@@ -355,6 +356,10 @@ class ThreeSurfaces(Driver):
             if (tool := self._runner.run(self._server.get_tool(listed.name))) is not None
         }
         self.report = Report(unequal=unequal(self._tools), resent=listener.resent)
+
+    def knows(self, variables: dict[str, str]) -> None:
+        """Keep the scenario's variables: a surface's failure names what the run learned."""
+        self._variables = variables
 
     def close(self) -> None:
         """Close the loop the tools ran in."""
@@ -412,7 +417,9 @@ class ThreeSurfaces(Driver):
         try:
             data = self._runner.run(self._call_tool(tool.name, sent))
         except ToolError as error:
-            raise ScenarioError(f"{call.operation} through MCP: {scrub(str(error))}") from None
+            raise ScenarioError(
+                f"{call.operation} through MCP: {hidden(str(error), self._variables)}"
+            ) from None
         self.report.written["mcp"].add(call.operation)
         if inspect.signature(self._methods[call.operation]).return_annotation in (None, "None"):
             return None  # the tool answers such a write with an ``Ack`` of its own
@@ -463,7 +470,7 @@ class ThreeSurfaces(Driver):
             with build_client(client_class, Credentials(), AppConfig()) as client:
                 result = getattr(getattr(client, resource), method)(**call.arguments)
         except YandexError as error:
-            return _Failed(scrub(str(error)))
+            return _Failed(hidden(str(error), self._variables))
         document = _document(result)
         if document is _NO_JSON:
             self.report.leave_out("the method returns what has no JSON form", call.operation)
@@ -506,7 +513,7 @@ class ThreeSurfaces(Driver):
         try:
             data = self._runner.run(self._call_tool(tool.name, sent))
         except ToolError as error:
-            return _Failed(scrub(str(error)))
+            return _Failed(hidden(str(error), self._variables))
         return _unwrapped(tool, data)
 
     async def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:

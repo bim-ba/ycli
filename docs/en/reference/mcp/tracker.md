@@ -1116,6 +1116,7 @@ Create an org-global custom issue field.
 CAUTION: global fields are organisation-wide and NOT deletable — creation leaves permanent
 residue; prefer ``localfields_create`` for a single queue. Required: ``id`` (latin key),
 ``name`` (ru/en display names), ``category`` (a category id) and ``type`` (value type).
+A name is unique among the fields: one that is taken answers 422 (measured).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

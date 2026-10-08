@@ -25,7 +25,7 @@ from ycli.settings import (
     OAuthAppConfig,
 )
 from ycli.yandex.mcp import WRITE_TAG, guide, new_server
-from ycli.yandex.registry import SERVICES
+from ycli.yandex.registry import SERVICES, resources
 from ycli.yandex.status.mcp import mcp as status_mcp
 
 if TYPE_CHECKING:
@@ -74,23 +74,33 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.mount(service.mcp_server(), namespace=service.name)
     # No tools for `ycli sync`: it works in the caller's working tree, and a server has none.
     server.mount(status_mcp, namespace="status")
-    server.mount(schema_server(server.list_tools), namespace="schema")
+    server.mount(schema_server(server.list_tools, server.get_tool), namespace="schema")
     server.add_transform(DerivedTags())
     _apply_selection(server, selection)
     return server
 
 
 def _instructions(mounted: list[Service]) -> str:
-    """What the server tells a client about itself: the mounted services and how to start."""
+    """What the server tells a client about itself, from the registry: no service is written here.
+
+    For each mounted service: what it is, how many resources it has, and the tool to begin
+    with. A client may cut the text at 2 048 characters (Claude Code does), so what a caller
+    needs first comes first; ``tests/architecture/test_tool_metadata.py`` holds the length.
+    """
+    services = " ".join(
+        f"{service.name}_* — {service.help} {len(resources(service))} resources; "
+        f"start with {service.start}."
+        for service in mounted
+    )
+    guides = ", ".join(f"ycli://{service.name}/guide" for service in mounted)
     return (
-        "Read/write access to Yandex 360. Tools are namespaced per service: "
-        + "; ".join(f"{service.name}_* — {service.help}" for service in mounted)
-        + ". Every tool carries honest annotations: reads have readOnlyHint=true; writes "
+        f"Read/write access to Yandex 360. Tools are namespaced per service. {services} "
+        f"Read the guide of a service before its first call, as a resource: {guides}. "
+        "Every tool carries honest annotations: reads have readOnlyHint=true; writes "
         "have readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true "
         f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
         f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
-        "caller's Yandex account). Each service has a guide to read before its first call, "
-        "as a resource: " + ", ".join(f"ycli://{service.name}/guide" for service in mounted) + ". "
+        "caller's Yandex account). "
         "Objects as files in git (pull, diff, push) are the CLI's: run `ycli sync --help`."
     )
 

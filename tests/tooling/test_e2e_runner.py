@@ -289,3 +289,55 @@ def test_a_save_expression_may_use_a_variable():
     )
     run_scenario(scenario, driver, {"LOGIN": "bob"})
     assert driver.calls[-1] == ["tracker", "users", "get", "2"]
+
+
+class _Refusing(Driver):
+    """Answers ``me`` with a login, refuses every other command and repeats what it was given."""
+
+    def run(self, arguments: Sequence[str]) -> CommandResult:
+        if arguments[0] == "me":
+            return CommandResult(0, json.dumps({"login": "ivan.petrov", "version": 3}), "")
+        return CommandResult(1, "", f"denied: {' '.join(arguments)}")
+
+
+def test_a_failed_step_prints_the_name_of_what_the_run_learned_not_its_value():
+    """A log of the CI job is public: a login read from the service does not go into it."""
+    scenario = _scenario(
+        {"id": "me", "run": "me get", "save": {"login": "login", "version": "version"}},
+        {
+            "id": "board",
+            "run": "boards create --name '${RUN} board' --owner ${login} --version ${version}",
+        },
+    )
+    with pytest.raises(ScenarioError) as failed:
+        run_scenario(scenario, _Refusing(), {"RUN": "e2e-1-ab12", "GRANTEE": "someone.else"})
+    said = str(failed.value)
+    assert said.startswith(
+        "[s/board] `ycli boards create --name 'e2e-1-ab12 board' --owner '<login>' "
+        "--version '<version>'` exited 1: "
+    )
+    # What the service said back is masked too; the run's own name stays, to find its objects.
+    assert "ivan.petrov" not in said and "e2e-1-ab12" in said
+    assert "--owner <login>" in said.split("exited 1: ")[1]
+
+
+def test_what_the_owner_gave_and_what_an_expectation_compares_are_masked_too():
+    scenario = _scenario(
+        {"id": "me", "run": "me get", "save": {"login": "login"},
+         "expect": {"login": "${GRANTEE}"}},
+    )  # fmt: skip
+    with pytest.raises(ScenarioError) as failed:
+        run_scenario(scenario, _Refusing(), {"GRANTEE": "someone.else"})
+    assert str(failed.value).startswith("[s/me] expected `login` == '<GRANTEE>', got ")
+    assert "someone.else" not in str(failed.value)
+
+
+def test_a_failed_cleanup_prints_the_name_too(capsys):
+    scenario = _scenario(
+        {"id": "me", "run": "me get", "save": {"login": "login"}, "cleanup": "users drop ${login}"}
+    )
+    with pytest.raises(
+        ScenarioError, match=r"cleanup failed: `ycli users drop '<login>'` exited 1"
+    ):
+        run_scenario(scenario, _Refusing(), {})
+    assert "ivan.petrov" not in capsys.readouterr().err

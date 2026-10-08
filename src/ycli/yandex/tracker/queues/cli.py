@@ -91,13 +91,13 @@ def create(
         str, typer.Option("--default-priority", help="Key/id of the default priority.")
     ],
     issue_type_config: Annotated[
-        list[str] | None,
+        list[str],
         typer.Option(
             "--issue-type-config",
             help='issueTypesConfig row as JSON, e.g. \'{"issueType":"task","workflow":"oicn"}\''
-            " (repeatable).",
+            " (repeatable; a queue needs at least one).",
         ),
-    ] = None,
+    ],
     *,
     tracker: TrackerClient,
 ) -> Queue:
@@ -108,9 +108,7 @@ def create(
         lead=lead,
         default_type=default_type,
         default_priority=default_priority,
-        issue_types_config=[json.loads(row) for row in issue_type_config]
-        if issue_type_config
-        else None,
+        issue_types_config=[json.loads(row) for row in issue_type_config],
     )
     return tracker.queues.create(body)
 

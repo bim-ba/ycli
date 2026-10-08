@@ -45,11 +45,11 @@ def _page(start: int) -> list[int]:
 
 
 def _offset(request: httpx2.Request) -> httpx2.Response:
-    return httpx2.Response(200, json=_page(int(request.url.params["offset"])))
+    return httpx2.Response(200, json=_page(int(request.url.params.get("offset", 0))))
 
 
 def _numbered(request: httpx2.Request) -> httpx2.Response:
-    start = (int(request.url.params["page"]) - 1) * PAGE
+    start = (int(request.url.params.get("page", 1)) - 1) * PAGE
     headers = {"X-Total-Pages": "4", "X-Total-Count": str(len(DATA))}
     return httpx2.Response(200, json=_page(start), headers=headers)
 
@@ -152,6 +152,13 @@ def _connect(transport: httpx2.MockTransport, factory=connect):
         http=HTTPConfig(retries=1),
         transport=transport,
     )
+
+
+def _token(paged: Paged, first: httpx2.Request, url: httpx2.URL) -> str:
+    """A token of ``paged`` that names the page at ``url``, as the walk would write it."""
+    page = httpx2.Request(first.method, url, content=first.content)
+    way = type(paged.pagination).__name__
+    return continuation.encode(first, page, way=way, skip=0, seen=0)
 
 
 def _in_pieces(way: str, limit: int) -> list[list[int]]:
@@ -272,11 +279,17 @@ def _packed(state: str) -> str:
         "",
         "not-a-token",
         "e30",  # an empty object
-        _packed('{"v":2,"of":"","query":"","body":"","skip":0}'),  # another version
-        _packed('{"v":1,"of":"","query":"","body":"","skip":-1}'),
-        _packed('{"v":1,"of":"","query":"","body":"","skip":"0"}'),  # text where a number goes
+        _packed(
+            '{"v":2,"of":"","query":"","way":"CursorPagination","body":"","skip":0,"seen":0}'
+        ),  # another version
+        _packed('{"v":1,"of":"","query":"","way":"CursorPagination","body":"","skip":-1,"seen":0}'),
+        _packed(
+            '{"v":1,"of":"","query":"","way":"CursorPagination","body":"","skip":"0","seen":0}'
+        ),  # text where a number goes
         # A key a token does not have: it cannot name a path, nor anything else.
-        _packed('{"v":1,"of":"","query":"","body":"","skip":0,"path":"/v1/other"}'),
+        _packed(
+            '{"v":1,"of":"","query":"","way":"CursorPagination","body":"","skip":0,"seen":0,"path":"/v1/other"}'
+        ),
     ],
 )
 def test_what_is_not_a_token_is_refused_before_anything_is_sent(garbage):
@@ -307,11 +320,13 @@ def test_a_token_carries_no_path_and_no_other_version():
     first = httpx2.Request("GET", f"{BASE}/items")
     elsewhere = httpx2.Request("GET", f"{BASE}/queues?page=2")
     with pytest.raises(YandexInvalidRequestError, match="at another path than its listing"):
-        continuation.encode(first, elsewhere, skip=0)
-    token = continuation.encode(first, httpx2.Request("GET", f"{BASE}/items?page=2"), skip=1)
-    resumed, skip = continuation.resume(first, token, longest=1000)
-    assert (str(resumed.url), skip) == (f"{BASE}/items?page=2", 1)
-    assert len(token) < 140 and token.isascii() and "=" not in token
+        continuation.encode(first, elsewhere, way="PageNumberPagination", skip=0, seen=0)
+    page = httpx2.Request("GET", f"{BASE}/items?page=2")
+    token = continuation.encode(first, page, way="PageNumberPagination", skip=1, seen=4)
+    resumed, state = continuation.resume(first, token, way="PageNumberPagination", longest=1000)
+    assert (str(resumed.url), state.skip, state.seen) == (f"{BASE}/items?page=2", 1, 4)
+    assert continuation.way_of(token, longest=1000) == "PageNumberPagination"
+    assert len(token) < 190 and token.isascii() and "=" not in token
 
 
 @pytest.mark.parametrize(
@@ -324,9 +339,7 @@ def test_a_continuation_the_service_no_longer_takes_says_start_again(way, dead):
     session = _connect(transport)
     first = paged.pagination.first(paged.endpoint.request(session._client))
     param = "cursor" if way == "cursor" else "scrollId"
-    stale = continuation.encode(
-        first, httpx2.Request("GET", first.url.copy_merge_params({param: dead})), skip=0
-    )
+    stale = _token(paged, first, first.url.copy_merge_params({param: dead}))
     with pytest.raises(YandexStaleContinuationError, match="start it again without it") as caught:
         session.iterate(paged, next=stale).collect()
     assert exit_code_for(caught.value) is ExitCode.STALE
@@ -353,7 +366,8 @@ def test_an_asynchronous_session_pages_the_same_way():
             got = await listing.collect()
             found.append([first, *got.items])
             if not got.truncated:
-                assert (listing.next, listing.total) == (None, None)
+                assert (listing.next, listing.total, listing.seen) == (None, None, len(DATA))
+                assert session.way_of(token) == "CursorPagination"
                 return found
             token = listing.next
 
@@ -366,7 +380,7 @@ def test_an_asynchronous_session_says_start_again_too():
         session = _connect(transport, connect_async)
         first = paged.pagination.first(paged.endpoint.request(session._client))
         dead = httpx2.Request("GET", first.url.copy_merge_params({"cursor": "x9"}))
-        token = continuation.encode(first, dead, skip=0)
+        token = _token(paged, first, dead.url)
         await session.iterate(paged, next=token).collect()
 
     with pytest.raises(YandexStaleContinuationError):
@@ -397,3 +411,66 @@ def test_a_token_goes_on_with_another_limit_though_the_limit_shapes_the_page():
     rest = session.iterate(_narrowed(3), limit=3, next=first.next).collect()
     assert rest.items == [3, 4, 5]
     assert session.iterate(_narrowed(None), next=rest.next).collect().items == DATA[5:]
+
+
+def test_a_token_of_another_way_of_paging_the_same_path_is_of_another_listing():
+    """A search by pages and the same search by a scroll share a method and a path."""
+    transport, by_scroll = _served("scroll")
+    session = _connect(transport)
+    token = session.iterate(by_scroll, limit=PAGE).collect().next
+    assert token and session.way_of(token) == "ScrollPagination"
+    by_pages = Paged(_get(), PageNumberPagination(page_size=PAGE), list)
+    with pytest.raises(YandexInvalidRequestError, match="is of another listing"):
+        session.iterate(by_pages, limit=PAGE, next=token)
+
+
+@pytest.mark.parametrize("way", sorted(WAYS))
+def test_a_token_whose_state_its_way_cannot_read_is_refused_and_never_a_traceback(way):
+    """Right in form and of the right way, and naming a request the way cannot go on from."""
+    transport, paged = _served(way)
+    session = _connect(transport)
+    first = paged.pagination.first(paged.endpoint.request(session._client))
+    # No state at all: the query the way writes its place into is gone.
+    bare = _token(paged, first, first.url.copy_with(query=b""))
+    try:
+        got = session.iterate(paged, limit=PAGE, next=bare).collect()
+    except (YandexInvalidRequestError, YandexStaleContinuationError):
+        return  # refused as a token, by ycli or by the service
+    assert got.items == DATA[:PAGE]  # or read as the start of the listing: nothing else
+
+
+def test_a_listing_whose_total_was_given_whole_is_not_truncated():
+    """Two boards and a limit of two: the service says there are two, so nothing is left."""
+
+    def served(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(200, json=[1, 2], headers={"X-Total-Count": "2"})
+
+    session = _connect(httpx2.MockTransport(served))
+    paged = Paged(_get(), RelativeIDPagination(id_of=str), list)
+    got = session.iterate(paged, limit=2).collect()
+    assert (got.items, got.truncated, got.next, got.total) == ([1, 2], False, None, 2)
+
+
+def test_the_total_ends_a_listing_taken_in_pieces_too():
+    """What the calls before gave is in the token, so the last piece knows it is the last."""
+    transport, paged = _served("page number")  # eleven items, and the service says so
+    session = _connect(transport)
+    first = session.iterate(paged, limit=6).collect()
+    assert first.truncated and first.next
+    listing = session.iterate(paged, limit=5, next=first.next)
+    rest = listing.collect()
+    assert (rest.items, rest.truncated, rest.next) == (DATA[6:], False, None)
+    # A listing counts what it and the calls before it gave: eleven, not the five of this one.
+    assert listing.seen == len(DATA)
+
+
+def test_a_way_that_fails_on_a_listing_nobody_continued_fails_as_itself():
+    """Only a token is blamed for a state that cannot be read; a defect of a way stays one."""
+
+    class Broken(RelativeIDPagination):
+        def next(self, request, response, items):
+            raise KeyError("page")
+
+    session = _connect(httpx2.MockTransport(_after_id))
+    with pytest.raises(KeyError):
+        session.iterate(Paged(_get(), Broken(id_of=str), list)).collect()
