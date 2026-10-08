@@ -35,7 +35,6 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.list_(issue_key))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def download(self, issue_key: str, file_id: str, filename: str) -> bytes:
         """Download an attachment's raw bytes (a non-2xx answer raises a typed error).
 
@@ -56,7 +55,6 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.download(issue_key, file_id, filename))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def thumbnails_download(self, issue_key: str, file_id: str) -> bytes:
         r"""Download a graphic attachment's preview-thumbnail bytes (a non-2xx answer raises).
 
@@ -199,7 +197,6 @@ class AttachmentsClient(Resource):
         )
         return self._session.send(endpoint)
 
-    # violation(arch-1): CLI-only, a comment's file is read from disk as raw bytes
     def import_for_comment(
         self,
         issue_key: str,

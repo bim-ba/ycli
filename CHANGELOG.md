@@ -9,6 +9,106 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.126.0
+  ([`ccc0246`](https://github.com/bim-ba/ycli/commit/ccc0246e642cf91b17bacfb500b9b2143614c14a))
+
+### Features
+
+- **mcp**: `schema_get` shows what a tool answers, one definition at a time
+  ([`151d213`](https://github.com/bim-ba/ycli/commit/151d213fec782ca58bbd1ce91a91025a6c69c8e4))
+
+
+## v0.126.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.125.0
+  ([`4526c32`](https://github.com/bim-ba/ycli/commit/4526c32e599640f62d000a554f3037044ec6c02d))
+
+### Features
+
+- **mcp**: A tool's error ends with the next step the CLI gives under Hint
+  ([`ff7a00f`](https://github.com/bim-ba/ycli/commit/ff7a00f9c2ba56d85f24b2df552edcb9cb7be30f))
+
+### Testing
+
+- **e2e**: A run on three surfaces lists the requests the core sent a second time
+  ([`1c5b057`](https://github.com/bim-ba/ycli/commit/1c5b057725c522f34287cc545d69f6f6861f6061))
+
+
+## v0.125.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.124.2
+  ([`4af65be`](https://github.com/bim-ba/ycli/commit/4af65be8d436bf4ffccc2d8c0390351138beed86))
+
+### Documentation
+
+- **datalens**: What the API deletes stays in the interface's deleted objects; an editor chart's
+  data read times out
+  ([`2acab40`](https://github.com/bim-ba/ycli/commit/2acab40a72e0ebbd00ccbd746ef7f91d561b6278))
+
+- **wiki**: An upload's reply is early about the preview of an image
+  ([`8e9bde8`](https://github.com/bim-ba/ycli/commit/8e9bde824c8597018dfdafe5ce8704a775778819))
+
+### Features
+
+- **sync**: A how-to page, and `sync` has no MCP tools: an agent runs the command
+  ([`62f1d13`](https://github.com/bim-ba/ycli/commit/62f1d13291d523be23ea5483b6871fbbd8cdbeb2))
+
+### Testing
+
+- **e2e**: The resolution of a closed issue is read from the issue, not from a search right after
+  ([`ea599ab`](https://github.com/bim-ba/ycli/commit/ea599abb870625ff4b2cc6781fbc75d56e608dc7))
+
+
+## v0.124.2 (2026-10-08)
+
+### Bug Fixes
+
+- **core**: An error names a status HTTP does not name by its code alone
+  ([`6e19d47`](https://github.com/bim-ba/ycli/commit/6e19d47a7f78bf9a082b855320e596da5b83ef57))
+
+### Build System
+
+- Re-lock uv.lock for 0.124.1
+  ([`2a35dc3`](https://github.com/bim-ba/ycli/commit/2a35dc37ad295404a1d8efe5c9c3f864e14a75a0))
+
+### Documentation
+
+- **tracker**: The listing of a bulk change holds every issue of it, not the failed ones only
+  ([`0f5b4ff`](https://github.com/bim-ba/ycli/commit/0f5b4ffbf2dd435103d6451c78a4f49e2d6742c4))
+
+- **wiki**: The help of `grids columns suggest` says to give a slug or a title, exactly one
+  ([`892fd84`](https://github.com/bim-ba/ycli/commit/892fd84dcc08c00aec161bd632e0270f67a0a619))
+
+
+## v0.124.1 (2026-10-08)
+
+### Bug Fixes
+
+- **wiki**: `attachments download-by-url` takes the address an attachment's own download_url gives
+  ([`bedc0af`](https://github.com/bim-ba/ycli/commit/bedc0affcc028091ec396d5fa7576b185c06a053))
+
+### Build System
+
+- Re-lock uv.lock for 0.124.0
+  ([`3fdd491`](https://github.com/bim-ba/ycli/commit/3fdd491675a5183a7db151586861bac484217367))
+
+### Testing
+
+- **e2e**: A step can be run again on the one refusal it names, and the run says so
+  ([`5a77a4f`](https://github.com/bim-ba/ycli/commit/5a77a4fea8d0d0057c8ec54fe376823ca3dce876))
+
+- **e2e**: A step can hold the bytes a command printed
+  ([`0143f26`](https://github.com/bim-ba/ycli/commit/0143f264cb00a06111b17f99699f57e2a2a9e00f))
+
+
 ## v0.124.0 (2026-10-08)
 
 ### Build System

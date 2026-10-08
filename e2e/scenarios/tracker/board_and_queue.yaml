@@ -60,18 +60,25 @@ steps:
       version: version
   # The version is read again before each change of state: right after an edit Tracker may
   # still answer with the version before it, and a stale one is refused (412).
+  # Apart from that, Tracker refuses a change of a sprint's state now and then with the version
+  # just read and asks to try again (412 too; measured: it follows the moment, not what came
+  # before). Those two steps are run again on that answer alone, and the run says when they were.
   - id: sprint-renamed
     run: tracker sprints get ${sprint}
     save:
       version: version
   - id: sprint-start
     run: tracker sprints start ${sprint} --version ${version}
+    retry:
+      when: не удалось сохранить изменения, попробуйте ещё раз
   - id: sprint-started
     run: tracker sprints get ${sprint}
     save:
       version: version
   - id: sprint-archive
     run: tracker sprints archive ${sprint} --version ${version}
+    retry:
+      when: не удалось сохранить изменения, попробуйте ещё раз
     expect:
       archived: true
   - id: sprints-read

@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 class ImagesClient(Resource):
     """Images to reference from a form's questions, options or style."""
 
-    # violation(arch-1): CLI-only, the file is read from disk as raw bytes
     def upload(self, survey_id: str, *, filename: str, data: bytes) -> Image:
         """Upload an image (multipart field ``image``) → :class:`Image`.
 
