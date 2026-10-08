@@ -36,6 +36,7 @@ Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern. An empty one co
 | `YCLI__HTTP__RETRIES` | `3` | retries of an idempotent request after a 429 or a 5xx (≥ 0) |
 | `YCLI__HTTP__MAX_ITEMS` | `500` | item cap of a listing without `--limit` or `--all` (> 0) |
 | `YCLI__HTTP__MAX_PAGES` | `1000` | page cap of one listing: a listing that never ends stops here with a warning (> 0) |
+| `YCLI__HTTP__MAX_TOKEN_LENGTH` | `16384` | the longest `next` token read: a longer one is refused before it is decoded (> 0) |
 | `YCLI__HTTP__MAX_RETRY_AFTER_SECONDS` | `60` | longest pause a 429 may ask for in `Retry-After`; a longer one fails at once (> 0) |
 | `YCLI__HTTP__MAX_WAIT_SECONDS` | `1380` | how long `--wait` polls a long operation (an export, a clone, a bulk change) before it gives up; the operation itself keeps running (> 0) |
 | `YCLI__LOGGING__LEVEL` | `WARNING` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`; `-v` means `INFO` (every HTTP request), `-vv` means `DEBUG` |
@@ -60,3 +61,4 @@ without parsing the message.
 | 6 | transient | a 5xx, a timeout or a lost connection: worth retrying later |
 | 7 | changes | nothing failed: with `--exit-code`, `ycli sync` found something to push |
 | 8 | diverged | a file and its object went apart: the object changed on the server since the file was read, or is gone |
+| 9 | stale | a listing cannot go on from its token any more: start it again without the token |

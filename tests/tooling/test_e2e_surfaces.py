@@ -296,3 +296,34 @@ def test_a_write_the_tool_refuses_fails_the_step(listener, monkeypatch):
         with pytest.raises(ScenarioError, match=r"tracker\.issues\.create through MCP: "):
             driver.run(["tracker", "issues", "create", "--queue", "Q", "--summary", "S"])
         driver.close()
+
+
+class _Limited:
+    """Answers ``429`` to the first request, then ``{}``: the core sends that request again."""
+
+    def __init__(self) -> None:
+        self.calls: list[httpx2.Request] = []
+
+    def __call__(self, request: httpx2.Request) -> httpx2.Response:
+        self.calls.append(request)
+        if len(self.calls) == 1:
+            return httpx2.Response(429, json={}, headers={"Retry-After": "0"})
+        return httpx2.Response(200, json={"key": "A-1"})
+
+
+def test_a_request_the_core_sent_again_is_said_and_nothing_personal_with_it(monkeypatch):
+    """A write the service limited goes out twice: the report says so, by method and path."""
+    limited = _Limited()
+    transport = httpx2.MockTransport(limited)
+    monkeypatch.setattr("ycli.yandex.core.session.default_transport", lambda: transport)
+    with listening(monkeypatch) as heard:
+        driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), heard)
+        # A user's uid in the path, as Tracker's own addresses have it.
+        assert driver.run(["tracker", "users", "get", "1130000012345678"]).exit_code == 0
+        assert driver.run(["tracker", "issues", "get", "A-1"]).exit_code == 0
+        driver.close()
+    assert [call.method for call in limited.calls[:2]] == ["GET", "GET"]
+    assert driver.report.resent == ["GET /v3/users/<uid>"]
+    text = driver.report.text()
+    assert "requests the core sent again: 1\n  GET /v3/users/<uid>\n" in text
+    assert "1130000012345678" not in text and "issues/A-1" not in text

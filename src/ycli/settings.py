@@ -126,6 +126,8 @@ class HTTPConfig(BaseModel):
     max_items: PositiveInt = 500
     # A listing that never ends by itself stops after this many pages.
     max_pages: PositiveInt = 1000
+    # The longest `next` token read: a caller far away sends it, so it is bounded before decoding.
+    max_token_length: PositiveInt = 16_384
     # The longest pause a 429's Retry-After may ask for; a longer one fails at once.
     max_retry_after_seconds: PositiveFloat = 60.0
     # How long `--wait` polls a long operation (an export, a clone, a bulk change) before giving up.

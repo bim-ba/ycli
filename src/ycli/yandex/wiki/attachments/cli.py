@@ -85,7 +85,11 @@ def download(
 @app.command("download-by-url")
 def download_by_url(
     url: Annotated[
-        str, typer.Argument(metavar="URL", help="Page-slug URL: <slug>/.files/<filename>.")
+        str,
+        typer.Argument(
+            metavar="URL",
+            help="Page-slug URL: <slug>/.files/<filename>, or an attachment's download_url.",
+        ),
     ],
     output: OutputOption = None,
     *,

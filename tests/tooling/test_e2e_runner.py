@@ -135,6 +135,20 @@ def test_unique_counts_repeated_keys():
     assert search("length(unique([].key))", issues) == 2
 
 
+def test_scrub_masks_a_signed_link_whole():
+    """Whoever holds such a link reads the file with no token; a log of the CI job is public."""
+    link = (
+        "https://storage.example.net/exports/a.xlsx?X-Amz-Credential=MADEUPKEYID%2Fs3"
+        "&X-Amz-Expires=259200&X-Amz-Signature=0123456789abcdef"
+    )
+    assert scrub(f"got {{'href': '{link}'}} instead") == "got {'href': '<signed link>'} instead"
+    assert scrub("see https://x.example/f?sign=abc123&ts=1") == "see <signed link>"
+    # A link that signs nothing stays: a failure should still say which address it was.
+    assert scrub("GET https://api.example.net/v1/pages?slug=a") == (
+        "GET https://api.example.net/v1/pages?slug=a"
+    )
+
+
 def test_scrub_masks_emails_and_uids():
     assert scrub("by ivan.p@yandex.ru uid 1130000012345678 id 50427846") == (
         "by <email> uid <uid> id 50427846"
@@ -149,14 +163,91 @@ def test_the_cli_driver_confirms_deletes(monkeypatch):
 
     sent: list[list[str]] = []
 
-    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[bytes]:
         sent.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "{}", "")
+        return subprocess.CompletedProcess(argv, 0, b"{}", b"")
 
     monkeypatch.setattr(runner.shutil, "which", lambda *_args, **_kwargs: "/venv/bin/ycli")
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
     runner.CliDriver().run(["wiki", "pages", "delete", "7"])
     assert sent == [["/venv/bin/ycli", "-o", "json", "--yes", "wiki", "pages", "delete", "7"]]
+
+
+class _Flaky(Driver):
+    """Fails the first ``failures`` runs with ``said``, then answers ``{}``."""
+
+    def __init__(self, failures: int, said: str) -> None:
+        self.failures, self.said, self.calls = failures, said, 0
+
+    def run(self, arguments: Sequence[str]) -> CommandResult:
+        self.calls += 1
+        if self.calls <= self.failures:
+            return CommandResult(1, "", self.said)
+        return CommandResult(0, "{}", "")
+
+
+TRY_AGAIN = "Error: 412 Precondition Failed for POST https://x/_start: try again"
+RETRY = {"when": "412 Precondition Failed", "times": 2, "pause_seconds": 0}
+
+
+def test_a_step_is_run_again_only_on_the_failure_it_names(capsys):
+    step: dict[str, object] = {"id": "start", "run": "sprints start 7", "retry": RETRY}
+    driver = _Flaky(1, TRY_AGAIN)
+    retried: list[str] = []
+    run_scenario(_scenario(step), driver, {}, retried=retried)
+    assert driver.calls == 2
+    assert retried == ["s/start: passed after 1 retry (412 Precondition Failed)"]
+    # Another failure is not the one named: it fails at once, as any step does.
+    other = _Flaky(1, "Error: 403 Forbidden")
+    with pytest.raises(ScenarioError, match="403 Forbidden"):
+        run_scenario(_scenario(step), other, {}, retried=retried)
+    assert other.calls == 1
+
+
+def test_a_step_that_keeps_failing_fails_after_its_retries():
+    step: dict[str, object] = {"id": "start", "run": "sprints start 7", "retry": RETRY}
+    driver = _Flaky(9, TRY_AGAIN)
+    retried: list[str] = []
+    with pytest.raises(ScenarioError, match=r"\[s/start\] .* exited 1 \(after 2 retries\)"):
+        run_scenario(_scenario(step), driver, {}, retried=retried)
+    assert driver.calls == 3
+    assert retried == ["s/start: failed after 2 retries (412 Precondition Failed)"]
+
+
+@pytest.mark.parametrize("times", [0, 6])
+def test_a_retry_is_a_few_times_never_forever(times):
+    with pytest.raises(ValueError, match="times"):
+        _scenario({"id": "a", "run": "x", "retry": {"when": "412", "times": times}})
+
+
+PNG = bytes.fromhex("89504e470d0a1a0a") + b"\x00\xff" * 40
+
+
+def test_a_step_can_hold_the_bytes_a_command_printed():
+    """A download is not text: the step sees how many bytes came and how they begin."""
+    driver = ScriptedDriver({"thumb": CommandResult(0, "", "", PNG)})
+    held = {"size": len(PNG), "starts_with(head, '89504e47')": True}
+    run_scenario(
+        _scenario({"id": "a", "run": "thumb", "output": "bytes", "expect": held}), driver, {}
+    )
+    wrong = _scenario({"id": "a", "run": "thumb", "output": "bytes", "expect": {"size": 0}})
+    with pytest.raises(ScenarioError, match=r"expected `size` == 0, got 88"):
+        run_scenario(wrong, driver, {})
+
+
+def test_the_installed_command_may_print_bytes_that_are_not_text(monkeypatch):
+    import subprocess
+
+    from e2e import runner
+
+    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[bytes]:
+        return subprocess.CompletedProcess(argv, 0, PNG, b"")
+
+    monkeypatch.setattr(runner.shutil, "which", lambda *_args, **_kwargs: "/venv/bin/ycli")
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    completed = runner.CliDriver().run(["tracker", "attachments", "thumbnails-download", "A-1"])
+    assert completed.stdout_bytes == PNG
+    assert completed.exit_code == 0
 
 
 def test_a_step_that_needs_a_variable_nobody_set_is_skipped_with_its_cleanup():

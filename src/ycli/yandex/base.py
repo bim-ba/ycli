@@ -21,12 +21,12 @@ from pydantic import SecretStr
 from ycli.settings import CLOUD_ORGANIZATION_ID_ENV, ORGANIZATION_ID_ENV, HTTPConfig
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
     from types import TracebackType
 
     import httpx2
 
     from ycli.yandex.core.endpoint import Endpoint, Paged
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.core.profile import ServiceProfile
     from ycli.yandex.core.session import BeforeSend, SyncSession
 
@@ -108,9 +108,15 @@ class DomainClient(ABC):
         """
         return self._session.send(endpoint)
 
-    def iterate[P, I](self, paged: Paged[P, I], *, limit: int | None = None) -> Iterator[I]:
-        """Yield the items of any ``paged`` listing of this service, at most ``limit``."""
-        return self._session.iterate(paged, limit=limit)
+    def iterate[P, I](
+        self,
+        paged: Paged[P, I],
+        *,
+        limit: int | None = None,
+        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+    ) -> Listing[I]:
+        """The items of any ``paged`` listing of this service: at most ``limit``, from ``next``."""
+        return self._session.iterate(paged, limit=limit, next=next)
 
     @abstractmethod
     def probe(self) -> None:
