@@ -1,0 +1,45 @@
+{
+  "body": {
+    "actions": [
+      {
+        "<unknown-1>": false,
+        "id": 1,
+        "text": "<text>",
+        "type": "<type>"
+      }
+    ],
+    "active": false,
+    "created": "<created>",
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "enableNotifications": false,
+    "id": 1,
+    "intervalMillis": 1,
+    "name": "<name>",
+    "owner": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "query": "<query>",
+    "queue": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "totalIssuesProcessed": 0,
+    "updated": "<updated>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 5
+}

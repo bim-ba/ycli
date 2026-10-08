@@ -1,0 +1,28 @@
+{
+  "body": {
+    "category": {
+      "display": "<display>",
+      "id": "<id>",
+      "self": "<self>"
+    },
+    "id": "<id>",
+    "key": "<key>",
+    "name": "<name>",
+    "options": false,
+    "order": 1,
+    "queryProvider": {
+      "type": "<type>"
+    },
+    "readonly": false,
+    "schema": {
+      "required": false,
+      "type": "<type>"
+    },
+    "self": "<self>",
+    "suggest": false,
+    "type": "<type>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

@@ -1,0 +1,68 @@
+{
+  "body": {
+    "<unknown-1>": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": {
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
+      },
+      "<unknown-3>": {
+        "<unknown-1>": null,
+        "<unknown-2>": null,
+        "<unknown-3>": "<unknown-3>"
+      },
+      "<unknown-4>": "<unknown-4>"
+    },
+    "<unknown-2>": {
+      "<unknown-1>": true,
+      "<unknown-2>": [
+        1.0
+      ],
+      "<unknown-3>": true
+    },
+    "bucket": {
+      "<unknown-1>": 1,
+      "<unknown-2>": "<unknown-2>"
+    },
+    "color": 0,
+    "createdBy": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>",
+      "<unknown-4>": 1,
+      "<unknown-5>": "<unknown-5>"
+    },
+    "dashboard": {
+      "<unknown-1>": "<unknown-1>",
+      "<unknown-2>": "<unknown-2>",
+      "<unknown-3>": "<unknown-3>"
+    },
+    "description": "<description>",
+    "fromStatuses": [
+      {
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>"
+      }
+    ],
+    "id": 1,
+    "mode": "<mode>",
+    "query": "<query>",
+    "self": "<self>",
+    "toStatuses": [
+      {
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>"
+      }
+    ],
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 7
+}
