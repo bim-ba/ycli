@@ -51,6 +51,8 @@ An eighth, `datalens/html-pages`, is the life of an HTML page in a workbook of t
 
 ## Scenario files
 
+A log of the CI job is public. When a step fails, the runner prints its command and a short excerpt of what came back with every value the run learned from the service or was given by the owner (a login, an id saved by `save`, `${GRANTEE}`) replaced by its name, `<login>`; only what the run made up itself is shown as it is (`${RUN}`, `${TAG}`, `${QUEUE}`, `${FILES}`). The objects of a run are found by its name, so nothing is lost for the reading.
+
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):
 
 | Key | Meaning |
