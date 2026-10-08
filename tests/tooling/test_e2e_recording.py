@@ -311,3 +311,33 @@ def test_a_number_under_an_unknown_key_is_never_kept():
     }
     # Under a key the model reads, a small number stays.
     assert scrub({"name": "x", "counts": {"a": 5}}, _Board).body["counts"] == {"<key-1>": 5}
+
+
+# A made-up link of the shape object storage signs: whoever holds it reads the file with no token.
+SIGNED_LINK = (
+    "https://storage.example.net/exports/answers.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256"
+    "&X-Amz-Credential=MADEUPKEYID%2F20261008%2Fru-central1%2Fs3%2Faws4_request"
+    "&X-Amz-Expires=259200&X-Amz-Signature=0123456789abcdef0123456789abcdef"
+)
+
+
+class _Export(BaseModel):
+    href: str | None = None
+    state: Literal["ok", "failed"] | str | None = None
+    files: list[str] = []
+    links: dict[str, str] = {}
+
+
+@pytest.mark.parametrize("annotation", [_Export, Any, dict[str, Any]])
+def test_a_signed_link_never_reaches_a_fixture_whatever_field_holds_it(annotation):
+    """In a field of a model, under a key nobody knows, in a list, in a map, in plain JSON."""
+    reply = {
+        "href": SIGNED_LINK,
+        "state": SIGNED_LINK,
+        "files": [SIGNED_LINK],
+        "links": {"xlsx": SIGNED_LINK},
+        "download_url": SIGNED_LINK,
+        "result": {"url": SIGNED_LINK, "parts": [{"href": SIGNED_LINK}]},
+    }
+    kept = strings(scrub(reply, annotation, frozenset({"download_url", "result", "url"})).body)
+    assert not [text for text in kept if "X-Amz" in text or "storage.example.net" in text]

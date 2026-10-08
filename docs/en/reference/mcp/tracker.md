@@ -1791,13 +1791,13 @@ once it reports ``FAILED``, call ``bulk_issues_list`` for the per-issue errors.
 
 ## `tracker_bulk_issues_list`
 
-*List Tracker bulk-change failed issues* · read-only
+*List the issues of a Tracker bulk change* · read-only
 
-The issues a bulk-change operation could NOT change, each with its per-field error.
+Every issue of a bulk change with how it went: its ``status`` and, when it failed, why.
 
-Use after ``bulk_get`` reports a non-zero failure count to see *why* specific issues were
-rejected (e.g. an invalid resolution for the target queue/type). Successful issues are not
-listed here.
+One record per issue, the ones that went well too (``COMPLETED``, measured). Use after
+``bulk_get`` reports a failure to see which issues were rejected and why (e.g. an invalid
+resolution for the target queue/type): those carry ``error``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
