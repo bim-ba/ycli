@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.124.2 (2026-10-08)
+
+### Bug Fixes
+
+- **core**: An error names a status HTTP does not name by its code alone
+  ([`6e19d47`](https://github.com/bim-ba/ycli/commit/6e19d47a7f78bf9a082b855320e596da5b83ef57))
+
+### Build System
+
+- Re-lock uv.lock for 0.124.1
+  ([`2a35dc3`](https://github.com/bim-ba/ycli/commit/2a35dc37ad295404a1d8efe5c9c3f864e14a75a0))
+
+### Documentation
+
+- **tracker**: The listing of a bulk change holds every issue of it, not the failed ones only
+  ([`0f5b4ff`](https://github.com/bim-ba/ycli/commit/0f5b4ffbf2dd435103d6451c78a4f49e2d6742c4))
+
+- **wiki**: The help of `grids columns suggest` says to give a slug or a title, exactly one
+  ([`892fd84`](https://github.com/bim-ba/ycli/commit/892fd84dcc08c00aec161bd632e0270f67a0a619))
+
+
 ## v0.124.1 (2026-10-08)
 
 ### Bug Fixes
