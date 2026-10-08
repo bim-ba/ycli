@@ -1008,7 +1008,7 @@ $ ycli wiki attachments download-by-url [OPTIONS] URL
 
 **Arguments**:
 
-* `URL`: Page-slug URL: <slug>/.files/<filename>.  [required]
+* `URL`: Page-slug URL: <slug>/.files/<filename>, or an attachment's download_url.  [required]
 
 **Options**:
 

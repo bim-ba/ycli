@@ -41,6 +41,17 @@ steps:
       operator: and
     save:
       condition: id
+  - id: question-condition-get
+    run: forms conditions question get ${id} ${two} ${condition}
+    expect:
+      "id == `${condition}`": true
+      operator: and
+      "items[0].question": one
+  - id: question-conditions-list
+    run: forms conditions question list ${id} ${two}
+    expect:
+      "length(items)": 1
+      "items[0].id == `${condition}`": true
   - id: question-condition-update
     run: >-
       forms conditions question update ${id} ${two} ${condition} --operator or --item
@@ -59,6 +70,16 @@ steps:
       '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
     save:
       condition: id
+  - id: page-condition-get
+    run: forms conditions page get ${id} ${page} ${condition}
+    expect:
+      "id == `${condition}`": true
+      operator: and
+  - id: page-conditions-list
+    run: forms conditions page list ${id} ${page}
+    expect:
+      "length(items)": 1
+      "items[0].id == `${condition}`": true
   - id: page-condition-update
     run: >-
       forms conditions page update ${id} ${page} ${condition} --operator or --item
@@ -73,6 +94,11 @@ steps:
       '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
     save:
       condition: id
+  - id: submit-condition-get
+    run: forms conditions submit get ${id} ${condition}
+    expect:
+      "id == `${condition}`": true
+      operator: and
   - id: submit-condition-update
     run: >-
       forms conditions submit update ${id} ${condition} --operator or --item
@@ -87,12 +113,27 @@ steps:
       active: false
     save:
       hook: id
+  - id: hook-get
+    run: forms hooks get ${id} ${hook}
+    expect:
+      "id == `${hook}`": true
+      active: false
   - id: hook-condition
     run: >-
       forms conditions hook create ${id} ${hook} --operator and --item
       '{"type": "question", "condition": "eq", "question": "one", "value": "x"}'
     save:
       condition: id
+  - id: hook-condition-get
+    run: forms conditions hook get ${id} ${hook} ${condition}
+    expect:
+      "id == `${condition}`": true
+      operator: and
+  - id: hook-conditions-list
+    run: forms conditions hook list ${id} ${hook}
+    expect:
+      "length(items)": 1
+      "items[0].id == `${condition}`": true
   - id: hook-condition-update
     run: >-
       forms conditions hook update ${id} ${hook} ${condition} --operator or --item
@@ -108,6 +149,17 @@ steps:
       type: email
     save:
       subscription: id
+  - id: subscription-get
+    run: forms subscriptions get ${id} ${hook} ${subscription}
+    expect:
+      "id == `${subscription}`": true
+      type: email
+      active: false
+  - id: subscriptions-list
+    run: forms subscriptions list ${id} ${hook}
+    expect:
+      "length(@)": 1
+      "[0].id == `${subscription}`": true
   - id: subscription-update
     run: >-
       forms subscriptions update ${id} ${hook} ${subscription}
@@ -137,6 +189,15 @@ steps:
       total: 3
     save:
       keyset: id
+  - id: keyset-get
+    run: forms keysets get ${id} ${keyset}
+    expect:
+      "id == `${keyset}`": true
+      total: 3
+      used: 0
+  # The keys come as a spreadsheet, which the runner cannot read as text: they go to the null device.
+  - id: keyset-download
+    run: forms keysets download ${id} ${keyset} --output /dev/null
   - id: keyset-update
     run: forms keysets update ${id} ${keyset} --name "${RUN} keys renamed" --total 5 --disabled
     expect:
@@ -168,8 +229,33 @@ steps:
     run: forms access revoke ${id} --action change --uid ${GRANTEE}
   - id: question-delete
     run: forms questions delete ${id} ${three}
+  # A question that offers countries while the form is filled in.
+  - id: suggest-question
+    run: >-
+      forms questions create ${id} --field type=suggest --field label="${RUN} country"
+      --field slug=country --field 'data_source={"name": "country"}'
+    expect:
+      type: suggest
+      "data_source.name": country
   - id: publish
     run: forms surveys publish ${id}
+  - id: suggest
+    run: forms filling suggest ${id} --question country --text Герм
+    expect:
+      "[0].layer": country
+      "[0].text": Германия
+    save:
+      country: "[0].id"
+  - id: suggest-by-id
+    run: forms filling suggest ${id} --question country --suggest-id ${country}
+    expect:
+      "length(@)": 1
+      "[0].text": Германия
+  # Storage for files is a setting of the form that a run cannot make, so there is no file to find.
+  - id: files-verify
+    run: forms files verify ${id} --path e2e/none.txt --url https://forms.test/e2e/none.txt
+    expect:
+      "length(@)": 0
   - id: answer-check
     run: forms filling submit ${id} --body-file ${FILES}/answer.json --validate-only
   - id: answer
@@ -178,15 +264,34 @@ steps:
       "length(integrations)": 0
     save:
       answer: answer_id
+      answer_key: answer_key
   - id: answered
     run: forms answers get --answer-id ${answer}
     expect:
       "length(data)": 2
+  # The form has no integration, so nothing ran for the answer.
+  - id: answer-integrations
+    run: forms answers integrations-list --answer-id ${answer}
+    expect:
+      "length(@)": 0
+  - id: answer-integrations-by-key
+    run: forms answers integrations-list --answer-key ${answer_key}
+    expect:
+      "length(@)": 0
   - id: export
     run: forms answers export ${id} --format csv
     output: text
     expect:
       "contains(@, 'first answer')": true
+  - id: export-start
+    run: forms answers export ${id} --format csv --no-wait
+    save:
+      operation: id
+  - id: operation
+    run: forms operations get ${operation}
+    expect:
+      "id == '${operation}'": true
+      "contains(`[\"wait\", \"ok\"]`, status)": true
   - id: delete
     run: forms surveys delete ${id}
     disarms: [create]

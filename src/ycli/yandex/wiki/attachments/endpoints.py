@@ -51,7 +51,9 @@ def download(page_id: int, file_id: int) -> Endpoint[bytes]:
 
 def download_by_url(url: str) -> Endpoint[bytes]:
     """``GET /pages/attachments/download_by_url`` — the API redirects to the file, followed."""
-    params = {"url": url, "download": "true"}
+    # violation(as-given): an attachment's own ``download_url`` comes with a slash in front,
+    # and this endpoint refuses the address with it (400, measured); either form is taken.
+    params = {"url": url.removeprefix("/"), "download": "true"}
     return Endpoint(HTTPMethod.GET, "pages/attachments/download_by_url", bytes, params=params)
 
 

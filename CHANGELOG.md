@@ -9,6 +9,83 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.124.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.123.1
+  ([`5b2ddbd`](https://github.com/bim-ba/ycli/commit/5b2ddbd85b4d83adf36386d4580c0b1b00ad812b))
+
+### Features
+
+- **core**: A listing can stop at a limit and go on from a token
+  ([`d7ac558`](https://github.com/bim-ba/ycli/commit/d7ac558802c4dec05cc7579bd0b4de1016aff0fd))
+
+### Testing
+
+- **e2e**: Live steps for fifteen Forms operations that had none
+  ([`3e014c7`](https://github.com/bim-ba/ycli/commit/3e014c78cc37374ce1fda8f099b24a076c61b030))
+
+- **e2e**: Live steps for the chart reads and the life of an HTML page in DataLens
+  ([`8cc2b06`](https://github.com/bim-ba/ycli/commit/8cc2b063ab5ed9b8353915e8d2dfaf4b4a88ada2))
+
+- **e2e**: Live steps for the eleven Wiki operations that had none
+  ([`bf89d1b`](https://github.com/bim-ba/ycli/commit/bf89d1b2a650c1a013b76023a2ad320d206f4027))
+
+- **e2e**: Live steps for twenty-two Tracker operations that had none
+  ([`ac09a81`](https://github.com/bim-ba/ycli/commit/ac09a817d8f2a8aa85ffb5191d1369754fe96217))
+
+
+## v0.123.1 (2026-10-07)
+
+### Bug Fixes
+
+- **e2e**: A signed link is masked in the excerpt a failed step prints
+  ([`a70a96a`](https://github.com/bim-ba/ycli/commit/a70a96a7b18408cb72f50f303cefeb72b256d299))
+
+### Build System
+
+- Re-lock uv.lock for 0.123.0
+  ([`cf6ae61`](https://github.com/bim-ba/ycli/commit/cf6ae6135fc3e1a30c6dc8bf70c4d4f93a4349ab))
+
+
+## v0.123.0 (2026-10-07)
+
+### Build System
+
+- Re-lock uv.lock for 0.122.4
+  ([`60ecebf`](https://github.com/bim-ba/ycli/commit/60ecebf40d02df95650dec882339a5d145950668))
+
+### Features
+
+- **sync**: `ycli sync push` sends the files and reads each write back
+  ([`0a89d66`](https://github.com/bim-ba/ycli/commit/0a89d66abd166eeede9e4f0b281e6f42d925313e))
+
+
+## v0.122.4 (2026-10-07)
+
+### Bug Fixes
+
+- **tracker**: The body of `gaps search` is a request model, and a rule keeps every body one
+  ([`cf91012`](https://github.com/bim-ba/ycli/commit/cf910120af44ee2a1a503baf066a06c2d39d38e3))
+
+### Build System
+
+- Re-lock uv.lock for 0.122.3
+  ([`f96b712`](https://github.com/bim-ba/ycli/commit/f96b71257aed3f48cb65062cf19951fb9edbe62a))
+
+### Continuous Integration
+
+- **e2e**: The nightly run takes its turn of three: the command, writes through MCP, writes through
+  the SDK
+  ([`7e2cf4d`](https://github.com/bim-ba/ycli/commit/7e2cf4d6d16bde5041fe161ee1d32dc355413510))
+
+### Testing
+
+- **e2e**: A page and a trigger read and sent back as read stay the same
+  ([`700c354`](https://github.com/bim-ba/ycli/commit/700c35456dfc4dd755cc8021a3cf51f471a6d24f))
+
+
 ## v0.122.3 (2026-10-07)
 
 ### Bug Fixes
