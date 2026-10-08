@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.126.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.125.0
+  ([`4526c32`](https://github.com/bim-ba/ycli/commit/4526c32e599640f62d000a554f3037044ec6c02d))
+
+### Features
+
+- **mcp**: A tool's error ends with the next step the CLI gives under Hint
+  ([`ff7a00f`](https://github.com/bim-ba/ycli/commit/ff7a00f9c2ba56d85f24b2df552edcb9cb7be30f))
+
+### Testing
+
+- **e2e**: A run on three surfaces lists the requests the core sent a second time
+  ([`1c5b057`](https://github.com/bim-ba/ycli/commit/1c5b057725c522f34287cc545d69f6f6861f6061))
+
+
 ## v0.125.0 (2026-10-08)
 
 ### Build System
