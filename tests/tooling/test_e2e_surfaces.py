@@ -327,3 +327,21 @@ def test_a_request_the_core_sent_again_is_said_and_nothing_personal_with_it(monk
     text = driver.report.text()
     assert "requests the core sent again: 1\n  GET /v3/users/<uid>\n" in text
     assert "1130000012345678" not in text and "issues/A-1" not in text
+
+
+def test_a_surface_failure_is_worded_without_what_the_run_learned(listener, monkeypatch):
+    """The report of a run is public: a login a step saved is said by its name there too."""
+    refuse = httpx2.MockTransport(
+        lambda request: httpx2.Response(403, json={"errorMessages": ["no access for ivan.petrov"]})
+    )
+    monkeypatch.setattr("ycli.yandex.core.session.default_transport", lambda: refuse)
+    with listening(monkeypatch) as heard:
+        driver = ThreeSurfaces(InProcessDriver(pause_seconds=0), heard, writes_through="mcp")
+        driver.knows({"RUN": "e2e-1-ab12", "login": "ivan.petrov"})
+        with pytest.raises(ScenarioError) as failed:
+            driver.run(["tracker", "issues", "create", "--queue", "Q", "--summary", "S"])
+        driver.close()
+    # The test's own credentials are single letters, which the scrub cuts out of every word:
+    # what is held is that the login is gone and its name stands where it was, before the hint.
+    assert "ivan.petrov" not in str(failed.value)
+    assert "gin>\nHin" in str(failed.value)

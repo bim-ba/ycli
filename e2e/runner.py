@@ -69,6 +69,13 @@ class Driver(ABC):
     @abstractmethod
     def run(self, arguments: Sequence[str]) -> CommandResult: ...
 
+    def knows(self, variables: dict[str, str]) -> None:  # noqa: B027  # most drivers word nothing
+        """Told the variables of the scenario it runs, before its first step.
+
+        The same mapping the steps add to. A driver that words a failure of its own for a
+        public log names what the run learned by it (:func:`hidden`).
+        """
+
 
 class CliDriver(Driver):
     """The ``ycli`` installed next to this interpreter, never another one found on ``PATH``."""
@@ -205,6 +212,7 @@ def run_scenario(
     first, and fails the scenario only when every step passed (the janitor is the backstop).
     """
     variables = dict(variables)
+    driver.knows(variables)
     # Each cleanup as it is run, and as a public log may show it.
     cleanups: dict[str, tuple[list[str], str]] = {}
     skipped: list[str] = []
