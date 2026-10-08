@@ -47,6 +47,8 @@ A sixth, `datalens/cloud-environments`, only lists the cloud environments, the R
 
 A seventh, `datalens/entries-content`, writes what a workbook holds: a connection (to a host that does not exist: DataLens saves a connection without trying it), a dataset, a chart of each of the three kinds, a dashboard and a report are made in a workbook of the run, saved again as they were read, and deleted.
 
+An eighth, `datalens/html-pages`, is the life of an HTML page in a workbook of the run: made, read, saved again, its preview address read, and deleted. It holds that an update with `--mode save` moves the saved version and leaves the published one.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):
@@ -55,12 +57,13 @@ A seventh, `datalens/entries-content`, writes what a workbook holds: a connectio
 |---|---|
 | `name`, `smoke` | test id; `smoke: true` also runs on pull requests |
 | `steps[].run` | arguments after `ycli -o json --yes`; `${RUN}`, `${QUEUE}`, `${FILES}` (the directory `e2e/files`) and saved names are substituted |
-| `steps[].output` | `json` (default) or `text` for commands that print raw text, such as `wiki pages get` |
+| `steps[].output` | `json` (default); `text` for a command that prints raw text, such as `wiki pages get`; `bytes` for one that prints a file: `expect` then sees `size` and `head`, the first 16 bytes in hex (`"starts_with(head, '89504e47')": true` for a PNG) |
 | `steps[].expect` | JMESPath expression → expected value; `unique(array)` is added for duplicate checks |
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |
 | `steps[].cleanup` | command run when the scenario ends, newest first, even after a failure |
 | `steps[].disarms` | earlier step ids whose cleanup this step already did |
 | `steps[].needs` | variables only the owner of the organization can give (below); while one is not set the step is skipped, and the run lists what it skipped |
+| `steps[].retry` | `when` (a piece of the failure's text), `times` (2 by default, 5 at most), `pause_seconds` (5): run the step again on that one failure. For a refusal the service itself calls passing; the run lists at its end every step it ran again |
 | `steps[].reads` | commands that only read, run right after the step and only by a recording run (below) |
 
 Some steps need something a run must not make or pick for itself. Each is an environment variable, and a step that needs one that is not set is skipped:

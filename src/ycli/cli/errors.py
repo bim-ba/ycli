@@ -33,6 +33,7 @@ from ycli.yandex.errors import (
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
+    YandexStaleContinuationError,
     YandexTimeoutError,
 )
 from ycli.yandex.models import field_error
@@ -110,6 +111,8 @@ def exit_code_for(exc: Exception) -> ExitCode:
         (ValidationError, ProfileError, YandexInvalidRequestError, YandexNotConfiguredError),
     ):
         return ExitCode.USAGE
+    if isinstance(exc, YandexStaleContinuationError):
+        return ExitCode.STALE
     if isinstance(exc, YandexNotFoundError):
         return ExitCode.NOT_FOUND
     if isinstance(exc, YandexRateLimitError):

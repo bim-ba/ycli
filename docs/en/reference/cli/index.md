@@ -27,7 +27,7 @@ $ ycli [OPTIONS] COMMAND [ARGS]...
 * `--version`: Show the installed ycli version and exit.
 * `--help`: Show this message and exit.
 
-Exit codes: 0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limited · 6 transient · 7 changes · 8 diverged (see the README).
+Exit codes: 0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limited · 6 transient · 7 changes · 8 diverged · 9 stale (see the README).
 
 **Commands**:
 
