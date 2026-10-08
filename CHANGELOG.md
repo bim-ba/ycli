@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.124.1 (2026-10-08)
+
+### Bug Fixes
+
+- **wiki**: `attachments download-by-url` takes the address an attachment's own download_url gives
+  ([`bedc0af`](https://github.com/bim-ba/ycli/commit/bedc0affcc028091ec396d5fa7576b185c06a053))
+
+### Build System
+
+- Re-lock uv.lock for 0.124.0
+  ([`3fdd491`](https://github.com/bim-ba/ycli/commit/3fdd491675a5183a7db151586861bac484217367))
+
+### Testing
+
+- **e2e**: A step can be run again on the one refusal it names, and the run says so
+  ([`5a77a4f`](https://github.com/bim-ba/ycli/commit/5a77a4fea8d0d0057c8ec54fe376823ca3dce876))
+
+- **e2e**: A step can hold the bytes a command printed
+  ([`0143f26`](https://github.com/bim-ba/ycli/commit/0143f264cb00a06111b17f99699f57e2a2a9e00f))
+
+
 ## v0.124.0 (2026-10-08)
 
 ### Build System
