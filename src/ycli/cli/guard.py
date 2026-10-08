@@ -1,16 +1,16 @@
-"""The CLI's gate on writes: ``AppContext`` hands :class:`SendGuard` to every client it builds.
+"""How the CLI asks, and what it adds to a body: its part of the gate on writes.
 
-The core calls it once per endpoint, before the first HTTP attempt, with the endpoint's effect
-and the request about to go out (``ycli.yandex.core.session.BeforeSend``), so no command needs
-its own confirmation or dry-run code:
+The rule itself is the core's (:class:`ycli.yandex.core.guard.Guard`): every request of every
+surface goes through it. The CLI says how to ask and when not to:
 
-- with ``--dry-run`` a write is not sent: the guard raises :class:`DryRunPlanned`, which the
-  command wrapper turns into the command's result — the request it would have sent;
+- ``--dry-run`` sends no write: the core stops at the first one, and the command wrapper turns
+  the request it would have sent into the command's result;
 - an operation that destroys data asks first, unless ``--yes`` was given: on a terminal it
   prompts on stderr, and a declined prompt aborts (exit 1); with no terminal to ask it fails as a
   usage error (exit 2) that says to pass ``--yes``;
-- ``--body-file`` and ``-F`` reach the body of any command: the guard lays them under what the
-  command built, so a field with no flag of its own can still be sent.
+- ``--body-file`` and ``-F`` reach the body of any command: :class:`SendGuard`, the client's
+  ``before_send`` hook, lays them under what the command built, so a field with no flag of its
+  own can still be sent. It runs before the core's rule, so a plan shows the body as it would go.
 """
 
 from __future__ import annotations
@@ -25,8 +25,7 @@ import typer
 
 from ycli.cli.exit_codes import ExitCode
 from ycli.cli.global_options import NO_BODY
-from ycli.cli.planned_request import PlannedRequest
-from ycli.yandex.core.session import shown
+from ycli.yandex.core.guard import Guard, PlannedRequest
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -41,52 +40,70 @@ def attended() -> bool:
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
-class DryRunPlanned(Exception):  # noqa: N818  # a signal that stops the command, not an error
-    """Stops a command at its first write under ``--dry-run``; ``plan`` is what it would send."""
+def confirm_on_the_terminal(plan: PlannedRequest) -> bool:
+    """Ask the person at the terminal whether ``plan`` may be sent.
 
-    def __init__(self, plan: PlannedRequest) -> None:
-        super().__init__(f"{plan.method} {plan.url}")
-        self.plan = plan
+    Args:
+        plan: The request about to go out.
+
+    Returns:
+        ``True``: a declined prompt and a missing terminal both end the command themselves.
+
+    Raises:
+        typer.Exit: Nobody can be asked; exits as a usage error that says to pass ``--yes``.
+    """
+    what = f"{plan.method} {plan.url} — this deletes data."
+    if not attended():
+        typer.secho(
+            f"{what} Pass --yes to confirm; there is no terminal to ask on.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(ExitCode.USAGE)
+    typer.confirm(f"{what} Continue?", abort=True, err=True)
+    return True
+
+
+def guard_of(options: Mapping[str, Any]) -> Guard:
+    """The core's rule as the global options of this invocation set it.
+
+    Args:
+        options: The root's parsed global options (``--dry-run``, ``--yes``).
+
+    Returns:
+        The guard every client of the invocation sends through.
+
+    Examples:
+        >>> guard_of({"dry_run": True, "yes": True})
+        Guard(dry_run=True, confirm=None)
+    """
+    return Guard(
+        dry_run=bool(options.get("dry_run")),
+        confirm=None if options.get("yes") else confirm_on_the_terminal,
+    )
 
 
 @dataclass
 class SendGuard:
-    """The ``before_send`` hook of the CLI; ``options`` is the root's parsed global options.
+    """The ``before_send`` hook of the CLI: ``--body-file`` and ``-F`` go into a request's body.
 
-    ``options`` is read at call time, so a ``--yes`` or ``--dry-run`` given after the subcommand
-    (written into the root state by the leaf) counts. Reads pass untouched.
-
-    ``--body-file`` and ``-F`` go into the first request of the command, under what the command
-    built from its flags: file, then ``-F``, then the flags, the later the stronger.
+    They go into the first request of the command, under what the command built from its flags:
+    file, then ``-F``, then the flags, the later the stronger.
     """
 
-    options: Mapping[str, Any]
     fields: CallerFields
 
     def __call__(self, effect: Effect, request: httpx2.Request) -> httpx2.Request:
-        """Add the caller's fields, then pass a read, plan a write, confirm a delete.
+        """``request`` with the caller's fields in its body, when any were given.
 
         Args:
-            effect: What the endpoint does to the server.
+            effect: What the endpoint does to the server (not looked at).
             request: The request about to go out.
 
         Returns:
-            The request to send: with the caller's fields in its body when any were given.
-
-        Raises:
-            DryRunPlanned: A write under ``--dry-run``; it carries the request not sent.
+            The request to send.
         """
-        # Imported here: the core is loaded by the time a request is about to go.
-        from ycli.yandex.core.endpoint import Effect
-
-        request = self._with_fields(request)
-        if effect is Effect.READ:
-            return request
-        if self.options.get("dry_run"):
-            raise DryRunPlanned(PlannedRequest.of(request))
-        if effect is Effect.DESTRUCTIVE and not self.options.get("yes"):
-            self._confirm(f"{request.method} {shown(request.url)} — this deletes data.")
-        return request
+        return self._with_fields(request)
 
     def _with_fields(self, request: httpx2.Request) -> httpx2.Request:
         """``request`` with ``--body-file`` and ``-F`` under its body; the first request only."""
@@ -110,13 +127,3 @@ class SendGuard:
             json=self.fields.over(body),
             extensions=request.extensions,
         )
-
-    def _confirm(self, what: str) -> None:
-        if not attended():
-            typer.secho(
-                f"{what} Pass --yes to confirm; there is no terminal to ask on.",
-                fg=typer.colors.RED,
-                err=True,
-            )
-            raise typer.Exit(ExitCode.USAGE)
-        typer.confirm(f"{what} Continue?", abort=True, err=True)

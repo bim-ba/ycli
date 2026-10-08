@@ -18,6 +18,7 @@ from ycli.yandex.registry import SERVICES
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from e2e.models import Scenario
     from e2e.surfaces import ThreeSurfaces
 
 # Never collected: ``--doctest-modules`` would import it, and it imports fastmcp, which comes
@@ -54,6 +55,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=None,
         help="Run only the scenarios of this service (tracker, wiki, forms, datalens): the "
         "nightly run is one job per service.",
+    )
+    parser.addoption(
+        "--permanent",
+        action="store_true",
+        help="Also run the scenarios that leave objects the API cannot delete (a status, a "
+        "field, a trigger). On purpose and by hand: every such run adds them for good.",
     )
     parser.addoption(
         "--record",
@@ -150,6 +157,17 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "smoke: the live subset that also runs on pull requests")
 
 
+def kept_out(scenario: Scenario, *, permanent: bool) -> str | None:
+    """Why ``scenario`` does not run in this run, whatever the credentials; ``None`` when it may.
+
+    ``kept_out(Scenario(name="t/x", permanent=True, steps=...), permanent=False)`` ->
+    ``"leaves objects the API cannot delete: run it on purpose with --permanent"``.
+    """
+    if scenario.permanent and not permanent:
+        return "leaves objects the API cannot delete: run it on purpose with --permanent"
+    return None
+
+
 def _skip_reason(service: str | None) -> str | None:
     """Why a live test of ``service`` does not run here; ``None`` when it does.
 
@@ -192,6 +210,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             continue
         scenario = getattr(getattr(item, "callspec", None), "params", {}).get("scenario")
         reason = _skip_reason(scenario.name.split("/")[0] if scenario is not None else None)
+        if scenario is not None:
+            reason = kept_out(scenario, permanent=config.getoption("--permanent")) or reason
         if reason is not None:
             item.add_marker(pytest.mark.skip(reason=reason))
 
@@ -199,6 +219,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 @pytest.fixture
 def variables() -> dict[str, str]:
     """``RUN`` names every object a scenario creates: ``e2e-<unix seconds>-<4 hex>``.
+
+    ``TAG`` is its four hex digits alone.
 
     The janitor reads the age back from the stamp, so it needs no per-object metadata call.
     """
@@ -209,6 +231,8 @@ def variables() -> dict[str, str]:
             listed.write(f"{run}\n")
     return {
         "RUN": run,
+        # The last part of the run's name, for a key that takes no dash (a status, a field).
+        "TAG": run.rsplit("-", 1)[1],
         "QUEUE": sandbox_queue(),
         "FILES": str(Path(__file__).parent / "files"),
         **optional_variables(),

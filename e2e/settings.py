@@ -28,6 +28,8 @@ OPTIONAL_VARIABLES = {
     "GRANTEE": "YCLI_E2E_GRANTEE",
     # A second sandbox queue: issues are moved into it, and it is deleted and restored.
     "QUEUE_2": "YCLI_E2E_QUEUE_2",
+    # The key of a queue to make, once: a deleted queue keeps its key, so a run names none.
+    "NEW_QUEUE": "YCLI_E2E_NEW_QUEUE",
     # A local field and a trigger kept in the sandbox queue for the run to edit: neither can
     # be deleted through the API, so a run must not make its own.
     "LOCAL_FIELD": "YCLI_E2E_LOCAL_FIELD",

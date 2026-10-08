@@ -1,0 +1,42 @@
+{
+  "body": {
+    "<unknown-1>": true,
+    "<unknown-2>": true,
+    "<unknown-3>": "<unknown-3>",
+    "<unknown-4>": true,
+    "<unknown-5>": false,
+    "<unknown-6>": "<unknown-6>",
+    "assignAuto": false,
+    "defaultPriority": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "defaultType": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "denyConductorAutolink": false,
+    "denyTrackerAutolink": false,
+    "denyVoting": false,
+    "id": 1,
+    "key": "<key>",
+    "lead": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
+    "name": "<name>",
+    "self": "<self>",
+    "useComponentPermissionsIntersection": false,
+    "useLastSignature": false,
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 6
+}

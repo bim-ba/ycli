@@ -136,12 +136,12 @@ steps:
       "[0].mimetype": image/png
     save:
       image: "[0].id"
-  # The preview is binary: the bytes go to a file (the null device here), stdout stays empty.
+  # The preview of a PNG is a PNG: the step holds that by the first bytes of what came.
   - id: image-preview
-    output: text
-    run: wiki attachments previews-download ${id} ${image} --output /dev/null
+    output: bytes
+    run: wiki attachments previews-download ${id} ${image}
     expect:
-      "length(@)": 0
+      "starts_with(head, '89504e47')": true
   - id: image-delete
     run: wiki attachments delete ${id} ${image}
   - id: attachment-delete

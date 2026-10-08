@@ -90,6 +90,10 @@ jobs:
       # The trigger kept in the sandbox queue, switched off, for the scenarios that edit one
       # (the API cannot delete a trigger, so a run makes none); unset, they are skipped.
       YCLI_E2E_TRIGGER: ${{ vars.YCLI_E2E_TRIGGER }}
+      # The local field kept in the sandbox queue, and the second sandbox queue: both were made
+      # once by `tracker/permanent-trace`; unset, the steps that need them are skipped.
+      YCLI_E2E_LOCAL_FIELD: ${{ vars.YCLI_E2E_LOCAL_FIELD }}
+      YCLI_E2E_QUEUE_2: ${{ vars.YCLI_E2E_QUEUE_2 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

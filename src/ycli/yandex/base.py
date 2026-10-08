@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     import httpx2
 
     from ycli.yandex.core.endpoint import Endpoint, Paged
+    from ycli.yandex.core.guard import Guard
     from ycli.yandex.core.listing import Listing
     from ycli.yandex.core.profile import ServiceProfile
     from ycli.yandex.core.session import BeforeSend, SyncSession
@@ -40,10 +41,11 @@ class DomainClient(ABC):
     :class:`~ycli.yandex.core.profile.ServiceProfile`; of ``organization_id`` (Yandex 360) and
     ``cloud_organization_id`` (Yandex Cloud) the service takes the kind it lives in. ``http``
     defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so there is no second copy of
-    them here; ``transport`` replaces the network (tests); ``before_send`` is called once per
-    endpoint, before its first attempt, with its effect and request (a surface's seam to confirm
-    or refuse a write; ``None`` for none, as the SDK and the MCP server leave it). What it
-    returns is sent instead of the request; returning ``None`` sends the request unchanged.
+    them here; ``transport`` replaces the network (tests). ``guard`` shows or confirms a write
+    before it is sent (:class:`~ycli.yandex.core.guard.Guard`; ``None`` sends everything).
+    ``before_send`` is called once per endpoint, before its first attempt and before the guard,
+    with its effect and request: what it returns is sent instead of the request, and ``None``
+    sends the request unchanged (the CLI adds ``-F`` and ``--body-file`` to a body with it).
     Leaving a ``with`` block, or :meth:`close`, closes the connection pool.
     """
 
@@ -59,6 +61,7 @@ class DomainClient(ABC):
         http: HTTPConfig | None = None,
         transport: httpx2.BaseTransport | None = None,
         before_send: BeforeSend | None = None,
+        guard: Guard | None = None,
     ) -> None:
         if bool(oauth_token) == (auth is not None):
             raise ValueError("pass an OAuth token or an auth, one of the two")
@@ -83,6 +86,7 @@ class DomainClient(ABC):
             http=http or HTTPConfig(),
             transport=transport,
             before_send=before_send,
+            guard=guard,
         )
         self._wire(self._session)
 
