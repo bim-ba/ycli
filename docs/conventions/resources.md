@@ -328,8 +328,7 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 ### Enforcement
 
 The ast-grep rule `body-is-a-model` reads every `mcp.py`, `client.py` and `endpoints.py` and
-fails the build on a `body` parameter typed `dict` or `Mapping`;
-`tests/architecture/test_arch8.py::test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
+fails the build on a `body` parameter typed `dict` or `Mapping`; the rule `body-is-dumped-once`
 fails on a `.model_dump(` in any of the three. Both are fail-closed, with no exception today.
 
 `tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema`
@@ -550,7 +549,7 @@ differs from the published API for a reason of ycli's own, read by `scripts/api_
 an invariant (`arch-9`). The marker is a comment line of its own, right above the line where the
 departure starts: the `raise`, the `Endpoint(...)`, the `def` of the method. A reviewer who meets
 the code sees that the departure was chosen, and a search for `violation(` lists every one.
-`tests/architecture/test_markers.py` holds the form; the check of an invariant that has a scanner
+`tests/architecture/test_markers.py` holds the form, and the ast-grep rule `violation-marker-form` shows a wrong rule or a wrong shape as the marker is typed; the check of an invariant that has a scanner
 (`arch-9`) also holds that each of its markers stands above what it scans for, and the reverse.
 
 ## 8. Names in code
@@ -589,3 +588,6 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |
 | A three-valued boolean option is a `--x/--no-x` pair ([section 6](#6-writing-a-client-and-its-cli-commands)) | ast-grep rule `boolean-option-pair` |
+| A request body is a model and is dumped once, by the endpoint ([section 4](#4-mcp-tool-metadata-standard)) | ast-grep rules `body-is-a-model`, `body-is-dumped-once` |
+| A `models.py` holds a model | ast-grep rule `models-file-holds-a-model` |
+| The form of a `# violation(<rule>): <reason>` marker | ast-grep rule `violation-marker-form` (the text of the marker), and `tests/architecture/test_markers.py` (its line: alone, right above code) |

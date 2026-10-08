@@ -6,43 +6,14 @@ from pathlib import Path
 
 from tests.architecture.scanners import (
     SRC,
-    YANDEX,
     _dotted,
     _import_aliases,
     violation_markers,
 )
 
 # A `body` parameter is a request model, never a `dict`, in the tool, the client method and the
-# endpoint builder alike: the ast-grep rule `body-is-a-model` (.ast-grep/rules/) checks the text
-# of each, with its own cases beside it.
-
-
-def _dumps(source: str, module_label: str) -> list[str]:
-    """Places in ``source`` that dump a model themselves (``.model_dump(`` / ``_json(``)."""
-    return [
-        f"{module_label}:{node.lineno}"
-        for node in ast.walk(ast.parse(source))
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr in {"model_dump", "model_dump_json"}
-    ]
-
-
-def test_arch8_a_request_body_is_dumped_only_by_the_endpoint():
-    """The MCP tool, the client and the endpoint builder hand the model on, undumped.
-
-    ``Endpoint`` dumps it once (``Endpoint.body``), so every surface sends the same
-    JSON. A CLI command may dump a model to merge ``--field`` values into it before it builds
-    the request model.
-    """
-    offenders = []
-    for layer in ("mcp.py", "client.py", "endpoints.py"):
-        for path in YANDEX.rglob(layer):
-            offenders += _dumps(path.read_text(encoding="utf-8"), str(path.relative_to(SRC)))
-    assert offenders == []
-    assert _dumps("def f(body):\n    return send(body.model_dump())\n", "x/client.py") == [
-        "x/client.py:2"
-    ]
+# endpoint builder alike, and none of the three dumps it: the ast-grep rules `body-is-a-model`
+# and `body-is-dumped-once` (.ast-grep/rules/) check the text of each, with their cases beside.
 
 
 # Who may turn a status into a typed error, and why. ``raise_for_status``

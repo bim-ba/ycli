@@ -251,6 +251,7 @@ class QueueCreate(RequestBody):
         ...     lead="username",
         ...     default_type="task",
         ...     default_priority="normal",
+        ...     issue_types_config=[{"issueType": "task", "workflow": "oicn"}],
         ... ).key
         'DESIGN'
     """
@@ -266,10 +267,10 @@ class QueueCreate(RequestBody):
         serialization_alias="defaultPriority",
         description="Key or id of the priority assigned to new issues by default.",
     )
-    issue_types_config: list[IssueTypeConfigInput] | None = Field(
-        default=None,
+    issue_types_config: list[IssueTypeConfigInput] = Field(
         serialization_alias="issueTypesConfig",
-        description="Per-issue-type workflow/resolution configuration of the queue.",
+        description="Per-issue-type workflow/resolution configuration of the queue: one row "
+        "for each issue type. The API refuses a queue without it.",
     )
 
 

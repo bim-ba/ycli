@@ -9,6 +9,50 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.4 (2026-10-08)
+
+### Bug Fixes
+
+- **e2e**: A surface's failure is worded without what the run learned
+  ([`a2ed5e8`](https://github.com/bim-ba/ycli/commit/a2ed5e8477d01801c1035b0f9649e44e0e37b397))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.3
+  ([`b15d1ce`](https://github.com/bim-ba/ycli/commit/b15d1cea16ead6ef01c3144a8f0fa040e72d70c8))
+
+### Testing
+
+- **e2e**: A form's notification is read, cancelled and started again, with nothing sent outward
+  ([`c59917f`](https://github.com/bim-ba/ycli/commit/c59917fa90041d8508eb866bb924f9ff253da9e5))
+
+
+## v0.127.3 (2026-10-08)
+
+### Bug Fixes
+
+- **e2e**: A failed step prints what the run learned from the service by its name, not its value
+  ([`c35bedc`](https://github.com/bim-ba/ycli/commit/c35bedc83c3753d222ea527381ced67096a2c643))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.2
+  ([`783d6d1`](https://github.com/bim-ba/ycli/commit/783d6d19de17e22928ed168bad93fe4967b8b103))
+
+
+## v0.127.2 (2026-10-08)
+
+### Bug Fixes
+
+- **tracker**: A priority's order and a queue's issue types are required, as the API requires them
+  ([`07e9560`](https://github.com/bim-ba/ycli/commit/07e9560a5a07acb6661f975fe9bbff921042665c))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.1
+  ([`9a06117`](https://github.com/bim-ba/ycli/commit/9a061175c57f770f613eb1f253ce30b8dd1f7938))
+
+
 ## v0.127.1 (2026-10-08)
 
 ### Bug Fixes

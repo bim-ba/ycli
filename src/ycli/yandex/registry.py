@@ -31,6 +31,31 @@ SERVICES: tuple[Service, ...] = (
 )
 
 
+def resources(service: Service) -> tuple[str, ...]:
+    """The resources of ``service``, by name: its packages that declare operations.
+
+    Nothing lists them: a resource is found by the ``endpoints`` module it has.
+
+    Args:
+        service: A registered service.
+
+    Returns:
+        The names of its resources, sorted.
+
+    Examples:
+        >>> "boards" in resources(SERVICES[0]) and "mcp" not in resources(SERVICES[0])
+        True
+    """
+    package = import_module(f"{__package__}.{service.name}")
+    return tuple(
+        sorted(
+            found.name
+            for found in iter_modules(package.__path__)
+            if found.ispkg and find_spec(f"{package.__name__}.{found.name}.endpoints") is not None
+        )
+    )
+
+
 def kinds() -> tuple[Kind[Any, Any], ...]:
     """Every kind of file a resource of a registered service declares, by name.
 
