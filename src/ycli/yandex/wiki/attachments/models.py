@@ -48,7 +48,10 @@ class AttachedFile(APIModel):
     user: User | None = Field(default=None, description="Who attached the file.")
     mimetype: str | None = Field(default=None, description="MIME type of the attachment.")
     has_preview: bool | None = Field(
-        default=None, description="Whether the attachment has a rendered preview."
+        default=None,
+        description="Whether the attachment has a rendered preview. The reply to an upload "
+        "says false for an image: its preview is made a moment later, so read this from a get "
+        "or a list (measured).",
     )
     check_status: str | None = Field(
         default=None,
