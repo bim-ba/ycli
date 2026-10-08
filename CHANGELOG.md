@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.2 (2026-10-08)
+
+### Bug Fixes
+
+- **tracker**: A priority's order and a queue's issue types are required, as the API requires them
+  ([`07e9560`](https://github.com/bim-ba/ycli/commit/07e9560a5a07acb6661f975fe9bbff921042665c))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.1
+  ([`9a06117`](https://github.com/bim-ba/ycli/commit/9a061175c57f770f613eb1f253ce30b8dd1f7938))
+
+
 ## v0.127.1 (2026-10-08)
 
 ### Bug Fixes
