@@ -45,12 +45,16 @@ steps:
   - id: close
     run: tracker transitions execute ${key} close --field resolution=fixed
     disarms: [create]
-  - id: resolved-fixed
-    run: 'tracker issues count --query "Key: ${key} AND Resolution: fixed"'
-    expect:
-      "@": 1
+  # The resolution is read from the issue itself: a search sees a change a moment later, and a
+  # count by it right after the transition answered 0 in a pull request's run.
   - id: closed
     run: tracker issues get ${key}
     expect:
       status: closed
+      resolution.key: fixed
       summary: ${RUN} lifecycle edited
+  # The count is asked of what a search has had time to learn: the issue by its key.
+  - id: counted
+    run: 'tracker issues count --query "Key: ${key}"'
+    expect:
+      "@": 1
