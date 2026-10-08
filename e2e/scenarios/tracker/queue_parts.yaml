@@ -12,6 +12,12 @@ steps:
     run: tracker queues versions-update ${version} --name "${RUN} version renamed" --description Renamed
     expect:
       name: ${RUN} version renamed
+  - id: version-read
+    run: tracker queues versions-get ${version}
+    expect:
+      "to_string(id)": ${version}
+      name: ${RUN} version renamed
+      description: Renamed
   - id: version-delete
     run: tracker queues versions-delete ${version}
     disarms: [version]
@@ -53,6 +59,12 @@ steps:
       name: ${RUN} workflow renamed
     save:
       revision: version
+  - id: workflow-read
+    run: tracker workflows get ${workflow}
+    expect:
+      "to_string(id)": ${workflow}
+      name: ${RUN} workflow renamed
+      "length(steps)": 2
   - id: workflow-action
     run: >-
       tracker workflows actions-update ${workflow} open close --version ${revision}

@@ -45,17 +45,20 @@ import stamina
 from ycli.log import HTTP_LOGGER_NAME
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.endpoint import PAGED_EXTENSION, check_path
+from ycli.yandex.core.listing import AsyncListing, Listing, Walk
 from ycli.yandex.errors import (
     YandexConnectionError,
+    YandexError,
     YandexRateLimitError,
     YandexServerError,
+    YandexStaleContinuationError,
     describe_error_body,
     error_for_status,
     status_line,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+    from collections.abc import AsyncIterator, Callable, Iterator
 
     from ycli.yandex.core.endpoint import Effect, Endpoint, Paged
     from ycli.yandex.core.profile import ServiceProfile
@@ -156,23 +159,30 @@ def _log_retry(request: httpx2.Request, attempt: int, attempts: int) -> None:
         )
 
 
-def _page_plan[I](
-    items: Sequence[I], produced: int, limit: int | None, *, has_next: bool
-) -> tuple[Sequence[I], bool]:
-    """Which of a page's ``items`` to yield, and whether the walk ends after them.
+def _stale(walk: Walk, paged: Paged, error: YandexError) -> YandexError:
+    """``error`` as what it means for the first request of a continued listing.
 
-    Warns when the cap leaves items behind — on this page or on pages not yet fetched.
+    A status the way of paging answers a dead continuation with is told as that: the caller
+    starts again. Anything else stays what it is.
     """
-    if limit is None:
-        return items, not has_next
-    room = limit - produced
-    if len(items) > room or (len(items) == room and has_next):
+    if not walk.resuming or error.status not in paged.pagination.stale_statuses:
+        return error
+    return YandexStaleContinuationError(
+        f"the listing cannot go on from this token any more; start it again without it ({error})",
+        status=error.status,
+        url=error.url,
+    )
+
+
+def _ended(walk: Walk, limit: int | None, pages: int, max_pages: int) -> None:
+    """Say in the log why a walk ended short of the listing's end."""
+    if walk.truncated:
         logger.warning(
             "stopped at %d items; more may be available (raise the limit, or use --all in the CLI)",
             limit,
         )
-        return items[:room], True
-    return items, not has_next or len(items) == room
+    elif walk.request is not None and pages >= max_pages:
+        logger.warning("stopped after %d pages; the listing did not end", max_pages)
 
 
 def _first_page(paged: Paged, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
@@ -233,30 +243,44 @@ class SyncSession:
         )
         return endpoint.parse(response)
 
-    def iterate[P, I](self, paged: Paged[P, I], *, limit: int | None = None) -> Iterator[I]:
-        """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
-        request = _first_page(paged, self._client)
-        request = _announce(self._before_send, paged.endpoint, request)
-        produced = 0
-        for _ in range(self._http.max_pages):
-            response = self._send(
-                request,
-                idempotent=paged.endpoint.idempotent,
-                follow_redirects=paged.endpoint.follow_redirects,
-            )
-            items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
-            # An empty page is the last one, whatever it names next: a listing that pages by
-            # number ends only so, and no service here filters after it pages (DataLens
-            # ``getEntries`` asked for the last of four entries by name, one per page, answers
-            # it on the first page: measured).
-            following = paged.pagination.next(request, response, items) if items else None
-            taken, done = _page_plan(items, produced, limit, has_next=following is not None)
-            produced += len(taken)
-            yield from taken
-            if done or following is None:
-                return
-            request = following
-        logger.warning("stopped after %d pages; the listing did not end", self._http.max_pages)
+    def iterate[P, I](
+        self,
+        paged: Paged[P, I],
+        *,
+        limit: int | None = None,
+        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+    ) -> Listing[I]:
+        """The listing's items, fetched page by page as they are asked for.
+
+        Args:
+            paged: The listing.
+            limit: The most items to give; ``None`` gives all.
+            next: What an earlier call of the same listing returned, to go on from there.
+
+        Returns:
+            The items, lazily; when they end, whether there is more and how to go on.
+        """
+        # The hook hears of a listing once, as before: its first request stands for all pages.
+        first = _announce(self._before_send, paged.endpoint, _first_page(paged, self._client))
+        longest = self._http.max_token_length
+        walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
+
+        def pages() -> Iterator[I]:
+            asked = 0
+            while walk.request is not None and asked < self._http.max_pages:
+                try:
+                    response = self._send(
+                        walk.request,
+                        idempotent=paged.endpoint.idempotent,
+                        follow_redirects=paged.endpoint.follow_redirects,
+                    )
+                except YandexError as error:
+                    raise _stale(walk, paged, error) from error
+                asked += 1
+                yield from walk.take(response)
+            _ended(walk, limit, asked, self._http.max_pages)
+
+        return Listing(walk, pages)
 
     def close(self) -> None:
         """Close the underlying ``httpx2.Client``."""
@@ -314,29 +338,45 @@ class AsyncSession:
         )
         return endpoint.parse(response)
 
-    async def iterate[P, I](
-        self, paged: Paged[P, I], *, limit: int | None = None
-    ) -> AsyncIterator[I]:
-        """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
-        request = _first_page(paged, self._client)
-        request = _announce(self._before_send, paged.endpoint, request)
-        produced = 0
-        for _ in range(self._http.max_pages):
-            response = await self._send(
-                request,
-                idempotent=paged.endpoint.idempotent,
-                follow_redirects=paged.endpoint.follow_redirects,
-            )
-            items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
-            following = paged.pagination.next(request, response, items) if items else None
-            taken, done = _page_plan(items, produced, limit, has_next=following is not None)
-            produced += len(taken)
-            for item in taken:
-                yield item
-            if done or following is None:
-                return
-            request = following
-        logger.warning("stopped after %d pages; the listing did not end", self._http.max_pages)
+    def iterate[P, I](
+        self,
+        paged: Paged[P, I],
+        *,
+        limit: int | None = None,
+        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+    ) -> AsyncListing[I]:
+        """The listing's items, fetched page by page as they are asked for.
+
+        Args:
+            paged: The listing.
+            limit: The most items to give; ``None`` gives all.
+            next: What an earlier call of the same listing returned, to go on from there.
+
+        Returns:
+            The items, lazily; when they end, whether there is more and how to go on.
+        """
+        # The hook hears of a listing once, as before: its first request stands for all pages.
+        first = _announce(self._before_send, paged.endpoint, _first_page(paged, self._client))
+        longest = self._http.max_token_length
+        walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
+
+        async def pages() -> AsyncIterator[I]:
+            asked = 0
+            while walk.request is not None and asked < self._http.max_pages:
+                try:
+                    response = await self._send(
+                        walk.request,
+                        idempotent=paged.endpoint.idempotent,
+                        follow_redirects=paged.endpoint.follow_redirects,
+                    )
+                except YandexError as error:
+                    raise _stale(walk, paged, error) from error
+                asked += 1
+                for item in walk.take(response):
+                    yield item
+            _ended(walk, limit, asked, self._http.max_pages)
+
+        return AsyncListing(walk, pages)
 
     async def aclose(self) -> None:
         """Close the underlying ``httpx2.AsyncClient``."""
