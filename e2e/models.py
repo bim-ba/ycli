@@ -28,8 +28,10 @@ class Step(BaseModel):
 
     id: str
     run: str
-    output: Literal["json", "text"] = Field(
-        default="json", description="text: the command prints raw text (e.g. page markdown)."
+    output: Literal["json", "text", "bytes"] = Field(
+        default="json",
+        description="text: the command prints raw text (e.g. page markdown). bytes: it prints "
+        "a file; `expect` sees `size` and `head` (the first 16 bytes, in hex).",
     )
     expect: dict[str, Any] = Field(default_factory=dict)
     save: dict[str, str] = Field(default_factory=dict)

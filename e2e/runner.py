@@ -46,9 +46,17 @@ class ScenarioError(AssertionError):
 
 @dataclass(frozen=True, slots=True)
 class CommandResult:
+    """What a command left: ``stdout`` as text, and as the bytes it was when those matter."""
+
     exit_code: int
     stdout: str
     stderr: str
+    stdout_bytes: bytes = b""
+
+    @property
+    def printed(self) -> bytes:
+        """The bytes of stdout: as they came, or the text's own when no bytes were kept."""
+        return self.stdout_bytes or self.stdout.encode()
 
 
 class Driver(ABC):
@@ -75,11 +83,16 @@ class CliDriver(Driver):
         completed = subprocess.run(
             [self._executable, "-o", "json", "--yes", *arguments],
             capture_output=True,
-            text=True,
             timeout=self._timeout_seconds,
             check=False,
         )
-        return CommandResult(completed.returncode, completed.stdout, completed.stderr)
+        # A download prints bytes that are no text: nothing here may fail on them.
+        return CommandResult(
+            completed.returncode,
+            completed.stdout.decode(errors="replace"),
+            completed.stderr.decode(errors="replace"),
+            completed.stdout,
+        )
 
 
 class _Functions(jmespath.functions.Functions):
@@ -188,7 +201,7 @@ def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[st
             f"{where} `ycli {shlex.join(arguments)}` exited {completed.exit_code}: "
             f"{scrub(completed.stderr or completed.stdout)}"
         )
-    document = _parse(where, step, completed.stdout)
+    document = _parse(where, step, completed)
     for expression, wanted in step.expect.items():
         query = render(expression, variables)
         expected = render(wanted, variables) if isinstance(wanted, str) else wanted
@@ -206,7 +219,12 @@ def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[st
         variables[name] = str(value)
 
 
-def _parse(where: str, step: Step, stdout: str) -> Any:
+def _parse(where: str, step: Step, completed: CommandResult) -> Any:
+    stdout = completed.stdout
+    if step.output == "bytes":
+        # Enough to tell a file from nothing and one format from another, and no content.
+        printed = completed.printed
+        return {"size": len(printed), "head": printed[:16].hex()}
     if step.output == "text":
         return stdout
     if not stdout.strip():
