@@ -9,6 +9,33 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.124.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.123.1
+  ([`5b2ddbd`](https://github.com/bim-ba/ycli/commit/5b2ddbd85b4d83adf36386d4580c0b1b00ad812b))
+
+### Features
+
+- **core**: A listing can stop at a limit and go on from a token
+  ([`d7ac558`](https://github.com/bim-ba/ycli/commit/d7ac558802c4dec05cc7579bd0b4de1016aff0fd))
+
+### Testing
+
+- **e2e**: Live steps for fifteen Forms operations that had none
+  ([`3e014c7`](https://github.com/bim-ba/ycli/commit/3e014c78cc37374ce1fda8f099b24a076c61b030))
+
+- **e2e**: Live steps for the chart reads and the life of an HTML page in DataLens
+  ([`8cc2b06`](https://github.com/bim-ba/ycli/commit/8cc2b063ab5ed9b8353915e8d2dfaf4b4a88ada2))
+
+- **e2e**: Live steps for the eleven Wiki operations that had none
+  ([`bf89d1b`](https://github.com/bim-ba/ycli/commit/bf89d1b2a650c1a013b76023a2ad320d206f4027))
+
+- **e2e**: Live steps for twenty-two Tracker operations that had none
+  ([`ac09a81`](https://github.com/bim-ba/ycli/commit/ac09a817d8f2a8aa85ffb5191d1369754fe96217))
+
+
 ## v0.123.1 (2026-10-07)
 
 ### Bug Fixes
