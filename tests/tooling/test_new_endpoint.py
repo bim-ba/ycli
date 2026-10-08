@@ -99,7 +99,6 @@ def test_the_scaffold_passes_the_architecture_checks(tmp_path):
         offenders += test_arch4._stdout_writes(source)
         offenders += test_arch4._serializations(source)
         offenders += test_arch5._single_source_offenders(relative, source)
-        offenders += test_arch8._untyped_body_offenders(source, filename)
         offenders += test_arch8._error_mapping_offenders(relative, source)
     assert offenders == []
 

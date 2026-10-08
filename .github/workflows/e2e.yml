@@ -12,6 +12,11 @@ on:
         description: "pytest -k expression (empty: every scenario)"
         required: false
         default: ""
+      surface:
+        description: "who carries out the writes (binary: the installed command, no comparison)"
+        type: choice
+        options: [binary, mcp, sdk]
+        default: binary
 
 permissions:
   contents: read
@@ -74,13 +79,17 @@ jobs:
         service: ${{ fromJSON(github.event_name == 'pull_request' && '["all"]' || '["tracker", "wiki", "forms"]') }}
     name: live (${{ matrix.service }})
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Tracker on three surfaces, with the pause below, ran 15 minutes (measured).
+    timeout-minutes: 30
     environment: yandex-e2e
     env:
       YCLI_E2E: "1"
       YCLI_E2E_QUEUE: ${{ vars.YCLI_E2E_QUEUE || 'YCLIPAGE' }}
       # Whom the access steps grant a page, a form and a project to; unset, they are skipped.
       YCLI_E2E_GRANTEE: ${{ vars.YCLI_E2E_GRANTEE }}
+      # The trigger kept in the sandbox queue, switched off, for the scenarios that edit one
+      # (the API cannot delete a trigger, so a run makes none); unset, they are skipped.
+      YCLI_E2E_TRIGGER: ${{ vars.YCLI_E2E_TRIGGER }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -90,8 +99,10 @@ jobs:
         with:
           python-version: "3.12"
           enable-cache: true
+      # The `mcp` extra on purpose not on a pull request: the smoke subset drives the installed
+      # command as a user without the extra has it.
       - name: Install dependencies
-        run: uv sync --locked --dev
+        run: uv sync --locked --dev ${{ github.event_name != 'pull_request' && '--extra mcp' || '' }}
       - name: Scenarios
         env:
           YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
@@ -101,10 +112,28 @@ jobs:
           SELECT: ${{ inputs.select }}
           SERVICE: ${{ matrix.service }}
           YCLI_E2E_RUNS_FILE: ${{ runner.temp }}/e2e-runs
+          EVENT: ${{ github.event_name }}
+          SURFACE: ${{ inputs.surface }}
         run: |
           service=()
           if [ "$SERVICE" != all ]; then service=(--service "$SERVICE"); fi
-          uv run pytest e2e --no-cov -n 0 -p no:cacheprovider -m "$MARKERS" "${service[@]}" ${SELECT:+-k "$SELECT"}
+          # A nightly run takes its turn of three by the day of the year: the installed command
+          # as it is, then every write through MCP, then through the SDK. On the two last the
+          # reads are compared on three surfaces (e2e/README.md, "Three surfaces"). The load on
+          # the organization stays one write per step.
+          surface="${SURFACE:-binary}"
+          if [ "$EVENT" = schedule ]; then
+            turns=(binary mcp sdk)
+            surface="${turns[$((10#$(date -u +%j) % 3))]}"
+          fi
+          surfaces=()
+          if [ "$surface" != binary ]; then
+            # The pause: commands of one process follow each other faster than Tracker settles
+            # after a write; with one second a sprint's change of state was refused (measured).
+            surfaces=(--surfaces report --writes-through "$surface" --record-pause 2.5)
+          fi
+          echo "writes through: $surface"
+          uv run pytest e2e --no-cov -n 0 -p no:cacheprovider -m "$MARKERS" "${service[@]}" "${surfaces[@]}" ${SELECT:+-k "$SELECT"}
       # Only what this job named: each job has its own list of runs, so the janitors of the
       # three jobs never reach for the same object, nor for a developer's.
       - name: Janitor (leftovers of this run)
