@@ -55,6 +55,8 @@ class FieldsClient(Resource):
     def create(self, body: FieldCreate) -> CustomField:
         """Create a global field from a typed ``FieldCreate`` body. Returns the ``CustomField``.
 
+        A name is unique among the fields: one that is taken answers 422 (measured).
+
         Args:
             body: The new field's settings.
 

@@ -115,6 +115,23 @@ CASES = [
             )
         ],
     ),
+    # The ``download_url`` of an attachment, as the listing gives it: with a slash in front.
+    Case(
+        "wiki.attachments.download_by_url",
+        args=("/ops/runbook/.files/plan.txt",),
+        cli=["wiki", "attachments", "download-by-url", "/ops/runbook/.files/plan.txt"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/attachments/download_by_url",
+                    {"url": "ops/runbook/.files/plan.txt", "download": "true"},
+                ),
+                Reply(content=b"the plan"),
+            )
+        ],
+    ),
     Case(
         "wiki.attachments.delete",
         args=(5604, 5614),

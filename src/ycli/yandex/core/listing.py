@@ -12,6 +12,7 @@ import httpx2
 
 from ycli.yandex.core import continuation
 from ycli.yandex.core.endpoint import Paged
+from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.models import Listed
 
 
@@ -21,6 +22,10 @@ class Walk[P, I]:
     A listing stops at ``limit`` items. Where a page can be asked for again it is cut in the
     middle and the token passes over what was given; where it cannot (``replayable`` is
     false), only whole pages are given: as many as fit in ``limit``, and never less than one.
+
+    ``truncated`` says the walk stopped at the limit before the listing was known to end:
+    there may be more, and ``next`` goes on. Where the service says how many items the listing
+    has and that many were given, over this call and the ones before it, the listing ended.
     """
 
     def __init__(
@@ -33,27 +38,58 @@ class Walk[P, I]:
         longest_token: int,
     ) -> None:
         self._paged = paged
+        self._way = type(paged.pagination).__name__
         self._first = first
         self._limit = limit
         self._produced = 0
-        self._last_page = 0
+        #: Given by the calls before this one, as the token says.
+        self._before = 0
         self.request: httpx2.Request | None = first
         self._skip = 0
         #: The request about to be sent is the first of a continued listing.
         self.resuming = token is not None
         if token is not None:
-            self.request, self._skip = continuation.resume(first, token, longest=longest_token)
+            self.request, state = continuation.resume(
+                first, token, way=self._way, longest=longest_token
+            )
+            self._skip, self._before = state.skip, state.seen
         self.truncated = False
         self.next: str | None = None
         self.total: int | None = None
+
+    @property
+    def seen(self) -> int:
+        """How many items of the listing were given so far, by this call and the ones before."""
+        return self._before + self._produced
 
     def _is_first(self, request: httpx2.Request) -> bool:
         return request.url == self._first.url and request.content == self._first.content
 
     def _stop(self, page: httpx2.Request, skip: int) -> None:
-        self.truncated = True
-        self.next = continuation.encode(self._first, page, skip=skip)
         self.request = None
+        if self.total is not None and self.seen >= self.total:
+            return  # the service said how many there are, and that many were given
+        self.truncated = True
+        self.next = continuation.encode(self._first, page, way=self._way, skip=skip, seen=self.seen)
+
+    def _following(
+        self,
+        request: httpx2.Request,
+        response: httpx2.Response,
+        page: Sequence[I],
+        *,
+        resumed: bool,
+    ) -> httpx2.Request | None:
+        """The request of the page after ``page``; a token's unreadable state is told as such."""
+        if not page:
+            return None
+        try:
+            return self._paged.pagination.next(request, response, page)
+        except (KeyError, ValueError, TypeError) as unread:
+            if not resumed:
+                raise
+            # The token named a request this way of paging cannot go on from.
+            raise YandexInvalidRequestError(continuation.NOT_A_TOKEN) from unread
 
     def take(self, response: httpx2.Response) -> Sequence[I]:
         """The items of the page just answered that go to the caller; sets what comes next.
@@ -63,14 +99,17 @@ class Walk[P, I]:
 
         Returns:
             The items to yield.
+
+        A walk that went on from a token whose state its way of paging cannot read is refused
+        as "not a token" (``YandexInvalidRequestError``).
         """
         request = self.request
         assert request is not None  # a session asks only while there is a request
         paging = self._paged.pagination
         page: Sequence[I] = self._paged.items_of(self._paged.endpoint.parse(response))
-        following = paging.next(request, response, page) if page else None
+        skipped, self._skip, resumed, self.resuming = self._skip, 0, self.resuming, False
+        following = self._following(request, response, page, resumed=resumed)
         self.total = paging.total(response) if self.total is None else self.total
-        skipped, self._skip, self.resuming = self._skip, 0, False
         items = page[skipped:]
         room = None if self._limit is None else self._limit - self._produced
         if (
@@ -83,7 +122,6 @@ class Walk[P, I]:
             self._stop(request, skipped + room)
             return items[:room]
         self._produced += len(items)
-        self._last_page = len(page)
         left = None if self._limit is None else self._limit - self._produced
         if following is None:
             self.request = None
@@ -128,6 +166,11 @@ class Listing[I]:
         """How many items the whole listing has, where the service says."""
         return self._walk.total
 
+    @property
+    def seen(self) -> int:
+        """How many items were given so far, by this call and the ones it went on from."""
+        return self._walk.seen
+
     def collect(self) -> Listed[I]:
         """Fetch everything that is left and return it with where the listing stopped.
 
@@ -165,6 +208,11 @@ class AsyncListing[I]:
     def total(self) -> int | None:
         """How many items the whole listing has, where the service says."""
         return self._walk.total
+
+    @property
+    def seen(self) -> int:
+        """How many items were given so far, by this call and the ones it went on from."""
+        return self._walk.seen
 
     async def collect(self) -> Listed[I]:
         """Fetch everything that is left and return it with where the listing stopped.

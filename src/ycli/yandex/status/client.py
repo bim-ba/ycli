@@ -19,6 +19,7 @@ from ycli.yandex.errors import (
     YandexConnectionError,
     describe_error_body,
     error_for_status,
+    status_line,
 )
 from ycli.yandex.status.oauth_models import (
     DeviceCodeResponse,
@@ -46,7 +47,7 @@ def _raise_for_error(response: httpx2.Response) -> None:
         return
     detail = describe_error_body(response.text)
     request = response.request
-    message = f"{code} {response.reason_phrase} for {request.method} {request.url}: {detail}"
+    message = f"{status_line(code)} for {request.method} {request.url}: {detail}"
     raise error_for_status(code, message, url=str(request.url))
 
 

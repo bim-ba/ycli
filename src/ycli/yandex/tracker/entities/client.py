@@ -974,7 +974,6 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.attachments_get(entity_type, entity_id, file_id))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def attachments_download(self, file_id: str, filename: str) -> bytes:
         r"""Download an attachment's raw bytes (a non-2xx answer raises a typed error).
 

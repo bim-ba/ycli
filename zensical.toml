@@ -31,6 +31,7 @@ nav = [
     "how-to/self-host-over-http.md",
     "how-to/script-the-cli.md",
     "how-to/use-in-ci.md",
+    "how-to/keep-content-in-git.md",
     "how-to/call-an-unwrapped-endpoint.md",
     "how-to/call-the-api-asynchronously.md",
   ] },

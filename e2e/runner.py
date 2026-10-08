@@ -14,6 +14,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,9 +47,17 @@ class ScenarioError(AssertionError):
 
 @dataclass(frozen=True, slots=True)
 class CommandResult:
+    """What a command left: ``stdout`` as text, and as the bytes it was when those matter."""
+
     exit_code: int
     stdout: str
     stderr: str
+    stdout_bytes: bytes = b""
+
+    @property
+    def printed(self) -> bytes:
+        """The bytes of stdout: as they came, or the text's own when no bytes were kept."""
+        return self.stdout_bytes or self.stdout.encode()
 
 
 class Driver(ABC):
@@ -59,6 +68,13 @@ class Driver(ABC):
 
     @abstractmethod
     def run(self, arguments: Sequence[str]) -> CommandResult: ...
+
+    def knows(self, variables: dict[str, str]) -> None:  # noqa: B027  # most drivers word nothing
+        """Told the variables of the scenario it runs, before its first step.
+
+        The same mapping the steps add to. A driver that words a failure of its own for a
+        public log names what the run learned by it (:func:`hidden`).
+        """
 
 
 class CliDriver(Driver):
@@ -75,11 +91,16 @@ class CliDriver(Driver):
         completed = subprocess.run(
             [self._executable, "-o", "json", "--yes", *arguments],
             capture_output=True,
-            text=True,
             timeout=self._timeout_seconds,
             check=False,
         )
-        return CommandResult(completed.returncode, completed.stdout, completed.stderr)
+        # A download prints bytes that are no text: nothing here may fail on them.
+        return CommandResult(
+            completed.returncode,
+            completed.stdout.decode(errors="replace"),
+            completed.stderr.decode(errors="replace"),
+            completed.stdout,
+        )
 
 
 class _Functions(jmespath.functions.Functions):
@@ -123,6 +144,40 @@ def render(template: str, variables: dict[str, str]) -> str:
         raise ScenarioError(f"unknown variable ${{{error.args[0]}}} in {template!r}") from None
 
 
+# What a run makes up itself: the only variables whose value a public log may show. Every
+# other one was read from the service or given by the owner (a login, an id, a uid).
+OWN_VARIABLES = frozenset({"RUN", "TAG", "QUEUE", "FILES"})
+# A learned value this short (a version, a count) is not looked for in free text: it would
+# be found everywhere.
+_SHORTEST_HIDDEN = 4
+
+
+def named(variables: dict[str, str]) -> dict[str, str]:
+    """``variables`` as a public log may show them: a learned value by its name.
+
+    ``named({"RUN": "e2e-1", "login": "ivan"}) -> {"RUN": "e2e-1", "login": "<login>"}``.
+    """
+    return {
+        name: value if name in OWN_VARIABLES else f"<{name}>" for name, value in variables.items()
+    }
+
+
+def hidden(text: str, variables: dict[str, str]) -> str:
+    """``text`` with every learned value replaced by its name, then scrubbed.
+
+    For what came back from a command: an error that repeats a login it was given.
+    ``hidden("no access for ivan.petrov", {"login": "ivan.petrov"}) -> "no access for <login>"``.
+    """
+    learned = [
+        (value, name)
+        for name, value in variables.items()
+        if name not in OWN_VARIABLES and len(value) >= _SHORTEST_HIDDEN
+    ]
+    for value, name in sorted(learned, key=lambda pair: -len(pair[0])):
+        text = text.replace(value, f"<{name}>")
+    return scrub(text)
+
+
 def render_command(template: str, variables: dict[str, str]) -> list[str]:
     """Split first, then substitute, so a value with spaces or quotes stays one argument."""
     return [render(token, variables) for token in shlex.split(template)]
@@ -144,10 +199,12 @@ def run_scenario(
     driver: Driver,
     variables: dict[str, str],
     read: Callable[[Driver, Sequence[Sequence[str]]], None] | None = None,
+    retried: list[str] | None = None,
 ) -> list[str]:
     """Run every step in order, then the registered cleanups last-in-first-out.
 
     ``read`` is given the reads of each step right after it; without it they are not run.
+    ``retried`` is given a line for each step that was run again (:class:`~e2e.models.Retry`).
     A step that needs a variable nobody set is not run; the steps skipped are returned, each
     with what it lacked (``"wiki/page-content/grant: needs GRANTEE"``).
 
@@ -155,7 +212,9 @@ def run_scenario(
     first, and fails the scenario only when every step passed (the janitor is the backstop).
     """
     variables = dict(variables)
-    cleanups: dict[str, list[str]] = {}
+    driver.knows(variables)
+    # Each cleanup as it is run, and as a public log may show it.
+    cleanups: dict[str, tuple[list[str], str]] = {}
     skipped: list[str] = []
     try:
         for step in scenario.steps:
@@ -163,40 +222,68 @@ def run_scenario(
             if missing:
                 skipped.append(f"{scenario.name}/{step.id}: needs {', '.join(missing)}")
                 continue
-            _run_step(scenario, step, driver, variables)
+            _run_step(scenario, step, driver, variables, retried)
             if step.cleanup is not None:
-                cleanups[step.id] = render_command(step.cleanup, variables)
+                cleanups[step.id] = (
+                    render_command(step.cleanup, variables),
+                    shlex.join(render_command(step.cleanup, named(variables))),
+                )
             for target in step.disarms:
                 cleanups.pop(target, None)
             if read is not None and step.reads:
                 read(driver, [render_command(command, variables) for command in step.reads])
     except BaseException:
-        _clean_up(cleanups, driver)
+        _clean_up(cleanups, driver, variables)
         raise
-    failures = _clean_up(cleanups, driver)
+    failures = _clean_up(cleanups, driver, variables)
     if failures:
         raise ScenarioError(f"[{scenario.name}] cleanup failed: " + "; ".join(failures))
     return skipped
 
 
-def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[str, str]) -> None:
+def _run_step(
+    scenario: Scenario,
+    step: Step,
+    driver: Driver,
+    variables: dict[str, str],
+    retried: list[str] | None = None,
+) -> None:
     where = f"[{scenario.name}/{step.id}]"
     arguments = render_command(step.run, variables)
     completed = driver.run(arguments)
+    retries = 0
+    while (
+        completed.exit_code != 0
+        and step.retry is not None
+        and retries < step.retry.times
+        and step.retry.when in (completed.stderr or completed.stdout)
+    ):
+        time.sleep(step.retry.pause_seconds)
+        retries += 1
+        completed = driver.run(arguments)
+    if retries and retried is not None and step.retry is not None:
+        # Said whether it passed or not: a refusal that needed a second try is still a refusal.
+        outcome = "passed" if completed.exit_code == 0 else "failed"
+        count = "1 retry" if retries == 1 else f"{retries} retries"
+        retried.append(f"{scenario.name}/{step.id}: {outcome} after {count} ({step.retry.when})")
     if completed.exit_code != 0:
+        after = f" (after {retries} retries)" if retries else ""
+        shown = shlex.join(render_command(step.run, named(variables)))
         raise ScenarioError(
-            f"{where} `ycli {shlex.join(arguments)}` exited {completed.exit_code}: "
-            f"{scrub(completed.stderr or completed.stdout)}"
+            f"{where} `ycli {shown}` exited {completed.exit_code}{after}: "
+            f"{hidden(completed.stderr or completed.stdout, variables)}"
         )
-    document = _parse(where, step, completed.stdout)
+    document = _parse(where, step, completed)
     for expression, wanted in step.expect.items():
         query = render(expression, variables)
         expected = render(wanted, variables) if isinstance(wanted, str) else wanted
         actual = search(query, document)
         if actual != expected:
+            shown = named(variables)
+            wanted_shown = render(wanted, shown) if isinstance(wanted, str) else wanted
             raise ScenarioError(
-                f"{where} expected `{query}` == {expected!r}, got {scrub(repr(actual))}"
-                f" (output {_shape(document)})"
+                f"{where} expected `{render(expression, shown)}` == {wanted_shown!r}, "
+                f"got {hidden(repr(actual), variables)} (output {_shape(document)})"
             )
     for name, expression in step.save.items():
         expression = render(expression, variables)
@@ -206,7 +293,12 @@ def _run_step(scenario: Scenario, step: Step, driver: Driver, variables: dict[st
         variables[name] = str(value)
 
 
-def _parse(where: str, step: Step, stdout: str) -> Any:
+def _parse(where: str, step: Step, completed: CommandResult) -> Any:
+    stdout = completed.stdout
+    if step.output == "bytes":
+        # Enough to tell a file from nothing and one format from another, and no content.
+        printed = completed.printed
+        return {"size": len(printed), "head": printed[:16].hex()}
     if step.output == "text":
         return stdout
     if not stdout.strip():
@@ -226,19 +318,21 @@ def _shape(document: Any) -> str:
     return type(document).__name__
 
 
-def _clean_up(cleanups: dict[str, list[str]], driver: Driver) -> list[str]:
+def _clean_up(
+    cleanups: dict[str, tuple[list[str], str]], driver: Driver, variables: dict[str, str]
+) -> list[str]:
     """Run each cleanup newest first; report failures on stderr and return them."""
     failures: list[str] = []
-    for arguments in reversed(list(cleanups.values())):
+    for arguments, shown in reversed(list(cleanups.values())):
         try:
             completed = driver.run(arguments)
         except Exception as error:  # a timeout must not stop the remaining cleanups
-            failures.append(f"`ycli {shlex.join(arguments)}`: {scrub(repr(error))}")
+            failures.append(f"`ycli {shown}`: {hidden(repr(error), variables)}")
             continue
         if completed.exit_code != 0:
             failures.append(
-                f"`ycli {shlex.join(arguments)}` exited {completed.exit_code}: "
-                f"{scrub(completed.stderr or completed.stdout)}"
+                f"`ycli {shown}` exited {completed.exit_code}: "
+                f"{hidden(completed.stderr or completed.stdout, variables)}"
             )
     for failure in failures:
         print(f"cleanup failed (the janitor retries): {failure}", file=sys.stderr)

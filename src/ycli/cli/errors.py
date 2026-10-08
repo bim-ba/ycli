@@ -11,15 +11,12 @@ is the one mapping from an error to the process exit status (see :class:`ExitCod
 
 from __future__ import annotations
 
-from http import HTTPStatus
 from typing import TypeGuard
 
 from pydantic import ValidationError
 
 from ycli.cli.exit_codes import ExitCode
 from ycli.settings import (
-    OAUTH_TOKEN_ENV,
-    ORGANIZATION_ID_ENV,
     AppConfig,
     Credentials,
     ProfileError,
@@ -35,23 +32,9 @@ from ycli.yandex.errors import (
     YandexServerError,
     YandexStaleContinuationError,
     YandexTimeoutError,
+    next_step,
 )
 from ycli.yandex.models import field_error
-
-_AUTH_HINT = (
-    "\nHint: run `ycli auth login` to (re)authenticate, or check that "
-    f"{OAUTH_TOKEN_ENV} and {ORGANIZATION_ID_ENV} are set."
-)
-# A 403 comes with a valid token: signing in again does not help, a permission or scope does.
-_PERMISSION_HINT = (
-    "\nHint: the token is valid but lacks access here — ask an administrator for permission "
-    "on this resource, or check that the token's OAuth scopes cover this service."
-)
-_NOT_FOUND_HINT = (
-    "\nHint: check the id or key, and that the token's organization and user can see it "
-    "(Yandex answers 404 for an object the caller may not read)."
-)
-
 
 _SETTINGS_TITLES = frozenset({AppConfig.__name__, Credentials.__name__})
 
@@ -78,14 +61,8 @@ def format_cli_error(exc: Exception) -> str:
         return f"Invalid configuration:\n  {exc}"
     if isinstance(exc, ValidationError):
         return "The request cannot be built:\n" + "\n".join(map(field_error, exc.errors()))
-    message = f"Error: {exc}"
-    if isinstance(exc, YandexAuthError):
-        return message + (_PERMISSION_HINT if exc.status == HTTPStatus.FORBIDDEN else _AUTH_HINT)
-    if isinstance(exc, YandexNotFoundError):
-        return message + _NOT_FOUND_HINT
-    if isinstance(exc, YandexRateLimitError):
-        return message + _rate_limit_hint(exc.retry_after)
-    return message
+    hint = next_step(exc)
+    return f"Error: {exc}" + (f"\nHint: {hint}" if hint else "")
 
 
 def exit_code_for(exc: Exception) -> ExitCode:
@@ -120,12 +97,6 @@ def exit_code_for(exc: Exception) -> ExitCode:
     if isinstance(exc, YandexServerError | YandexTimeoutError | YandexConnectionError):
         return ExitCode.TRANSIENT
     return ExitCode.FAILURE
-
-
-def _rate_limit_hint(retry_after: float | None) -> str:
-    """``Hint: … wait 30 s`` when the server sent ``Retry-After``, a generic wait otherwise."""
-    wait = "wait a little" if retry_after is None else f"wait {retry_after:g} s (Retry-After)"
-    return f"\nHint: the API is rate limiting this token — {wait}, then run the command again."
 
 
 def _is_invalid_configuration(exc: Exception) -> TypeGuard[ValidationError]:
