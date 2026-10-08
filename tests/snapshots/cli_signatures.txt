@@ -227,6 +227,7 @@ mcp start: --body-file:FILE --dry-run:BOOLEAN=False --exclude-tools:TEXT --field
 sync diff: --body-file:FILE --dry-run:BOOLEAN=False --exit-code:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --show-secrets:BOOLEAN=False --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATHS:PATH
 sync kinds: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 sync pull: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATH:PATH!
+sync push: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --on-error:CHOICE=<OnError.FAIL: 'fail'> --profile:TEXT --prune:TEXT --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATHS:PATH
 sync status: --body-file:FILE --dry-run:BOOLEAN=False --exit-code:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --show-unchanged:BOOLEAN=False --yes:BOOLEAN=False PATHS:PATH
 sync validate: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --kind:TEXT --profile:TEXT --yes:BOOLEAN=False PATHS:PATH
 tracker applications list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False

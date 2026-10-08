@@ -47,6 +47,8 @@ A sixth, `datalens/cloud-environments`, only lists the cloud environments, the R
 
 A seventh, `datalens/entries-content`, writes what a workbook holds: a connection (to a host that does not exist: DataLens saves a connection without trying it), a dataset, a chart of each of the three kinds, a dashboard and a report are made in a workbook of the run, saved again as they were read, and deleted.
 
+An eighth, `datalens/html-pages`, is the life of an HTML page in a workbook of the run: made, read, saved again, its preview address read, and deleted. It holds that an update with `--mode save` moves the saved version and leaves the published one.
+
 ## Scenario files
 
 `scenarios/<service>/<name>.yaml`, validated by `models.py` (unknown keys fail):

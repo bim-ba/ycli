@@ -50,6 +50,18 @@ steps:
       "length(structure.columns)": 2
     save:
       rev: revision
+  # A name taken by a column gets alternatives; a free one comes back as it is.
+  - id: column-suggest-taken
+    run: wiki grids columns suggest ${grid} --title Name
+    expect:
+      slug: name
+      occupied: true
+      "length(suggest) > `0`": true
+  - id: column-suggest-free
+    run: wiki grids columns suggest ${grid} --title "Brand new"
+    expect:
+      slug: brand-new
+      occupied: false
   - id: row-move
     run: wiki grids rows move ${grid} --revision ${rev} --row-id ${second} --position 0
     save:
@@ -83,8 +95,13 @@ steps:
     expect:
       "length(rows)": 1
       "length(structure.columns)": 1
-  - id: grid-delete
-    run: wiki grids delete ${grid}
+  # No --wait: the command prints the id of the operation, which the status read takes.
+  - id: grid-clone-async
+    run: wiki grids clone ${grid} --target ${RUN}/copy-async --title "${RUN} copy async" --no-wait
+    expect:
+      operation.type: clone_inline_grid
+    save:
+      grid_clone_op: operation.id
   - id: upload
     run: wiki attachments upload ${id} ${FILES}/note.txt
     expect:
@@ -95,17 +112,62 @@ steps:
     run: wiki attachments list ${id} --all
     expect:
       "length(@)": 1
+  - id: attachment-get
+    run: wiki attachments get ${id} ${file}
+    expect:
+      "to_string(id) == '${file}'": true
+      name: note.txt
+      mimetype: text/plain
+  - id: attachment-download
+    output: text
+    run: wiki attachments download ${id} ${file}
+    expect:
+      "contains(@, 'a note for the live scenarios')": true
+  # The address is <page slug>/.files/<file name>, without a leading slash (the download_url
+  # of the reply has one and the endpoint refuses it).
+  - id: attachment-download-by-url
+    output: text
+    run: wiki attachments download-by-url ${RUN}/.files/note.txt
+    expect:
+      "contains(@, 'a note for the live scenarios')": true
+  - id: image-upload
+    run: wiki attachments upload ${id} ${FILES}/square.png
+    expect:
+      "[0].mimetype": image/png
+    save:
+      image: "[0].id"
+  # The preview is binary: the bytes go to a file (the null device here), stdout stays empty.
+  - id: image-preview
+    output: text
+    run: wiki attachments previews-download ${id} ${image} --output /dev/null
+    expect:
+      "length(@)": 0
+  - id: image-delete
+    run: wiki attachments delete ${id} ${image}
   - id: attachment-delete
     run: wiki attachments delete ${id} ${file}
   - id: session
     run: wiki uploadsessions create --file-name note.txt --file-size 30
     save:
       session: session_id
+  - id: session-get
+    run: wiki uploadsessions get ${session}
+    expect:
+      session_id: ${session}
+      file_name: note.txt
+      file_size: 30
+      status: in_progress
+      "finished_at == null": true
   - id: session-part
     run: wiki uploadsessions parts-upload ${session} ${FILES}/note.txt --part-number 1
   - id: session-finish
     run: wiki uploadsessions finish ${session}
     expect:
+      "finished_at != null": true
+  - id: session-finished
+    run: wiki uploadsessions get ${session}
+    expect:
+      status: finished
       "finished_at != null": true
   - id: attach
     run: wiki attachments attach ${id} --session-ids ${session}
@@ -125,6 +187,29 @@ steps:
     run: wiki comments create ${id} --body "note ${RUN}"
     save:
       comment: id
+  - id: reply
+    run: wiki comments create ${id} --body "reply ${RUN}" --parent-id ${comment}
+    expect:
+      "to_string(parent_id) == '${comment}'": true
+    save:
+      reply: id
+  # thread-list rebuilds the thread (the comment, then its replies) from the page's comments.
+  - id: thread-list
+    run: wiki comments thread-list ${id} ${comment}
+    expect:
+      "length(@)": 2
+      "[0].content": note ${RUN}
+      "[1].content": reply ${RUN}
+  # The server's own thread endpoint answers an empty list for every thread (checked live
+  # 2026-10-02, see the SDK docstring); a list is all this step holds it to.
+  - id: thread-get
+    run: wiki comments thread-get ${id} ${comment}
+    expect:
+      "type(@)": array
+  - id: reply-delete
+    run: wiki comments delete ${id} ${reply}
+    expect:
+      comments_count: 1
   - id: comment-delete
     run: wiki comments delete ${id} ${comment}
     expect:
@@ -151,11 +236,45 @@ steps:
     run: wiki pages clone ${id} --target ${RUN}/clone --title "${RUN} clone"
   - id: move
     run: wiki pages move ${RUN}/clone ${RUN}/moved
+  # The same two without --wait: each prints the id of its operation, and the status reads
+  # come after other commands so that the operations have finished.
+  - id: clone-async
+    run: wiki pages clone ${id} --target ${RUN}/clone-async --title "${RUN} clone async" --no-wait
+    expect:
+      operation.type: clone
+    save:
+      clone_op: operation.id
+  - id: move-async
+    run: wiki pages move ${RUN}/moved ${RUN}/moved-async --no-wait
+    expect:
+      operation.type: move
+    save:
+      move_op: operation.id
+  - id: clone-status
+    run: wiki operations clone-get ${clone_op}
+    expect:
+      status: success
+      "result.page.slug": ${RUN}/clone-async
+  - id: move-status
+    run: wiki operations move-get ${move_op}
+    expect:
+      status: success
+      result.page_count: 1
+  - id: grid-clone-status
+    run: wiki operations clone-inline-grid-get ${grid_clone_op}
+    expect:
+      status: success
+      "result.grid_id != null": true
+  # Only now: the clone above was still reading this grid while it ran.
+  - id: grid-delete
+    run: wiki grids delete ${grid}
   - id: tree
     run: wiki pages descendants-list ${RUN} --include-self --all
     expect:
-      "length(@)": 3
-      "contains([].slug, '${RUN}/moved')": true
+      "length(@)": 5
+      "contains([].slug, '${RUN}/moved-async')": true
+      "contains([].slug, '${RUN}/clone-async')": true
+      "contains([].slug, '${RUN}/copy-async')": true
   - id: delete
     run: wiki pages delete ${id} --recursive
     disarms: [create]
