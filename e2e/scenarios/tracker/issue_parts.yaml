@@ -38,10 +38,11 @@ steps:
     save:
       picture: id
   - id: thumbnail
-    # The thumbnail is a PNG, which the runner cannot read as text, so the bytes are written
-    # to /dev/null: the step proves that Tracker handed one over (the exit status), not what it
-    # shows.
-    run: tracker attachments thumbnails-download ${key} ${picture} --output /dev/null
+    # The thumbnail of a PNG is a PNG: the step holds that by the first bytes of what came.
+    output: bytes
+    run: tracker attachments thumbnails-download ${key} ${picture}
+    expect:
+      "starts_with(head, '89504e47')": true
   - id: picture-delete
     run: tracker attachments delete ${key} ${picture}
   - id: temporary-file
