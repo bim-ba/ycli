@@ -393,7 +393,7 @@ npx skills add bim-ba/ycli/plugins/yandex-360
 | Что нужно | Что написать |
 |---|---|
 | самый новый релиз при каждом запуске | `uvx --from 'yandex-cli[mcp]@latest' ycli mcp start` |
-| одна фиксированная версия | `uvx --from 'yandex-cli[mcp]==0.123.1' ycli mcp start` |
+| одна фиксированная версия | `uvx --from 'yandex-cli[mcp]==0.124.0' ycli mcp start` |
 | один раз обновить копию | `uvx --refresh-package yandex-cli --from 'yandex-cli[mcp]' ycli --version` |
 
 ## Если не работает { #if-it-does-not-work }
