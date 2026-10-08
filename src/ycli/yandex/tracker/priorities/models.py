@@ -50,9 +50,9 @@ class PriorityCreate(RequestBody):
 
     key: str = Field(description="Key of the new priority.")
     name: LocalizedName = Field(description="Localized display name of the priority.")
-    order: int | None = Field(
-        default=None,
-        description="Weight controlling the priority's display order in the interface.",
+    order: int = Field(
+        description="Weight controlling the priority's display order in the interface. "
+        "The API refuses a priority without it (measured).",
     )
     description: str | None = Field(default=None, description="Description of the priority.")
 

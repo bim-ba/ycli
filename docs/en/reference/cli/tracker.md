@@ -1555,9 +1555,9 @@ $ ycli tracker priorities create [OPTIONS]
 **Options**:
 
 * `--key TEXT`: Key of the new priority.  [required]
+* `--order INTEGER`: Display-order weight of the priority.  [required]
 * `--name-ru TEXT`: Priority name in Russian.
 * `--name-en TEXT`: Priority name in English.
-* `--order INTEGER`: Display-order weight of the priority.
 * `--description TEXT`: Description of the priority.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2146,7 +2146,7 @@ $ ycli tracker queues create [OPTIONS]
 * `--lead TEXT`: Login or id of the queue owner (lead).  [required]
 * `--default-type TEXT`: Key/id of the default issue type.  [required]
 * `--default-priority TEXT`: Key/id of the default priority.  [required]
-* `--issue-type-config TEXT`: issueTypesConfig row as JSON, e.g. '{"issueType":"task","workflow":"oicn"}' (repeatable).
+* `--issue-type-config TEXT`: issueTypesConfig row as JSON, e.g. '{"issueType":"task","workflow":"oicn"}' (repeatable; a queue needs at least one).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2625,6 +2625,8 @@ $ ycli tracker fields get [OPTIONS] FIELD_ID
 ### `ycli tracker fields create`
 
 Create a global field (POST /fields).
+
+A name is unique among the fields: one that is taken answers 422 (measured).
 
 **Usage**:
 

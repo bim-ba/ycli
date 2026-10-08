@@ -240,47 +240,6 @@ CASES = [
             )
         ],
     ),
-    # Without --issue-type-config no issueTypesConfig key is sent.
-    Case(
-        "tracker.queues.create",
-        args=(
-            QueueCreate(
-                key="MIN", name="Minimal", lead="owner", default_type="bug", default_priority="low"
-            ),
-        ),
-        cli=[
-            "tracker",
-            "queues",
-            "create",
-            "--key",
-            "MIN",
-            "--name",
-            "Minimal",
-            "--lead",
-            "owner",
-            "--default-type",
-            "bug",
-            "--default-priority",
-            "low",
-        ],
-        mcp=None,
-        exchanges=[
-            (
-                Sent(
-                    "POST",
-                    "queues/",
-                    json={
-                        "key": "MIN",
-                        "name": "Minimal",
-                        "lead": "owner",
-                        "defaultType": "bug",
-                        "defaultPriority": "low",
-                    },
-                ),
-                Reply(json={"key": "MIN"}, status=201),
-            )
-        ],
-    ),
     Case(
         "tracker.queues.delete",
         args=("GONE",),

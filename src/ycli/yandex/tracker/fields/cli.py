@@ -55,7 +55,10 @@ def create(
     *,
     tracker: TrackerClient,
 ) -> CustomField:
-    """Create a global field (POST /fields)."""
+    """Create a global field (POST /fields).
+
+    A name is unique among the fields: one that is taken answers 422 (measured).
+    """
     body = FieldCreate(
         name=LocalizedName(ru=name_ru, en=name_en),
         id=id_,
