@@ -15,7 +15,8 @@ which applies the injection; a sub-app used on its own needs ``inject_dependenci
 
 The same rewrite gives each command the global options of :mod:`ycli.cli.global_options`, so
 they are accepted after the subcommand as well as before it, and ends a ``--dry-run`` command
-at its first write (:class:`~ycli.cli.guard.DryRunPlanned`), returning the planned request.
+at its first write (:class:`~ycli.yandex.core.guard.RequestPlanned`), returning the planned
+request.
 
 Kill-criterion: delete this module when Typer ships its own dependency injection.
 """
@@ -36,7 +37,7 @@ from ycli.cli.global_options import (
     leaf_parameters,
     refuse_fields,
 )
-from ycli.cli.guard import DryRunPlanned
+from ycli.yandex.core.guard import RequestPlanned
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -122,7 +123,7 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
         }
         try:
             result = command(*args, **kwargs, **dependencies)
-        except DryRunPlanned as planned:  # --dry-run: the first write became its plan
+        except RequestPlanned as planned:  # --dry-run: the first write became its plan
             return planned.plan
         fields = app_context.caller_fields
         if fields.given and not fields.taken:

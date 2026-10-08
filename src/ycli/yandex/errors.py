@@ -36,6 +36,10 @@ class YandexStaleContinuationError(YandexError):
     """
 
 
+class YandexDeclinedError(YandexError):
+    """An operation that destroys data was not confirmed by the one asked; nothing was sent."""
+
+
 class YandexNotConfiguredError(YandexError):
     """The credentials cannot reach this service as they are; the message says what to set.
 
