@@ -287,7 +287,7 @@ class InProcessDriver(Driver):
             return CommandResult(int(exit_code_for(error)), result.stdout, format_cli_error(error))
         if error is not None and not isinstance(error, SystemExit):
             raise error
-        return CommandResult(result.exit_code, result.stdout, result.stderr)
+        return CommandResult(result.exit_code, result.stdout, result.stderr, result.stdout_bytes)
 
 
 @contextlib.contextmanager

@@ -185,6 +185,8 @@ mcp = new_server("forms-surveys")
 What every server of ycli must do is added there once. Today that is `ArgumentRefusals`: a
 refusal of a tool's arguments names the path and what is wrong, and never repeats what was
 sent, whether the server is the root one, a service's, or one resource's run by itself.
+And `NextSteps`: a tool's error ends with the next step the CLI prints under `Hint:`
+(`ycli.yandex.errors.next_step`, the one place that holds the words).
 
 ### Why `<domain>_client` is a per-request provider
 

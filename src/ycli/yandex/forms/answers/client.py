@@ -143,7 +143,6 @@ class AnswersClient(Resource):
         """
         return self._session.send(endpoints.export_results_get(survey_id, task_id))
 
-    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def export_download(self, survey_id: str, task_id: str) -> bytes:
         """The exported file's raw bytes, once :meth:`export_results_get` reports it ready.
 
