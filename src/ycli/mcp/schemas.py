@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Annotated, Any
 from fastmcp.exceptions import ToolError
 from pydantic import Field, RootModel, TypeAdapter
 
-from ycli.yandex.mcp import RO, SCHEMA_ADDRESS, new_server
+from ycli.yandex.mcp import ALWAYS_LOAD, RO, SCHEMA_ADDRESS, new_server
 from ycli.yandex.models import APIModel, KindByOwnField, RequestBody
 
 if TYPE_CHECKING:
@@ -152,7 +152,9 @@ def schema_server(
         )
 
     @server.tool(
-        name="get", annotations={**RO, "title": "Read the schema of a tool's body or reply"}
+        name="get",
+        annotations={**RO, "title": "Read the schema of a tool's body or reply"},
+        meta=ALWAYS_LOAD,
     )
     async def get(
         service: Annotated[
