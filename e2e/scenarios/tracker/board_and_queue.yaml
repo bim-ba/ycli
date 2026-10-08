@@ -7,6 +7,12 @@ steps:
     run: tracker me get
     save:
       login: login
+      me: uid
+  - id: me-as-user
+    run: tracker users get ${me}
+    expect:
+      login: ${login}
+      "to_string(uid)": ${me}
   - id: board
     # A board takes a backlog and sprints together: the API refuses one without the other.
     run: tracker boards create --name "${RUN} board" --owner ${login} --permissions private --backlog --sprints
@@ -17,6 +23,11 @@ steps:
     run: tracker boards update ${board} --name "${RUN} board renamed"
     expect:
       name: ${RUN} board renamed
+  - id: board-read
+    run: tracker boards get ${board}
+    expect:
+      "to_string(id)": ${board}
+      name: ${RUN} board renamed
   - id: column
     run: tracker columns create ${board} --name "${RUN} column" --status needInfo
     save:
@@ -25,6 +36,15 @@ steps:
     run: tracker columns update ${board} ${column} --name "${RUN} column renamed" --status needInfo
     expect:
       name: ${RUN} column renamed
+  - id: column-read
+    run: tracker columns get ${board} ${column}
+    expect:
+      "to_string(id)": ${column}
+      name: ${RUN} column renamed
+  - id: columns-read
+    run: tracker columns list ${board}
+    expect:
+      "length([?name == '${RUN} column renamed'])": 1
   - id: column-delete
     run: tracker columns delete ${board} ${column}
   - id: sprint
@@ -54,24 +74,15 @@ steps:
     run: tracker sprints archive ${sprint} --version ${version}
     expect:
       archived: true
+  - id: sprints-read
+    run: tracker sprints list ${board}
+    expect:
+      "length([?name == '${RUN} sprint renamed'])": 1
   - id: sprint-delete
     run: tracker sprints delete ${sprint}
   - id: board-delete
     run: tracker boards delete ${board}
     disarms: [board]
-  - id: component
-    run: tracker components create --name "${RUN} component" --queue ${QUEUE} --description Frontend
-    save:
-      component: id
-      version: version
-    cleanup: tracker components delete ${component}
-  - id: component-rename
-    run: tracker components update ${component} --name "${RUN} component renamed" --description Renamed --version ${version}
-    expect:
-      name: ${RUN} component renamed
-  - id: component-delete
-    run: tracker components delete ${component}
-    disarms: [component]
   - id: filter
     run: 'tracker filters create --name "${RUN} filter" --query "Queue: ${QUEUE}"'
     save:
@@ -80,6 +91,11 @@ steps:
   - id: filter-rename
     run: 'tracker filters update ${filter} --name "${RUN} filter renamed" --query "Queue: ${QUEUE} Resolution: empty()"'
     expect:
+      name: ${RUN} filter renamed
+  - id: filter-read
+    run: tracker filters get ${filter}
+    expect:
+      "to_string(id)": ${filter}
       name: ${RUN} filter renamed
   - id: filter-delete
     run: tracker filters delete ${filter}
@@ -92,6 +108,11 @@ steps:
   - id: macro-rename
     run: tracker macros update ${QUEUE} ${macro} --name "${RUN} macro renamed" --body "New text"
     expect:
+      name: ${RUN} macro renamed
+  - id: macro-read
+    run: tracker macros get ${QUEUE} ${macro}
+    expect:
+      "to_string(id)": ${macro}
       name: ${RUN} macro renamed
   - id: macro-delete
     run: tracker macros delete ${QUEUE} ${macro}
@@ -106,6 +127,56 @@ steps:
     run: tracker projects update ${project} --version ${version} --queues ${QUEUE} --name "${RUN} old project renamed"
     expect:
       name: ${RUN} old project renamed
+  - id: project-read
+    run: tracker projects get ${project}
+    expect:
+      "to_string(id)": ${project}
+      name: ${RUN} old project renamed
+  - id: project-queues
+    # Tracker answers an empty list even for a project created with --queues (and for one
+    # holding an issue of the queue, seen 2026-10-08), so only the reply's kind is asserted.
+    run: tracker projects queues-list ${project}
+    expect:
+      "type(@)": array
   - id: project-delete
     run: tracker projects delete ${project}
     disarms: [project]
+  # Last, because it stands on how the caller got its access: a group that may write in the
+  # sandbox queue, found through the permissions of the caller
+  # (Tracker has no list of groups): the component of the run is asked about the same group.
+  - id: queue-group
+    run: tracker queues user-permissions-get ${QUEUE} ${me}
+    save:
+      group: permissions.WRITE.groups[0].id
+  - id: queue-group-permissions
+    run: tracker queues group-permissions-get ${QUEUE} ${group}
+    expect:
+      "to_string(group.id)": ${group}
+  - id: component
+    run: tracker components create --name "${RUN} component" --queue ${QUEUE} --description Frontend
+    save:
+      component: id
+      version: version
+    cleanup: tracker components delete ${component}
+  - id: component-rename
+    run: tracker components update ${component} --name "${RUN} component renamed" --description Renamed --version ${version}
+    expect:
+      name: ${RUN} component renamed
+  - id: component-read
+    run: tracker components get ${component}
+    expect:
+      "to_string(id)": ${component}
+      name: ${RUN} component renamed
+  - id: component-user-permissions
+    run: tracker components user-permissions-get ${component} ${me}
+    expect:
+      "to_string(component.id)": ${component}
+      "to_string(user.id)": ${me}
+  - id: component-group-permissions
+    run: tracker components group-permissions-get ${component} ${group}
+    expect:
+      "to_string(component.id)": ${component}
+      "to_string(group.id)": ${group}
+  - id: component-delete
+    run: tracker components delete ${component}
+    disarms: [component]

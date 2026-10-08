@@ -1,0 +1,44 @@
+# What `ycli sync` stands on for a page (the kind `wiki/page`): a page read and sent back as it
+# was read is the same page, and a change of one field changes that field alone. The fields
+# are those of `PageUpdate` that the read gives: the title and the text.
+name: wiki/page-round-trip
+steps:
+  - id: create
+    run: wiki pages create --slug ${RUN} --title "${RUN} round trip" --content "seed" --is-silent
+    save:
+      id: id
+    cleanup: wiki pages delete ${id}
+  # The text of a real page: a heading, inline marks, a list and a table, with its last newline.
+  - id: write
+    run: wiki pages update ${id} -F content=@${FILES}/page_round_trip.md
+  - id: read
+    run: wiki pages get-by-id ${id} --fields content
+    expect:
+      title: ${RUN} round trip
+      "contains(content, '| 1 | 2 |')": true
+    save:
+      title: title
+      content: content
+  - id: revisions
+    run: wiki pages revisions-list ${id} --all
+    save:
+      revisions: "to_string(length(@))"
+  - id: send-back
+    run: wiki pages update ${id} --title '${title}' --content '${content}'
+  - id: same
+    run: wiki pages get-by-id ${id} --fields content
+    expect:
+      title: ${title}
+      content: ${content}
+  # A save that changes nothing makes no revision (measured).
+  - id: no-new-revision
+    run: wiki pages revisions-list ${id} --all
+    expect:
+      "to_string(length(@))": ${revisions}
+  - id: rename
+    run: wiki pages update ${id} --title "${RUN} renamed"
+  - id: only-the-title-changed
+    run: wiki pages get-by-id ${id} --fields content
+    expect:
+      title: ${RUN} renamed
+      content: ${content}

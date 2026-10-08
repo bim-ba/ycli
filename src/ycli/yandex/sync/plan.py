@@ -132,6 +132,9 @@ def compared(
     )
 
 
+type Entry = tuple[Planned, Kind[Any, Any] | None, Document[Any, Any] | None]
+
+
 def plan(
     root: Path,
     scopes: Sequence[PurePosixPath],
@@ -141,6 +144,31 @@ def plan(
     show_secrets: bool = False,
 ) -> list[Planned]:
     """Compare each file under ``scopes`` with the object it stands for, reading the server.
+
+    Args:
+        root: The root of the repository.
+        scopes: The files and directories to look at; none means the directory of every
+            service that has a kind.
+        kinds: The declared kinds.
+        senders: Gives the client of a service by its name.
+        show_secrets: Show secrets as they are in a difference.
+
+    Returns:
+        One entry per file and per object without a file, by path.
+    """
+    found = entries(root, scopes, kinds, senders, show_secrets=show_secrets)
+    return [planned for planned, _, _ in found]
+
+
+def entries(
+    root: Path,
+    scopes: Sequence[PurePosixPath],
+    kinds: Sequence[Kind[Any, Any]],
+    senders: Callable[[str], Sender],
+    *,
+    show_secrets: bool = False,
+) -> list[Entry]:
+    """The plan with what ``push`` needs to carry it out: the kind and the file, read.
 
     A file that names no object is read from nowhere. A path that names a container and is
     no file has the container listed too, and an object in it that has no file is said.
@@ -154,12 +182,13 @@ def plan(
         show_secrets: Show secrets as they are in a difference.
 
     Returns:
-        One entry per file and per object without a file, by path.
+        One entry per file and per object without a file, by path, each with its kind and
+        its file where there is one.
     """
     by_name = {kind.name: kind for kind in kinds}
     suffixes = {kind.layout.suffix for kind in kinds}
     everything = sorted({PurePosixPath(tree_of(kind).service) for kind in kinds})
-    planned: dict[str, Planned] = {}
+    planned: dict[str, Entry] = {}
     for scope in scopes or everything:
         listed: dict[PurePosixPath, tuple[Kind[Any, Any], Document[Any, Any] | None]] = {}
         if not (root / scope).is_file():
@@ -178,14 +207,14 @@ def plan(
                 kind, local = read_file(path, (root / path).read_text("utf-8"), by_name)
             except UnreadableFile as refusal:
                 detail = f"line {refusal.line}: {refusal.reason}"
-                planned[str(path)] = Planned(path=str(path), state=State.UNREADABLE, detail=detail)
+                unreadable = Planned(path=str(path), state=State.UNREADABLE, detail=detail)
+                planned[str(path)] = (unreadable, None, None)
                 continue
             state, detail = offline_state(kind, local)
             if state in {State.CREATE, State.UNSUPPORTED} and local.link.hash is None:
                 # It names no object: there is nothing on the server to read.
-                planned[str(path)] = Planned(
-                    path=str(path), kind=kind.name, state=state, detail=detail
-                )
+                new = Planned(path=str(path), kind=kind.name, state=state, detail=detail)
+                planned[str(path)] = (new, kind, local)
                 continue
             try:
                 server = (
@@ -194,23 +223,23 @@ def plan(
                     else read_one(kind, senders(tree_of(kind).service), local)
                 )
             except YandexNotFoundError:
-                planned[str(path)] = Planned(path=str(path), kind=kind.name, state=State.GONE)
+                gone = Planned(path=str(path), kind=kind.name, state=State.GONE)
+                planned[str(path)] = (gone, kind, local)
                 continue
             if server is None:
-                planned[str(path)] = Planned(
-                    path=str(path),
-                    kind=kind.name,
-                    state=State.UNSUPPORTED,
-                    detail=f"the object is not one a {kind.name} file keeps",
-                )
+                why = f"the object is not one a {kind.name} file keeps"
+                other = Planned(path=str(path), kind=kind.name, state=State.UNSUPPORTED, detail=why)
+                planned[str(path)] = (other, kind, local)
                 continue
-            planned[str(path)] = compared(kind, local, server, show_secrets=show_secrets)
+            both = compared(kind, local, server, show_secrets=show_secrets)
+            planned[str(path)] = (both, kind, local)
         for path, (kind, document) in listed.items():
             if document is not None and str(path) not in planned:
-                planned[str(path)] = Planned(
+                absent = Planned(
                     path=str(path),
                     kind=kind.name,
                     state=State.NO_FILE,
                     detail="`ycli sync pull` writes it",
                 )
+                planned[str(path)] = (absent, kind, None)
     return [planned[path] for path in sorted(planned)]

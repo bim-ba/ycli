@@ -20,7 +20,7 @@ from __future__ import annotations
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import httpx2
 
@@ -62,7 +62,22 @@ def _with_body(request: httpx2.Request, fields: Mapping[str, Any]) -> httpx2.Req
 
 
 class Pagination(ABC):
-    """One kind of pagination: shape the first request, derive each next one."""
+    """One kind of pagination: shape the first request, derive each next one.
+
+    ``replayable`` says whether a page can be asked for twice and answer the same: where the
+    server keeps the place itself (a scroll), it cannot, so a listing is cut only between
+    pages and a token to go on works once. ``stale_statuses`` are the statuses the service
+    answers a continuation it no longer takes with.
+    """
+
+    replayable: ClassVar[bool] = True
+    stale_statuses: ClassVar[frozenset[int]] = frozenset({400, 404, 410, 422})
+    total_header: ClassVar[str] = "X-Total-Count"
+
+    def total(self, response: httpx2.Response) -> int | None:
+        """How many items the whole listing has, where the service says so."""
+        told = response.headers.get(self.total_header)
+        return int(told) if told is not None and told.isdigit() else None
 
     def first(self, request: httpx2.Request) -> httpx2.Request:
         """The first page's request (by default the endpoint's own request)."""
@@ -130,7 +145,12 @@ class ScrollPagination(Pagination):
 
     The first request opens the scroll with the endpoint's own parameters; each reply names the
     next page in ``X-Scroll-Id``, and a reply with no items or no such header ends the listing.
+    The server keeps the place and moves it with every request (measured: the same id twice
+    answers two different pages), and answers an id it no longer keeps with ``403``.
     """
+
+    replayable: ClassVar[bool] = False
+    stale_statuses: ClassVar[frozenset[int]] = Pagination.stale_statuses | {403}
 
     scroll_param: str = "scrollId"
     scroll_header: str = "X-Scroll-Id"

@@ -138,6 +138,31 @@ class GapInput(RequestBody):
     )
 
 
+class GapsSearch(RequestBody):
+    """Typed request body for ``gaps.search`` (``POST /gaps/_search``).
+
+    Examples:
+        >>> GapsSearch(users=["ann"], date_from="2026-07-01T00:00:00.000Z").model_dump(
+        ...     exclude_none=True, mode="json"
+        ... )
+        {'users': ['ann'], 'from': '2026-07-01T00:00:00.000Z'}
+    """
+
+    users: list[str] = Field(description="Logins or ids of the users to look up (up to 100).")
+    date_from: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("from", "date_from"),
+        serialization_alias="from",
+        description="Start of the window (ISO 8601); now when omitted.",
+    )
+    date_to: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("to", "date_to"),
+        serialization_alias="to",
+        description="End of the window (ISO 8601); must be after the start.",
+    )
+
+
 class GapsCreate(RequestBody):
     """Typed request body for ``gaps.create`` (``POST /gaps``): up to 100 absences.
 

@@ -66,12 +66,14 @@ def _problems(kind: Kind[Any, Any], recorded: set[str]) -> list[str]:
         elif name not in recorded:
             found.append(f"{role}: {name} has no contract case")
         try:
-            undecided = arguments_of(given).undecided
+            marked = arguments_of(given)
         except (NameError, TypeError) as error:
             found.append(f"{role}: the marks of {name} cannot be read ({error})")
             continue
-        if undecided:
-            found.append(f"{role}: {name} has an argument nobody decides: {list(undecided)}")
+        if marked.undecided:
+            found.append(f"{role}: {name} has an argument nobody decides: {list(marked.undecided)}")
+        if role in {"create", "update"} and marked.body is None:
+            found.append(f"{role}: {name} takes no body, so the content of a file goes nowhere")
         for held in _containers(operation):
             if not held.startswith(f"{PACKAGE}{service}.") or find_spec(f"{held}.client") is None:
                 found.append(f"{role}: the container of {name} is no resource of {service}: {held}")
@@ -187,6 +189,9 @@ def _kind(**changed: Any) -> Kind[Any, Any]:
         (_kind(read=partial(_needs_a_value, expand="all")), None),
         (_kind(read=_in_a_page), "the container of tracker.triggers.get is no resource of tracker"),
         (_kind(read=_in_a_service), "is no resource of tracker: ycli.yandex.tracker"),
+        # What writes an object takes its content: the engine has nowhere else to put a file.
+        (_kind(update=_get), "update: tracker.triggers.get takes no body"),
+        (_kind(create=_get), "create: tracker.triggers.get takes no body"),
     ],
 )
 def test_the_check_of_a_kind_bites(kind, said):
