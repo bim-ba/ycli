@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.131.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.130.1
+  ([`a4fbfdf`](https://github.com/bim-ba/ycli/commit/a4fbfdf48f0db6627f10fdf50cc152c9123703be))
+
+### Features
+
+- **cli**: `ycli --help` says of each service what the MCP server's instructions say
+  ([`aebf1fd`](https://github.com/bim-ba/ycli/commit/aebf1fd80dad13202c5db34a787344fb2a120935))
+
+
 ## v0.130.1 (2026-10-08)
 
 ### Bug Fixes
