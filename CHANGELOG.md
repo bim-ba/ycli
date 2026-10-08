@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.3 (2026-10-08)
+
+### Bug Fixes
+
+- **e2e**: A failed step prints what the run learned from the service by its name, not its value
+  ([`c35bedc`](https://github.com/bim-ba/ycli/commit/c35bedc83c3753d222ea527381ced67096a2c643))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.2
+  ([`783d6d1`](https://github.com/bim-ba/ycli/commit/783d6d19de17e22928ed168bad93fe4967b8b103))
+
+
 ## v0.127.2 (2026-10-08)
 
 ### Bug Fixes
