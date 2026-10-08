@@ -325,10 +325,10 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 
 ### Enforcement
 
-`tests/architecture/test_arch8.py::test_arch8_mcp_write_tool_bodies_are_typed` AST-walks every
-`mcp.py`, `client.py` and `endpoints.py` and fails the build on a bare `dict`/`dict[...]`
-`body` parameter; `test_arch8_a_request_body_is_dumped_only_by_the_endpoint` fails on a
-`.model_dump(` in any of the three. Both are fail-closed, with no exception today.
+The ast-grep rule `body-is-a-model` reads every `mcp.py`, `client.py` and `endpoints.py` and
+fails the build on a `body` parameter typed `dict` or `Mapping`;
+`tests/architecture/test_arch8.py::test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
+fails on a `.model_dump(` in any of the three. Both are fail-closed, with no exception today.
 
 `tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema`
 asserts that every registered tool has a non-empty `description` and a non-`None`
