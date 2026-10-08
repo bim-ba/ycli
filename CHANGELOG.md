@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.127.1 (2026-10-08)
+
+### Bug Fixes
+
+- **core**: A token names the way its listing pages, and a listing given whole is not truncated
+  ([`601e023`](https://github.com/bim-ba/ycli/commit/601e0238e044be28554804c4d650cb1f792030ed))
+
+### Build System
+
+- Re-lock uv.lock for 0.127.0
+  ([`fe04b07`](https://github.com/bim-ba/ycli/commit/fe04b070a6741ff179a8969fa00eb56523280ede))
+
+
 ## v0.127.0 (2026-10-08)
 
 ### Build System
