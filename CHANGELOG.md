@@ -9,6 +9,33 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.125.0 (2026-10-08)
+
+### Build System
+
+- Re-lock uv.lock for 0.124.2
+  ([`4af65be`](https://github.com/bim-ba/ycli/commit/4af65be8d436bf4ffccc2d8c0390351138beed86))
+
+### Documentation
+
+- **datalens**: What the API deletes stays in the interface's deleted objects; an editor chart's
+  data read times out
+  ([`2acab40`](https://github.com/bim-ba/ycli/commit/2acab40a72e0ebbd00ccbd746ef7f91d561b6278))
+
+- **wiki**: An upload's reply is early about the preview of an image
+  ([`8e9bde8`](https://github.com/bim-ba/ycli/commit/8e9bde824c8597018dfdafe5ce8704a775778819))
+
+### Features
+
+- **sync**: A how-to page, and `sync` has no MCP tools: an agent runs the command
+  ([`62f1d13`](https://github.com/bim-ba/ycli/commit/62f1d13291d523be23ea5483b6871fbbd8cdbeb2))
+
+### Testing
+
+- **e2e**: The resolution of a closed issue is read from the issue, not from a search right after
+  ([`ea599ab`](https://github.com/bim-ba/ycli/commit/ea599abb870625ff4b2cc6781fbc75d56e608dc7))
+
+
 ## v0.124.2 (2026-10-08)
 
 ### Bug Fixes
