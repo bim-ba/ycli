@@ -1587,6 +1587,8 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 
 Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API).
 
+Give --slug or --title, exactly one: the API answers 400 for neither and for both.
+
 **Usage**:
 
 ```console
