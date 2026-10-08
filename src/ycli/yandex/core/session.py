@@ -54,6 +54,7 @@ from ycli.yandex.errors import (
     YandexStaleContinuationError,
     describe_error_body,
     error_for_status,
+    status_line,
 )
 
 if TYPE_CHECKING:
@@ -120,8 +121,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
         return response
     detail = describe_error_body(response.text)
     message = (
-        f"{response.status_code} {response.reason_phrase} for {request.method} "
-        f"{shown(request.url)}: {detail}"
+        f"{status_line(response.status_code)} for {request.method} {shown(request.url)}: {detail}"
     )
     raise error_for_status(
         response.status_code,
