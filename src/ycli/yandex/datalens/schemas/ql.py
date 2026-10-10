@@ -38,7 +38,8 @@ class GetQLChartArgs(RequestBody):
     include_favorite: bool | None = Field(
         default=None,
         alias="includeFavorite",
-        description="Include favorite status in the response.",
+        deprecated=True,
+        description="Include favorite status in the response. Deprecated: the parameter will be removed in a future API version.",
     )
     branch: shared.EntryBranch | None = None
 

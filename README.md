@@ -382,13 +382,15 @@ Timeouts, retries, limits, logging and the exit codes are in the [configuration 
 | [embeds](https://yandex.cloud/en/docs/datalens/api-ref/Embeds/) | [list](https://yandex.cloud/en/docs/datalens/api-ref/Embeds/rpclistEmbeds-post) · [create](https://yandex.cloud/en/docs/datalens/api-ref/Embeds/rpccreateEmbed-post) · [update](https://yandex.cloud/en/docs/datalens/api-ref/Embeds/rpcupdateEmbed-post) · [delete](https://yandex.cloud/en/docs/datalens/api-ref/Embeds/rpcdeleteEmbed-post) | ✅ | ✅ |
 | [embeddingsecrets](https://yandex.cloud/en/docs/datalens/api-ref/EmbeddingSecrets/) | [get](https://yandex.cloud/en/docs/datalens/api-ref/EmbeddingSecrets/rpcgetEmbeddingSecret-post) · [list](https://yandex.cloud/en/docs/datalens/api-ref/EmbeddingSecrets/rpclistEmbeddingSecrets-post) · [create](https://yandex.cloud/en/docs/datalens/api-ref/EmbeddingSecrets/rpccreateEmbeddingSecret-post) · [delete](https://yandex.cloud/en/docs/datalens/api-ref/EmbeddingSecrets/rpcdeleteEmbeddingSecret-post) | ✅ | ✅ |
 
-**Not covered** (7)
+**Not covered** (9)
 
+- ○ `POST /rpc/checkFavorites`: new section published 2026-10, wrapping not decided
 - ○ [`POST /rpc/createFolder`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpccreateFolder-post): the old placement model (folders); the organization has none to check it on (#394)
 - ○ [`POST /rpc/deleteFolder`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcdeleteFolder-post): the old placement model (folders); the organization has none to check it on (#394)
 - ○ [`POST /rpc/dlsSuggest`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcdlsSuggest-post): the old placement model (folders); the organization has none to check it on (#394)
 - ○ [`POST /rpc/getPermissions`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcgetPermissions-post): the old placement model (folders); the organization has none to check it on (#394)
 - ○ [`POST /rpc/listDirectory`](https://yandex.cloud/en/docs/datalens/api-ref/Navigation/rpclistDirectory-post): the old placement model (folders); the organization has none to check it on (#394)
+- ○ `POST /rpc/listFavorites`: new section published 2026-10, wrapping not decided
 - ○ [`POST /rpc/modifyPermissions`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcmodifyPermissions-post): the old placement model (folders); the organization has none to check it on (#394)
 - ○ [`POST /rpc/moveFolderEntry`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcmoveFolderEntry-post): the old placement model (folders); the organization has none to check it on (#394)
 
@@ -405,7 +407,7 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 | Tracker | 190 | 188 | 0 (+2 on purpose) | 0 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
 | Wiki | 56 | 56 | 0 | 0 | 24 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
 | Forms | 84 | 84 | 0 | 8 | 26 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
-| DataLens | 141 | 134 | 0 (+7 on purpose) | 0 | 131 of 131 | [OpenAPI](https://api.datalens.tech/json/) |
+| DataLens | 143 | 134 | 0 (+9 on purpose) | 0 | 131 of 131 | [OpenAPI](https://api.datalens.tech/json/) |
 
 <details>
 <summary><b>Tracker: what differs</b></summary>
@@ -456,11 +458,13 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 | Operation | Why |
 |---|---|
+| `POST /rpc/checkFavorites` | new section published 2026-10, wrapping not decided |
 | [`POST /rpc/createFolder`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpccreateFolder-post) | the old placement model (folders); the organization has none to check it on (#394) |
 | [`POST /rpc/deleteFolder`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcdeleteFolder-post) | the old placement model (folders); the organization has none to check it on (#394) |
 | [`POST /rpc/dlsSuggest`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcdlsSuggest-post) | the old placement model (folders); the organization has none to check it on (#394) |
 | [`POST /rpc/getPermissions`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcgetPermissions-post) | the old placement model (folders); the organization has none to check it on (#394) |
 | [`POST /rpc/listDirectory`](https://yandex.cloud/en/docs/datalens/api-ref/Navigation/rpclistDirectory-post) | the old placement model (folders); the organization has none to check it on (#394) |
+| `POST /rpc/listFavorites` | new section published 2026-10, wrapping not decided |
 | [`POST /rpc/modifyPermissions`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcmodifyPermissions-post) | the old placement model (folders); the organization has none to check it on (#394) |
 | [`POST /rpc/moveFolderEntry`](https://yandex.cloud/en/docs/datalens/api-ref/Folder/rpcmoveFolderEntry-post) | the old placement model (folders); the organization has none to check it on (#394) |
 

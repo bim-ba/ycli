@@ -36,7 +36,8 @@ class GetEditorChartArgs(RequestBody):
     include_favorite: bool | None = Field(
         default=None,
         alias="includeFavorite",
-        description="Include favorite status in the response.",
+        deprecated=True,
+        description="Include favorite status in the response. Deprecated: the parameter will be removed in a future API version.",
     )
     branch: shared.EntryBranch | None = None
 
@@ -562,7 +563,8 @@ class GetEditorChartResult(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Indicates if the chart is marked as favorite.",
+        deprecated=True,
+        description="Indicates if the chart is marked as favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: GetEditorChartResultPermissions | None = None
 

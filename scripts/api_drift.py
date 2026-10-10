@@ -90,6 +90,13 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
             *("getPermissions", "modifyPermissions", "dlsSuggest"),
         )
     },
+    # Favorites: a new section, published in 2026-10; wrapping it is not decided.
+    **{
+        ("datalens", "POST", f"/rpc/{name}"): (
+            "new section published 2026-10, wrapping not decided"
+        )
+        for name in ("checkFavorites", "listFavorites")
+    },
 }
 
 # A difference that stays, with its reason: one name of one kind (``GAP_KINDS``), either on one
