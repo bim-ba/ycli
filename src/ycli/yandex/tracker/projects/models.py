@@ -54,12 +54,15 @@ class ProjectCreate(RequestBody):
     """Typed request body for ``projects.create`` (``POST /projects``).
 
     Examples:
-        >>> ProjectCreate(name="Launch", queues="TEST").model_dump(exclude_none=True)
-        {'name': 'Launch', 'queues': 'TEST'}
+        >>> ProjectCreate(name="Launch").model_dump(exclude_none=True)
+        {'name': 'Launch'}
     """
 
     name: str = Field(description="Name of the project.")
-    queues: str = Field(description="Key of the queue whose issues go into the project.")
+    queues: str | None = Field(
+        default=None,
+        description="Key of a queue. The service accepts the field and binds no queue.",
+    )
     description: str | None = Field(default=None, description="Description of the project.")
     lead: str | int | None = Field(default=None, description="Login or id of the project's lead.")
     status: ProjectStatus | None = Field(default=None, description="Stage of the project.")

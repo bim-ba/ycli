@@ -70,8 +70,8 @@ def queues_list(
 def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client)) -> Project:
     """Create a project (legacy Projects API).
 
-    ``name`` and ``queues`` (a queue key) are required, ``status`` is DRAFT, IN_PROGRESS,
-    LAUNCHED or POSTPONED. Returns the project.
+    ``name`` is required, ``status`` is DRAFT, IN_PROGRESS, LAUNCHED or POSTPONED. The
+    service accepts ``queues`` (a queue key) and binds no queue. Returns the project.
     """
     return client.projects.create(body)
 

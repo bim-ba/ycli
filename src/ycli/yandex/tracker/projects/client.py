@@ -75,10 +75,11 @@ class ProjectsClient(Resource):
         """``POST /projects`` → create a project from a typed ``ProjectCreate`` body.
 
         Projects v3 is the legacy API (entities replace it): the test organization accepted
-        ``queues`` but bound no queue, so ``queues`` of the new project came back empty.
+        ``queues`` but bound no queue, so ``queues`` of the new project came back empty,
+        the same as for a body without it.
 
         Args:
-            body: The new project's name, queues and optional fields.
+            body: The new project's name and optional fields.
 
         Returns:
             The created project.
