@@ -155,6 +155,30 @@ def _named(organization: str) -> str:
     return f"{name}{colon}{quote(identifier, safe='._-')}"
 
 
+def organization_of(organization: str) -> str:
+    """``organization`` as a session holds it: ``Name: id`` of its one header, or nothing.
+
+    Args:
+        organization: What ``ServiceProfile.organization`` gives, or ``""``.
+
+    Returns:
+        ``organization`` itself.
+
+    Raises:
+        ValueError: It is in another form: a token could not be made of it.
+
+    Examples:
+        >>> organization_of("Org: 7"), organization_of("")
+        ('Org: 7', '')
+    """
+    if not re.fullmatch(_ORGANIZATION, _named(organization)):
+        raise ValueError(
+            "the organization of a session is `Name: id`, the header that names it and its "
+            "id, as `ServiceProfile.organization` gives it, or empty"
+        )
+    return organization
+
+
 def _quoted(held: str) -> str:
     """Text of a token as a refusal may say it: itself when short and plain, else unquoted."""
     return held if _PLAIN.fullmatch(held) else "another"
@@ -243,7 +267,10 @@ def _of(state: Continuation, organization: str) -> Continuation:
     """``state``, of a token given in the organization it was returned in; else refused."""
     if state.org != _named(organization):
         name, _, identifier = state.org.partition(": ")
-        theirs = f"{name}: {_quoted(identifier)}" if state.org else "none"
+        # The name of the header is the token's text as well: it is said only when it is the
+        # call's own, which the call gave.
+        same_kind = name == organization.partition(": ")[0]
+        theirs = f"{name}: {_quoted(identifier)}" if same_kind else "of another kind"
         told = OF_ANOTHER_ORGANIZATION.format(theirs, organization or "none")
         raise YandexInvalidRequestError(told)
     return state

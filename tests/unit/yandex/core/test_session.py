@@ -13,7 +13,13 @@ from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION, Endpoint, Paged
 from ycli.yandex.core.pagination import CursorPagination, PageNumberPagination
 from ycli.yandex.core.profile import ServiceProfile
-from ycli.yandex.core.session import connect, connect_async, default_transport
+from ycli.yandex.core.session import (
+    AsyncSession,
+    SyncSession,
+    connect,
+    connect_async,
+    default_transport,
+)
 from ycli.yandex.errors import (
     YandexAuthError,
     YandexClientError,
@@ -463,3 +469,15 @@ def test_shown_masks_a_secret_query_parameter():
 
     url = httpx2.URL("https://api.test/v1/items?apikey=hunter2&q=1")
     assert str(shown(url)) == "https://api.test/v1/items?apikey=%2A%2A%2A&q=1"
+
+
+@pytest.mark.parametrize("organization", ["7", "X-Org-Id:7", "X Org: 7", ": 7"])
+def test_a_session_is_given_its_organization_as_a_header_and_an_id_or_not_at_all(organization):
+    """What `connect` builds; given by hand in another form, it is refused here, not at a token."""
+    client = httpx2.Client(base_url="https://api.test/v1/")
+    with pytest.raises(ValueError, match="the organization of a session is `Name: id`"):
+        SyncSession(client, organization=organization)
+    with pytest.raises(ValueError, match="the organization of a session is `Name: id`"):
+        AsyncSession(httpx2.AsyncClient(), organization=organization)
+    assert SyncSession(client, organization="X-Org-Id: o 7/x")  # any id, under a header's name
+    assert SyncSession(client)  # a service that names none
