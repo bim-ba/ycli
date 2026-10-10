@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.137.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.136.0
+  ([`b79c29b`](https://github.com/bim-ba/ycli/commit/b79c29b299ef1cdcd5863d136ab487a28f0acb10))
+
+### Features
+
+- A token names its organization, and a scroll is released by the token of its search
+  ([#567](https://github.com/bim-ba/ycli/pull/567),
+  [`93d21f8`](https://github.com/bim-ba/ycli/commit/93d21f82d3b567b7e98c5d9480dd25894a578d00))
+
+### Breaking Changes
+
+- `tracker.issues.scroll_clear` takes `next: str` in place of a `ScrollClear` body; `ycli tracker
+  issues scroll-clear` takes `--next TOKEN` in place of `--pair`; the tool
+  `tracker_issues_scroll_clear` takes `next` in place of `body`. A `next` token returned by an
+  earlier version no longer goes on: start the listing again.
+
+
 ## v0.136.0 (2026-10-10)
 
 ### Build System
