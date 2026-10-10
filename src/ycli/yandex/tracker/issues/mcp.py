@@ -31,7 +31,6 @@ from ycli.yandex.tracker.issues.models import (
     IssueCreate,
     IssueSearch,
     IssueUpdate,
-    ScrollClear,
     ScrollType,
     filter_body,
 )
@@ -225,13 +224,19 @@ def move(
     name="issues_scroll_clear",
     annotations={**WRITE_IDEMPOTENT, "title": "Clear Tracker search scroll"},
 )
-def scroll_clear(body: ScrollClear, client: TrackerClient = Depends(tracker_client)) -> Ack:
-    """Release the server resources of a scrolled issue search (harmless housekeeping).
+def scroll_clear(
+    next: Annotated[
+        str,
+        Field(description="The `next` a search by a scroll returned: it names the scroll."),
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> Ack:
+    """Release the scroll of an issue search before it expires (harmless housekeeping).
 
-    ``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
-    ``issues.search`` response. Returns an acknowledgement on success.
+    Only a search by a scroll (`scroll_type`) has something to release; after this its
+    `next` goes on nowhere. Returns an acknowledgement on success.
     """
-    client.issues.scroll_clear(body)
+    client.issues.scroll_clear(next)
     return Ack.cleared("search scroll resources")
 
 

@@ -280,13 +280,16 @@ def _run_step(
         outcome = "passed" if completed.exit_code == 0 else "failed"
         count = "1 retry" if retries == 1 else f"{retries} retries"
         retried.append(f"{scenario.name}/{step.id}: {outcome} after {count} ({step.retry.when})")
-    if completed.exit_code != 0:
+    if completed.exit_code != step.exits:
         after = f" (after {retries} retries)" if retries else ""
         shown = shlex.join(render_command(step.run, named(variables)))
+        wanted = f", not {step.exits}" if step.exits else ""
         raise ScenarioError(
-            f"{where} `ycli {shown}` exited {completed.exit_code}{after}: "
+            f"{where} `ycli {shown}` exited {completed.exit_code}{wanted}{after}: "
             f"{hidden(completed.stderr or completed.stdout, variables)}"
         )
+    if step.exits:
+        return  # the refusal was the point: there is no output to read
     document = _parse(where, step, completed)
     for expression, wanted in step.expect.items():
         query = render(expression, variables)

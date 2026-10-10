@@ -11,6 +11,7 @@ from ycli.yandex.core.pagination import ScrollPagination
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.tracker.issues import endpoints
+from ycli.yandex.tracker.issues.models import ScrollClear
 
 if TYPE_CHECKING:
     from ycli.yandex.core.listing import Listing
@@ -27,8 +28,12 @@ if TYPE_CHECKING:
         IssueCreate,
         IssueSearch,
         IssueUpdate,
-        ScrollClear,
     )
+
+#: What a token that is not of a scroll is told by :meth:`IssuesClient.scroll_clear`.
+NOT_OF_A_SCROLL = (
+    "this token is not of a scroll: only a search by a scroll has something to release"
+)
 
 
 class IssuesClient(Resource):
@@ -237,12 +242,26 @@ class IssuesClient(Resource):
             )
         )
 
-    def scroll_clear(self, body: ScrollClear) -> None:
-        """Release a search scroll's server resources (``POST …/scroll/_clear``).
+    def scroll_clear(self, next: str) -> None:
+        """Release the scroll a search goes on by, before it expires (``POST …/scroll/_clear``).
+
+        The ``next`` of a search by a scroll holds the scroll's id and the scroll's own token,
+        which is all it takes; after it the token goes on nowhere. That token is of no use
+        without the caller's credentials, and dies with the scroll.
 
         Args:
-            body: The scroll ids mapped to their scroll tokens.
+            next: What :meth:`search` by a scroll returned as ``next``.
+
+        Raises:
+            YandexInvalidRequestError: The token is of anything but a scroll: there is
+                nothing to release.
         """
+        kept = self._session.kept_of(next)
+        of_a_scroll = self._session.way_of(next) == ScrollPagination.__name__
+        if not of_a_scroll or not {"scrollId", "scrollToken"} <= kept.keys():
+            # violation(arch-9): the token is ycli's own and names no scroll: nothing to send
+            raise YandexInvalidRequestError(NOT_OF_A_SCROLL)
+        body = ScrollClear({kept["scrollId"]: kept["scrollToken"]})
         self._session.send(endpoints.scroll_clear(body))
 
     def update_bulk(

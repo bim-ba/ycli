@@ -207,8 +207,11 @@ class SyncSession:
         http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
         guard: Guard | None = None,
+        organization: str = "",
     ) -> None:
         self._client = client
+        #: The organization every request names: a token of a listing is of it, and no other.
+        self._organization = organization
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send
@@ -273,7 +276,15 @@ class SyncSession:
         )
         longest = self._http.max_token_length
         asked = paged.endpoint.request(self._client)
-        walk = Walk(paged, asked, first, limit=limit, token=next, longest_token=longest)
+        walk = Walk(
+            paged,
+            asked,
+            first,
+            limit=limit,
+            token=next,
+            longest_token=longest,
+            organization=self._organization,
+        )
 
         def pages() -> Iterator[I]:
             asked = 0
@@ -303,6 +314,18 @@ class SyncSession:
         """
         return continuation.way_of(token, longest=self._http.max_token_length)
 
+    def kept_of(self, token: str) -> dict[str, str]:
+        """What the way of paging of ``token`` kept from the replies of its listing.
+
+        Args:
+            token: What an earlier call returned as ``next``, in this organization.
+
+        Returns:
+            What was kept (a scroll: its id and its token); empty for most ways of paging.
+        """
+        longest, asked_in = self._http.max_token_length, self._organization
+        return continuation.kept_of(token, longest=longest, organization=asked_in)
+
     def close(self) -> None:
         """Close the underlying ``httpx2.Client``."""
         self._client.close()
@@ -318,8 +341,11 @@ class AsyncSession:
         http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
         guard: Guard | None = None,
+        organization: str = "",
     ) -> None:
         self._client = client
+        #: The organization every request names: a token of a listing is of it, and no other.
+        self._organization = organization
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send
@@ -384,7 +410,15 @@ class AsyncSession:
         )
         longest = self._http.max_token_length
         asked = paged.endpoint.request(self._client)
-        walk = Walk(paged, asked, first, limit=limit, token=next, longest_token=longest)
+        walk = Walk(
+            paged,
+            asked,
+            first,
+            limit=limit,
+            token=next,
+            longest_token=longest,
+            organization=self._organization,
+        )
 
         async def pages() -> AsyncIterator[I]:
             asked = 0
@@ -414,6 +448,18 @@ class AsyncSession:
             The name of the pagination, for a method that serves two operations of one path.
         """
         return continuation.way_of(token, longest=self._http.max_token_length)
+
+    def kept_of(self, token: str) -> dict[str, str]:
+        """What the way of paging of ``token`` kept from the replies of its listing.
+
+        Args:
+            token: What an earlier call returned as ``next``, in this organization.
+
+        Returns:
+            What was kept (a scroll: its id and its token); empty for most ways of paging.
+        """
+        longest, asked_in = self._http.max_token_length, self._organization
+        return continuation.kept_of(token, longest=longest, organization=asked_in)
 
     async def aclose(self) -> None:
         """Close the underlying ``httpx2.AsyncClient``."""
@@ -455,7 +501,10 @@ def connect(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return SyncSession(client, http=http, before_send=before_send, guard=guard)
+    organization = profile.organization(organization_id, cloud_organization_id)
+    return SyncSession(
+        client, http=http, before_send=before_send, guard=guard, organization=organization
+    )
 
 
 def connect_async(
@@ -480,4 +529,7 @@ def connect_async(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return AsyncSession(client, http=http, before_send=before_send, guard=guard)
+    organization = profile.organization(organization_id, cloud_organization_id)
+    return AsyncSession(
+        client, http=http, before_send=before_send, guard=guard, organization=organization
+    )

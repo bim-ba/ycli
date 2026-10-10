@@ -157,7 +157,7 @@ $ ycli tracker issues [OPTIONS] COMMAND [ARGS]...
 * `update`: Update issue ISSUE_KEY (PATCH...
 * `move`: Move issue ISSUE_KEY to another QUEUE...
 * `suggest`: Suggest issues whose summary contains...
-* `scroll-clear`: Release search-scroll resources (POST...
+* `scroll-clear`: Release the scroll of a search before it...
 * `update-bulk`: Mass-edit issues (POST /bulkchange/_update).
 * `move-bulk`: Mass-move issues to another QUEUE (POST...
 * `transition-bulk`: Mass status transition (POST...
@@ -395,9 +395,10 @@ $ ycli tracker issues suggest [OPTIONS] INPUT
 
 ### `ycli tracker issues scroll-clear`
 
-Release search-scroll resources (POST /system/search/scroll/_clear).
+Release the scroll of a search before it expires (POST /system/search/scroll/_clear).
 
-Pass each ``--pair scrollId=scrollToken`` from a scrolled ``issues search``.
+Only ``issues search --scroll-type`` has something to release; after this its token goes
+on nowhere.
 
 **Usage**:
 
@@ -407,7 +408,7 @@ $ ycli tracker issues scroll-clear [OPTIONS]
 
 **Options**:
 
-* `--pair TEXT`: scrollId=scrollToken pair to release (repeatable).
+* `--next TOKEN`: The token a search by a scroll printed: it names the scroll to release.  [required]
 * `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

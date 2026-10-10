@@ -18,7 +18,6 @@ from ycli.yandex.tracker.issues.models import (
     IssueCreate,
     IssueSearch,
     IssueUpdate,
-    ScrollClear,
     ScrollType,
     count_body,
     filter_body,
@@ -255,18 +254,23 @@ def suggest(
 
 @app.command("scroll-clear")
 def scroll_clear(
-    pair: Annotated[
-        list[str] | None,
-        typer.Option("--pair", help="scrollId=scrollToken pair to release (repeatable)."),
-    ] = None,
+    next_: Annotated[
+        str,
+        typer.Option(
+            "--next",
+            metavar="TOKEN",
+            help="The token a search by a scroll printed: it names the scroll to release.",
+        ),
+    ],
     *,
     tracker: TrackerClient,
 ) -> Ack:
-    """Release search-scroll resources (POST /system/search/scroll/_clear).
+    """Release the scroll of a search before it expires (POST /system/search/scroll/_clear).
 
-    Pass each ``--pair scrollId=scrollToken`` from a scrolled ``issues search``.
+    Only ``issues search --scroll-type`` has something to release; after this its token goes
+    on nowhere.
     """
-    tracker.issues.scroll_clear(ScrollClear(parse_fields(pair)))
+    tracker.issues.scroll_clear(next_)
     return Ack.cleared("search scroll resources")
 
 
