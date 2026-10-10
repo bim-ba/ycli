@@ -277,6 +277,8 @@ A user who already holds a personal access is refused: change it with ``access_u
 Read the current accesses with ``pages_get_by_id`` and
 ``fields="access_policy,access_lists"``.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page. |
@@ -289,6 +291,8 @@ Read the current accesses with ``pages_get_by_id`` and
 Change the role or reach of one access entry on a wiki page.
 
 The page owner's own entry cannot be changed.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

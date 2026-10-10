@@ -954,6 +954,8 @@ addition: taking a user out of ``read`` took it out of ``write`` too (seen once,
 2026-10-06), so read the returned set after a removal. Adding a member that is there
 already changes nothing.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
@@ -2128,6 +2130,8 @@ actions, each mapping an access level (``READ``/``WRITE``/``GRANT``) to users/gr
 e.g. ``{"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}``. Read the current
 ACL first with ``entities_permissions_get``.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
@@ -2143,6 +2147,8 @@ Grant and revoke an entity's direct rights; the rest stay as they are.
 ``grant`` and ``revoke`` each map READ / WRITE / GRANT to ``users`` (logins or ids),
 ``groups`` (ids) and ``roles`` (AUTHOR, OWNER, CLIENT, FOLLOWER, MEMBER). Returns the
 resulting rights. Read them first with ``entities_permissions_get_direct``.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

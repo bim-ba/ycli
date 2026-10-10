@@ -71,13 +71,16 @@ $ ycli tracker issues search 'Queue: DE' --limit 100 --next eyJ2IjoxLCJvZiI6… 
 
 A token carries its listing: with `--next`, give nothing but the limit and what the command cannot be called without, and that as it was: an argument that differs from the token's is refused by its name, never passed over. A token of a Tracker issue search by a scroll (`--scroll-type`) works once; any other token works again. It also holds the scroll's own token, so `ycli tracker issues scroll-clear --next TOKEN` releases the scroll before it expires; that token is of no use without your credentials and dies with the scroll. A token goes on only in the organization it was returned in: under another account it is refused, not run. A listing that can no longer go on exits with `9`: start it again without the token. A run that asks more pages than `YCLI__HTTP__MAX_PAGES` stops there and says so the same way, with a token to go on from. A small first `--limit` sets the size of the pages for every piece after it, so take the first piece as large as the ones you mean to go on with.
 
-## Delete without a prompt
+## Delete or grant access without a prompt
 
-A command that destroys data asks for confirmation at a terminal. In a script there is no one to ask, so it fails with exit code 2 until you pass `--yes` / `-y`:
+A command that destroys data, or that grants access (a role on a form or a page, permissions of a queue, an access binding or an embedding in DataLens), asks for confirmation at a terminal. In a script there is no one to ask, so it fails with exit code 2 until you pass `--yes` / `-y`:
 
 ```bash
 ycli tracker boards delete 7 --yes
+ycli wiki access create 7 --role reader --user-uid 9001 --yes
 ```
+
+The help of a command that grants access says so. `--dry-run` asks nothing: it sends nothing.
 
 ## Preview a write
 

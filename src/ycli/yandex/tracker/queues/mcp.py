@@ -10,6 +10,7 @@ from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -173,6 +174,7 @@ def restore(queue_id: QueueID, client: TrackerClient = Depends(tracker_client)) 
 @mcp.tool(
     name="queues_permissions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker queue permissions"},
+    meta=GRANTS_ACCESS,
 )
 def permissions_update(
     queue_id: QueueID, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)

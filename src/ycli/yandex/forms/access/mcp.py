@@ -9,6 +9,7 @@ from ycli.yandex.forms.access.models import AccessGrant, AccessRevoke, AccessUpd
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     RO,
     WRITE_IDEMPOTENT,
     SurveyID,
@@ -33,6 +34,7 @@ def list_(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> I
 @mcp.tool(
     name="access_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms survey access level"},
+    meta=GRANTS_ACCESS,
 )
 def update(
     survey_id: SurveyID,
@@ -46,6 +48,7 @@ def update(
 @mcp.tool(
     name="access_grant",
     annotations={**WRITE_IDEMPOTENT, "title": "Grant Forms survey access"},
+    meta=GRANTS_ACCESS,
 )
 def grant(
     survey_id: SurveyID,

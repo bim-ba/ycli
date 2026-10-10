@@ -61,6 +61,13 @@ WRITE_TAG = "write"
 # hides tools behind a search step keeps it in sight. Claude Code reads this key
 # (https://code.claude.com/docs/en/mcp, "Exempt a server from deferral"); others pass it by.
 ALWAYS_LOAD: dict[str, bool] = {"anthropic/alwaysLoad": True}
+# Meta of a tool whose operation grants access (``Endpoint.grants_access``): a client that
+# honours it asks a person on every call, whatever mode it runs in, and denies the call where
+# nobody can be asked. Claude Code reads this key (https://code.claude.com/docs/en/mcp,
+# "Require approval for a specific tool", v2.1.214 or later); others pass it by, so the
+# description of the tool says it in words (``ycli.mcp.listing.GrantsSaid``).
+GRANTS_ACCESS: dict[str, bool] = {"anthropic/requiresUserInteraction": True}
+GRANTS_ACCESS_SAID = "Grants access: a client that honours the mark asks a person on every call."
 # Meta keys of a prompt and of a resource template: the root-server tool names a prompt's
 # text tells the model to call, and the read tool a resource repeats. The server offers
 # neither when one of those tools is not served (ycli.mcp.listing.ServedWithTheirTools).

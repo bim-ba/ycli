@@ -17,6 +17,7 @@ import pytest
 from pydantic import BaseModel, RootModel
 from typer.testing import CliRunner
 
+from tests.contract import confirmed
 from tests.contract.test_contract import CASES, _serve
 from ycli.cli.app import app
 from ycli.cli.inject import NO_NAME
@@ -39,8 +40,7 @@ def _printed(case: Case, output_format: str, monkeypatch: pytest.MonkeyPatch) ->
     for name, value in case.env.items():
         monkeypatch.setenv(name, value)
     _serve(monkeypatch, case)
-    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
-    result = CliRunner().invoke(app, ["--format", output_format, *confirmed, *case.cli])
+    result = CliRunner().invoke(app, ["--format", output_format, *confirmed(case), *case.cli])
     assert result.exit_code == 0, result.output
     return result.stdout_bytes
 
@@ -174,8 +174,7 @@ def _named(case: Case, monkeypatch: pytest.MonkeyPatch) -> tuple[Any, Any]:
     for name, value in case.env.items():
         monkeypatch.setenv(name, value)
     api = _serve(monkeypatch, case)
-    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
-    return CliRunner().invoke(app, ["--format", "name", *confirmed, *case.cli]), api
+    return CliRunner().invoke(app, ["--format", "name", *confirmed(case), *case.cli]), api
 
 
 def test_every_sparse_operation_has_a_case_that_leaves_an_item_unnamed(monkeypatch):

@@ -1,12 +1,16 @@
 """The CLI's gate on destructive operations: asks first, ``--yes`` skips, no terminal refuses."""
 
+import asyncio
 from http import HTTPMethod
 
 import httpx2
 import pytest
 import typer
+from fastmcp import Client
 from typer.testing import CliRunner
 
+from tests import full_server
+from tests.contract import help_of, load_cases
 from tests.hosts import TRACKER_BASE
 from ycli.cli import guard
 from ycli.cli.app import app
@@ -155,3 +159,81 @@ def test_a_command_with_its_own_yes_keeps_its_meaning(api, monkeypatch):
     monkeypatch.setattr(status_cli, "OAuthAppConfig", lambda: type("C", (), {"client_id": ""})())
     result = runner.invoke(app, ["auth", "login", "--yes"])
     assert "No OAuth app configured" in result.output  # it parsed `--yes` and ran
+
+
+def _check_grant(options: dict) -> None:
+    """The same, for a write that grants access and destroys nothing."""
+    grant = Endpoint(HTTPMethod.POST, "items/7", effect=Effect.WRITE, grants_access=True)
+    guard_of(options).check(grant, httpx2.Request("POST", "https://api.test/v1/items/7"))
+
+
+def test_a_grant_asks_in_words_of_its_own(asked, monkeypatch, capsys):
+    _attended(monkeypatch, True)
+    _check_grant({})
+    assert asked == ["POST https://api.test/v1/items/7 — this grants access. Continue?"]
+    _check_grant({"yes": True})
+    assert len(asked) == 1  # --yes asks nothing
+    _attended(monkeypatch, False)
+    with pytest.raises(typer.Exit) as stopped:
+        _check_grant({})
+    assert stopped.value.exit_code == ExitCode.USAGE
+    said = capsys.readouterr().err
+    assert "this grants access. Pass --yes to confirm; there is no terminal" in said
+
+
+def test_without_a_terminal_a_delete_and_a_grant_say_which_they_are(monkeypatch, capsys):
+    _attended(monkeypatch, False)
+    with pytest.raises(typer.Exit):
+        _check({})
+    assert "this deletes data. Pass --yes" in capsys.readouterr().err
+
+
+GRANT_ACCESS = ["wiki", "access", "create", "7", "--role", "editor", "--user-uid", "9001"]
+
+
+def test_a_command_that_grants_access_asks_and_a_dry_run_of_it_does_not(api, asked, monkeypatch):
+    """Through the real entry point: the prompt, `--yes`, and `--dry-run`, which asks nobody."""
+    api.add(
+        "POST", "https://api.wiki.yandex.net/v1/pages/7/access", json={"id": "a1", "role": "editor"}
+    )
+    _attended(monkeypatch, True)
+    planned = runner.invoke(app, ["-o", "json", *GRANT_ACCESS, "--dry-run"])
+    assert planned.exit_code == 0, planned.output
+    assert asked == [] and api.calls == []
+    sent = runner.invoke(app, ["-o", "json", *GRANT_ACCESS])
+    assert sent.exit_code == 0, sent.output
+    assert len(asked) == 1 and asked[0].endswith("/pages/7/access — this grants access. Continue?")
+    runner.invoke(app, ["-o", "json", *GRANT_ACCESS, "--yes"])
+    assert len(asked) == 1 and len(api.calls) == 2
+    _attended(monkeypatch, False)
+    refused = runner.invoke(app, GRANT_ACCESS)
+    assert refused.exit_code == ExitCode.USAGE and len(api.calls) == 2
+    assert "this grants access. Pass --yes" in refused.stderr
+
+
+def test_the_help_of_a_command_says_it_grants_access_where_its_tool_is_marked():
+    """One fact, on both surfaces: the contract test holds the tool's mark to the operation.
+
+    The count is pinned on purpose: a mark and its meta taken off together agree with each
+    other and with the help, and only the number says that an operation stopped asking.
+    """
+
+    async def marked() -> set[str]:
+        async with Client(full_server.mcp) as client:
+            return {
+                tool.name
+                for tool in await client.list_tools()
+                if (tool.meta or {}).get("anthropic/requiresUserInteraction") is True
+            }
+
+    marks = asyncio.run(marked())
+    said, wrong = set(), []
+    for case in load_cases():
+        if case.cli is None or case.mcp is None:
+            continue
+        says = guard.GRANTS_ACCESS_HELP in help_of(case.cli)
+        said |= {case.mcp[0]} if says else set()
+        if says != (case.mcp[0] in marks):
+            wrong.append(case.id)
+    assert not wrong
+    assert said == marks and len(marks) == 14

@@ -7,7 +7,8 @@ ask: the CLI on a terminal and with ``--yes``, a caller of the SDK with a functi
 - a read goes out;
 - with ``dry_run`` a write does not: :class:`RequestPlanned` carries the request it would
   have sent, and the surface shows it in place of a result;
-- an operation that destroys data is confirmed first, where there is someone to ask.
+- an operation that destroys data, or grants access, is confirmed first, where there is
+  someone to ask.
 
 Examples:
     >>> import httpx2
@@ -28,7 +29,7 @@ from dataclasses import dataclass
 from typing import Any, Self
 
 import httpx2
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, Effect, Endpoint
 from ycli.yandex.core.session import shown
@@ -65,6 +66,14 @@ class PlannedRequest(APIModel):
     method: str = Field(description="The HTTP method.")
     url: str = Field(description="The address, with a secret in its query masked.")
     body: Any = Field(default=None, description="The body, with every secret in it masked.")
+    # For the one who asks, so the question says what it is about: no field of the plan, so
+    # it is in no dump of it and in no table.
+    _grants_access: bool = PrivateAttr(default=False)
+
+    @property
+    def grants_access(self) -> bool:
+        """Whether the request grants access, as its operation says."""
+        return self._grants_access
 
     @classmethod
     def of(cls, request: httpx2.Request) -> Self:
@@ -123,15 +132,16 @@ class Guard:
 
     Args:
         dry_run: Send no write: stop at the first one and show it.
-        confirm: Asked before an operation that destroys data, with the request about to go
-            out; ``False`` keeps it from being sent. ``None``: nobody to ask, so it is sent.
+        confirm: Asked before an operation that destroys data or grants access, with the
+            request about to go out; ``False`` keeps it from being sent. ``None``: nobody to
+            ask, so it is sent.
     """
 
     dry_run: bool = False
     confirm: Callable[[PlannedRequest], bool] | None = None
 
     def check(self, endpoint: Endpoint[Any], request: httpx2.Request) -> None:
-        """Pass a read; plan a write under ``dry_run``; confirm what destroys data.
+        """Pass a read; plan a write under ``dry_run``; confirm what destroys or grants.
 
         Args:
             endpoint: The operation about to be sent.
@@ -145,9 +155,11 @@ class Guard:
             return
         if self.dry_run:
             raise RequestPlanned(PlannedRequest.of(request))
-        if endpoint.effect is not Effect.DESTRUCTIVE or self.confirm is None:
+        asked_about = endpoint.effect is Effect.DESTRUCTIVE or endpoint.grants_access
+        if not asked_about or self.confirm is None:
             return
         plan = PlannedRequest.of(request)
+        plan._grants_access = endpoint.grants_access
         if not self.confirm(plan):
             raise YandexDeclinedError(
                 f"{plan.method} {plan.url} was not confirmed; nothing was sent", url=plan.url

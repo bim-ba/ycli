@@ -50,6 +50,8 @@ def create(
 
     The private key is given once: `get` and `list` do not return it. Keep it at once, in a
     file nobody else reads: `ycli -o json datalens embeddingsecrets create … > secret.json`.
+
+    Grants access: asks before it is sent (--yes to skip).
     """
     return datalens.embeddingsecrets.create(title=title, workbook_id=workbook_id)
 

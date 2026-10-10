@@ -61,7 +61,7 @@ docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
 
 ## Commands that do not wait
 
-- **Deletes need `--yes`.** A command that destroys data asks for confirmation; with no terminal it exits with code 2 instead. Pass `--yes` when the pipeline is meant to delete.
+- **Deletes and grants need `--yes`.** A command that destroys data, or that grants access (a role on a form or a page, permissions of a queue or an entity, an access binding, a licence or an embedding in DataLens), asks for confirmation; with no terminal it exits with code 2 instead. Pass `--yes` when the pipeline is meant to do it. The help of a command that grants access says so.
 - **Output is JSON.** Without a terminal ycli prints JSON, so `jq` reads it: `ycli tracker issues get TRACKER-1 | jq .key`.
 - **Try it first.** `--dry-run` prints the request a write would send and sends nothing.
 

@@ -6,6 +6,8 @@ write, and the answer prints
 through the normal output path, so ``-o``, ``--yes`` and ``--dry-run`` work as they do
 everywhere. The request is an :class:`~ycli.yandex.core.endpoint.Endpoint` sent through the
 service's own client, so its effect follows the method: a ``DELETE`` asks for ``--yes``.
+Nothing here says that a path grants access, so a grant sent this way is not asked about: the
+commands of the resources are, each by the mark of its operation.
 """
 
 from __future__ import annotations

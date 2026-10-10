@@ -8,6 +8,7 @@ from pydantic import Field
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
@@ -46,7 +47,11 @@ def list_(
     return client.embeds.list(entry_id)
 
 
-@mcp.tool(name="embeds_create", annotations={**WRITE, "title": "Create DataLens embed"})
+@mcp.tool(
+    name="embeds_create",
+    annotations={**WRITE, "title": "Create DataLens embed"},
+    meta=GRANTS_ACCESS,
+)
 def create(
     title: Title,
     embedding_secret_id: SigningSecretID,
@@ -74,7 +79,11 @@ def create(
     )
 
 
-@mcp.tool(name="embeds_update", annotations={**WRITE_IDEMPOTENT, "title": "Update DataLens embed"})
+@mcp.tool(
+    name="embeds_update",
+    annotations={**WRITE_IDEMPOTENT, "title": "Update DataLens embed"},
+    meta=GRANTS_ACCESS,
+)
 def update(
     embed_id: EmbedID,
     title: Title,

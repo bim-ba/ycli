@@ -159,7 +159,7 @@ def permissions_update(
     entity_type: str, entity_id: str, body: PermissionsUpdate
 ) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
-    return Endpoint(HTTPMethod.PATCH, path, ExtendedPermissions, json=body)
+    return Endpoint(HTTPMethod.PATCH, path, ExtendedPermissions, json=body, grants_access=True)
 
 
 def permissions_get_direct(entity_type: str, entity_id: str) -> Endpoint[ACL]:
@@ -170,7 +170,11 @@ def permissions_update_direct(
     entity_type: str, entity_id: str, body: DirectPermissionsUpdate
 ) -> Endpoint[ACL]:
     return Endpoint(
-        HTTPMethod.PATCH, f"{_entity(entity_type, entity_id)}/permissions", ACL, json=body
+        HTTPMethod.PATCH,
+        f"{_entity(entity_type, entity_id)}/permissions",
+        ACL,
+        json=body,
+        grants_access=True,
     )
 
 

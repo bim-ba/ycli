@@ -12,8 +12,8 @@ from tests.hosts import TRACKER_BASE
 from ycli.mcp.listing import UnknownToolError
 from ycli.mcp.profiles import ALWAYS_SERVED, CORE_TOOLS, SCHEMA_TOOL, STATUS_TOOL
 from ycli.mcp.selection import CORE, Selection, split_names
-from ycli.mcp.server import build_server, check_tool_names
-from ycli.yandex.mcp import WRITE_TAG
+from ycli.mcp.server import BY_ITS_OWN_NAME, build_server, check_tool_names
+from ycli.yandex.mcp import GRANTS_ACCESS, WRITE_TAG
 
 
 async def served(selection: Selection) -> set[str]:
@@ -228,7 +228,9 @@ async def test_a_name_from_an_unselected_service_is_checked_not_rejected():
 async def test_tool_search_lists_a_search_interface_and_status():
     server = build_server(Selection(tool_search=True))
     async with Client(server) as client:
-        names = {tool.name for tool in await client.list_tools()}
+        tools = await client.list_tools()
+        # What grants access stays listed by its own name (see the test of it below).
+        names = {tool.name for tool in tools if not _grants(tool)}
         assert names == {"search_tools", "call_tool", *ALWAYS_SERVED}
         found = await client.call_tool("search_tools", {"query": "tracker issue comments add"})
     assert "tracker_comments_create" in {
@@ -266,3 +268,49 @@ async def test_the_always_served_tools_stay_in_sight_of_a_client_that_searches_i
     marks = {tool.name: (tool.meta or {}).get("anthropic/alwaysLoad") for tool in listed}
     assert {name for name, mark in marks.items() if mark is not None} == {*ALWAYS_SERVED}
     assert all(marks[name] is True for name in ALWAYS_SERVED)
+
+
+def _grants(tool) -> bool:
+    return all((tool.meta or {}).get(key) is value for key, value in GRANTS_ACCESS.items())
+
+
+async def test_a_tool_that_grants_access_stays_listed_under_tool_search_with_its_mark(api):
+    """A client reads the mark from the tool's own entry: behind a proxy nobody would be asked.
+
+    So under `--tool-search` the marked tools stay in the listing, each with its mark, and the
+    proxy refuses to run one: it is called by its own name, where the client can ask a person.
+    """
+    async with Client(full_server) as client:
+        marked = {tool.name for tool in await client.list_tools() if _grants(tool)}
+    assert len(marked) == 14
+    server = build_server(Selection(tool_search=True))
+    async with Client(server) as client:
+        listed = {tool.name: tool for tool in await client.list_tools()}
+        assert set(listed) == {"search_tools", "call_tool", *ALWAYS_SERVED, *marked}
+        assert all(_grants(listed[name]) for name in marked)
+        assert not _grants(listed["call_tool"]) and not _grants(listed["search_tools"])
+        for name in sorted(marked):
+            refused = await client.call_tool(
+                "call_tool", {"name": name, "arguments": {}}, raise_on_error=False
+            )
+            assert refused.is_error and BY_ITS_OWN_NAME in refused.content[0].text, name
+        assert api.calls == []
+        # The search does not offer what the proxy will not run.
+        found = await client.call_tool("search_tools", {"query": "grant access to a wiki page"})
+        assert not marked & {item["name"] for item in found.structured_content["result"]}
+        # A write that grants nothing still goes through the proxy.
+        api.add("POST", f"{TRACKER_BASE}/issues/QA-1/comments/", json={"id": 1})
+        sent = await client.call_tool(
+            "call_tool",
+            {
+                "name": "tracker_comments_create",
+                "arguments": {"issue_key": "QA-1", "body": {"text": "hi"}},
+            },
+        )
+    assert not sent.is_error and [call.method for call in api.calls] == ["POST"]
+
+
+async def test_a_marked_tool_is_not_served_read_only_under_tool_search_either():
+    server = build_server(Selection(read_only=True, tool_search=True))
+    async with Client(server) as client:
+        assert not [tool.name for tool in await client.list_tools() if _grants(tool)]

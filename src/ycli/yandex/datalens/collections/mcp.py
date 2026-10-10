@@ -20,6 +20,7 @@ from ycli.yandex.datalens.collections.models import (
 )
 from ycli.yandex.datalens.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -237,6 +238,7 @@ def delete_bulk(
 @mcp.tool(
     name="collections_access_bindings_update",
     annotations={**WRITE, "title": "Change the roles on a DataLens collection"},
+    meta=GRANTS_ACCESS,
 )
 def access_bindings_update(
     collection_id: CollectionID,

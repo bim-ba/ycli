@@ -17,6 +17,7 @@ from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -377,6 +378,7 @@ def delete(
 @mcp.tool(
     name="entities_permissions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity permissions"},
+    meta=GRANTS_ACCESS,
 )
 def permissions_update(
     entity_type: EntityTypeName,
@@ -397,6 +399,7 @@ def permissions_update(
 @mcp.tool(
     name="entities_permissions_update_direct",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity direct permissions"},
+    meta=GRANTS_ACCESS,
 )
 def permissions_update_direct(
     entity_type: EntityTypeName,

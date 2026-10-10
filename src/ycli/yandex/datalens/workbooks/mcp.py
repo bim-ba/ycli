@@ -9,6 +9,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -256,6 +257,7 @@ def delete_bulk(
 @mcp.tool(
     name="workbooks_access_bindings_update",
     annotations={**WRITE, "title": "Change the roles on a DataLens workbook"},
+    meta=GRANTS_ACCESS,
 )
 def access_bindings_update(
     workbook_id: WorkbookID,

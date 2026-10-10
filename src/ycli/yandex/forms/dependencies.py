@@ -7,6 +7,7 @@ from pydantic import Field
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -28,6 +29,7 @@ SurveyID = Annotated[str, Field(description="Form id (24-char hex), from ``surve
 
 __all__ = [
     "DESTRUCTIVE",
+    "GRANTS_ACCESS",
     "LIMIT_CAP",
     "RO",
     "TAGS",

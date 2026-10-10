@@ -8,12 +8,22 @@ and writes; the :class:`~ycli.mcp.selection.Selection` narrows what is served.
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, Any
 
+from fastmcp import Context  # noqa: TC002  # read at run time: FastMCP resolves the proxy's hints
+from fastmcp.exceptions import ToolError
 from fastmcp.server.transforms.search import BM25SearchTransform
+from fastmcp.tools import Tool
+from fastmcp.tools.base import ToolResult  # noqa: TC002  # the same
 from pydantic import ValidationError
 
-from ycli.mcp.listing import DerivedTags, LightListing, ServedWithTheirTools, UnknownToolError
+from ycli.mcp.listing import (
+    DerivedTags,
+    GrantsSaid,
+    LightListing,
+    ServedWithTheirTools,
+    UnknownToolError,
+)
 from ycli.mcp.profiles import ALWAYS_SERVED
 from ycli.mcp.schemas import schema_server
 from ycli.mcp.selection import Selection
@@ -24,11 +34,13 @@ from ycli.settings import (
     MCPHTTPConfig,
     OAuthAppConfig,
 )
-from ycli.yandex.mcp import WRITE_TAG, guide, new_server
+from ycli.yandex.mcp import GRANTS_ACCESS, WRITE_TAG, guide, new_server
 from ycli.yandex.registry import SERVICES, about
 from ycli.yandex.status.mcp import mcp as status_mcp
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from fastmcp import FastMCP
     from fastmcp.server.auth import AuthProvider
 
@@ -76,8 +88,60 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     server.mount(status_mcp, namespace="status")
     server.mount(schema_server(server.list_tools, server.get_tool), namespace="schema")
     server.add_transform(DerivedTags())
+    server.add_transform(GrantsSaid())
     _apply_selection(server, selection)
     return server
+
+
+#: What the proxy of the tool search answers when asked to run a tool that grants access.
+BY_ITS_OWN_NAME = (
+    "this tool grants access: call it by its own name, so that the client can ask a person"
+)
+
+
+def _grants_access(tool: Tool) -> bool:
+    """Whether ``tool`` carries the mark of an operation that grants access."""
+    return all((tool.meta or {}).get(key) is value for key, value in GRANTS_ACCESS.items())
+
+
+class _Search(BM25SearchTransform):
+    """The tool search, with the tools that grants access left in the listing.
+
+    A client reads the mark of such a tool from the tool's own entry and asks a person. Behind
+    the search there is no entry, and the proxy that runs what the search found carries no
+    mark: nobody would be asked. So a marked tool stays listed, the search does not offer it,
+    and the proxy refuses to run it. Which tools those are is read from their mark.
+    """
+
+    async def transform_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The pinned tools, the marked ones, and the search and its proxy."""
+        listed = await super().transform_tools(tools)
+        there = {tool.name for tool in listed}
+        marked = [tool for tool in tools if _grants_access(tool) and tool.name not in there]
+        return [*marked, *listed]
+
+    async def _get_visible_tools(self, ctx: Context) -> Sequence[Tool]:
+        """What the search looks through: nothing the proxy would refuse."""
+        found = await super()._get_visible_tools(ctx)
+        return [tool for tool in found if not _grants_access(tool)]
+
+    def _make_call_tool(self) -> Tool:
+        """The proxy of FastMCP, which first looks at the mark of what it is asked to run."""
+        proxy = super()._make_call_tool()
+        run = proxy.fn  # ty: ignore[unresolved-attribute]
+
+        async def call_tool(
+            name: Annotated[str, "The name of the tool to call"],
+            arguments: Annotated[dict[str, Any] | None, "Arguments to pass to the tool"] = None,
+            ctx: Context = None,  # ty: ignore[invalid-parameter-default]
+        ) -> ToolResult:
+            tool = await ctx.fastmcp.get_tool(name)
+            if tool is not None and _grants_access(tool):
+                raise ToolError(BY_ITS_OWN_NAME)
+            return await run(name, arguments, ctx)
+
+        call_tool.__doc__ = run.__doc__
+        return Tool.from_function(fn=call_tool, name=proxy.name)
 
 
 def _instructions(mounted: list[Service]) -> str:
@@ -118,7 +182,7 @@ def _apply_selection(server: FastMCP, selection: Selection) -> None:
     server.enable(components={"prompt", "resource", "template"})
     server.add_transform(ServedWithTheirTools(server.list_tools))
     if selection.tool_search:
-        server.add_transform(BM25SearchTransform(always_visible=[*ALWAYS_SERVED]))
+        server.add_transform(_Search(always_visible=[*ALWAYS_SERVED]))
     server.add_transform(LightListing())  # last, so it slims the search tools and their results too
 
 

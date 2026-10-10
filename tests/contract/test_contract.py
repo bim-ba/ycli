@@ -27,7 +27,9 @@ from tests.contract import (
     Reply,
     Sent,
     Sibling,
+    confirmed,
     effect_sent,
+    grants_access,
     hints_disagree,
     load_cases,
     mismatches,
@@ -42,10 +44,13 @@ from ycli.settings import AppConfig
 from ycli.yandex.core.auth import IAMTokenAuth
 from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.mcp import GRANTS_ACCESS, GRANTS_ACCESS_SAID
 from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
+
+    from fastmcp.tools import Tool
 
     from ycli.yandex.base import DomainClient
     from ycli.yandex.service import Service
@@ -121,11 +126,15 @@ def _run_sdk(case: Case) -> object:
     )
 
 
+def _marked(tool: Tool) -> bool:
+    """Whether ``tool`` carries the mark of an operation that grants access."""
+    return all((tool.meta or {}).get(key) is value for key, value in GRANTS_ACCESS.items())
+
+
 def _run_cli(case: Case, argv: Sequence[str] | None = None) -> object:
     assert case.cli is not None
-    # A test has no terminal to answer the prompt a destructive operation raises.
-    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
-    result = CliRunner().invoke(app, ["--format", "json", *confirmed, *(argv or case.cli)])
+    # A test has no terminal to answer the prompt of an operation that destroys or grants.
+    result = CliRunner().invoke(app, ["--format", "json", *confirmed(case), *(argv or case.cli)])
     assert result.exit_code == 0, result.output
     try:
         return json.loads(result.stdout_bytes)
@@ -174,6 +183,7 @@ def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_
     api = _serve(monkeypatch, case)
     sdk_output = _run_sdk(case)
     _check_sent(case, api, "sdk")
+    grants = grants_access(api.calls)
     problems = output_problems(case, sdk_output)
     assert not problems, f"sdk result: {problems}"
     cli_output = None
@@ -197,6 +207,11 @@ def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_
         hints = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
         wrong = hints_disagree(hints, case.expected_effect)
         assert not wrong, f"{case.mcp[0]}: effect {case.expected_effect!r} but {wrong} disagree"
+        # ARCH-3, both ways: the mark is on the tool if and only if its operation grants access.
+        assert _marked(tool) == grants, (
+            f"{name}: the mark is {_marked(tool)}, the operation {grants}"
+        )
+        assert (GRANTS_ACCESS_SAID in (tool.description or "")) == grants, f"{name}: description"
         if case.cli is not None:
             assert cli_output == mcp_output, "the CLI and MCP return different data"
 
@@ -236,8 +251,7 @@ def test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp(
     for name, value in case.env.items():
         monkeypatch.setenv(name, value)
     _serve(monkeypatch, emptied)
-    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
-    printed = CliRunner().invoke(app, ["--format", "json", *confirmed, *emptied.cli])
+    printed = CliRunner().invoke(app, ["--format", "json", *confirmed(case), *emptied.cli])
     cli_answer = json.loads(printed.stdout_bytes) if printed.exit_code == 0 else REFUSED
     _serve(monkeypatch, emptied)
     try:

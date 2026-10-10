@@ -74,7 +74,10 @@ def create(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> Embed:
-    """Embed an entry; the title, the key, the entry, the mode and the settings are required."""
+    """Embed an entry; the title, the key, the entry, the mode and the settings are required.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     given = {
         "title": title,
         "embeddingSecretId": embedding_secret_id,
@@ -114,7 +117,10 @@ def update(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> Embed:
-    """Save an embed as given: the API takes it whole, so name everything that is to stay."""
+    """Save an embed as given: the API takes it whole, so name everything that is to stay.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     given = {
         "embedId": embed_id,
         "title": title,

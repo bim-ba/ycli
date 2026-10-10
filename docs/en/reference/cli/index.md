@@ -26,7 +26,7 @@ $ ycli [OPTIONS] COMMAND [ARGS]...
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).  [default: auto]
-* `-y, --yes`: Do not ask before an operation that deletes data.
+* `-y, --yes`: Do not ask before an operation that deletes data or grants access.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.

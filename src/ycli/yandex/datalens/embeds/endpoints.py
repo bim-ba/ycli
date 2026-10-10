@@ -44,7 +44,7 @@ def create(
         unsignedParams=list(unsigned_params),
         privateParams=list(private_params),
     )
-    return RPC("createEmbed", Embed, json=body, effect=Effect.WRITE)
+    return RPC("createEmbed", Embed, json=body, effect=Effect.WRITE, grants_access=True)
 
 
 def update(
@@ -69,7 +69,7 @@ def update(
         unsignedParams=list(unsigned_params),
         privateParams=list(private_params),
     )
-    return RPC("updateEmbed", Embed, json=body, effect=Effect.IDEMPOTENT_WRITE)
+    return RPC("updateEmbed", Embed, json=body, effect=Effect.IDEMPOTENT_WRITE, grants_access=True)
 
 
 def delete(embed_id: str) -> Endpoint[EmbedDeleted]:

@@ -38,4 +38,10 @@ def access_bindings_update(
     entry_id: str, *, deltas: Sequence[AccessBindingDelta]
 ) -> Endpoint[Operation]:
     body = UpdateSharedEntryAccessBindingsArgs(entryId=entry_id, deltas=list(deltas))
-    return RPC("updateSharedEntryAccessBindings", Operation, json=body, effect=Effect.WRITE)
+    return RPC(
+        "updateSharedEntryAccessBindings",
+        Operation,
+        json=body,
+        effect=Effect.WRITE,
+        grants_access=True,
+    )

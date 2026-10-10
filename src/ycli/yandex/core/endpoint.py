@@ -142,7 +142,9 @@ class Endpoint[T]:
     ``follow_redirects=False`` hands a redirect to ``parser`` instead of following it (a status
     read that redirects to the finished file). ``effect`` is what the call does to the server:
     stated explicitly, or implied by the method when left out. An unknown method fails here, at
-    construction.
+    construction. ``grants_access`` says the call lets someone at data they could not reach
+    (a role, a permission, a licence, an embedding): it is asked about before it is sent, like
+    a call that destroys data, because what it did is not seen afterwards.
     """
 
     method: HTTPMethod
@@ -156,6 +158,7 @@ class Endpoint[T]:
     headers: Mapping[str, str] = field(default_factory=dict)
     # Filled at construction when left out: no reader ever sees it empty.
     effect: Effect = None  # ty: ignore[invalid-assignment]
+    grants_access: bool = False
     parser: Callable[[httpx2.Response], T] | None = None
     follow_redirects: bool = True
 
@@ -240,6 +243,7 @@ def RPC[T](  # noqa: N802 - reads as the kind of call it writes, beside ``Endpoi
     *,
     json: Any = None,
     effect: Effect,
+    grants_access: bool = False,
     parser: Callable[[httpx2.Response], T] | None = None,
 ) -> Endpoint[T]:
     """An operation of an RPC API: ``POST rpc/<name>`` with its arguments in the body.
@@ -253,6 +257,7 @@ def RPC[T](  # noqa: N802 - reads as the kind of call it writes, beside ``Endpoi
         response_type: The type the reply parses into; ``None`` ignores the reply.
         json: The request body: a request model or plain JSON data.
         effect: What the call does to the server.
+        grants_access: Whether the call lets someone at data they could not reach.
         parser: Reads a reply that is not one JSON type.
 
     Returns:
@@ -269,6 +274,7 @@ def RPC[T](  # noqa: N802 - reads as the kind of call it writes, beside ``Endpoi
         response_type,
         json=json,
         effect=effect,
+        grants_access=grants_access,
         parser=parser,
     )
 

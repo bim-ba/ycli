@@ -165,6 +165,8 @@ Delete several collections with everything they hold.
 
 Give or take away roles on a collection; the roles not named stay as they are.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `collection_id` | string | yes | Collection id. |
@@ -326,6 +328,8 @@ Delete several workbooks with everything they hold.
 *Change the roles on a DataLens workbook* · write
 
 Give or take away roles on a workbook; the roles not named stay as they are.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1260,6 +1264,8 @@ Embed an entry and return the embed.
 
 The key for embedding is one of the workbook the entry lies in (``embeddingsecrets_list``).
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `title` | string | yes | The name of the embed. |
@@ -1279,6 +1285,8 @@ Save an embed as given and return it.
 
 The embed is replaced whole: read it with ``embeds_list`` and send back what is to stay; a
 list left out is saved empty.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1331,6 +1339,8 @@ The private key is given once: ``embeddingsecrets_get`` and ``embeddingsecrets_l
 return it. It comes in this tool's result, so it enters your context: hand it to the person
 at once, and do not repeat it in later messages.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `title` | string | yes | The name of the key. |
@@ -1369,6 +1379,8 @@ An entry that lies in a workbook, or an id nothing knows, answers an empty list.
 Give or take away roles on a shared entry; the roles not named stay as they are.
 
 The roles are ``datalens.sharedEntries.*`` (``viewer``, ``admin``, …).
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1505,6 +1517,8 @@ Give each of these users a licence and return the licences given.
 
 A licence is a seat DataLens bills for: ask the person before calling. Written from the
 DataLens document and never called: not measured.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
