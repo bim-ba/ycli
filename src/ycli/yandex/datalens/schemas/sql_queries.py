@@ -26,7 +26,8 @@ class GetSqlQueryArgs(RequestBody):
     include_favorite: bool | None = Field(
         default=None,
         alias="includeFavorite",
-        description="Whether to include the favorite status.",
+        deprecated=True,
+        description="Whether to include the favorite status. Deprecated: the parameter will be removed in a future API version.",
     )
 
 
@@ -223,6 +224,11 @@ class RunSqlQueryResultResultsItem(APIModel):
     rows: list[list[str | int | float | bool | None]] | None = Field(
         default=None,
         description="Rows of the statement result, with values in the order of the columns.",
+    )
+    has_more_rows: bool | None = Field(
+        default=None,
+        alias="hasMoreRows",
+        description="Whether the statement returned more rows than included in `rows`.",
     )
     affected_rows: int | float | None = Field(
         default=None,
@@ -423,7 +429,8 @@ class GetSqlQueryResult(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Whether the SQL query is a favorite.",
+        deprecated=True,
+        description="Whether the SQL query is a favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: GetSqlQueryResultPermissions | None = None
 

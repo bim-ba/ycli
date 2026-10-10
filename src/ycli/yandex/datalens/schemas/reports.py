@@ -21,7 +21,12 @@ class GetReportV2Args(RequestBody):
     entry_id: str = Field(..., alias="entryId")
     rev_id: str | None = Field(default=None, alias="revId")
     include_permissions: bool | None = Field(default=None, alias="includePermissions")
-    include_favorite: bool | None = Field(default=None, alias="includeFavorite")
+    include_favorite: bool | None = Field(
+        default=None,
+        alias="includeFavorite",
+        deprecated=True,
+        description="Deprecated: the parameter will be removed in a future API version.",
+    )
 
 
 class DeleteReportArgs(RequestBody):
@@ -693,7 +698,12 @@ class ReportV2(APIModel):
 
 class GetReportV2Result(APIModel):
     entry: ReportV2 | None = None
-    is_favorite: bool | None = Field(default=None, alias="isFavorite")
+    is_favorite: bool | None = Field(
+        default=None,
+        alias="isFavorite",
+        deprecated=True,
+        description="Deprecated: the field will be removed in a future API version.",
+    )
     permissions: shared.EntryPermissions | None = None
 
 

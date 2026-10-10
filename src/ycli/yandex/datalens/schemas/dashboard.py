@@ -14,7 +14,12 @@ class GetDashboardV2Args(RequestBody):
     rev_id: str | None = Field(default=None, alias="revId")
     include_permissions: bool | None = Field(default=None, alias="includePermissions")
     include_links: bool | None = Field(default=None, alias="includeLinks")
-    include_favorite: bool | None = Field(default=None, alias="includeFavorite")
+    include_favorite: bool | None = Field(
+        default=None,
+        alias="includeFavorite",
+        deprecated=True,
+        description="Deprecated: the parameter will be removed in a future API version.",
+    )
     branch: shared.EntryBranch | None = None
     workbook_id: str | None = Field(default=None, alias="workbookId")
 
@@ -1048,7 +1053,12 @@ class DashboardV2(APIModel):
 
 class GetDashboardV2Result(APIModel):
     entry: DashboardV2 | None = None
-    is_favorite: bool | None = Field(default=None, alias="isFavorite")
+    is_favorite: bool | None = Field(
+        default=None,
+        alias="isFavorite",
+        deprecated=True,
+        description="Deprecated: the field will be removed in a future API version.",
+    )
     permissions: shared.EntryPermissions | None = None
 
 

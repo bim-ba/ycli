@@ -224,7 +224,8 @@ class ListDirectoryEntry(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Indicates if the entry is marked as favorite.",
+        deprecated=True,
+        description="Indicates if the entry is marked as favorite. Deprecated: the field will be removed in a future API version.",
     )
     is_locked: bool | None = Field(
         default=None, alias="isLocked", description="Indicates if the entry is locked."
@@ -340,7 +341,8 @@ class GetEntriesV2ResultEntriesItem(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Whether the entry is marked as a favorite.",
+        deprecated=True,
+        description="Whether the entry is marked as a favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: GetEntriesV2ResultEntriesItemPermissions | None = None
     links: dict[str, Any] | None = Field(

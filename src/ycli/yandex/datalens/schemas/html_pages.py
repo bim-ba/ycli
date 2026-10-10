@@ -25,7 +25,8 @@ class GetHtmlPageArgs(RequestBody):
     include_favorite: bool | None = Field(
         default=None,
         alias="includeFavorite",
-        description="Whether to include the favorite status.",
+        deprecated=True,
+        description="Whether to include the favorite status. Deprecated: the parameter will be removed in a future API version.",
     )
 
 
@@ -290,7 +291,8 @@ class GetHtmlPageResult(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Whether the HTML page is a favorite.",
+        deprecated=True,
+        description="Whether the HTML page is a favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: GetHtmlPageResultPermissions | None = None
 
@@ -378,7 +380,8 @@ class CreateHtmlPageResultEntry(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Whether the HTML page is a favorite.",
+        deprecated=True,
+        description="Whether the HTML page is a favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: CreateHtmlPageResultEntryPermissions | None = None
 
@@ -466,7 +469,8 @@ class UpdateHtmlPageResultEntry(APIModel):
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
-        description="Whether the HTML page is a favorite.",
+        deprecated=True,
+        description="Whether the HTML page is a favorite. Deprecated: the field will be removed in a future API version.",
     )
     permissions: UpdateHtmlPageResultEntryPermissions | None = None
 
