@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.138.1 (2026-10-10)
+
+### Bug Fixes
+
+- **core**: A refusal says the organization header of the call, never of the token
+  ([#573](https://github.com/bim-ba/ycli/pull/573),
+  [`d6fd60f`](https://github.com/bim-ba/ycli/commit/d6fd60fc412f014788e6106bfe44d119cacf041f))
+
+### Build System
+
+- Re-lock uv.lock for 0.138.0
+  ([`c7302ca`](https://github.com/bim-ba/ycli/commit/c7302ca147fc32d80ae80e1dc9a19d2c73d7ea9f))
+
+
 ## v0.138.0 (2026-10-10)
 
 ### Build System
