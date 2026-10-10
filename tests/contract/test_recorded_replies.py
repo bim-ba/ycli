@@ -18,6 +18,7 @@ from e2e.scrub import scrub
 from tests.contract import Sibling, load_cases
 from tests.contract.test_contract import SERVICE_BY_NAME, _client
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.errors import YandexUnexpectedReplyError
 
 if TYPE_CHECKING:
@@ -52,7 +53,9 @@ def first_endpoint(case: Case, monkeypatch: pytest.MonkeyPatch) -> Endpoint:
     with _client(SERVICE_BY_NAME[domain]) as client:
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
         try:
-            getattr(getattr(client, resource), method)(*args, **case.kwargs)
+            result = getattr(getattr(client, resource), method)(*args, **case.kwargs)
+            if isinstance(result, Listing):
+                next(result, None)  # a listing asks nothing until it is read
         except _Asked as asked:
             return asked.endpoint
     raise AssertionError(f"{case.operation} sent no request")

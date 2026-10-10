@@ -6,14 +6,16 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
     IssueKey,
+    Next,
     app_config,
     new_server,
     tracker_client,
@@ -47,16 +49,20 @@ def list_filtered(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max links to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Link]:
+) -> Listed[Link]:
     """Links of a Tracker issue filtered by type, paged and capped (a read done via POST).
 
     Prefer this over ``links_list`` for issues with many links or when only some link types
     or fields matter; it carries each link's author, dates, assignee and status.
     """
-    cap = config.http.cap(limit)
-    return client.links.list_filtered(issue_key, link_types=link_types, fields=fields, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.links.list_filtered(
+        issue_key, link_types=link_types, fields=fields, limit=cap, next=next
+    ).collect()
 
 
 @mcp.tool(name="links_create", annotations={**WRITE, "title": "Link Tracker issues"})

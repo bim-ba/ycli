@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -14,7 +14,9 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
     IssueKey,
+    Next,
     WorklogRecordID,
     app_config,
     new_server,
@@ -38,9 +40,11 @@ def list_(
         int | None,
         Field(ge=1, description=f"Max records to return; {LIMIT_CAP}"),
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Worklog]:
+) -> Listed[Worklog]:
     """All time-tracking entries logged against a single Tracker issue.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
@@ -49,8 +53,8 @@ def list_(
     Scoped to one issue by ``issue_key``. To search worklog across the whole org (by author and/or a
     creation-time range) use ``worklog_search`` instead.
     """
-    cap = config.http.cap(limit)
-    return client.worklog.list(issue_key, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.worklog.list(issue_key, limit=cap, next=next).collect()
 
 
 @mcp.tool(name="worklog_search", annotations={**RO, "title": "Search Tracker worklog"})

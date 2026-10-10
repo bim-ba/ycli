@@ -450,7 +450,7 @@ def _gets_returning_a_list(methods: dict[str, str]) -> list[str]:
     return [
         f"{operation}: returns a list of items, name it 'list'"
         for operation, returns in sorted(methods.items())
-        if operation.rsplit(".", 1)[-1] == "get" and returns.startswith("ItemList[")
+        if operation.rsplit(".", 1)[-1] == "get" and returns.startswith(("ItemList[", "Listing["))
     ]
 
 
@@ -473,9 +473,7 @@ def test_arch1_a_get_returns_one_object():
     "Naming an operation"); this one a machine reads off the signature.
     """
     methods = _return_annotations()
-    assert "tracker.queues.get" in methods and methods["tracker.queues.list"].startswith(
-        "ItemList["
-    )
+    assert "tracker.queues.get" in methods and methods["tracker.queues.list"] == "Listing[Queue]"
     problems = _gets_returning_a_list(methods)
     assert not problems, "\n  ".join(["rename these operations:", *problems])
 
@@ -485,11 +483,15 @@ def test_arch1_get_check_bites():
     assert _gets_returning_a_list(
         {
             "forms.access.get": "ItemList[Permission]",
+            "forms.surveys.get": "Listing[Survey]",
             "tracker.autoactions.logs_get": "ItemList[AutoactionRunEntry]",
             "tracker.queues.list": "ItemList[Queue]",
             "tracker.queues.get": "Queue",
         }
-    ) == ["forms.access.get: returns a list of items, name it 'list'"]
+    ) == [
+        "forms.access.get: returns a list of items, name it 'list'",
+        "forms.surveys.get: returns a list of items, name it 'list'",
+    ]
 
 
 def _function_operations(function: object) -> frozenset[str]:
@@ -911,12 +913,7 @@ def _not_passed(parameters: list[str], passed: tuple[int, set[str], bool]) -> li
 
 
 # An argument of a method that neither surface passes, and why.
-ARCH1_ARGUMENTS_KEPT_FROM_SURFACES: dict[str, tuple[frozenset[str], str]] = {
-    "tracker.entities.search": (
-        frozenset({"per_page", "page"}),
-        "the pages of a listing: #502 gives every listing one way to limit and to continue",
-    ),
-}
+ARCH1_ARGUMENTS_KEPT_FROM_SURFACES: dict[str, tuple[frozenset[str], str]] = {}
 
 
 def _argument_gaps() -> dict[str, dict[str, list[str]]]:
@@ -961,3 +958,36 @@ def test_arch1_argument_check_bites():
     assert _passed(source, "pages", "list") == (1, set(), True)
     assert _not_passed(["slug", "limit"], (0, set(), True)) == []
     assert _passed(source, "boards", "get") is None
+
+
+# A listing of the SDK that cannot go on from a token, and why. Every other method that walks
+# the pages of a listing takes `next` (#502), and so do its command and its tool: the check of
+# arguments above holds the surfaces to the method.
+ARCH1_LISTINGS_WITHOUT_NEXT = {
+    "forms.answers.list": "returns the columns with the answers, which a listing has no place "
+    "for; its own answer is with the owner",
+    "wiki.comments.thread_list": "rebuilds one thread from every comment of the page: there is "
+    "no page of the service to go on from",
+}
+
+
+def _listings_without_next() -> set[str]:
+    """The client operations that walk a listing and take no ``next``."""
+    found = set()
+    for operation, method in _operation_methods():
+        source = inspect.getsource(inspect.unwrap(method))
+        walks = "_session.iterate(" in source or "self.list(" in source
+        if walks and "next" not in inspect.signature(method).parameters:
+            found.add(operation)
+    return found
+
+
+def test_arch1_every_listing_goes_on_from_a_token():
+    """`limit`, everything and `next` are the handles of every listing (ARCH-1, #502)."""
+    without = _listings_without_next()
+    odd = sorted(without ^ set(ARCH1_LISTINGS_WITHOUT_NEXT))
+    assert not odd, (
+        "a method that walks a listing takes `next` and hands it to `iterate`, or is listed in "
+        f"ARCH1_LISTINGS_WITHOUT_NEXT with its reason: {odd}"
+    )
+    assert "tracker.boards.list" not in without  # the walk is found where it is

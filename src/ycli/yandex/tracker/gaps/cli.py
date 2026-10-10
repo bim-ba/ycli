@@ -5,9 +5,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.gaps.models import GapCreated, GapInput, GapsCreate, GapWorkflow, UserGaps
 
@@ -81,13 +82,14 @@ def search(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[UserGaps]:
+) -> Listing[UserGaps]:
     """Find the absences of USER... overlapping a window (POST /gaps/_search; --all for all)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.gaps.search(users, date_from=date_from, date_to=date_to, limit=cap)
+    return tracker.gaps.search(users, date_from=date_from, date_to=date_to, limit=cap, next=next_)
 
 
 @app.command()

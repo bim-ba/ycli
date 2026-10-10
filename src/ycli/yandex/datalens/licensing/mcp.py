@@ -12,6 +12,8 @@ from ycli.yandex.datalens.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
@@ -23,7 +25,7 @@ from ycli.yandex.datalens.licensing.models import (
     LicenseSortField,
     LicenseStatus,
 )
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import ItemList, Listed, SortDirection
 
 mcp = new_server("datalens-licensing")
 
@@ -41,9 +43,11 @@ def licenses_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max licences to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[LicenseListed]:
+) -> Listed[LicenseListed]:
     """The licences (seats) of the DataLens instance, auto-paginated.
 
     Each says whose it is, its type (``creator`` or ``viewer``), whether it is active, and when
@@ -54,8 +58,9 @@ def licenses_list(
         status=status,
         sort_by=sort_by,
         order=order,
-        limit=config.http.cap(limit),
-    )
+        limit=config.http.cap(limit, all_=all),
+        next=next,
+    ).collect()
 
 
 @mcp.tool(

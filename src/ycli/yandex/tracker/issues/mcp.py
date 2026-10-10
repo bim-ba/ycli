@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -14,8 +14,10 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
     Expand,
     IssueKey,
+    Next,
     Notify,
     NotifyAuthor,
     ReplyFields,
@@ -62,9 +64,11 @@ def list_(
         str | None, Field(description="Issue type key, e.g. bug or task.")
     ] = None,
     limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Issue]:
+) -> Listed[Issue]:
     """Issues matching the supplied filters (omitted filters dropped), auto-paginated.
 
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — narrow the
@@ -78,13 +82,15 @@ def list_(
         epic=epic,
         type_=issue_type,
     )
-    return client.issues.search(body, limit=config.http.cap(limit))
+    return client.issues.search(body, limit=config.http.cap(limit, all_=all), next=next).collect()
 
 
 @mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues"})
 def search(
     body: IssueSearch,
     limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
+    all: All = False,
+    next: Next = None,
     expand: Expand = None,
     scroll_type: Annotated[
         ScrollType | None,
@@ -98,22 +104,24 @@ def search(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Issue]:
+) -> Listed[Issue]:
     """Issues matching a query-language string or a filter, auto-paginated.
 
     ``body.query`` is a TQL string, ``body.filter`` a field → value object. Returns at most
-    ``limit`` issues; exactly ``limit`` back means more may match — refine the search or raise
-    ``limit``. E.g. ``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
+    ``limit`` issues; ``truncated`` says more may match, and ``next`` goes on. A token of a
+    scroll (``scroll_type``) works once: used again, it gives the portion after. E.g.
+    ``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
     ``{"body": {"filter": {"queue": "QUEUE", "assignee": "ann"}}}``.
     """
     return client.issues.search(
         body,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         expand=expand,
         scroll_type=scroll_type,
         per_scroll=per_scroll,
         scroll_ttl_millis=scroll_ttl_millis,
-    )
+    ).collect()
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"})

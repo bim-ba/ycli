@@ -6,14 +6,14 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.sparkapplications import endpoints
-from ycli.yandex.datalens.sparkapplications.models import SparkApplication
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.models import LakehouseOperation
     from ycli.yandex.datalens.sparkapplications.models import (
+        SparkApplication,
         SparkApplicationCreate,
         SparkApplicationLog,
     )
@@ -33,7 +33,8 @@ class SparkApplicationsClient(Resource):
         *,
         filter: Sequence[str] | None = None,  # noqa: A002  # the API's own name for it
         limit: int | None = None,
-    ) -> ItemList[SparkApplication]:
+        next: str | None = None,
+    ) -> Listing[SparkApplication]:
         """``listSparkApplications`` → the applications of a cluster (not measured).
 
         Capped at ``limit`` (``None`` = every application). The cluster is required: without
@@ -44,17 +45,19 @@ class SparkApplicationsClient(Resource):
             filter: Conditions, all of which must hold; each is ``field="value"`` over ``name``,
                 ``created_by``, ``application_type`` or ``catalog_id``.
             limit: The most applications to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The applications of the cluster.
 
         Examples:
-            >>> found = datalens.sparkapplications.list("sc00000000001").root
+            >>> found = datalens.sparkapplications.list("sc00000000001").collect().items
             >>> [(application.id, application.status) for application in found]
             [('app0000000001', 'RUNNING')]
         """
         paged = endpoints.list_(cluster_id, filter=filter)
-        return ItemList[SparkApplication](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, cluster_id: str, *, application_id: str) -> SparkApplication:
         """``getSparkApplication`` → one Spark application (not measured).

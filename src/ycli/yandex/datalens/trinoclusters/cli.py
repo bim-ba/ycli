@@ -5,8 +5,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.trinoclusters.models import (
@@ -16,7 +17,6 @@ from ycli.yandex.datalens.trinoclusters.models import (
     TrinoResourcePreset,
     TrinoWorkerConfig,
 )
-from ycli.yandex.models import ItemList
 
 BILLED = (
     "Experimental in the DataLens API. A cluster is cloud resources, billed while it runs: "
@@ -55,14 +55,19 @@ def list_(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[TrinoCluster]:
+) -> Listing[TrinoCluster]:
     """List the Trino clusters (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.trinoclusters.list(
-        filter=filter or None, collection_id=collection_id, catalog_id=catalog_id, limit=cap
+        filter=filter or None,
+        collection_id=collection_id,
+        catalog_id=catalog_id,
+        limit=cap,
+        next=next_,
     )
 
 
@@ -191,13 +196,14 @@ def resource_presets_list(
     ],
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[TrinoResourcePreset]:
+) -> Listing[TrinoResourcePreset]:
     """List the sizes a cluster's machines may have in a cloud environment."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.trinoclusters.resource_presets_list(cloud_environment_id, limit=cap)
+    return datalens.trinoclusters.resource_presets_list(cloud_environment_id, limit=cap, next=next_)
 
 
 @app.command("resource-preset-get", epilog=UNMEASURED)

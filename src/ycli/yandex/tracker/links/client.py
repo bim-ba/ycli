@@ -5,12 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.links import endpoints
-from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate
 
 
 class LinksClient(Resource):
@@ -38,7 +40,8 @@ class LinksClient(Resource):
         link_types: Sequence[str] | None = None,
         fields: Sequence[str] | None = None,
         limit: int | None = None,
-    ) -> ItemList[Link]:
+        next: str | None = None,
+    ) -> Listing[Link]:
         """``POST /issues/{key}/links/_list`` (a read) → links, paged by ``page``/``perPage``.
 
         ``link_types`` keeps only links of these relationships and ``fields`` picks the fields to
@@ -51,6 +54,8 @@ class LinksClient(Resource):
             link_types: Keep only links of these relationships.
             fields: The fields to return for each link.
             limit: The most links to return; ``None`` returns every link.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The matching links.
@@ -59,11 +64,11 @@ class LinksClient(Resource):
             >>> found = tracker.links.list_filtered(
             ...     "DE-44", link_types=["relates", "subtask"], fields=["id", "type"]
             ... )
-            >>> [link.id for link in found.root]
+            >>> [link.id for link in found]
             [441, 442]
         """
         paged = endpoints.list_filtered(issue_key, link_types=link_types, fields=fields)
-        return ItemList[Link](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(self, issue_key: str, body: LinkCreate) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.

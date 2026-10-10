@@ -5,14 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.gaps import endpoints
-from ycli.yandex.tracker.gaps.models import GapsSearch, UserGaps
+from ycli.yandex.tracker.gaps.models import GapsSearch
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate, UserGaps
 
 
 class GapsClient(Resource):
@@ -49,7 +49,8 @@ class GapsClient(Resource):
         date_from: str | None = None,
         date_to: str | None = None,
         limit: int | None = None,
-    ) -> ItemList[UserGaps]:
+        next: str | None = None,
+    ) -> Listing[UserGaps]:
         """``POST /gaps/_search`` (a read) → each user with the absences that overlap a window.
 
         ``users`` are up to 100 logins or ids; the window is ``date_from`` to ``date_to``
@@ -61,6 +62,8 @@ class GapsClient(Resource):
             date_from: Window start (ISO 8601); defaults to now.
             date_to: Window end (ISO 8601); must be after the start.
             limit: The most users to return; ``None`` returns all.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             Each user with the absences that overlap the window.
@@ -71,12 +74,12 @@ class GapsClient(Resource):
             ...     date_from="2026-07-01T00:00:00.000Z",
             ...     date_to="2026-08-31T23:59:59.999Z",
             ... )
-            >>> [(user.user.login, len(user.gaps)) for user in found.root]
+            >>> [(user.user.login, len(user.gaps)) for user in found]
             [('ann', 1), ('bob', 0)]
         """
         body = GapsSearch(users=list(users), date_from=date_from or None, date_to=date_to or None)
         paged = endpoints.search(body)
-        return ItemList[UserGaps](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def delete(self, gap_ids: Sequence[str]) -> None:
         """``DELETE /gaps?gapIds=…`` → delete absences by id (up to 100); unknown ids are ignored.

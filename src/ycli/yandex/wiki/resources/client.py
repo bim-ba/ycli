@@ -1,7 +1,7 @@
 """Wiki ``/pages/{id}/resources`` client on the httpx2 core."""
 
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.resources import endpoints
 from ycli.yandex.wiki.resources.models import ResourceItem
 
@@ -14,11 +14,12 @@ class ResourcesClient(Resource):
         page_id: int,
         *,
         limit: int | None = None,
+        next: str | None = None,
         q: str | None = None,
         types: str | None = None,
         order_by: str | None = None,
         order_direction: str | None = None,
-    ) -> ItemList[ResourceItem]:
+    ) -> Listing[ResourceItem]:
         """``GET /pages/{id}/resources`` → ``ItemList[ResourceItem]``, draining ``next_cursor``.
 
         The unified listing of everything attached to a page — attachments AND grids — as
@@ -29,6 +30,8 @@ class ResourcesClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most resources to return; ``None`` returns every resource.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             q: The title search.
             types: The comma-separated kinds to list: ``attachment``, ``grid``.
             order_by: The sort field: ``name_title`` or ``created_at``.
@@ -39,10 +42,10 @@ class ResourcesClient(Resource):
 
         Examples:
             >>> found = wiki.resources.list(5401, limit=25, q="plan", types="attachment,grid")
-            >>> [resource.type for resource in found.root]
+            >>> [resource.type for resource in found]
             ['attachment', 'grid']
         """
         paged = endpoints.list_(
             page_id, q=q, types=types, order_by=order_by, order_direction=order_direction
         )
-        return ItemList[ResourceItem](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)

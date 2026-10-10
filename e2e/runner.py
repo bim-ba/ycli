@@ -183,15 +183,29 @@ def render_command(template: str, variables: dict[str, str]) -> list[str]:
     return [render(token, variables) for token in shlex.split(template)]
 
 
+def items(document: Any) -> Any:
+    """The items of a listing as ``-o json`` prints it, and any other document as it is.
+
+    A listing is printed as ``{items, truncated, next, total}``. A scenario asserts on what the
+    service holds, so it reads the items; where a listing stopped has unit tests of its own.
+    """
+    if isinstance(document, dict) and document.keys() == {"items", "truncated", "next", "total"}:
+        return document["items"]
+    return document
+
+
 def run_json(driver: Driver, arguments: Sequence[str]) -> Any:
-    """Run a command that prints JSON and parse it; a non-zero exit raises with an excerpt."""
+    """Run a command that prints JSON and parse it; a non-zero exit raises with an excerpt.
+
+    A listing is returned as its items (:func:`items`).
+    """
     completed = driver.run(arguments)
     if completed.exit_code != 0:
         raise ScenarioError(
             f"`ycli {shlex.join(arguments)}` exited {completed.exit_code}: "
             f"{scrub(completed.stderr or completed.stdout)}"
         )
-    return json.loads(completed.stdout) if completed.stdout.strip() else None
+    return items(json.loads(completed.stdout)) if completed.stdout.strip() else None
 
 
 def run_scenario(
@@ -304,7 +318,7 @@ def _parse(where: str, step: Step, completed: CommandResult) -> Any:
     if not stdout.strip():
         return None
     try:
-        return json.loads(stdout)
+        return items(json.loads(stdout))
     except json.JSONDecodeError:
         raise ScenarioError(f"{where} output is not JSON: {scrub(stdout)}") from None
 

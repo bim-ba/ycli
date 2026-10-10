@@ -44,6 +44,8 @@ filters or raise ``limit``.
 | `epic` | string or null |  | Epic issue key. |
 | `issue_type` | string or null |  | Issue type key, e.g. bug or task. |
 | `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_issues_search`
 
@@ -52,14 +54,17 @@ filters or raise ``limit``.
 Issues matching a query-language string or a filter, auto-paginated.
 
 ``body.query`` is a TQL string, ``body.filter`` a field → value object. Returns at most
-``limit`` issues; exactly ``limit`` back means more may match — refine the search or raise
-``limit``. E.g. ``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
+``limit`` issues; ``truncated`` says more may match, and ``next`` goes on. A token of a
+scroll (``scroll_type``) works once: used again, it gives the portion after. E.g.
+``{"body": {"query": "Queue: QUEUE Status: open"}}`` or
 ``{"body": {"filter": {"queue": "QUEUE", "assignee": "ann"}}}``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /issues/_search`` and ``POST /issues/_count``. Give ``query`` (the query language) or ``filter`` (field name → value); a body with neither matches every issue the caller can see. ``extra="allow"`` passes the API's other keys (``keys``, ``queue``, ``order``) through. |
 | `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `scroll_type` | `sorted` · `unsorted` or string or null |  | Scroll through the results (no 10 000 cap). |
 | `per_scroll` | integer or null |  | Issues per scroll page (1000 at most). |
@@ -217,6 +222,8 @@ are truncated at the cap rather than fetched forever.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_comments_get`
@@ -322,6 +329,8 @@ or fields matter; it carries each link's author, dates, assignee and status.
 | `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_create``, not linktypes ids). |
 | `fields` | array of string or null |  | Fields to include in each link; all when omitted. |
 | `limit` | integer or null |  | Max links to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_links_create`
 
@@ -402,6 +411,8 @@ creation-time range) use ``worklog_search`` instead.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max records to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_worklog_search`
 
@@ -495,6 +506,8 @@ is given.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer or null |  | Max changes to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
 | `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
 | `sort` | `asc` · `desc` or string or null |  | Order of the changes. |
@@ -738,6 +751,8 @@ is given; use ``users_get`` instead when you already know the specific login or 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra data to include per user, e.g. groups. |
 
 ## `tracker_statuses_list`
@@ -830,6 +845,8 @@ queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TES
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max queues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_queues_get`
@@ -1330,6 +1347,8 @@ board's sprints.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max boards to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_boards_get`
 
@@ -1653,6 +1672,8 @@ Auto-paginated and capped at the configured item cap unless ``limit`` is given. 
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. DESIGN) or numeric queue id. |
 | `limit` | integer or null |  | Max triggers to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_triggers_get`
 
@@ -1896,8 +1917,8 @@ metric widgets, or ``summary,description,entityStatus`` for the basics. Use
 
 Entities of a given type that match a name substring and a filter, sorted server-side.
 
-Returns a flat list of entities. ``body.input`` matches part of the name, ``body.filter``
-is a field → value object (author, status, followers, …), ``body.orderBy`` with
+Returns the entities, and whether there are more. ``body.input`` matches part of the name,
+``body.filter`` is a field → value object (author, status, followers, …), ``body.orderBy`` with
 ``body.orderAsc`` sorts, and ``body.rootOnly`` keeps the entities with no parent.
 
 | Parameter | Type | Required | Description |
@@ -1905,6 +1926,9 @@ is a field → value object (author, status, followers, …), ``body.orderBy`` w
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` (issue reports). |
 | `body` | object or null |  | What to find: name substring, filter, sort order; omit for all. |
 | `fields` | string or null |  | Comma-separated extra fields to include. |
+| `limit` | integer or null |  | Max entities to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_entities_events_list`
 
@@ -1920,6 +1944,8 @@ Capped at the configured item cap unless ``limit`` is given.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `limit` | integer or null |  | Max events (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `selected` | string or null |  | Event id to build the list around, instead of from the start. |
 | `new_events_on_top` | boolean or null |  | Newest events first. |
 | `direction` | string or null |  | ``forward`` (the default) or ``backward``. |
@@ -2045,6 +2071,8 @@ pages up to ``limit`` (the configured item cap by default).
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `limit` | integer or null |  | Max comments (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_entities_create`
 
@@ -2543,6 +2571,8 @@ with an empty ``gaps`` list when they are not absent.
 | `date_from` | string or null |  | Window start (ISO 8601); defaults to now. |
 | `date_to` | string or null |  | Window end (ISO 8601); must be after ``date_from``. |
 | `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `tracker_gaps_create`
 

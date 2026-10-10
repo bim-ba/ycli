@@ -13,6 +13,7 @@ from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
 
@@ -28,9 +29,10 @@ class AttachmentsClient(Resource):
         page_id: int,
         *,
         limit: int | None = None,
+        next: str | None = None,
         order_by: str | None = None,
         order_direction: str | None = None,
-    ) -> ItemList[AttachedFile]:
+    ) -> Listing[AttachedFile]:
         """``GET /pages/{id}/attachments`` → ``ItemList[AttachedFile]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every attachment).
@@ -38,6 +40,8 @@ class AttachmentsClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most attachments to return; ``None`` returns every attachment.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             order_by: The sort field: ``name``, ``size`` or ``created_at``.
             order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
 
@@ -45,11 +49,11 @@ class AttachmentsClient(Resource):
             The page's attachments.
 
         Examples:
-            >>> [file.name for file in wiki.attachments.list(5601, limit=20).root]
+            >>> [file.name for file in wiki.attachments.list(5601, limit=20)]
             ['spec.pdf', 'logo.png']
         """
         paged = endpoints.list_(page_id, order_by=order_by, order_direction=order_direction)
-        return ItemList[AttachedFile](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, page_id: int, file_id: int) -> AttachedFile:
         """``GET /pages/{id}/attachments/{file_id}`` → one attachment's metadata.

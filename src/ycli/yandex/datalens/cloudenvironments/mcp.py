@@ -18,13 +18,15 @@ from ycli.yandex.datalens.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     PermissionsInfo,
     app_config,
     datalens_client,
     new_server,
 )
 from ycli.yandex.datalens.models import LakehouseOperation
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-cloudenvironments")
 
@@ -49,16 +51,21 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max environments to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[CloudEnvironment]:
+) -> Listed[CloudEnvironment]:
     """The cloud environments of the DataLens instance, auto-paginated.
 
     Experimental in the DataLens API. An instance with none answers an empty list.
     """
     return client.cloudenvironments.list(
-        filter=filter, include_permissions=include_permissions, limit=config.http.cap(limit)
-    )
+        filter=filter,
+        include_permissions=include_permissions,
+        limit=config.http.cap(limit, all_=all),
+        next=next,
+    ).collect()
 
 
 @mcp.tool(

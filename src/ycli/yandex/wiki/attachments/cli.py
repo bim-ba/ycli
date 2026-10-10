@@ -6,8 +6,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import AllOption, LimitOption, OutputOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, OutputOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import Ack, ItemList, SortDirection
 from ycli.yandex.wiki.attachments.models import AttachedFile, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
@@ -20,6 +21,7 @@ def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     order_by: Annotated[
         str | None, values_option(AttachmentOrder, "--order-by", help="Sort field.")
     ] = None,
@@ -30,12 +32,13 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[AttachedFile]:
+) -> Listing[AttachedFile]:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.attachments.list(
         page_id=page_id,
         limit=cap,
+        next=next_,
         order_by=order_by,
         order_direction=order_direction,
     )

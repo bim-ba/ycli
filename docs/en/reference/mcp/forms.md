@@ -27,6 +27,8 @@ form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max forms to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `name` | string or null |  | Keep the forms whose name matches. |
 | `published` | boolean or null |  | Only published (true) or only unpublished (false). |
 | `ownership` | string or null |  | ``mine`` (created by the caller) or ``shared`` (open to them). |
@@ -565,6 +567,8 @@ Capped at the configured item cap unless ``limit`` is given.
 | `survey_id` | string | yes | Form id (24-char hex). |
 | `ordering` | `asc` · `desc` or string or null |  | desc (newest first, the API default) or asc. |
 | `limit` | integer or null |  | Most events to return (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `forms_answers_get`
 
@@ -764,6 +768,8 @@ one run's context, response and error with ``notifications_get``.
 | `integration_type` | `email` · `tracker` · `tracker_comment` · `wiki` · `jsonrpc` · `post` · `put` · `http` · `function` or string or null |  | Only runs of this integration type. |
 | `ordering` | `asc` · `desc` or string or null |  | asc (oldest first, the API default) or desc. |
 | `limit` | integer or null |  | Most runs to return (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `forms_notifications_get`
 

@@ -7,7 +7,15 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client, new_server
+from ycli.yandex.forms.dependencies import (
+    RO,
+    WRITE,
+    All,
+    Next,
+    app_config,
+    forms_client,
+    new_server,
+)
 from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.forms.notifications.models import (
     Notification,
@@ -15,7 +23,7 @@ from ycli.yandex.forms.notifications.models import (
     NotificationDetails,
     NotificationStatus,
 )
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import ItemList, Listed, SortDirection
 
 mcp = new_server("forms-notifications")
 
@@ -60,16 +68,18 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description="Most runs to return (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Notification]:
+) -> Listed[Notification]:
     """Runs of a form's integrations (one per answer and integration), across pages.
 
     Give ``survey_id``: without it the API answers 404 Not Found, and the other filters only
     narrow that form's runs. Capped at the configured item cap unless ``limit`` is given. Read
     one run's context, response and error with ``notifications_get``.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.notifications.list(
         survey_id=survey_id,
         hook_id=hook_id,
@@ -84,7 +94,8 @@ def list_(
         integration_type=integration_type,
         ordering=ordering,
         limit=cap,
-    )
+        next=next,
+    ).collect()
 
 
 @mcp.tool(

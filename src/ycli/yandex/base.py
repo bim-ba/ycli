@@ -117,7 +117,7 @@ class DomainClient(ABC):
         paged: Paged[P, I],
         *,
         limit: int | None = None,
-        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+        next: str | None = None,
     ) -> Listing[I]:
         """The items of any ``paged`` listing of this service: at most ``limit``, from ``next``."""
         return self._session.iterate(paged, limit=limit, next=next)

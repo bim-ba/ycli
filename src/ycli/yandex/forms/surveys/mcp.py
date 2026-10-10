@@ -13,13 +13,15 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     SurveyID,
     app_config,
     forms_client,
     new_server,
 )
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, Listed
 
 mcp = new_server("forms-surveys")
 
@@ -29,6 +31,8 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max forms to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     name: Annotated[str | None, Field(description="Keep the forms whose name matches.")] = None,
     published: Annotated[
         bool | None, Field(description="Only published (true) or only unpublished (false).")
@@ -49,15 +53,16 @@ def list_(
     ] = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Survey]:
+) -> Listed[Survey]:
     """Every form (survey) the caller can see, auto-paginated over the API's offset pages.
 
     Capped at the configured item cap unless ``limit`` is given. Each item's ``id`` is the
     form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.surveys.list(
         limit=cap,
+        next=next,
         name=name,
         published=published,
         ownership=ownership,
@@ -65,7 +70,7 @@ def list_(
         favourite=favourite,
         show_all=show_all,
         orderby=orderby,
-    )
+    ).collect()
 
 
 @mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"})

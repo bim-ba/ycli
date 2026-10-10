@@ -2,22 +2,29 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog import endpoints
-from ycli.yandex.tracker.worklog.models import (
-    ImportWorklog,
-    Worklog,
-    WorklogCreate,
-    WorklogSearch,
-    WorklogUpdate,
-)
+
+if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.worklog.models import (
+        ImportWorklog,
+        Worklog,
+        WorklogCreate,
+        WorklogSearch,
+        WorklogUpdate,
+    )
 
 
 class WorklogClient(Resource):
     """An issue's worklog (relative-paginated) and its writes; org-wide search and listing."""
 
-    def list(self, issue_key: str, *, limit: int | None = None) -> ItemList[Worklog]:
+    def list(
+        self, issue_key: str, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[Worklog]:
         """All worklog entries on an issue, draining the ``id=<last record id>`` cursor.
 
         ``GET /issues/{key}/worklog`` sorts by ascending record id and pages relatively:
@@ -28,17 +35,19 @@ class WorklogClient(Resource):
         Args:
             issue_key: The issue's key.
             limit: The most entries to return; ``None`` returns every entry.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The issue's worklog entries, ascending by record id.
 
         Examples:
-            >>> [entry.duration for entry in tracker.worklog.list("DE-61", limit=500).root]
+            >>> [entry.duration for entry in tracker.worklog.list("DE-61", limit=500)]
             ['PT1H', 'PT2H', 'PT3H']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_(issue_key, page_size=page_size)
-        return ItemList[Worklog](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def search(self, body: WorklogSearch) -> ItemList[Worklog]:
         """``POST /worklog/_search`` → org-wide worklog entries matching the body filter.

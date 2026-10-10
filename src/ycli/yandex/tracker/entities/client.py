@@ -7,10 +7,11 @@ checklists, links and attachments. Every method sends one declaration from
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities import endpoints
 from ycli.yandex.tracker.entities.models import (
     ACL,
@@ -35,6 +36,7 @@ from ycli.yandex.tracker.entities.models import (
 )
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.models import CommentCreate
 
 
@@ -165,21 +167,21 @@ class EntitiesClient(Resource):
         body: EntitySearch | None = None,
         *,
         fields: str | None = None,
-        per_page: int | None = None,
-        page: int | None = None,
-    ) -> ItemList[Entity]:
-        """``POST /entities/{entity_type}/_search`` → flat ``ItemList[Entity]`` of ``values``.
+        limit: int | None = None,
+        next: str | None = None,
+    ) -> Listing[Entity]:
+        """``POST /entities/{entity_type}/_search`` → the matching entities, page by page.
 
         ``body`` carries ``input`` (substring), ``filter`` (field→value), ``orderBy``,
-        ``orderAsc`` and ``rootOnly``. ``fields`` selects extra ``fields`` keys in the results;
-        ``per_page``/``page`` page the server-side listing.
+        ``orderAsc`` and ``rootOnly``. ``fields`` selects extra ``fields`` keys in the results.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             body: The search: ``input``, ``filter``, ``orderBy``, ``orderAsc``, ``rootOnly``.
             fields: The extra ``fields`` keys to include, comma-separated.
-            per_page: The page size.
-            page: The page number.
+            limit: The most entities to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The matching entities.
@@ -187,13 +189,13 @@ class EntitiesClient(Resource):
         Examples:
             >>> tracker.entities.search(
             ...     "project", {"input": "Q4", "filter": {"entityStatus": "in_progress"}}
-            ... ).root[0].id
+            ... ).collect().items[0].id
             '655f'
         """
-        endpoint = endpoints.search(
-            entity_type, body or EntitySearch(), fields=fields, per_page=per_page, page=page
+        paged = endpoints.search(
+            entity_type, body or EntitySearch(), fields=fields, per_page=_page_size(limit)
         )
-        return ItemList[Entity](self._session.send(endpoint).values)
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def events_list(
         self,
@@ -201,10 +203,11 @@ class EntitiesClient(Resource):
         entity_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         selected: str | None = None,
         new_events_on_top: bool | None = None,
         direction: str | None = None,
-    ) -> ItemList[EntityEvent]:
+    ) -> Listing[EntityEvent]:
         """``GET …/events/_relative`` → flat ``ItemList[EntityEvent]``, draining ``from=<id>``.
 
         Walks the relative-cursor listing (each page repeats with ``from`` = the last event's
@@ -215,6 +218,8 @@ class EntitiesClient(Resource):
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             limit: The most events to return; ``None`` returns every event.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             selected: The id of the event to build the list around, instead of from the start.
             new_events_on_top: Whether to return the newest events first.
             direction: ``forward`` (the API's default) or ``backward``, which inverts
@@ -224,7 +229,7 @@ class EntitiesClient(Resource):
             The entity's events.
 
         Examples:
-            >>> [event.id for event in tracker.entities.events_list("project", "655f13").root]
+            >>> [event.id for event in tracker.entities.events_list("project", "655f13")]
             ['e1', 'e2']
         """
         paged = endpoints.events_list(
@@ -236,8 +241,10 @@ class EntitiesClient(Resource):
             direction=direction,
         )
         if selected is not None:
-            return ItemList[EntityEvent](self._session.send(paged.endpoint).events)
-        return ItemList[EntityEvent](list(self._session.iterate(paged, limit=limit)))
+            # One window and no page after it: its size goes with the request itself.
+            sized = {**paged.endpoint.params, "perPage": _page_size(limit)}
+            return Listing.whole(self._session.send(replace(paged.endpoint, params=sized)).events)
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def permissions_get(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
         """``GET …/extendedPermissions`` → access settings (acl + permissionSources).
@@ -423,8 +430,8 @@ class EntitiesClient(Resource):
         return self._session.send(endpoints.comments_list(entity_type, entity_id, expand=expand))
 
     def comments_list_relative(
-        self, entity_type: str, entity_id: str, *, limit: int | None = None
-    ) -> ItemList[Comment]:
+        self, entity_type: str, entity_id: str, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[Comment]:
         """``GET …/comments/_relative`` → flat ``ItemList[Comment]``, draining ``from=<longId>``.
 
         The paginated twin of :meth:`comments_list`; walks the relative-cursor listing until
@@ -434,6 +441,8 @@ class EntitiesClient(Resource):
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             limit: The most comments to return; ``None`` returns every comment.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The entity's comments.
@@ -441,14 +450,14 @@ class EntitiesClient(Resource):
         Examples:
             >>> [
             ...     c.id
-            ...     for c in tracker.entities.comments_list_relative(
-            ...         "portfolio", "pf22", limit=10
-            ...     ).root
+            ...     for c in tracker.entities.comments_list_relative("portfolio", "pf22", limit=10)
+            ...     .collect()
+            ...     .items
             ... ]
             [31, 32]
         """
         paged = endpoints.comments_list_relative(entity_type, entity_id, per_page=_page_size(limit))
-        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def comments_get(
         self, entity_type: str, entity_id: str, comment_id: str, expand: str | None = None

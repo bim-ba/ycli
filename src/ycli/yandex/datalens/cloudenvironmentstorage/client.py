@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.cloudenvironmentstorage import endpoints
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.cloudenvironmentstorage.models import (
         BucketDownloadUrl,
         BucketObjectMetadata,
@@ -25,8 +25,13 @@ class CloudEnvironmentStorageClient(Resource):
     """
 
     def bucket_objects_list(
-        self, cloud_environment_id: str, *, prefix: str | None = None, limit: int | None = None
-    ) -> ItemList[str]:
+        self,
+        cloud_environment_id: str,
+        *,
+        prefix: str | None = None,
+        limit: int | None = None,
+        next: str | None = None,
+    ) -> Listing[str]:
         """``listBucketObjects`` → the paths of the objects in the bucket (not measured).
 
         Capped at ``limit`` (``None`` = every path).
@@ -35,6 +40,8 @@ class CloudEnvironmentStorageClient(Resource):
             cloud_environment_id: The environment the bucket belongs to.
             prefix: Only the paths that start with this.
             limit: The most paths to return; ``None`` returns every path.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The paths of the objects.
@@ -42,11 +49,11 @@ class CloudEnvironmentStorageClient(Resource):
         Examples:
             >>> datalens.cloudenvironmentstorage.bucket_objects_list(
             ...     "env0000000001", prefix="raw/"
-            ... ).root
+            ... ).collect().items
             ['raw/orders.parquet', 'raw/users.parquet']
         """
         paged = endpoints.bucket_objects_list(cloud_environment_id, prefix=prefix)
-        return ItemList[str](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def bucket_object_metadata_get(
         self, cloud_environment_id: str, *, path: str

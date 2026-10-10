@@ -5,8 +5,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.triggers.models import (
@@ -37,13 +38,14 @@ def list_(
     queue_id: QueueIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Trigger]:
+) -> Listing[Trigger]:
     """List the triggers of QUEUE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.triggers.list(queue_id, limit=cap)
+    return tracker.triggers.list(queue_id, limit=cap, next=next_)
 
 
 @app.command()

@@ -6,13 +6,15 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import Listed, SortDirection
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
     RO,
+    All,
     IssueKey,
+    Next,
     app_config,
     new_server,
     tracker_client,
@@ -28,6 +30,8 @@ def list_(
         int | None,
         Field(ge=1, description=f"Max changes to return; {LIMIT_CAP}"),
     ] = None,
+    all: All = False,
+    next: Next = None,
     field: Annotated[
         str | None, Field(description="Keep the changes of this field, e.g. ``status``.")
     ] = None,
@@ -37,13 +41,13 @@ def list_(
     sort: Annotated[SortDirection | None, Field(description="Order of the changes.")] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[ChangelogEntry]:
+) -> Listed[ChangelogEntry]:
     """Full changelog (edit history) for a Tracker issue.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
     is given.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.changelog.list(
-        issue_key, limit=cap, field=field, change_type=change_type, sort=sort
-    )
+        issue_key, limit=cap, next=next, field=field, change_type=change_type, sort=sort
+    ).collect()

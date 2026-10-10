@@ -49,6 +49,8 @@ cap unless ``limit`` is given.
 |---|---|:---:|---|
 | `collection_id` | string or null |  | Collection id; `null` lists the root. |
 | `limit` | integer or null |  | Max items to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `filter_string` | string or null |  | Keep the items whose title has this text. |
 | `order_field` | `title` · `createdAt` · `updatedAt` or string or null |  | What to sort by. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction. |
@@ -83,6 +85,8 @@ Who has which role on a collection, auto-paginated.
 |---|---|:---:|---|
 | `collection_id` | string | yes | Collection id. |
 | `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
 
 ## `datalens_collections_create`
@@ -189,6 +193,8 @@ collection holds. Capped at the configured item cap unless ``limit`` is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max workbooks to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `collection_id` | string or null |  | Collection to list; the root when left out. |
 | `filter_string` | string or null |  | Keep the workbooks whose title has this text. |
 | `order_field` | `title` · `createdAt` · `updatedAt` or string or null |  | What to sort by. |
@@ -216,6 +222,8 @@ Who has which role on a workbook, auto-paginated.
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
 | `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
 
 ## `datalens_workbooks_entries_list`
@@ -231,6 +239,8 @@ at the configured item cap unless ``limit`` is given.
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
 | `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
 | `only_my` | boolean or null |  | Keep only what the caller created. |
 | `created_by` | string or null |  | Keep only what this user created. |
@@ -373,6 +383,8 @@ cap unless ``limit`` is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max clusters to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `collection_id` | string or null |  | Keep the clusters of one collection. |
 | `filter` | array of string or null |  | Filter expressions of the API. |
 
@@ -454,6 +466,8 @@ Experimental API, not measured. Capped at the configured item cap unless ``limit
 |---|---|:---:|---|
 | `cloud_environment_id` | string | yes | The cloud environment the presets are for. |
 | `limit` | integer or null |  | Max presets to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_sparkclusters_resource_presets_get`
 
@@ -550,6 +564,8 @@ the configured item cap unless ``limit`` is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max members to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `language` | `en` · `ru` or string or null |  | Language of the names. |
 | `search` | string or null |  | Keep the members whose name or address has this text. |
 | `tab_id` | `SUBJECT_TYPE_UNSPECIFIED` · `USER_ACCOUNT` · `GROUP` · `INVITEE` · `SERVICE_ACCOUNT` · `_system` or string or null |  | Keep one kind of subject. |
@@ -568,6 +584,8 @@ cap unless ``limit`` is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `ids` | array of string or null |  | Keep the entries with these ids. |
 | `scope` | `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep one kind of entry. |
 | `scopes` | array of `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep several kinds of entries. |
@@ -594,6 +612,8 @@ Use it before changing or deleting an entry, to see what depends on it. Auto-pag
 |---|---|:---:|---|
 | `entry_ids` | array of string | yes | Entry ids. |
 | `limit` | integer or null |  | Max relations to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `link_direction` | string or null |  | `from`: what the entries use; `to`: what uses them. |
 | `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
 | `scope` | `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep one kind of related entry. |
@@ -620,6 +640,8 @@ The revisions of an entry: who saved it and when. Auto-paginated.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `limit` | integer or null |  | Max revisions to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `rev_ids` | array of string or null |  | Keep only these revisions. |
 
 ## `datalens_entries_rename`
@@ -1336,6 +1358,8 @@ An entry that lies in a workbook, or an id nothing knows, answers an empty list.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
 | `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
 
 ## `datalens_sharedentries_access_bindings_update`
@@ -1364,6 +1388,8 @@ A deleted entry is listed too, with ``isDeleted``.
 | `from_` | string | yes | The start of the period: an ISO-8601 time with its zone. |
 | `to` | string or null |  | The end of the period. |
 | `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_audit_entry_permissions_get`
 
@@ -1468,6 +1494,8 @@ its holder last signed in.
 | `sort_by` | `createdAt` · `updatedAt` or string or null |  | The field to sort by. |
 | `order` | `asc` · `desc` or string or null |  | The order of the sort. |
 | `limit` | integer or null |  | Max licences to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_licensing_licenses_assign`
 
@@ -1516,6 +1544,8 @@ Experimental in the DataLens API. An instance with none answers an empty list.
 | `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``cloud_id``, ``status`` or ``created_by_id``. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `limit` | integer or null |  | Max environments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_cloudenvironments_get`
 
@@ -1592,6 +1622,8 @@ rights.
 | `cloud_environment_id` | string | yes | Id of the cloud environment the bucket belongs to. |
 | `prefix` | string or null |  | Only the paths that start with this. |
 | `limit` | integer or null |  | Max paths to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_cloudenvironmentstorage_bucket_object_metadata_get`
 
@@ -1655,6 +1687,8 @@ Experimental in the DataLens API. An instance with none answers an empty list.
 | `reverse_order` | boolean or null |  | Sort the other way round. |
 | `include_permissions` | boolean or null |  | Also say what the caller may do with it. |
 | `limit` | integer or null |  | Max catalogs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_restcatalogs_create`
 
@@ -1701,6 +1735,8 @@ Experimental in the DataLens API. An instance with none answers an empty list.
 | `collection_id` | string or null |  | Only the clusters of this collection. |
 | `catalog_id` | string or null |  | Only the clusters this REST catalog is attached to. |
 | `limit` | integer or null |  | Max clusters to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_trinoclusters_get`
 
@@ -1811,6 +1847,8 @@ environment nothing knows answers 403 Permission denied, not 404.
 |---|---|:---:|---|
 | `cloud_environment_id` | string | yes | The cloud environment the presets are of. |
 | `limit` | integer or null |  | Max presets to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_trinoclusters_resource_preset_get`
 
@@ -1839,6 +1877,8 @@ nothing knows answers 403 Permission denied, not 404: it is not a lack of rights
 | `cluster_id` | string | yes | Id of the Spark cluster. |
 | `filter` | array of string or null |  | Conditions, all of which must hold; each is ``field="value"`` over ``name``, ``created_by``, ``application_type`` or ``catalog_id``. |
 | `limit` | integer or null |  | Max applications to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `datalens_sparkapplications_get`
 

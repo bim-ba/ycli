@@ -6,8 +6,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.body_fields import CallerFields
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.sparkapplications.models import (
@@ -15,7 +16,6 @@ from ycli.yandex.datalens.sparkapplications.models import (
     SparkApplicationCreate,
     SparkApplicationLog,
 )
-from ycli.yandex.models import ItemList
 
 UNMEASURED = (
     "Experimental in the DataLens API and written from its document: not measured. A cluster "
@@ -48,13 +48,14 @@ def list_(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SparkApplication]:
+) -> Listing[SparkApplication]:
     """List the applications of a Spark cluster (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.sparkapplications.list(cluster_id, filter=filter or None, limit=cap)
+    return datalens.sparkapplications.list(cluster_id, filter=filter or None, limit=cap, next=next_)
 
 
 @app.command(epilog=UNMEASURED)

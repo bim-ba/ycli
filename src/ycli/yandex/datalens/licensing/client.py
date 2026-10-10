@@ -6,19 +6,19 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.licensing import endpoints
-from ycli.yandex.datalens.licensing.models import LicenseListed
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.licensing.models import (
         License,
         LicenseLimits,
+        LicenseListed,
         LicenseSortField,
         LicenseStatus,
     )
-    from ycli.yandex.models import SortDirection
+    from ycli.yandex.models import ItemList, SortDirection
 
 
 class LicensingClient(Resource):
@@ -37,7 +37,8 @@ class LicensingClient(Resource):
         sort_by: LicenseSortField | None = None,
         order: SortDirection | None = None,
         limit: int | None = None,
-    ) -> ItemList[LicenseListed]:
+        next: str | None = None,
+    ) -> Listing[LicenseListed]:
         """``getLicenses`` → the licences of the instance, draining the pages.
 
         Capped at ``limit`` (``None`` = every licence).
@@ -48,20 +49,22 @@ class LicensingClient(Resource):
             sort_by: The field to sort by: ``createdAt`` or ``updatedAt``.
             order: ``asc`` or ``desc``.
             limit: The most licences to return; ``None`` returns every licence.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The licences: whose each is, its type, whether it is active and when its holder
             last signed in.
 
         Examples:
-            >>> held = datalens.licensing.licenses_list(status="active").root
+            >>> held = datalens.licensing.licenses_list(status="active").collect().items
             >>> [(licence.user_id, licence.license_type) for licence in held]
             [('user-1', 'creator')]
         """
         paged = endpoints.licenses_list(
             user_ids=user_ids, status=status, sort_by=sort_by, order=order
         )
-        return ItemList[LicenseListed](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def licenses_assign(self, user_ids: Sequence[str]) -> ItemList[License]:
         """``assignLicenses`` — give each of these users a licence (not measured).

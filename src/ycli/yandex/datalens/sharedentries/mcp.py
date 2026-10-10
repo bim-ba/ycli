@@ -11,12 +11,14 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
 )
 from ycli.yandex.datalens.models import AccessBindingDelta, Operation, SubjectWithBindings
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-sharedentries")
 
@@ -34,21 +36,24 @@ def access_bindings_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max subjects to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     get_inherited_bindings: Annotated[
         bool | None, Field(description="Also list the roles inherited from above.")
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SubjectWithBindings]:
+) -> Listed[SubjectWithBindings]:
     """Who has which role on a shared entry, auto-paginated.
 
     An entry that lies in a workbook, or an id nothing knows, answers an empty list.
     """
     return client.sharedentries.access_bindings_list(
         entry_id,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         get_inherited_bindings=get_inherited_bindings,
-    )
+    ).collect()
 
 
 @mcp.tool(

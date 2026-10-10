@@ -59,6 +59,7 @@ from tests.contract import Case, Sibling, load_cases  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION  # noqa: E402
+from ycli.yandex.core.listing import Listing  # noqa: E402
 from ycli.yandex.core.pagination import BodyCursorPagination  # noqa: E402
 from ycli.yandex.models import ignored_fields  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
@@ -314,7 +315,9 @@ def replay(case: Case) -> list[Recorded]:
     ) as client:
         operation = getattr(getattr(client, resource), method)
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
-        operation(*args, **case.kwargs)
+        result = operation(*args, **case.kwargs)
+        if isinstance(result, Listing):
+            list(result)  # a listing asks nothing until it is read
     found = []
     for first in announced:
         endpoint: Endpoint = first.extensions[ENDPOINT_EXTENSION]

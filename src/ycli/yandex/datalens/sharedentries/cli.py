@@ -4,12 +4,12 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import AccessBindingDelta, Operation, SubjectWithBindings
 from ycli.yandex.datalens.typedefs import DeltaOption, EntryIDArg
-from ycli.yandex.models import ItemList
 
 app = typer.Typer(
     name="sharedentries",
@@ -23,6 +23,7 @@ def access_bindings_list(
     entry_id: EntryIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     get_inherited_bindings: Annotated[
         bool | None,
         typer.Option(
@@ -33,11 +34,11 @@ def access_bindings_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SubjectWithBindings]:
+) -> Listing[SubjectWithBindings]:
     """List who has which role on a shared entry (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.sharedentries.access_bindings_list(
-        entry_id, limit=cap, get_inherited_bindings=get_inherited_bindings
+        entry_id, limit=cap, next=next_, get_inherited_bindings=get_inherited_bindings
     )
 
 

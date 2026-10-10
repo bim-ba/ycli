@@ -4,9 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.users.models import User
 
@@ -31,11 +31,12 @@ def get(
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     expand: Annotated[str | None, typer.Option(help="Extra data to include, e.g. groups.")] = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[User]:
+) -> Listing[User]:
     """List all organisation users (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.users.list(limit=cap, expand=expand)
+    return tracker.users.list(limit=cap, next=next_, expand=expand)

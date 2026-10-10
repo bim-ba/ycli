@@ -13,6 +13,8 @@ from ycli.yandex.datalens.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     PermissionsInfo,
     app_config,
     datalens_client,
@@ -36,7 +38,7 @@ from ycli.yandex.datalens.workbooks.models import (
     WorkbooksDeleted,
     WorkbooksMoved,
 )
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import ItemList, Listed, SortDirection
 
 mcp = new_server("datalens-workbooks")
 
@@ -58,6 +60,8 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max workbooks to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     collection_id: Annotated[
         str | None, Field(description="Collection to list; the root when left out.")
     ] = None,
@@ -70,21 +74,22 @@ def list_(
     include_permissions_info: PermissionsInfo = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[WorkbookListed]:
+) -> Listed[WorkbookListed]:
     """The workbooks of one collection (the root by default), auto-paginated.
 
     It does not descend into nested collections: ``collections_content_list`` shows what a
     collection holds. Capped at the configured item cap unless ``limit`` is given.
     """
     return client.workbooks.list(
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         collection_id=collection_id,
         filter_string=filter_string,
         order_field=order_field,
         order_direction=order_direction,
         only_my=only_my,
         include_permissions_info=include_permissions_info,
-    )
+    ).collect()
 
 
 @mcp.tool(
@@ -107,18 +112,21 @@ def access_bindings_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max subjects to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     get_inherited_bindings: Annotated[
         bool | None, Field(description="Also list the roles inherited from above.")
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SubjectWithBindings]:
+) -> Listed[SubjectWithBindings]:
     """Who has which role on a workbook, auto-paginated."""
     return client.workbooks.access_bindings_list(
         workbook_id,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         get_inherited_bindings=get_inherited_bindings,
-    )
+    ).collect()
 
 
 IntoCollection = Annotated[
@@ -136,6 +144,8 @@ def entries_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max entries to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     include_permissions_info: PermissionsInfo = None,
     only_my: Annotated[bool | None, Field(description="Keep only what the caller created.")] = None,
     created_by: Annotated[
@@ -152,7 +162,7 @@ def entries_list(
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[WorkbookEntry]:
+) -> Listed[WorkbookEntry]:
     """What a workbook holds: connections, datasets, charts and dashboards, auto-paginated.
 
     ``scope`` says the kind of each entry; its id opens it with the tools of that kind. Capped
@@ -160,14 +170,15 @@ def entries_list(
     """
     return client.workbooks.entries_list(
         workbook_id,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         include_permissions_info=include_permissions_info,
         only_my=only_my,
         created_by=created_by,
         scope=scope,
         order_by=order_by,
         filters=filters,
-    )
+    ).collect()
 
 
 @mcp.tool(name="workbooks_create", annotations={**WRITE, "title": "Create DataLens workbook"})

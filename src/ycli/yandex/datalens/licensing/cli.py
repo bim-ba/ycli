@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.licensing.models import (
     License,
@@ -42,14 +43,20 @@ def licenses_list(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[LicenseListed]:
+) -> Listing[LicenseListed]:
     """List the licences of the instance: whose, of which type, active or not (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.licensing.licenses_list(
-        user_ids=user_ids or None, status=status, sort_by=sort_by, order=order, limit=cap
+        user_ids=user_ids or None,
+        status=status,
+        sort_by=sort_by,
+        order=order,
+        limit=cap,
+        next=next_,
     )
 
 

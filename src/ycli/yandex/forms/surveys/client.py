@@ -1,9 +1,10 @@
 """Forms ``/surveys`` client on the httpx2 core."""
 
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.surveys import endpoints
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack
 
 
 class SurveysClient(Resource):
@@ -13,6 +14,7 @@ class SurveysClient(Resource):
         self,
         *,
         limit: int | None = None,
+        next: str | None = None,
         name: str | None = None,
         published: bool | None = None,
         ownership: str | None = None,
@@ -20,11 +22,13 @@ class SurveysClient(Resource):
         favourite: bool | None = None,
         show_all: bool | None = None,
         orderby: str | None = None,
-    ) -> ItemList[Survey]:
+    ) -> Listing[Survey]:
         """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).
 
         Args:
             limit: The most forms to return; ``None`` returns every form.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             name: Keep the forms whose name matches.
             published: Keep only published (``True``) or only unpublished (``False``) forms.
             ownership: ``mine`` (created by the caller) or ``shared`` (open to the caller).
@@ -37,7 +41,7 @@ class SurveysClient(Resource):
             The forms.
 
         Examples:
-            >>> forms.surveys.list(limit=500).root[0].name
+            >>> forms.surveys.list(limit=500).collect().items[0].name
             'Onboarding'
         """
         paged = endpoints.list_(
@@ -49,7 +53,7 @@ class SurveysClient(Resource):
             show_all=show_all,
             orderby=orderby,
         )
-        return ItemList[Survey](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, survey_id: str) -> Survey:
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).

@@ -8,8 +8,16 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.audit.models import AuditEntry, UserEntryPermissions
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import LIMIT_CAP, RO, app_config, datalens_client, new_server
-from ycli.yandex.models import ItemList
+from ycli.yandex.datalens.dependencies import (
+    LIMIT_CAP,
+    RO,
+    All,
+    Next,
+    app_config,
+    datalens_client,
+    new_server,
+)
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-audit")
 
@@ -26,14 +34,18 @@ def entries_updates_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max entries to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[AuditEntry]:
+) -> Listed[AuditEntry]:
     """The entries changed in a period, auto-paginated: what, when and by whom.
 
     A deleted entry is listed too, with ``isDeleted``.
     """
-    return client.audit.entries_updates_list(from_, to=to, limit=config.http.cap(limit))
+    return client.audit.entries_updates_list(
+        from_, to=to, limit=config.http.cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(

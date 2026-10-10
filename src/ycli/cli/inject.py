@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import shlex
 from typing import TYPE_CHECKING, Any, get_type_hints
 
 import typer
@@ -37,7 +38,10 @@ from ycli.cli.global_options import (
     leaf_parameters,
     refuse_fields,
 )
+from ycli.cli.output import Continuable
+from ycli.yandex.core.continuation import HANDLES, NOTHING_ELSE
 from ycli.yandex.core.guard import RequestPlanned
+from ycli.yandex.core.listing import Listing
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -73,6 +77,58 @@ class _Deferred:
         if self._built is None:
             self._built = self._build()
         return getattr(self._built, name)
+
+
+def _typed(context: typer.Context, name: str | None) -> bool:
+    """Whether the caller gave the parameter ``name`` on the command line."""
+    source = context.get_parameter_source(name) if name else None
+    return source is not None and source.name == "COMMANDLINE"
+
+
+def _only_the_limit(context: typer.Context, global_options: set[str]) -> None:
+    """Refuse an option given beside ``--next`` that the token already decides.
+
+    A token carries its listing, so a filter given anew would be passed over without a word,
+    and so would a field of the body (``-F``, ``--body-file``): the body is the token's.
+    What a command cannot be called without (its arguments, a required option) is still given.
+    """
+    root = context.find_root().params
+    given = [
+        max(parameter.opts, key=len)
+        for parameter in context.command.params
+        if parameter.param_type_name == "option"
+        and not parameter.required
+        and parameter.name not in global_options
+        and (parameter.name or "").rstrip("_") not in HANDLES
+        and _typed(context, parameter.name)
+    ]
+    given += ["-F"] if root.get("field") else []
+    given += ["--body-file"] if root.get("body_file") is not None else []
+    if given:
+        # violation(arch-9): what the token decides cannot be decided twice in one call
+        raise typer.BadParameter(f"{NOTHING_ELSE} (given: {', '.join(given)})", param_hint="--next")
+
+
+def _again(context: typer.Context) -> str:
+    """This command as a call that goes on gives it: its name and what it cannot go without.
+
+    ``ycli tracker issues search 'Queue: DE' --scroll-type sorted`` -> ``ycli tracker issues
+    search 'Queue: DE'``: a ready line for ``--next``, since the rest is the token's. The
+    profile the listing was asked under is in it: run without it, the line would go on in
+    another account.
+    """
+    program, *path = context.command_path.split()
+    profile = context.find_root().params.get("profile")
+    words = [program, *(["--profile", profile] if profile else []), *path]
+    for parameter in context.command.params:
+        given = context.params.get(parameter.name or "")
+        if not parameter.required or given is None:
+            continue
+        for value in given if isinstance(given, list | tuple) else [given]:
+            if parameter.param_type_name == "option":
+                words.append(max(parameter.opts, key=len))
+            words.append(str(value))
+    return shlex.join(words)
 
 
 def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
@@ -114,6 +170,8 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
             # the name two meanings
             raise typer.BadParameter(OWN_FIELD, param_hint="-F")
         apply_leaf_values(kwargs, root.params)
+        if kwargs.get("next_") is not None:
+            _only_the_limit(context, {parameter.name for parameter in leaf})
         if not can_send:
             refuse_fields(context)
         app_context: AppContext = root.obj
@@ -129,6 +187,8 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
         if fields.given and not fields.taken:
             # violation(arch-9): the command sent no body at all, so the fields went nowhere
             raise typer.BadParameter(NO_BODY, param_hint="-F / --body-file")
+        if isinstance(result, Listing):
+            return Continuable(result, _again(context))
         return result
 
     context = inspect.Parameter(_CONTEXT, inspect.Parameter.KEYWORD_ONLY, annotation=typer.Context)

@@ -34,6 +34,7 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import _EFFECT_BY_METHOD, ENDPOINT_EXTENSION
 from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
+from ycli.yandex.models import Listed
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -313,6 +314,8 @@ def output_problems(case: Case, output: Any) -> list[str]:
         >>> output_problems(case, {"id": 4}), output_problems(case, {"id": None})
         ([], ['id: None != 4'])
     """
+    if isinstance(output, dict) and output.keys() == Listed.model_fields.keys():
+        output = output["items"]  # a listing on any surface: its items, over every page
     if case.output is not UNSTATED:
         return [] if output == case.output else [f"returned {output!r}, stated {case.output!r}"]
     replies = [reply for _, reply in case.exchanges]

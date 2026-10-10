@@ -12,6 +12,8 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
@@ -22,7 +24,7 @@ from ycli.yandex.datalens.sparkclusters.models import (
     SparkCluster,
     SparkResourcePreset,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-sparkclusters")
 
@@ -35,6 +37,8 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max clusters to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     collection_id: Annotated[
         str | None, Field(description="Keep the clusters of one collection.")
     ] = None,
@@ -43,15 +47,18 @@ def list_(
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SparkCluster]:
+) -> Listed[SparkCluster]:
     """The Spark clusters of DataLens, auto-paginated.
 
     Experimental API, not measured: ycli follows its document. Capped at the configured item
     cap unless ``limit`` is given.
     """
     return client.sparkclusters.list(
-        limit=config.http.cap(limit), collection_id=collection_id, filter=filter
-    )
+        limit=config.http.cap(limit, all_=all),
+        next=next,
+        collection_id=collection_id,
+        filter=filter,
+    ).collect()
 
 
 @mcp.tool(name="sparkclusters_get", annotations={**RO, "title": "Get DataLens Spark cluster"})
@@ -145,16 +152,18 @@ def resource_presets_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max presets to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SparkResourcePreset]:
+) -> Listed[SparkResourcePreset]:
     """The sizes an instance of a Spark cluster can take, auto-paginated.
 
     Experimental API, not measured. Capped at the configured item cap unless ``limit`` is given.
     """
     return client.sparkclusters.resource_presets_list(
-        cloud_environment_id, limit=config.http.cap(limit)
-    )
+        cloud_environment_id, limit=config.http.cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(

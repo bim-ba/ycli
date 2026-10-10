@@ -443,7 +443,10 @@ class Listed[T](APIModel):
     """
 
     items: list[T] = Field(description="The items given.")
-    truncated: bool = Field(default=False, description="Whether the listing has more items.")
+    truncated: bool = Field(
+        default=False,
+        description="Whether the listing stopped at the limit: there may be more; `next` goes on.",
+    )
     next: str | None = Field(
         default=None, description="Give it back to the same call to go on; absent at the end."
     )

@@ -391,7 +391,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/project/_search",
-                    {"fields": "summary,lead"},
+                    {"fields": "summary,lead", "page": "1", "perPage": "100"},
                     {
                         "input": "Q4",
                         "filter": {"entityStatus": "in_progress", "lead": "lead-9"},
@@ -428,7 +428,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/goal/_search",
-                    {"fields": "entityStatus"},
+                    {"fields": "entityStatus", "page": "1", "perPage": "100"},
                     {"input": "Revenue"},
                 ),
                 Reply(json={"values": [{"id": "g10"}, {"id": "g11"}]}),
@@ -450,6 +450,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/portfolio/_search",
+                    {"page": "1", "perPage": "100"},
                     json={"input": "Infra", "orderBy": "summary"},
                 ),
                 Reply(json={"values": []}),
@@ -463,15 +464,18 @@ CASES = [
         cli=["tracker", "entities", "search", "project"],
         mcp=("tracker_entities_search", {"entity_type": "project"}),
         exchanges=[
-            (Sent("POST", "entities/project/_search", json={}), Reply(json={"values": []})),
+            (
+                Sent("POST", "entities/project/_search", {"page": "1", "perPage": "100"}, json={}),
+                Reply(json={"values": []}),
+            ),
         ],
         effect=Effect.READ,
     ),
-    # Paging the search is SDK-only, and the SDK reads the one page asked for.
+    # The SDK alone: a limit under the size of a page narrows the page to it.
     Case(
         "tracker.entities.search",
         args=("goal", {"input": "Paged"}),
-        kwargs={"per_page": 25, "page": 3},
+        kwargs={"limit": 25},
         cli=None,
         mcp=None,
         exchanges=[
@@ -479,7 +483,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/goal/_search",
-                    {"perPage": "25", "page": "3"},
+                    {"perPage": "25", "page": "1"},
                     {"input": "Paged"},
                 ),
                 Reply(json={"hits": 80, "pages": 4, "values": [{"id": "g12"}]}),
@@ -1431,6 +1435,7 @@ CASES = [
                 Sent(
                     "POST",
                     "entities/report/_search",
+                    {"page": "1", "perPage": "100"},
                     json={
                         "filter": {"author": "report-author"},
                         "orderBy": "createdAt",
@@ -1469,7 +1474,12 @@ CASES = [
         ),
         exchanges=[
             (
-                Sent("POST", "entities/report/_search", json={"orderBy": "updatedAt"}),
+                Sent(
+                    "POST",
+                    "entities/report/_search",
+                    {"page": "1", "perPage": "100"},
+                    json={"orderBy": "updatedAt"},
+                ),
                 Reply(json={"hits": 0, "pages": 0, "values": []}),
             )
         ],

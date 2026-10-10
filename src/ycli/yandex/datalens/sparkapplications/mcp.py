@@ -11,6 +11,8 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
@@ -21,7 +23,7 @@ from ycli.yandex.datalens.sparkapplications.models import (
     SparkApplicationCreate,
     SparkApplicationLog,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-sparkapplications")
 
@@ -44,15 +46,19 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max applications to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SparkApplication]:
+) -> Listed[SparkApplication]:
     """The applications of a Spark cluster, auto-paginated.
 
     Experimental in the DataLens API and written from its document: not measured. A cluster
     nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
     """
-    return client.sparkapplications.list(cluster_id, filter=filter, limit=config.http.cap(limit))
+    return client.sparkapplications.list(
+        cluster_id, filter=filter, limit=config.http.cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(

@@ -3,8 +3,8 @@
 Examples:
     >>> get(7).path
     'boards/7'
-    >>> list_(page_size=20).endpoint.params
-    {'perPage': 20}
+    >>> list_(page_size=20).pagination.page_size
+    20
 """
 
 from http import HTTPMethod
@@ -24,10 +24,8 @@ def _board_id(board: Board) -> str | None:
 def list_(*, page_size: int = PAGE_SIZE) -> Paged[ItemList[Board], Board]:
     """``GET /boards/_paginate``: ascending ids, each next page from ``id=<last board id>``."""
     return Paged(
-        Endpoint(
-            HTTPMethod.GET, "boards/_paginate", ItemList[Board], params={"perPage": page_size}
-        ),
-        RelativeIDPagination(id_of=_board_id),
+        Endpoint(HTTPMethod.GET, "boards/_paginate", ItemList[Board]),
+        RelativeIDPagination(id_of=_board_id, page_size=page_size),
         lambda page: page.root,
     )
 

@@ -15,11 +15,20 @@ from typing import Annotated, Any, Literal, get_args, get_origin
 import typer
 
 from ycli.cli.formats import OutputFormat
+from ycli.yandex.core.continuation import RULE
 
 LimitOption = Annotated[
     int | None, typer.Option(min=1, help="Max items to fetch (default: the configured cap).")
 ]
 AllOption = Annotated[bool, typer.Option("--all", help="Fetch everything, ignoring the cap.")]
+NextOption = Annotated[
+    str | None,
+    typer.Option(
+        "--next",
+        metavar="TOKEN",
+        help=f"Go on from where an earlier run stopped, with the token it printed: {RULE}.",
+    ),
+]
 
 FormatOption = Annotated[
     OutputFormat | None,

@@ -195,6 +195,10 @@ ignore = ["ANN401", "D105", "D107"]
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+# `next` and `all` are the caller's words for a listing on every surface (#502).
+[tool.ruff.lint.flake8-builtins]
+ignorelist = ["next", "all"]
+
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastmcp.dependencies.Depends"]
 

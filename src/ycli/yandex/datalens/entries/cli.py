@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.entries.models import (
     EntriesPermissions,
@@ -29,6 +30,7 @@ EntryIDsArg = Annotated[list[str], typer.Argument(metavar="ENTRY_ID...", help="E
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     ids: Annotated[
         list[str] | None, typer.Option("--id", help="Keep the entry with this id (repeatable).")
     ] = None,
@@ -89,11 +91,12 @@ def list_(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[Entry]:
+) -> Listing[Entry]:
     """Find entries across the organization (auto-paginated); give --scope, --scopes or --id."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.entries.list(
         limit=cap,
+        next=next_,
         ids=ids,
         scope=scope,
         scopes=scopes,
@@ -115,6 +118,7 @@ def relations_list(
     entry_ids: EntryIDsArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     # Its two values are everyday words: as a named set they would be found in every other
     # description that says them, so the option is plain text.
     link_direction: Annotated[
@@ -128,12 +132,13 @@ def relations_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[Relation]:
+) -> Listing[Relation]:
     """List what entries use, or what uses them (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.entries.relations_list(
         entry_ids,
         limit=cap,
+        next=next_,
         link_direction=link_direction,
         include_permissions_info=include_permissions_info,
         scope=scope,
@@ -151,16 +156,17 @@ def revisions_list(
     entry_id: EntryIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     rev_ids: Annotated[
         list[str] | None, typer.Option("--rev-id", help="Keep this revision (repeatable).")
     ] = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[Revision]:
+) -> Listing[Revision]:
     """List the revisions of an entry (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.entries.revisions_list(entry_id, limit=cap, rev_ids=rev_ids)
+    return datalens.entries.revisions_list(entry_id, limit=cap, next=next_, rev_ids=rev_ids)
 
 
 @app.command()

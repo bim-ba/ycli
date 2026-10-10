@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.forms.notifications.models import (
@@ -58,10 +59,11 @@ def list_(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     forms: FormsClient,
-) -> ItemList[Notification]:
+) -> Listing[Notification]:
     """List a form's integration runs, filtered (auto-paginated; --all for everything).
 
     Give --survey-id: without it the API answers 404 Not Found, and the other filters only
@@ -82,6 +84,7 @@ def list_(
         integration_type=integration_type,
         ordering=ordering,
         limit=cap,
+        next=next_,
     )
 
 

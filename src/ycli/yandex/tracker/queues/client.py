@@ -8,14 +8,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.queues import endpoints
-from ycli.yandex.tracker.queues.models import (
-    Queue,
-)
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.queues.models import (
+        Queue,
         QueueCreate,
         QueueField,
         QueueGroupAccess,
@@ -36,8 +35,9 @@ class QueuesClient(Resource):
         self,
         *,
         limit: int | None = None,
+        next: str | None = None,
         expand: str | None = None,
-    ) -> ItemList[Queue]:
+    ) -> Listing[Queue]:
         """``GET /queues/`` → flat ``ItemList[Queue]``, draining ``page``/``perPage`` internally.
 
         Capped at ``limit`` (``None`` = every queue). The API returns 50 queues per page; this
@@ -45,18 +45,18 @@ class QueuesClient(Resource):
 
         Args:
             limit: The most queues to return; ``None`` returns every queue.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             expand: The extra blocks to include in each queue, as in :meth:`get`.
 
         Returns:
             The queues, across all pages.
 
         Examples:
-            >>> tracker.queues.list(limit=500).root[-1].key
+            >>> tracker.queues.list(limit=500).collect().items[-1].key
             'TAIL'
         """
-        return ItemList[Queue](
-            list(self._session.iterate(endpoints.list_(expand=expand), limit=limit))
-        )
+        return self._session.iterate(endpoints.list_(expand=expand), limit=limit, next=next)
 
     def get(self, queue_id: str, expand: str | None = None) -> Queue:
         """``GET /queues/{queue_id}`` → a single :class:`Queue`.

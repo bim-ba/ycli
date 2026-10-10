@@ -5,14 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.triggers import endpoints
-from ycli.yandex.tracker.triggers.models import (
-    Trigger,
-)
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.triggers.models import (
+        Trigger,
         TriggerCreate,
         TriggerUpdate,
         WebhookLogEntry,
@@ -22,7 +21,9 @@ if TYPE_CHECKING:
 class TriggersClient(Resource):
     """List, get, create and update a queue's triggers; read a trigger's webhook log."""
 
-    def list(self, queue_id: str, *, limit: int | None = None) -> ItemList[Trigger]:
+    def list(
+        self, queue_id: str, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[Trigger]:
         """``GET /queues/{queue_id}/triggers`` → every trigger of the queue, ascending by id.
 
         Drains the relative cursor (``id=<last trigger id>``). Capped at ``limit`` (``None`` =
@@ -31,17 +32,19 @@ class TriggersClient(Resource):
         Args:
             queue_id: The queue's key or numeric id.
             limit: The most triggers to return; ``None`` returns every trigger.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The queue's triggers, ascending by id.
 
         Examples:
-            >>> [trigger.name for trigger in tracker.triggers.list("LISTQ", limit=500).root]
+            >>> [trigger.name for trigger in tracker.triggers.list("LISTQ", limit=500)]
             ['First', 'Second']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_(queue_id, page_size=page_size)
-        return ItemList[Trigger](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, queue_id: str, trigger_id: int) -> Trigger:
         """``GET /queues/{queue_id}/triggers/{trigger_id}`` → a single trigger.

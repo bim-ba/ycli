@@ -12,6 +12,8 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
@@ -24,7 +26,7 @@ from ycli.yandex.datalens.trinoclusters.models import (
     TrinoResourcePreset,
     TrinoWorkerConfig,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-trinoclusters")
 
@@ -46,9 +48,11 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max clusters to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[TrinoCluster]:
+) -> Listed[TrinoCluster]:
     """The Trino clusters of the DataLens instance, auto-paginated.
 
     Experimental in the DataLens API. An instance with none answers an empty list.
@@ -57,8 +61,9 @@ def list_(
         filter=filter,
         collection_id=collection_id,
         catalog_id=catalog_id,
-        limit=config.http.cap(limit),
-    )
+        limit=config.http.cap(limit, all_=all),
+        next=next,
+    ).collect()
 
 
 @mcp.tool(name="trinoclusters_get", annotations={**RO, "title": "Get DataLens Trino cluster"})
@@ -197,17 +202,19 @@ def resource_presets_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max presets to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[TrinoResourcePreset]:
+) -> Listed[TrinoResourcePreset]:
     """The sizes a cluster's machines may have in a cloud environment, auto-paginated.
 
     Experimental in the DataLens API and written from its document: not measured. An
     environment nothing knows answers 403 Permission denied, not 404.
     """
     return client.trinoclusters.resource_presets_list(
-        cloud_environment_id, limit=config.http.cap(limit)
-    )
+        cloud_environment_id, limit=config.http.cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(

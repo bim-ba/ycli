@@ -10,14 +10,14 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from importlib.resources import files
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.exceptions import ValidationError as ArgumentsRefused
 from fastmcp.server.dependencies import get_access_token, get_http_request
 from fastmcp.server.middleware import Middleware
-from pydantic import SecretStr, ValidationError
+from pydantic import Field, SecretStr, ValidationError
 
 from ycli.settings import (
     AppConfig,
@@ -26,6 +26,7 @@ from ycli.settings import (
     ProfileError,
     missing_credentials,
 )
+from ycli.yandex.core.continuation import HANDLES, NOTHING_ELSE, RULE
 from ycli.yandex.errors import next_step
 from ycli.yandex.factory import build_client
 from ycli.yandex.models import field_error
@@ -68,6 +69,21 @@ REPEATS_TOOL = "ycli_repeats_tool"
 # The tail of every listing tool's `limit` description. It names the setting, not its value,
 # so the text stays true when HTTPConfig.max_items or the environment changes the cap.
 LIMIT_CAP = "omitted means the configured cap (YCLI__HTTP__MAX_ITEMS)."
+# The other two handles of a listing, the same on every tool that has `limit` (#502).
+All = Annotated[
+    bool,
+    Field(
+        description="Return everything, ignoring the cap. A long listing is better taken in "
+        "pieces: `limit`, then `next`."
+    ),
+]
+Next = Annotated[
+    str | None,
+    Field(
+        description="Go on from where an earlier call stopped, with the `next` it returned: "
+        f"{RULE}."
+    ),
+]
 # The most a tool's input schema may weigh, as ``len(json.dumps(schema))`` of what the server
 # lists. A client reads every tool's schema before the first call, and some cut a large one
 # short; a body that would take a tool over the budget is declared with :class:`OverBudget`.
@@ -208,7 +224,7 @@ def client_provider[C: DomainClient](
         >>> credentials = Credentials(oauth_token="token", organization_id="org")
         >>> with patch("ycli.yandex.mcp.caller_credentials", return_value=credentials):
         ...     with forms_client() as client:
-        ...         [survey.id for survey in client.surveys.list(limit=500).root]
+        ...         [survey.id for survey in client.surveys.list(limit=500)]
         ['686d0a1b2c3d4e5f00000001']
     """
 
@@ -239,6 +255,18 @@ class ArgumentRefusals(Middleware):
         call_next: CallNext[mt.CallToolRequestParams, ToolResult],
     ) -> ToolResult:
         """The tool's result; arguments that do not fit are refused with our own text."""
+        given = context.message.arguments or {}
+        if given.get("next") is not None and context.fastmcp_context is not None:
+            # A token carries its listing: a filter given anew would be passed over silently.
+            tool = await context.fastmcp_context.fastmcp.get_tool(context.message.name)
+            needed = set(tool.parameters.get("required", [])) if tool else set(given)
+            beside = sorted(
+                name
+                for name, value in given.items()
+                if value is not None and name not in needed | HANDLES
+            )
+            if beside:
+                raise ToolError(f"{NOTHING_ELSE} (given: {', '.join(beside)})")
         try:
             return await call_next(context)
         except ArgumentsRefused as refused:

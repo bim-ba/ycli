@@ -4,9 +4,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import SortDirection
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
@@ -21,6 +22,7 @@ def list_(
     issue_key: IssueKeyArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     field: Annotated[
         str | None, typer.Option(help="Only changes of this field, e.g. status.")
     ] = None,
@@ -32,9 +34,9 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[ChangelogEntry]:
+) -> Listing[ChangelogEntry]:
     """List all changelog entries for issue ISSUE_KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.changelog.list(
-        issue_key, limit=cap, field=field, change_type=change_type, sort=sort
+        issue_key, limit=cap, next=next_, field=field, change_type=change_type, sort=sort
     )

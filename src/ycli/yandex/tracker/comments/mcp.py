@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
 from ycli.yandex.tracker.dependencies import (
@@ -15,9 +15,11 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
     CommentID,
     Expand,
     IssueKey,
+    Next,
     app_config,
     new_server,
     tracker_client,
@@ -34,17 +36,19 @@ def list_(
         int | None,
         Field(ge=1, description=f"Max comments to return; {LIMIT_CAP}"),
     ] = None,
+    all: All = False,
+    next: Next = None,
     expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Comment]:
+) -> Listed[Comment]:
     """All comments on a Tracker issue, auto-paginated via the relative id-cursor.
 
     Capped at the configured item cap unless ``limit`` is given, so very long threads
     are truncated at the cap rather than fetched forever.
     """
-    cap = config.http.cap(limit)
-    return client.comments.list(issue_key, limit=cap, expand=expand)
+    cap = config.http.cap(limit, all_=all)
+    return client.comments.list(issue_key, limit=cap, next=next, expand=expand).collect()
 
 
 @mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"})

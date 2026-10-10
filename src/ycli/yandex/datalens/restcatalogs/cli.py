@@ -5,8 +5,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.restcatalogs.models import (
@@ -14,7 +15,6 @@ from ycli.yandex.datalens.restcatalogs.models import (
     RestCatalogBucketSettings,
     RestCatalogSortField,
 )
-from ycli.yandex.models import ItemList
 
 app = typer.Typer(
     name="restcatalogs",
@@ -49,10 +49,11 @@ def list_(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[RestCatalog]:
+) -> Listing[RestCatalog]:
     """List the REST catalogs (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.restcatalogs.list(
@@ -62,6 +63,7 @@ def list_(
         reverse_order=reverse_order,
         include_permissions=include_permissions,
         limit=cap,
+        next=next_,
     )
 
 

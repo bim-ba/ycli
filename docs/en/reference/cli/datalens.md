@@ -224,6 +224,7 @@ $ ycli datalens collections content-list [OPTIONS] [COLLECTION_ID]
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--filter-string TEXT`: Keep the items whose title has this.
 * `--order-field TEXT`: What to sort by. Known values: title, createdAt, updatedAt.
 * `--order-direction TEXT`: Sort direction. Known values: asc, desc.
@@ -301,6 +302,7 @@ $ ycli datalens collections access-bindings-list [OPTIONS] COLLECTION_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -551,6 +553,7 @@ $ ycli datalens workbooks list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--collection-id TEXT`: Collection to list; the root when left out.
 * `--filter-string TEXT`: Keep the titles that have this.
 * `--order-field TEXT`: What to sort by. Known values: title, createdAt, updatedAt.
@@ -607,6 +610,7 @@ $ ycli datalens workbooks access-bindings-list [OPTIONS] WORKBOOK_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -634,6 +638,7 @@ $ ycli datalens workbooks entries-list [OPTIONS] WORKBOOK_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `--only-my / --no-only-my`: Keep only what you created.
 * `--created-by TEXT`: Keep only what this user created.
@@ -958,6 +963,7 @@ $ ycli datalens sparkclusters list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--collection-id TEXT`: Keep the clusters of one collection.
 * `--filter TEXT`: A filter expression of the API (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1108,6 +1114,7 @@ $ ycli datalens sparkclusters resource-presets-list [OPTIONS]
 * `--cloud-environment-id TEXT`: The cloud environment the presets are for.  [required]
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -1334,6 +1341,7 @@ $ ycli datalens members list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--language TEXT`: Language of the names. Known values: en, ru.
 * `--search TEXT`: Keep the names or addresses that have this.
 * `--tab-id TEXT`: Keep one kind of subject. Known values: SUBJECT_TYPE_UNSPECIFIED, USER_ACCOUNT, GROUP, INVITEE, SERVICE_ACCOUNT, _system.
@@ -1382,6 +1390,7 @@ $ ycli datalens entries list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--id TEXT`: Keep the entry with this id (repeatable).
 * `--scope TEXT`: Keep one kind of entry. Known values: dash, report, widget, dataset, folder, connection, compute, artifact, sql_query.
 * `--scopes TEXT`: Keep this kind of entry (repeatable). Known values: dash, report, widget, dataset, folder, connection, compute, artifact, sql_query.
@@ -1421,6 +1430,7 @@ $ ycli datalens entries relations-list [OPTIONS] ENTRY_ID...
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--link-direction TEXT`: `from`: what they use; `to`: what uses them.
 * `--include-permissions-info / --no-include-permissions-info`: Also say what you may do with it.
 * `--scope TEXT`: Keep one kind of related entry. Known values: dash, report, widget, dataset, folder, connection, compute, artifact, sql_query.
@@ -1474,6 +1484,7 @@ $ ycli datalens entries revisions-list [OPTIONS] ENTRY_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--rev-id TEXT`: Keep this revision (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -3071,6 +3082,7 @@ $ ycli datalens sharedentries access-bindings-list [OPTIONS] ENTRY_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--get-inherited-bindings / --no-get-inherited-bindings`: Also list the inherited roles.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -3140,6 +3152,7 @@ $ ycli datalens audit entries-updates-list [OPTIONS]
 * `--to TEXT`: The end of the period.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -3376,6 +3389,7 @@ $ ycli datalens licensing licenses-list [OPTIONS]
 * `--order TEXT`: The order of the sort. Known values: asc, desc.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -3494,6 +3508,7 @@ $ ycli datalens cloudenvironments list [OPTIONS]
 * `--include-permissions / --no-include-permissions`: Also say what you may do with the environment.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -3651,6 +3666,7 @@ $ ycli datalens cloudenvironmentstorage bucket-objects-list [OPTIONS] CLOUD_ENVI
 * `--prefix TEXT`: Only the paths that start with this.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -3782,6 +3798,7 @@ $ ycli datalens restcatalogs list [OPTIONS]
 * `--include-permissions / --no-include-permissions`: Also say what you may do with each catalog.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -3905,6 +3922,7 @@ $ ycli datalens trinoclusters list [OPTIONS]
 * `--catalog-id TEXT`: Only the clusters this REST catalog is attached to.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -4119,6 +4137,7 @@ $ ycli datalens trinoclusters resource-presets-list [OPTIONS] CLOUD_ENVIRONMENT_
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -4197,6 +4216,7 @@ $ ycli datalens sparkapplications list [OPTIONS] CLUSTER_ID
 * `--filter TEXT`: A condition, all must hold: name="…", created_by="…", application_type="…", catalog_id="…" (repeatable).
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

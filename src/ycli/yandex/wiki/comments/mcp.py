@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import ItemList, Listed, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
     Comment,
@@ -19,6 +19,8 @@ from ycli.yandex.wiki.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     PageID,
     app_config,
     new_server,
@@ -35,6 +37,8 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max comments to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     order_by: Annotated[str | None, Field(description="Sort field: ``created_at``.")] = None,
     order_direction: Annotated[
         SortDirection | None, Field(description="Sort direction for ``order_by``.")
@@ -44,20 +48,21 @@ def list_(
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Comment]:
+) -> Listed[Comment]:
     """Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
     Capped at the configured item cap unless ``limit`` is given. Pair with
     ``pages_get_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.comments.list(
         page_id=page_id,
         limit=cap,
+        next=next,
         order_by=order_by,
         order_direction=order_direction,
         status_filter=status_filter,
-    )
+    ).collect()
 
 
 @mcp.tool(name="comments_thread_list", annotations={**RO, "title": "List Wiki comment thread"})
@@ -92,17 +97,21 @@ def thread_get(
     limit: Annotated[
         int | None, Field(ge=1, description="Max comments (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Comment]:
+) -> Listed[Comment]:
     """The thread of a comment as the Wiki server returns it — an empty list for every real thread.
 
     Checked live on 2026-10-02: the server's ``/thread`` endpoint has no replies to give, for a
     root comment or a reply, plain or inline. Use ``comments_thread_list``, which rebuilds the
     thread from the page's comment list.
     """
-    cap = config.http.cap(limit)
-    return client.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.comments.thread_get(
+        page_id=page_id, comment_id=comment_id, limit=cap, next=next
+    ).collect()
 
 
 @mcp.tool(name="comments_create", annotations={**WRITE, "title": "Create Wiki comment"})

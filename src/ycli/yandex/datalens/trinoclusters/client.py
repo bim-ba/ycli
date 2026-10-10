@@ -6,16 +6,17 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.trinoclusters import endpoints
-from ycli.yandex.datalens.trinoclusters.models import TrinoCluster, TrinoResourcePreset
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.models import LakehouseOperation
     from ycli.yandex.datalens.trinoclusters.models import (
         TrinoCatalogToAdd,
+        TrinoCluster,
         TrinoNewCatalog,
+        TrinoResourcePreset,
         TrinoWorkerConfig,
     )
 
@@ -36,7 +37,8 @@ class TrinoClustersClient(Resource):
         collection_id: str | None = None,
         catalog_id: str | None = None,
         limit: int | None = None,
-    ) -> ItemList[TrinoCluster]:
+        next: str | None = None,
+    ) -> Listing[TrinoCluster]:
         """``listTrinoClusters`` → the Trino clusters, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every cluster).
@@ -46,17 +48,19 @@ class TrinoClustersClient(Resource):
             collection_id: Only the clusters of this collection.
             catalog_id: Only the clusters this REST catalog is attached to.
             limit: The most clusters to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The Trino clusters.
 
         Examples:
-            >>> found = datalens.trinoclusters.list(collection_id="col0000000001").root
+            >>> found = datalens.trinoclusters.list(collection_id="col0000000001").collect().items
             >>> [(cluster.id, cluster.status) for cluster in found]
             [('tc00000000001', 'RUNNING')]
         """
         paged = endpoints.list_(filter=filter, collection_id=collection_id, catalog_id=catalog_id)
-        return ItemList[TrinoCluster](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(
         self,
@@ -222,8 +226,8 @@ class TrinoClustersClient(Resource):
         return self._session.send(endpoints.catalog_delete(cluster_id, catalog_id=catalog_id))
 
     def resource_presets_list(
-        self, cloud_environment_id: str, *, limit: int | None = None
-    ) -> ItemList[TrinoResourcePreset]:
+        self, cloud_environment_id: str, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[TrinoResourcePreset]:
         """``listTrinoResourcePresets`` → the sizes a cluster's machines may have (not measured).
 
         The environment is required: without it the API answers ``400``.
@@ -231,17 +235,21 @@ class TrinoClustersClient(Resource):
         Args:
             cloud_environment_id: The cloud environment the presets are of.
             limit: The most presets to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The presets: an id, the cores and the memory of each.
 
         Examples:
-            >>> presets = datalens.trinoclusters.resource_presets_list("env0000000001").root
+            >>> presets = (
+            ...     datalens.trinoclusters.resource_presets_list("env0000000001").collect().items
+            ... )
             >>> [(preset.id, preset.cores) for preset in presets]
             [('c4-m16', '4')]
         """
         paged = endpoints.resource_presets_list(cloud_environment_id)
-        return ItemList[TrinoResourcePreset](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def resource_preset_get(
         self, resource_preset_id: str, *, cloud_environment_id: str

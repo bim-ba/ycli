@@ -4,9 +4,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import BoardIDArg
@@ -16,11 +17,16 @@ app = typer.Typer(name="boards", help="Tracker agile boards.", no_args_is_help=T
 
 @app.command("list")
 def list_(
-    limit: LimitOption = None, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
-) -> ItemList[Board]:
+    limit: LimitOption = None,
+    all_: AllOption = False,
+    next_: NextOption = None,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> Listing[Board]:
     """List all agile boards (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.boards.list(limit=cap)
+    return tracker.boards.list(limit=cap, next=next_)
 
 
 @app.command()

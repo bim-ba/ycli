@@ -12,8 +12,9 @@ import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import AllOption, LimitOption, values_argument, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_argument, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
@@ -227,10 +228,14 @@ def search(
     fields: Annotated[
         str | None, typer.Option(help="Comma-separated extra fields to include.")
     ] = None,
+    limit: LimitOption = None,
+    all_: AllOption = False,
+    next_: NextOption = None,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Entity]:
-    """Search entities of ENTITY_TYPE (POST /entities/ENTITY_TYPE/_search)."""
+) -> Listing[Entity]:
+    """Search entities of ENTITY_TYPE (POST /entities/ENTITY_TYPE/_search; --all for all)."""
     body = EntitySearch.model_validate(
         {
             "input": input_text,
@@ -240,7 +245,8 @@ def search(
             "rootOnly": root_only,
         }
     )
-    return tracker.entities.search(entity_type, body, fields=fields)
+    cap = config.http.cap(limit, all_=all_)
+    return tracker.entities.search(entity_type, body, fields=fields, limit=cap, next=next_)
 
 
 @app.command()
@@ -249,6 +255,7 @@ def events_list(
     entity_id: EntityIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     selected: Annotated[str | None, typer.Option(help="Event id to build the list around.")] = None,
     new_events_on_top: Annotated[
         bool | None,
@@ -260,12 +267,13 @@ def events_list(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[EntityEvent]:
+) -> Listing[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
     return tracker.entities.events_list(
         entity_type,
         entity_id,
         limit=config.http.cap(limit, all_=all_),
+        next=next_,
         selected=selected,
         new_events_on_top=new_events_on_top,
         direction=direction,
@@ -404,11 +412,12 @@ def comments_list(
     entity_id: EntityIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Comment]:
+) -> Listing[Comment] | ItemList[Comment]:
     """List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative).
 
     ``--expand`` (``html``, ``attachments``, ``reactions`` or ``all``) goes with the plain
@@ -416,7 +425,9 @@ def comments_list(
     """
     if all_ or limit is not None:
         cap = config.http.cap(limit, all_=all_)
-        return tracker.entities.comments_list_relative(entity_type, entity_id, limit=cap)
+        return tracker.entities.comments_list_relative(
+            entity_type, entity_id, limit=cap, next=next_
+        )
     return tracker.entities.comments_list(entity_type, entity_id, expand=expand)
 
 

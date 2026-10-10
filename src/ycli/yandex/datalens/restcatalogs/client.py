@@ -6,14 +6,14 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.restcatalogs import endpoints
-from ycli.yandex.datalens.restcatalogs.models import RestCatalog
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.models import LakehouseOperation
     from ycli.yandex.datalens.restcatalogs.models import (
+        RestCatalog,
         RestCatalogBucketSettings,
         RestCatalogSortField,
     )
@@ -35,7 +35,8 @@ class RestCatalogsClient(Resource):
         reverse_order: bool | None = None,
         include_permissions: bool | None = None,
         limit: int | None = None,
-    ) -> ItemList[RestCatalog]:
+        next: str | None = None,
+    ) -> Listing[RestCatalog]:
         """``listCatalogs`` → the REST catalogs, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every catalog).
@@ -47,12 +48,16 @@ class RestCatalogsClient(Resource):
             reverse_order: Sort the other way round.
             include_permissions: Also say what the caller may do with each one.
             limit: The most catalogs to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The REST catalogs.
 
         Examples:
-            >>> found = datalens.restcatalogs.list(cloud_environment_id="env0000000001").root
+            >>> found = (
+            ...     datalens.restcatalogs.list(cloud_environment_id="env0000000001").collect().items
+            ... )
             >>> [(catalog.id, catalog.name) for catalog in found]
             [('cat0000000001', 'lake')]
         """
@@ -63,7 +68,7 @@ class RestCatalogsClient(Resource):
             reverse_order=reverse_order,
             include_permissions=include_permissions,
         )
-        return ItemList[RestCatalog](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(
         self,

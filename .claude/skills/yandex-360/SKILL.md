@@ -122,6 +122,11 @@ semantics, a service ycli does not wrap yet), read the official docs directly, a
   adding it. `--dry-run` prints the write request instead of sending it, the JSON result pipes
   to `jq`, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,
   6 transient).
+- **A long listing comes in pieces** — a list tool returns `{items, truncated, next}`; when
+  `truncated` is true, call it again with that `next`, its required arguments as they were
+  and nothing else but `limit` (the token carries its listing; an argument that differs from
+  it is refused by name). `all=true` returns everything at once and can overflow the context.
+  On the CLI the same three are `--limit`, `--all` and `--next`.
 - **Binary payloads stay on the CLI/SDK** — attachment/export/keyset downloads are not
   MCP tools; fetch them with `ycli … download` commands.
 - **One token, three services** — the same OAuth token works for Tracker, Wiki, and Forms

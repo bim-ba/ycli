@@ -626,11 +626,12 @@ def _rpc_arguments_off(method: Any, body: Any, pagination: Any) -> list[str]:
 
     Of an RPC operation every argument lies in one object, so the method takes exactly the
     top-level fields of the request it sends, by their names (#371). The pager's own fields are
-    not arguments, and ``limit`` is ycli's cap on a listing, not a field.
+    not arguments, and ``limit`` and ``next`` are ycli's handles of a listing, not fields.
     """
     named = vars(pagination) if pagination else {}
     pager = {value for name, value in named.items() if name.endswith("_param")}
-    arguments = set(inspect.signature(method).parameters) - ({"limit"} if pagination else set())
+    handles = {"limit", "next"} if pagination else set()
+    arguments = set(inspect.signature(method).parameters) - handles
     if isinstance(body, RootModel):
         # The request is itself a union of kinds (a connection by its ``type``): it has no
         # top level of its own, so the method takes it whole, as its one argument.

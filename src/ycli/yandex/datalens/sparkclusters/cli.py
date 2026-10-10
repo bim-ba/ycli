@@ -6,13 +6,13 @@ from typing import Annotated
 import typer
 
 from ycli.cli.body_fields import CallerFields
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import LakehouseOperation
 from ycli.yandex.datalens.schemas.spark_clusters import CreateSparkClusterArgs
 from ycli.yandex.datalens.sparkclusters.models import SparkCluster, SparkResourcePreset
-from ycli.yandex.models import ItemList
 
 app = typer.Typer(
     name="sparkclusters",
@@ -31,6 +31,7 @@ EnvironmentOption = Annotated[
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     collection_id: Annotated[
         str | None, typer.Option("--collection-id", help="Keep the clusters of one collection.")
     ] = None,
@@ -41,10 +42,12 @@ def list_(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SparkCluster]:
+) -> Listing[SparkCluster]:
     """List the Spark clusters (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.sparkclusters.list(limit=cap, collection_id=collection_id, filter=filter_)
+    return datalens.sparkclusters.list(
+        limit=cap, next=next_, collection_id=collection_id, filter=filter_
+    )
 
 
 @app.command()
@@ -134,13 +137,14 @@ def resource_presets_list(
     cloud_environment_id: EnvironmentOption,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SparkResourcePreset]:
+) -> Listing[SparkResourcePreset]:
     """List the sizes an instance of a Spark cluster can take (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.sparkclusters.resource_presets_list(cloud_environment_id, limit=cap)
+    return datalens.sparkclusters.resource_presets_list(cloud_environment_id, limit=cap, next=next_)
 
 
 @app.command("resource-presets-get")

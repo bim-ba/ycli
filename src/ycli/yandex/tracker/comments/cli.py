@@ -4,9 +4,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_argument
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_argument
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment, Reaction
 from ycli.yandex.tracker.models import CommentCreate
@@ -29,14 +30,15 @@ def list_(
     issue_key: IssueKeyArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Comment]:
+) -> Listing[Comment]:
     """List all comments on issue ISSUE_KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.comments.list(issue_key, limit=cap, expand=expand)
+    return tracker.comments.list(issue_key, limit=cap, next=next_, expand=expand)
 
 
 @app.command()

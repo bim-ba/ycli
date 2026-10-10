@@ -63,14 +63,15 @@ def search_scroll(
     body: IssueSearch,
     *,
     expand: str | None,
-    scroll_type: str,
+    scroll_type: str | None,
     per_scroll: int | None,
     scroll_ttl_millis: int | None,
 ) -> Paged[ItemList[Issue], Issue]:
     """``POST /issues/_search`` in scroll mode: no 10 000 cap, each page named by the last reply.
 
     ``scroll_type`` is ``sorted`` (the order of the search) or ``unsorted``; ``per_scroll`` is
-    the page size (1000 at most) and ``scroll_ttl_millis`` how long the scroll stays open.
+    the page size (1000 at most) and ``scroll_ttl_millis`` how long the scroll stays open. A call
+    that goes on from a token gives no type: the request is the token's.
     """
     params = {
         "expand": expand,

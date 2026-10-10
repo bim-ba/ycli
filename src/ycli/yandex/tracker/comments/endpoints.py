@@ -4,7 +4,7 @@ Examples:
     >>> reactions_create("DE-1", 2238, "LIKE").path
     'issues/DE-1/comments/2238/reactions/LIKE'
     >>> list_("DE-1", expand=None, page_size=10).endpoint.params
-    {'perPage': 10, 'expand': None}
+    {'expand': None}
 """
 
 from __future__ import annotations
@@ -36,9 +36,9 @@ def list_(
             HTTPMethod.GET,
             f"issues/{segment(issue_key)}/comments",
             ItemList[Comment],
-            params={"perPage": page_size, "expand": expand},
+            params={"expand": expand},
         ),
-        RelativeIDPagination(id_of=_comment_id),
+        RelativeIDPagination(id_of=_comment_id, page_size=page_size),
         lambda page: page.root,
     )
 
