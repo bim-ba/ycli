@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.140.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.139.0
+  ([`97c329f`](https://github.com/bim-ba/ycli/commit/97c329f381f6d6883afc49e33fa352b70fd48414))
+
+### Features
+
+- A command that grants access asks first, and its tool asks for a person
+  ([#571](https://github.com/bim-ba/ycli/pull/571),
+  [`fbd38cd`](https://github.com/bim-ba/ycli/commit/fbd38cd97b86185bc2e44ff33357d7e56046d356))
+
+### Breaking Changes
+
+- The fourteen commands that grant access ask for confirmation. A script that called one without a
+  terminal now exits 2:
+
+
 ## v0.139.0 (2026-10-10)
 
 ### Build System
