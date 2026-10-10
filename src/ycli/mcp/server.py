@@ -111,6 +111,10 @@ class _Search(BM25SearchTransform):
     the search there is no entry, and the proxy that runs what the search found carries no
     mark: nobody would be asked. So a marked tool stays listed, the search does not offer it,
     and the proxy refuses to run it. Which tools those are is read from their mark.
+
+    It overrides two private methods of FastMCP's transform and takes the function of its
+    proxy (written against FastMCP 4.0.11): the test through a real client
+    (``test_mcp_selection``) is what holds the behaviour when FastMCP changes them.
     """
 
     async def transform_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:

@@ -34,6 +34,23 @@ Every tool says what it does: reads carry `readOnlyHint`, writes say whether the
 or idempotent. A host can auto-approve reads and ask before a destructive call. `--read-only`
 removes every write, for a deployment where the agent must not change anything.
 
+A tool that grants access (a role, a permission, an access binding, an embedding) is marked so
+that a client which honours the mark asks a person on every call, and says so in its description.
+
+## Preview a write
+
+Every tool that writes takes `dry_run`. With `dry_run: true` it sends nothing and answers the
+request it would have sent, the same object `ycli … --dry-run -o json` prints, with secrets masked:
+
+```json
+{"dry_run": true, "request": {"method": "PATCH", "url": "https://api.tracker.yandex.net/v3/issues/DE-7", "body": {"summary": "New"}}}
+```
+
+- What the tool reads before its first write is read; the plan is of the first write only. One tool makes several: `wiki_attachments_upload` plans the opening of its upload session.
+- `request` is `null` where the tool would write nothing.
+- A tool that only reads has no `dry_run`: there is nothing to plan, and the argument is refused. The CLI differs: `--dry-run` is an option of every command, and a read under it goes out.
+- A tool that grants access prompts for a person on a dry run too: the client decides from the tool, before the server sees the arguments. Where nobody can be asked, plan it with the command: `ycli … --dry-run`.
+
 ## Prompts and resources
 
 Besides tools, the server offers a few prompts and resources. A client shows a prompt as a ready request (in Claude Code, `/yandex-360:tracker_issue_brief DE-7`) and lets you attach a resource to the conversation (`@yandex-360:ycli://tracker/issue/DE-7`).

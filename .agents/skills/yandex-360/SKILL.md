@@ -120,7 +120,8 @@ semantics, a service ycli does not wrap yet), read the official docs directly, a
   session must not write at all, run the server with `ycli mcp start --read-only`.
 - **CLI deletes and grants ask first** — a command that deletes data or grants access prompts on a terminal and, without
   one (an agent's shell), exits 2 unless given `--yes`; confirm intent with the user before
-  adding it. `--dry-run` prints the write request instead of sending it, the JSON result pipes
+  adding it. `--dry-run` prints the write request instead of sending it (a write tool takes
+  `dry_run: true` for the same plan), the JSON result pipes
   to `jq`, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,
   6 transient).
 - **A long listing comes in pieces** — a list tool returns `{items, truncated, next}`, 50

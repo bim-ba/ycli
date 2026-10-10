@@ -100,6 +100,7 @@ Create a collection in another one, or in the root when no parent is given.
 | `title` | string | yes | Title of the collection. |
 | `parent_id` | string or null |  | The collection to put it in; the root when left out. |
 | `description` | string or null |  | Description of the collection. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_update`
 
@@ -112,6 +113,7 @@ Change a collection's title or description; what is not given stays as it is.
 | `collection_id` | string | yes | Collection id. |
 | `title` | string or null |  | New title. |
 | `description` | string or null |  | New description. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_move`
 
@@ -124,6 +126,7 @@ Move a collection into another one, or into the root when no parent is given.
 | `collection_id` | string | yes | Collection id. |
 | `parent_id` | string or null |  | The collection to put it in; the root when left out. |
 | `title` | string or null |  | New title to give it on the way. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_move_bulk`
 
@@ -138,6 +141,7 @@ moves none of them.
 |---|---|:---:|---|
 | `collection_ids` | array of string | yes | Collection ids. |
 | `parent_id` | string or null |  | The collection to put it in; the root when left out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_delete`
 
@@ -148,6 +152,7 @@ Delete a collection with everything it holds: nested collections, workbooks, ent
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `collection_id` | string | yes | Collection id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_delete_bulk`
 
@@ -158,6 +163,7 @@ Delete several collections with everything they hold.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `collection_ids` | array of string | yes | Collection ids. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_collections_access_bindings_update`
 
@@ -171,6 +177,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `collection_id` | string | yes | Collection id. |
 | `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_get`
 
@@ -261,6 +268,7 @@ Create a workbook in a collection, or in the root when no collection is given.
 | `title` | string | yes | Title of the workbook. |
 | `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
 | `description` | string or null |  | Description of the workbook. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_update`
 
@@ -273,6 +281,7 @@ Change a workbook's title or description; what is not given stays as it is.
 | `workbook_id` | string | yes | Workbook id. |
 | `title` | string or null |  | New title. |
 | `description` | string or null |  | New description. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_move`
 
@@ -285,6 +294,7 @@ Move a workbook into a collection, or into the root when no collection is given.
 | `workbook_id` | string | yes | Workbook id. |
 | `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
 | `title` | string or null |  | New title to give it on the way. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_move_bulk`
 
@@ -299,6 +309,7 @@ moves none of them.
 |---|---|:---:|---|
 | `workbook_ids` | array of string | yes | Workbook ids. |
 | `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_delete`
 
@@ -312,6 +323,7 @@ read the workbook before deleting it again.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_delete_bulk`
 
@@ -322,6 +334,7 @@ Delete several workbooks with everything they hold.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workbook_ids` | array of string | yes | Workbook ids. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbooks_access_bindings_update`
 
@@ -335,6 +348,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
 | `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_entrylocks_create`
 
@@ -350,6 +364,7 @@ and until when.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `data` | object | yes | How long to hold the lock, in milliseconds. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_entrylocks_extend`
 
@@ -361,6 +376,7 @@ Hold a lock longer; the reply says when it expires now.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `data` | object | yes | The token of the lock and its new terms. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_entrylocks_delete`
 
@@ -374,6 +390,7 @@ An entry that is not locked answers 404.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `params` | object | yes | The token of the lock, or `force` for another's lock. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkclusters_list`
 
@@ -420,6 +437,7 @@ API, not measured.
 | `config` | object | yes | The Spark version and the pools of the driver and executors. |
 | `description` | string or null |  | A description of the cluster. |
 | `labels` | object or null |  | Labels of the cluster. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkclusters_delete`
 
@@ -432,6 +450,7 @@ Experimental API, not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `id` | string | yes | Spark cluster id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkclusters_start`
 
@@ -445,6 +464,7 @@ says how the operation ended. Experimental API, not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Spark cluster id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkclusters_stop`
 
@@ -457,6 +477,7 @@ Experimental API, not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Spark cluster id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkclusters_resource_presets_list`
 
@@ -517,6 +538,7 @@ Creating publishes: the page is saved and published at once. A draft comes with 
 | `key` | string or null |  | The page's key, in a folder. |
 | `workbook_id` | string or null |  | The workbook to create the page in. |
 | `name` | string or null |  | The page's name, in a workbook. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_htmlpages_update`
 
@@ -530,6 +552,7 @@ everyone. With ``revId``, ``save`` copies that revision as the current draft.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object or object | yes | Either new HTML, `{entryId, content, mode}`, or a revision to make current, `{entryId, revId, mode}`: one of the two, not both. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_htmlpages_delete`
 
@@ -540,6 +563,7 @@ Delete an HTML page.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_htmlpages_preview_url_get`
 
@@ -658,6 +682,7 @@ Give an entry another name; its id and what refers to it stay.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `name` | string | yes | The new name. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_permissions_get_bulk`
 
@@ -706,6 +731,7 @@ editable; it is made in the DataLens interface and then read like any other.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `connection` | object | yes | The new connection; ``type`` says which kind it is and selects its schema. Its schema is not listed here: read `ConnectionCreate` with schema_get(service="datalens", name="ConnectionCreate"), then the definitions it refers to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_connections_update`
 
@@ -717,6 +743,7 @@ Change the fields given of a connection; returns an acknowledgement.
 |---|---|:---:|---|
 | `connection_id` | string | yes | Connection id. |
 | `data` | object | yes | The fields to change, of the connection's own kind; the others stay as they are. Its schema is not listed here: read `ConnectionUpdate` with schema_get(service="datalens", name="ConnectionUpdate"), then the definitions it refers to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_connections_delete`
 
@@ -733,6 +760,7 @@ Restore button (measured: the entry appears there; restoring was not tried).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `connection_id` | string | yes | Connection id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_datasets_get`
 
@@ -771,6 +799,7 @@ A dataset with no source and no field is valid: create it empty, then fill it wi
 | `rev_id` | string or null |  | The revision. |
 | `saved_id` | string or null |  | The saved revision. |
 | `workbook_id` | string or null |  | The workbook to create it in. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_datasets_update`
 
@@ -787,6 +816,7 @@ The reply holds the content and the revisions; its ``id`` is ``null`` (measured)
 | `dataset_id` | string | yes | Dataset id. |
 | `data` | object | yes | The content to save (`dataset`) and how (`mode`: `save` or `publish`). Its schema is not listed here: read `DatasetUpdate` with schema_get(service="datalens", name="DatasetUpdate"), then the definitions it refers to. |
 | `workbook_id` | string or null |  | The workbook the dataset lies in. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_datasets_delete`
 
@@ -802,6 +832,7 @@ Restore button (measured: the entry appears there; restoring was not tried).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `dataset_id` | string | yes | Dataset id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_datasets_validate`
 
@@ -891,6 +922,7 @@ The ``entry.data`` of a chart read with ``charts_wizard_get`` is a valid ``data`
 | `key` | string or null |  | The entry's key, in a folder. |
 | `workbook_id` | string or null |  | The workbook to create it in. |
 | `name` | string or null |  | The chart's name. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_wizard_update`
 
@@ -908,6 +940,7 @@ DataLens does not check a revision here: a save overwrites what was saved since 
 | `data` | object | yes | What the chart holds; it replaces the whole of it. Its schema is not listed here: read `WizardChartData` with schema_get(service="datalens", name="WizardChartData"), then the definitions it refers to. |
 | `annotation` | object or null |  | A description of the chart. |
 | `rev_id` | string or null |  | The revision the change is made on; DataLens does not check it (measured). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_wizard_delete`
 
@@ -924,6 +957,7 @@ Restore button (measured: the entry appears there; restoring was not tried).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_ql_get`
 
@@ -957,6 +991,7 @@ The specification describes neither the content of a QL chart nor the reply.
 | `key` | string or null |  | The entry's key, in a folder. |
 | `workbook_id` | string or null |  | The workbook to create it in. |
 | `name` | string or null |  | The chart's name. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_ql_update`
 
@@ -974,6 +1009,7 @@ DataLens does not check a revision here: a save overwrites what was saved since 
 | `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
 | `data` | object | yes | What the chart holds; it replaces the whole of it. |
 | `annotation` | object or null |  | A description of the chart. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_ql_delete`
 
@@ -984,6 +1020,7 @@ Delete a chart; the dashboards that show it lose it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_editor_get`
 
@@ -1010,6 +1047,7 @@ Create a chart of the editor and return it with its id.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry` | object or object or object or object or object or object | yes | The new chart: where it lies, its kind (`type`) and its code. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_editor_update`
 
@@ -1024,6 +1062,7 @@ DataLens does not check a revision here: a save overwrites what was saved since 
 |---|---|:---:|---|
 | `entry` | object or object or object or object or object or object | yes | The chart to save: its `entryId`, its kind (`type`) and its code. |
 | `mode` | `save` · `publish` or string | yes | `save` keeps a draft; `publish` makes it the version shown. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_charts_editor_delete`
 
@@ -1034,6 +1073,7 @@ Delete a chart; the dashboards that show it lose it.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `chart_id` | string | yes | Chart id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_dashboards_get`
 
@@ -1068,6 +1108,7 @@ Create a dashboard and return it with its id.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry` | object | yes | The new dashboard: where it lies (`workbookId`, `name`), `data` and `meta`. Its schema is not listed here: read `DashboardCreate` with schema_get(service="datalens", name="DashboardCreate"), then the definitions it refers to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_dashboards_update`
 
@@ -1083,6 +1124,7 @@ DataLens does not check a revision here: a save overwrites what was saved since 
 | `entry` | object | yes | The dashboard to save: its `entryId`, `data`, `meta` and `revId`. Its schema is not listed here: read `DashboardUpdate` with schema_get(service="datalens", name="DashboardUpdate"), then the definitions it refers to. |
 | `mode` | `save` · `publish` or string | yes | `save` keeps the dashboard as a draft; `publish` shows it to all. |
 | `lock_token` | string or null |  | The token of the lock held on the dashboard, when it is locked. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_dashboards_delete`
 
@@ -1094,6 +1136,7 @@ Delete a dashboard.
 |---|---|:---:|---|
 | `dashboard_id` | string | yes | Dashboard id. |
 | `lock_token` | string or null |  | The token of the lock held on the dashboard, when it is locked. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_reports_get`
 
@@ -1132,6 +1175,7 @@ refuses a report with no slide: ``data.slides`` holds at least one.
 | `key` | string or null |  | The report's key, in a folder. |
 | `workbook_id` | string or null |  | The workbook to create the report in. |
 | `name` | string or null |  | The report's name. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_reports_update`
 
@@ -1154,6 +1198,7 @@ read it, change ``data``, send it back whole.
 | `meta` | object or null or null | yes | Metadata of the entry; null for none. Required. |
 | `rev_id` | string or null |  | The revision of the report the change is made on. |
 | `annotation` | object or null |  | A description of the report. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_reports_delete`
 
@@ -1164,6 +1209,7 @@ Delete a report.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entry_id` | string | yes | Report id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbookexports_start`
 
@@ -1177,6 +1223,7 @@ The export runs on its own: ask ``workbookexports_status_get`` until ``status`` 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workbook_id` | string | yes | Workbook id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbookexports_status_get`
 
@@ -1215,6 +1262,7 @@ An export that is over stays as it ended, and the call answers the same.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `export_id` | string | yes | Export id, from ``workbookexports_start``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbookimports_start`
 
@@ -1233,6 +1281,7 @@ password or token again with ``connections_update``.
 | `title` | string | yes | The title of the new workbook. |
 | `collection_id` | string or null |  | The collection to make it in; the root when left out. |
 | `description` | string or null |  | The description of the new workbook. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_workbookimports_status_get`
 
@@ -1276,6 +1325,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | `deps_ids` | array of string or null |  | The entries the embedded one depends on. |
 | `unsigned_params` | array of string or null |  | The parameters a link may carry unsigned. |
 | `private_params` | array of string or null |  | The parameters that go signed, inside the token. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_embeds_update`
 
@@ -1298,6 +1348,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | `deps_ids` | array of string or null |  | The entries the embedded one depends on. |
 | `unsigned_params` | array of string or null |  | The parameters a link may carry unsigned. |
 | `private_params` | array of string or null |  | The parameters that go signed, inside the token. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_embeds_delete`
 
@@ -1308,6 +1359,7 @@ Delete an embed; its links stop working. Deleting again answers 404.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `embed_id` | string | yes | Embed id, from ``embeds_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_embeddingsecrets_get`
 
@@ -1345,6 +1397,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `title` | string | yes | The name of the key. |
 | `workbook_id` | string | yes | The workbook the key belongs to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_embeddingsecrets_delete`
 
@@ -1355,6 +1408,7 @@ Delete a key for embedding. Deleting again answers 404.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `embedding_secret_id` | string | yes | Id of the key for embedding. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sharedentries_access_bindings_list`
 
@@ -1386,6 +1440,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Id of a shared entry: one that lies in a collection. |
 | `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_audit_entries_updates_list`
 
@@ -1447,6 +1502,7 @@ organization whose SQL editor is off answers 403 ``SQL_EDITOR_NOT_ALLOWED``.
 | `query` | string | yes | The text of the query. |
 | `description` | string or null |  | A description. |
 | `params` | array of object or object or object or null |  | The parameters the text takes: a name, a type and a default each. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sqlqueries_update`
 
@@ -1463,6 +1519,7 @@ Experimental in the DataLens API and written from its document: not measured.
 | `query` | string | yes | The text of the query. |
 | `description` | string or null |  | A description. |
 | `params` | array of object or object or object or null |  | The parameters the text takes. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sqlqueries_delete`
 
@@ -1475,6 +1532,7 @@ Experimental in the DataLens API and written from its document: not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `sql_query_id` | string | yes | SQL query id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sqlqueries_run`
 
@@ -1489,6 +1547,7 @@ API and written from its document: not measured.
 |---|---|:---:|---|
 | `sql_query_id` | string | yes | SQL query id. |
 | `params` | object or null |  | The values of the parameters, by name; one left out takes its default. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_licensing_licenses_list`
 
@@ -1523,6 +1582,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `user_ids` | array of string | yes | The users to give a licence to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_licensing_limit_get`
 
@@ -1544,6 +1604,7 @@ from the DataLens document and never called: not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `value` | integer | yes | The most licences the instance may hold. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_cloudenvironments_list`
 
@@ -1592,6 +1653,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | `description` | string or null |  | A description. |
 | `security_group_ids` | array of string or null |  | The security groups the environment uses. |
 | `storage` | object or null |  | The settings of its storage bucket; no bucket when left out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_cloudenvironments_update`
 
@@ -1608,6 +1670,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | `description` | string or null |  | A new description; an empty one clears it. |
 | `security_group_ids` | array of string or null |  | The security groups the environment uses. |
 | `storage` | object or null |  | New settings of its storage bucket. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_cloudenvironments_delete`
 
@@ -1620,6 +1683,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `id` | string | yes | Id of the cloud environment. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_cloudenvironmentstorage_bucket_objects_list`
 
@@ -1684,6 +1748,7 @@ its document: not measured.
 | `path` | string | yes | The path of the object in the bucket. |
 | `size` | string | yes | The size of the object in bytes, as a string. |
 | `content_md5` | string | yes | The MD5 digest of the content: 16 bytes, base64-encoded. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_restcatalogs_list`
 
@@ -1721,6 +1786,7 @@ API, written from its document and never called: not measured.
 | `bucket_settings` | object | yes | The settings of its bucket; an empty object is valid. |
 | `description` | string or null |  | A description. |
 | `labels` | object or null |  | Labels, a name to a value. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_lakehouseoperations_get`
 
@@ -1784,6 +1850,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | `labels` | object or null |  | Labels, a name to a value. |
 | `catalogs_config` | array of object or null |  | The REST catalogs to attach. |
 | `trino_version` | string or null |  | The version of Trino; the service's own when left out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_delete`
 
@@ -1796,6 +1863,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `id` | string | yes | Id of the Trino cluster. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_start`
 
@@ -1809,6 +1877,7 @@ API, written from its document and never called: not measured.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Trino cluster. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_stop`
 
@@ -1821,6 +1890,7 @@ Experimental in the DataLens API, written from its document and never called: no
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Trino cluster. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_catalog_create`
 
@@ -1834,6 +1904,7 @@ Experimental in the DataLens API, written from its document and never called: no
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Trino cluster. |
 | `catalog` | object | yes | The REST catalog to attach, by its id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_catalog_delete`
 
@@ -1847,6 +1918,7 @@ Experimental in the DataLens API, written from its document and never called: no
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Trino cluster. |
 | `catalog_id` | string | yes | The id of the REST catalog to detach. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_trinoclusters_resource_presets_list`
 
@@ -1920,6 +1992,7 @@ measured. Ask the person before calling.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object or object or object | yes | The application to make: ``clusterId``, a ``name``, the ``catalogs`` to attach, and exactly one of ``sparkApplication`` (a JAR), ``pysparkApplication`` (a Python file) or ``sparkConnectApplication``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkapplications_cancel`
 
@@ -1933,6 +2006,7 @@ Experimental in the DataLens API, written from its document and never called: no
 |---|---|:---:|---|
 | `cluster_id` | string | yes | Id of the Spark cluster. |
 | `application_id` | string | yes | Id of the Spark application. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `datalens_sparkapplications_log_list`
 

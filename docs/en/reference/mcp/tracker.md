@@ -111,6 +111,7 @@ Create a Tracker issue; returns the new issue with its key.
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /issues/`` (create an issue). Covers the common fields; ``extra="allow"`` lets any custom (global or queue-local) field pass through unvalidated. ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are valid per the Tracker API); the CLI sends the object form. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_update`
 
@@ -124,6 +125,7 @@ Status is NOT changed here — use ``transitions_execute``. Returns the updated 
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}`` (update an issue; only sent fields change). ``extra="allow"`` lets any custom field pass through unvalidated. Status is NOT changed here — use ``transitions_execute``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_move`
 
@@ -143,6 +145,7 @@ dropped. Returns the moved issue with its new key.
 | `move_all_fields` | boolean or null |  | Keep the versions, components and projects the new queue also has. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_scroll_clear`
 
@@ -156,6 +159,7 @@ Only a search by a scroll (`scroll_type`) has something to release; after this i
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `next` | string | yes | The `next` a search by a scroll returned: it names the scroll. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_update_bulk`
 
@@ -170,6 +174,7 @@ Poll the returned operation id with ``bulk_get`` and inspect failures with
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_update`` (mass-edit issues). |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_move_bulk`
 
@@ -183,6 +188,7 @@ Poll with ``bulk_get``.
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue). |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_transition_bulk`
 
@@ -196,6 +202,7 @@ Poll with ``bulk_get``.
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_transition`` (mass status transition). |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issues_import`
 
@@ -208,6 +215,7 @@ Returns the imported issue.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed body for ``POST /issues/_import`` — import one issue, preserving its history. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_comments_list`
 
@@ -248,6 +256,7 @@ Add a comment to a Tracker issue; returns the created comment.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for adding a comment to an issue or an entity. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_comments_update`
 
@@ -262,6 +271,7 @@ Get ``comment_id`` from ``comments_list``. Returns the updated comment.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_comments_delete`
 
@@ -275,6 +285,7 @@ Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_comments_reactions_create`
 
@@ -290,6 +301,7 @@ with its updated reactions.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | integer or string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `name` | string | yes | Reaction name, e.g. ``like``, ``dislike`` or ``fire``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_comments_import`
 
@@ -303,6 +315,7 @@ Returns the imported comment.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_links_list`
 
@@ -342,6 +355,7 @@ Link a Tracker issue to another issue; returns the created link.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/links`` (link to another issue). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_links_delete`
 
@@ -355,6 +369,7 @@ Get ``link_id`` from ``links_list``. Returns an acknowledgement on success.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_id` | string | yes | Link id, from ``links_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_links_import`
 
@@ -368,6 +383,7 @@ Returns the imported link.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_transitions_list`
 
@@ -394,6 +410,7 @@ available from the new status.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `transition_id` | string | yes | Transition id, from ``transitions_list``. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/transitions/{id}/_execute``. Open-ended: any issue field can be set on transition (e.g. a resolution when closing), so ``extra="allow"`` lets arbitrary fields pass through unvalidated while the common fields below still document themselves in the MCP schema. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_worklog_list`
 
@@ -452,6 +469,7 @@ Log spent time on a Tracker issue; returns the created worklog record.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/worklog`` (log time spent). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_worklog_update`
 
@@ -466,6 +484,7 @@ Get ``record_id`` from ``worklog_list``. Returns the updated record.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `record_id` | string | yes | Worklog record id, from ``worklog_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/worklog/{record_id}`` (edit an entry). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_worklog_delete`
 
@@ -479,6 +498,7 @@ Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `record_id` | string | yes | Worklog record id, from ``worklog_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_worklog_import`
 
@@ -492,6 +512,7 @@ Returns the imported record(s) — the endpoint answers with a JSON array.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_changelog_list`
 
@@ -537,6 +558,7 @@ Returns the issue with its full checklist.
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/checklistItems`` (add an item). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_checklists_update`
 
@@ -551,6 +573,7 @@ Get ``item_id`` from ``checklists_list``. Returns the issue with its updated che
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_checklists_delete`
 
@@ -564,6 +587,7 @@ Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining c
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_checklists_clear`
 
@@ -576,6 +600,7 @@ Returns the issue without its checklist.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_columns_list`
 
@@ -618,6 +643,7 @@ required; ``limit`` optionally caps the number of issues allowed in the column.
 |---|---|:---:|---|
 | `board_id` | integer | yes | Numeric identifier of the agile board. |
 | `body` | object | yes | Typed request body for ``columns.create`` (``POST /boards/{board_id}/columns/``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_columns_update`
 
@@ -632,6 +658,7 @@ Get ``column_id`` from ``columns_list``. Returns the updated column.
 | `board_id` | integer | yes | Numeric identifier of the agile board. |
 | `column_id` | integer | yes | Numeric identifier of the board column. |
 | `body` | object | yes | Typed request body for ``columns.edit`` (``PATCH /boards/{board_id}/columns/{column_id}``). Every field is optional; only the fields you set are sent. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_columns_delete`
 
@@ -645,6 +672,7 @@ Returns an acknowledgement on success.
 |---|---|:---:|---|
 | `board_id` | integer | yes | Numeric identifier of the agile board. |
 | `column_id` | integer | yes | Numeric identifier of the board column. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_priorities_list`
 
@@ -668,6 +696,7 @@ permanent residue. ``key`` is the latin identifier; ``name`` holds the ru/en dis
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /priorities/`` (create a priority). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_priorities_update`
 
@@ -683,6 +712,7 @@ concurrent edits (optimistic locking).
 | `priority_id` | string | yes | Priority id or key, from ``priorities_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /priorities/{id}?version=`` (edit a priority). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issuetypes_list`
 
@@ -702,6 +732,7 @@ permanent residue. ``key`` is the latin identifier; ``name`` holds the ru/en dis
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /issuetypes/`` (create an issue type). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_issuetypes_update`
 
@@ -717,6 +748,7 @@ concurrent edits (optimistic locking).
 | `issue_type_id` | string | yes | Issue type id or key, from ``issuetypes_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issuetypes/{id}?version=`` (edit an issue type). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_linktypes_list`
 
@@ -778,6 +810,7 @@ permanent residue. ``key`` is the latin identifier, ``name`` holds the ru/en dis
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /statuses/`` (create an issue status). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_statuses_update`
 
@@ -793,6 +826,7 @@ edits (optimistic locking).
 | `status_id` | string | yes | Status id or key, from ``statuses_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /statuses/{id}?version=`` (edit a status). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_resolutions_list`
 
@@ -816,6 +850,7 @@ permanent residue. ``key`` is the latin identifier; ``name`` holds the ru/en dis
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /resolutions/`` (create a resolution). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_resolutions_update`
 
@@ -831,6 +866,7 @@ concurrent edits (optimistic locking).
 | `resolution_id` | string | yes | Resolution id or key, from ``resolutions_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /resolutions/{id}?version=`` (edit a resolution). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_list`
 
@@ -916,6 +952,7 @@ the new queue.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``queues.create`` (``POST /queues/``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_delete`
 
@@ -929,6 +966,7 @@ acknowledgement on success.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_restore`
 
@@ -941,6 +979,7 @@ Returns the restored queue.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_permissions_update`
 
@@ -960,6 +999,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | object | yes | Typed request body for ``queues.permissions_update`` (``PATCH /queues/{id}/permissions``). Set at least one category. Each names the users/groups/roles the permission applies to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_tags_delete`
 
@@ -974,6 +1014,7 @@ acknowledgement on success.
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | object | yes | Typed request body for ``queues.tags_delete`` (``POST /queues/{id}/tags/_remove``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_versions_create`
 
@@ -987,6 +1028,7 @@ Required: ``queue`` (the queue key) and ``name``; optional ``description``,
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``queues.versions_create`` (``POST /versions/``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_versions_get`
 
@@ -1010,6 +1052,7 @@ Edit a queue version; only the fields set in ``body`` change. Returns the versio
 | `version_id` | integer | yes | Numeric id of the version, from ``queues_versions_list``. |
 | `body` | object | yes | Typed request body for ``queues.version_edit`` (``PATCH /versions/{id}``). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `fields` | string or null |  | Comma-separated fields to return in the reply. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_versions_delete`
 
@@ -1020,6 +1063,7 @@ Permanently delete a queue version (irreversible). Returns an acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `version_id` | integer | yes | Numeric id of the version, from ``queues_versions_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_queues_user_permissions_get`
 
@@ -1088,6 +1132,7 @@ StringFieldType``). There is no delete endpoint — the field lives until its qu
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | object | yes | Typed request body for creating an issue field, global or local to a queue. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_localfields_update`
 
@@ -1102,6 +1147,7 @@ Get ``field_key`` from ``localfields_list``. Returns the updated field definitio
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `field_key` | string | yes | Key of the queue-local field, from ``localfields_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /queues/{id}/localFields/{key}`` (edit a local field). This endpoint has no ``?version=`` optimistic lock; only the fields that are set are sent. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_fields_list`
 
@@ -1140,6 +1186,7 @@ A name is unique among the fields: one that is taken answers 422 (measured).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for creating an issue field, global or local to a queue. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_fields_update`
 
@@ -1155,6 +1202,7 @@ updated field definition.
 | `field_id` | string | yes | Identifier of the issue field, from ``fields_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /fields/{id}?version=`` (rename and/or change options). Rename and change-options share one PATCH, so this one body covers both ``name`` and ``optionsProvider``; only the fields that are set are sent. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_fields_categories_create`
 
@@ -1168,6 +1216,7 @@ org-global and not deletable via the API.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /fields/categories`` (create a field category). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_fields_categories_update`
 
@@ -1182,6 +1231,7 @@ Pass ``version`` to guard against concurrent edits (optimistic locking).
 | `category_id` | string | yes | Identifier of the field category. |
 | `body` | object | yes | Typed request body for ``PATCH /fields/categories/{id}?version=`` (edit a category). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_components_list`
 
@@ -1205,6 +1255,7 @@ Create a component in a queue (a sub-area for classifying its issues).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /components`` (create a component). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_components_update`
 
@@ -1220,6 +1271,7 @@ edits (optimistic locking).
 | `component_id` | integer | yes | Numeric id of the component, from ``components_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /components/{id}?version=`` (edit a component). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_components_list_for_queue`
 
@@ -1252,6 +1304,7 @@ Permanently delete a component (irreversible). Returns an acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `component_id` | integer | yes | Numeric id of the component, from ``components_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_components_user_permissions_get`
 
@@ -1301,6 +1354,7 @@ the stored search. Remove it later with ``filters_delete``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /filters/`` (create a saved filter). Pass either ``filter`` (a field→condition mapping) or ``query`` (a Tracker query string), not both. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_filters_update`
 
@@ -1314,6 +1368,7 @@ Get ``filter_id`` from ``filters_get`` / the Tracker UI. Returns the updated fil
 |---|---|:---:|---|
 | `filter_id` | string | yes | Identifier of the saved filter, from ``filters_get``. |
 | `body` | object | yes | Typed request body for ``PATCH /filters/{id}`` (edit a saved filter). Only the fields that are set are sent; note the API replaces ``filter`` wholesale rather than merging it, so pass every condition you want to keep. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_filters_delete`
 
@@ -1326,6 +1381,7 @@ Returns an acknowledgement on success.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `filter_id` | string | yes | Numeric identifier of the saved filter, e.g. 12345. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_applications_list`
 
@@ -1379,6 +1435,7 @@ permissions template, the ``backlog_available``/``sprints_available`` flags and 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``boards.create`` (``POST /liveBoards/``). ``name`` is the only required field; every other field is omitted from the JSON body when left as ``None`` (see ``model_dump(exclude_none=True)``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_boards_update`
 
@@ -1393,6 +1450,7 @@ Supports renaming, toggling ``backlog_available``/``sprints_available`` and repl
 |---|---|:---:|---|
 | `board_id` | integer | yes | Numeric identifier of the agile board. |
 | `body` | object | yes | Typed request body for ``boards.edit`` (``PATCH /boards/{board_id}``). Every field is optional; only the fields you set are sent, so an omitted field is left unchanged on the board. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_boards_delete`
 
@@ -1405,6 +1463,7 @@ Returns an acknowledgement on success.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `board_id` | integer | yes | Numeric identifier of the agile board. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_sprints_list`
 
@@ -1446,6 +1505,7 @@ Required fields: ``name``, ``board`` (``{"id": "<board id>"}``), ``start_date`` 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``sprints.create`` (``POST /sprints``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_sprints_update`
 
@@ -1462,6 +1522,7 @@ one. Returns the updated sprint.
 | `sprint_id` | integer | yes | Numeric identifier of the sprint. |
 | `body` | object | yes | Typed request body for ``sprints.edit`` (``PATCH /sprints/{sprint_id}``). Every field is optional; only the fields you set are sent. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_sprints_delete`
 
@@ -1474,6 +1535,7 @@ Returns an acknowledgement on success.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `sprint_id` | integer | yes | Numeric identifier of the sprint. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_sprints_start`
 
@@ -1488,6 +1550,7 @@ it for optimistic locking and answers 428 without one. Returns the updated sprin
 |---|---|:---:|---|
 | `sprint_id` | integer | yes | Numeric identifier of the sprint. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_sprints_archive`
 
@@ -1502,6 +1565,7 @@ it for optimistic locking and answers 428 without one. Returns the updated sprin
 |---|---|:---:|---|
 | `sprint_id` | integer | yes | Numeric identifier of the sprint. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_attachments_list`
 
@@ -1543,6 +1607,7 @@ Get ``file_id`` from ``attachments_list``. Returns an acknowledgement on success
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key or id, e.g. ``JUNE-2``. |
 | `file_id` | string | yes | Attachment file id, from ``attachments_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_attachments_upload`
 
@@ -1559,6 +1624,7 @@ The file travels as base64 in the request, so keep it small; for a large file ru
 | `filename` | string | yes | Name of the file being uploaded. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
 | `rename_to` | string or null |  | Store the file under this name instead of ``filename``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_attachments_upload_temp`
 
@@ -1574,6 +1640,7 @@ once. The file travels as base64 in the request, so keep it small.
 | `filename` | string | yes | Name of the file being uploaded. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
 | `rename_to` | string or null |  | Store the file under this name instead of ``filename``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_attachments_import`
 
@@ -1592,6 +1659,7 @@ The file travels as base64 in the request, so keep it small; for a large file ru
 | `created_at` | string | yes | Original creation time, ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. |
 | `created_by` | string | yes | Login or id of the user to record as the file's author. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_macros_list`
 
@@ -1633,6 +1701,7 @@ Create a macro on a queue (a canned comment plus field updates applied on demand
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | object | yes | Typed request body for ``macros.create`` (``POST /queues/{id}/macros``). ``issue_update`` here is a field→value *object* (not the list the read side returns), e.g. ``{"tags": {"add": "Новый тег"}, "resolution": None}``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_macros_update`
 
@@ -1647,6 +1716,7 @@ Get ``macro_id`` from ``macros_list``. Returns the updated macro.
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `macro_id` | integer | yes | Numeric identifier of the macro, from ``macros_list``. |
 | `body` | object | yes | Typed request body for ``macros.edit`` (``PATCH /queues/{id}/macros/{macro_id}``). Every field is optional; only the fields you set are sent. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_macros_delete`
 
@@ -1660,6 +1730,7 @@ Returns an acknowledgement on success.
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `macro_id` | integer | yes | Numeric identifier of the macro, from ``macros_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_triggers_list`
 
@@ -1722,6 +1793,7 @@ Required: ``name`` and ``actions`` (e.g. ``[{"type": "Transition", …}]``); opt
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | TriggerCreate | yes | Trigger name, actions and optional conditions. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_triggers_update`
 
@@ -1738,6 +1810,7 @@ against concurrent edits (optimistic locking).
 | `trigger_id` | integer | yes | Numeric trigger id, from ``triggers_list``. |
 | `body` | TriggerUpdate | yes | Fields to change; unset ones stay. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_autoactions_get`
 
@@ -1798,6 +1871,7 @@ deleted (it can be disabled in the UI).
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 | `body` | object | yes | Typed request body for ``autoactions.create`` (``POST /queues/{id}/autoactions``). Supply at least one of ``filter`` or ``query`` to select the issues to act on. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_bulk_get`
 
@@ -1855,6 +1929,7 @@ to also create the mirror link in the external app.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `body` | object | yes | Typed request body for ``POST /issues/{key}/remotelinks`` (add an external link). |
 | `backlink` | boolean or null |  | Also create the mirror link in the external application. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_remotelinks_delete`
 
@@ -1868,6 +1943,7 @@ Get ``link_id`` from ``remotelinks_list``. Returns an acknowledgement on success
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_id` | string | yes | Remote link id, from ``remotelinks_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_dashboards_create`
 
@@ -1881,6 +1957,7 @@ until removed in the UI.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /dashboards/`` (create a dashboard). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_dashboards_widgets_create_cycle_time`
 
@@ -1894,6 +1971,7 @@ Get ``dashboard_id`` from ``dashboards_create``.
 |---|---|:---:|---|
 | `dashboard_id` | string | yes | Id of the dashboard to add the widget to. |
 | `body` | object | yes | Typed request body for ``POST /dashboards/{id}/widgets/cycleTime`` (add a cycle-time chart). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_get`
 
@@ -2087,6 +2165,7 @@ Create a Tracker entity (project, portfolio or goal); returns it with its id.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `body` | object | yes | Typed request body for ``POST /entities/{type}`` — a ``{fields: {...}}`` envelope. |
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_update`
 
@@ -2103,6 +2182,7 @@ Returns the updated entity.
 | `body` | object | yes | Typed request body for ``PATCH /entities/{type}/{id}`` (edit fields, comment, links). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_delete`
 
@@ -2118,6 +2198,7 @@ acknowledgement on success.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `with_board` | boolean or null |  | Also delete the project's linked board. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_permissions_update`
 
@@ -2137,6 +2218,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for ``PATCH …/extendedPermissions``: rights to grant and to revoke. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_permissions_update_direct`
 
@@ -2155,6 +2237,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for ``PATCH …/permissions`` (grant and revoke direct rights). Each side maps an access level (READ / WRITE / GRANT) to users, groups and roles; the API adds or removes exactly those and keeps the rest. ``permissionSources`` is refused (400). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_update_bulk`
 
@@ -2168,6 +2251,7 @@ Poll the returned operation id with ``entities_bulk_get``.
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `body` | object | yes | Typed request body for ``POST …/bulkchange/_update`` (mass-edit entities). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_reports_create`
 
@@ -2180,6 +2264,7 @@ Returns the report entity.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /entities/report/`` — a ``{fields: {...}}`` envelope. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_comments_create`
 
@@ -2196,6 +2281,7 @@ Add a comment to a Tracker entity; returns the created comment.
 | `is_add_to_followers` | boolean or null |  | Add the comment's author to the followers; omitted, the API adds. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_comments_update`
 
@@ -2215,6 +2301,7 @@ Edit a comment on a Tracker entity; returns the updated comment.
 | `is_add_to_followers` | boolean or null |  | Add the comment's author to the followers; omitted, the API adds. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_comments_delete`
 
@@ -2231,6 +2318,7 @@ Returns an acknowledgement on success.
 | `comment_id` | string | yes | Comment id (from entities_comments_list). |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_create`
 
@@ -2249,6 +2337,7 @@ Add checklist item(s) to a Tracker entity; returns the entity with its checklist
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_update`
 
@@ -2268,6 +2357,7 @@ item by id use ``entities_checklists_items_update``. Returns the entity with its
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_items_update`
 
@@ -2287,6 +2377,7 @@ Returns the entity with its updated checklist.
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_delete`
 
@@ -2304,6 +2395,7 @@ To remove a single item use ``entities_checklists_items_delete``. Returns the en
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_items_delete`
 
@@ -2322,6 +2414,7 @@ Returns the entity with its remaining checklist.
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_checklists_move`
 
@@ -2341,6 +2434,7 @@ Returns the entity with its reordered checklist.
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_links_create`
 
@@ -2355,6 +2449,7 @@ Returns an acknowledgement on success.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | A link spec used by create-link and the bulk ``values.links`` array. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_links_delete`
 
@@ -2370,6 +2465,7 @@ an acknowledgement on success.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `right` | string | yes | Id of the linked entity to unlink. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_attachments_attach`
 
@@ -2389,6 +2485,7 @@ ycli — files are usually seeded via the UI). Returns the entity.
 | `fields` | string or null |  | Comma-separated fields to include in the reply. |
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_entities_attachments_delete`
 
@@ -2403,6 +2500,7 @@ The API answers with an empty body; returns an acknowledgement on success.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `file_id` | string | yes | Attachment file id (from entities_attachments_list). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_workflows_list`
 
@@ -2448,6 +2546,7 @@ with its ``actions``). Statuses are given as keys such as ``open`` and must exis
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``workflows.create`` (``POST /workflows``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_workflows_update`
 
@@ -2463,6 +2562,7 @@ list. Returns the workflow with its incremented version.
 | `workflow_id` | string | yes | Workflow id, from ``workflows_list``. |
 | `body` | object | yes | Typed request body for ``workflows.edit`` (``PATCH /workflows/{id}``). Only the fields that are set change; a given ``steps`` list replaces the whole step list. |
 | `version` | integer | yes | Current version of the workflow (optimistic lock), from ``workflows_get``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_workflows_actions_update`
 
@@ -2479,6 +2579,7 @@ Returns the whole workflow with its incremented version.
 | `action_id` | string | yes | Id of the action within that step. |
 | `body` | object | yes | Typed request body for ``workflows.edit_action``. The docs mark every field optional, but Tracker refuses an edit without ``name`` and ``target`` (422), so both are required; the other fields change only when set. |
 | `version` | integer | yes | Current version of the workflow (optimistic lock), from ``workflows_get``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_workflows_delete`
 
@@ -2489,6 +2590,7 @@ Delete a workflow (irreversible). Returns an acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `workflow_id` | string | yes | Workflow id, from ``workflows_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_projects_list`
 
@@ -2536,6 +2638,7 @@ service accepts ``queues`` (a queue key) and binds no queue. Returns the project
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``projects.create`` (``POST /projects``). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_projects_update`
 
@@ -2551,6 +2654,7 @@ Returns the project with its incremented version.
 | `body` | object | yes | Typed request body for ``projects.edit`` (``PUT /projects/{id}?version=``). ``queues`` is required by the API on every edit; the rest change when set. |
 | `version` | integer | yes | Current version of the project, from ``projects_get``. |
 | `expand` | string or null |  | Extra blocks to include, e.g. ``queues``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_projects_delete`
 
@@ -2561,6 +2665,7 @@ Delete a project (irreversible). Returns an acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `project_id` | integer | yes | Numeric id of the project, from ``projects_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_gaps_search`
 
@@ -2593,6 +2698,7 @@ conference_trip, conference, learning, maternity or duty), ``from`` and ``to`` (
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``gaps.create`` (``POST /gaps``): up to 100 absences. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `tracker_gaps_delete`
 
@@ -2605,3 +2711,4 @@ Needs Tracker administrator rights. Returns an acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `gap_ids` | array of string | yes | Ids of the absences to delete (up to 100), from a search. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |

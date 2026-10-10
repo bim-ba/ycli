@@ -148,13 +148,19 @@ program stays a test.
   the CLI asks before it sends it, as before a delete, and the tool carries
   `_meta["anthropic/requiresUserInteraction"]` (`GRANTS_ACCESS`), which a client that honours
   it answers by asking a person on every call. No list of such operations exists anywhere.
+  A tool that writes takes `dry_run` and then sends nothing: the one way a tool reaches a
+  service is the client `client_provider` builds for it, which under `dry_run` carries the
+  core's guard, so no tool has a second way to a service and none declares the argument.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
 - **Check:** the contract test (`tests/contract/test_contract.py`, one case per way of reaching an
   operation, fail-closed both ways) runs every tool and compares its hints with the strongest
   effect of the endpoints it sends, and its `GRANTS_ACCESS` mark with whether one of them grants
   access, both ways; `test_the_help_of_a_command_says_it_grants_access_where_its_tool_is_marked`
-  holds the command's help to the same mark; `test_arch3_effect_overrides_are_marked` keeps
+  holds the command's help to the same mark;
+  `test_every_tool_that_writes_takes_its_client_from_the_one_guarded_place` holds every writing
+  tool to the provider, and the contract test runs every write case under `dry_run` on both
+  surfaces: the same plan, and no write sent; `test_arch3_effect_overrides_are_marked` keeps
   `# violation(arch-3): <reason>` above every `effect=`, and every such marker above one;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and the ast-grep rule `no-tool-tags` keeps a second statement out. `status_get`, the one

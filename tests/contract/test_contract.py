@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
@@ -42,6 +43,7 @@ from tests.snapshots._surface import cli_tree
 from ycli.cli.app import app
 from ycli.settings import AppConfig
 from ycli.yandex.core.auth import IAMTokenAuth
+from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, Effect
 from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.mcp import GRANTS_ACCESS, GRANTS_ACCESS_SAID
@@ -440,3 +442,40 @@ def test_nested_command_coverage_bites():
     nested = "tracker entities comments delete"
     gaps = coverage_gaps([case], set(), commands | {nested}, set())
     assert gaps["commands without a case"] == [nested]
+
+
+def _one_boundary(plan: object) -> object:
+    """``plan`` with the boundary of a file upload, drawn anew for every request, made one."""
+    return json.loads(re.sub(r"boundary=[0-9a-f]+", "boundary=x", json.dumps(plan)))
+
+
+WRITE_CASES = [
+    case
+    for case in CASES
+    if case.cli is not None and case.mcp is not None and case.expected_effect != "read"
+]
+
+
+@pytest.mark.parametrize("case", WRITE_CASES, ids=[case.id for case in WRITE_CASES])
+def test_a_tool_plans_under_dry_run_what_the_command_plans(case: Case, monkeypatch, mcp_session):
+    """One plan on both surfaces: `--dry-run -o json` and `dry_run=true` say the same request.
+
+    Neither sends a write: the reads a call makes before its first write are all that go out.
+    """
+    assert case.cli is not None
+    assert case.mcp is not None
+    for name, value in case.env.items():
+        monkeypatch.setenv(name, value)
+    api = _serve(monkeypatch, case)
+    printed = CliRunner().invoke(app, ["--format", "json", "--dry-run", *case.cli])
+    assert printed.exit_code == 0, printed.output
+    by_command = api.calls[:]
+    api = _serve(monkeypatch, case)
+    name, arguments = case.mcp
+    answered = mcp_session.call(name, {**arguments, "dry_run": True})
+    by_tool, planned = _one_boundary(answered), _one_boundary(json.loads(printed.stdout_bytes))
+    # A plan that would grant access says so, where the tool is marked and nowhere else.
+    grants = {"grants_access": True} if _marked(mcp_session.tools[name]) else {}
+    assert by_tool == {"dry_run": True, "request": planned, **grants}
+    for sent in (*by_command, *api.calls):
+        assert sent.extensions[ENDPOINT_EXTENSION].effect is Effect.READ, f"sent {sent.method}"

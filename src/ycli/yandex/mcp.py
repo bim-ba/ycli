@@ -8,7 +8,10 @@ negligible next to the HTTP round trip it serves.
 
 from __future__ import annotations
 
+import logging
 from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from importlib.resources import files
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -17,7 +20,10 @@ from fastmcp.exceptions import ToolError
 from fastmcp.exceptions import ValidationError as ArgumentsRefused
 from fastmcp.server.dependencies import get_access_token, get_http_request
 from fastmcp.server.middleware import Middleware
+from fastmcp.server.transforms import Transform
+from fastmcp.tools.base import ToolResult
 from pydantic import Field, SecretStr, ValidationError
+from pydantic_core import to_jsonable_python
 
 from ycli.settings import (
     AppConfig,
@@ -27,18 +33,21 @@ from ycli.settings import (
     missing_credentials,
 )
 from ycli.yandex.core.continuation import HANDLES, NOTHING_ELSE, RULE
+from ycli.yandex.core.guard import Guard, PlannedRequest, RequestPlanned
 from ycli.yandex.errors import next_step
 from ycli.yandex.factory import build_client
 from ycli.yandex.models import field_error
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterator, Sequence
     from contextlib import AbstractContextManager
 
     import mcp.types as mt
     from fastmcp.server.auth import AuthProvider
     from fastmcp.server.middleware import CallNext, MiddlewareContext
-    from fastmcp.tools.base import ToolResult
+    from fastmcp.server.transforms import GetToolNext
+    from fastmcp.tools import Tool
+    from fastmcp.utilities.versions import VersionSpec
 
     from ycli.yandex.base import DomainClient
 
@@ -237,8 +246,19 @@ def client_provider[C: DomainClient](
 
     @contextmanager
     def provide() -> Iterator[C]:
-        with build_client(client_cls, caller_credentials(), app_config()) as client:
-            yield client
+        asked = _DRY_RUN.get()
+        # Under `dry_run` the client's own guard stops the first write: nothing a tool does
+        # with the client can send one. The call is told that its client is the guarded one.
+        guard = Guard(dry_run=True) if asked is not None else None
+        with build_client(client_cls, caller_credentials(), app_config(), guard=guard) as client:
+            if asked is not None:
+                asked.guarded = True
+            try:
+                yield client
+            except RequestPlanned as planned:
+                # The write the guard stopped is the answer of the call, not a failure of it:
+                # told on as an error FastMCP does not log, with no traceback of the signal.
+                raise _Planned(planned.plan) from None
 
     return provide
 
@@ -293,6 +313,177 @@ class ArgumentRefusals(Middleware):
             ) from None
 
 
+class _Planned(ToolError):  # noqa: N818  # the answer of a call, not an error of it
+    """A call under ``dry_run`` that reached its first write; ``plan`` is that write.
+
+    A ``ToolError`` so that FastMCP hands it on as it is, and at a level below every level a
+    log is read at: a plan is what was asked for.
+    """
+
+    def __init__(self, plan: PlannedRequest) -> None:
+        super().__init__("planned, not sent", log_level=logging.NOTSET + 1)
+        self.plan = plan
+
+
+@dataclass
+class _DryRunAsked:
+    """One call that asked for a plan; ``guarded`` once its client was built with the guard.
+
+    An object and not a flag: a tool that is not a coroutine runs in a thread with a copy of
+    the context, and what the copy is told there has to be seen here.
+    """
+
+    guarded: bool = False
+
+
+# Set for the one call that asked for a plan, and for nothing after it.
+_DRY_RUN: ContextVar[_DryRunAsked | None] = ContextVar("ycli_dry_run", default=None)
+DRY_RUN = "dry_run"
+#: The one description of `dry_run`, on every tool that writes.
+DRY_RUN_SAID = (
+    "Send nothing: answer `{dry_run: true, request}`, the first write the tool would make "
+    "(null: none)."
+)
+# FastMCP's mark of an output schema whose answer is not an object and goes under `result`.
+_WRAPS = "x-fastmcp-wrap-result"
+# What a tool answers under `dry_run`, beside its own answer in its output schema.
+PLAN_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "dry_run": {"const": True},
+        "request": {"type": ["object", "null"]},
+        # There only when the request would grant access: such a call asks a person.
+        "grants_access": {"const": True},
+    },
+    "required": ["dry_run", "request"],
+    "additionalProperties": False,
+}
+
+
+def _writes(tool: Tool) -> bool:
+    """Whether ``tool`` says of itself that it writes: only such a tool has a plan."""
+    return tool.annotations is not None and tool.annotations.read_only_hint is False
+
+
+class DryRun(Middleware):
+    """Answers a tool called with ``dry_run`` by the request it would send, sending none.
+
+    One place for every tool that writes: the argument is taken out of the call here, the
+    client the tool is given is built with the core's guard (:func:`client_provider`), and
+    the write the guard stopped is answered as the plan. A tool that only reads has no such
+    argument, and is told so like any argument it does not have.
+
+    :func:`new_server` adds it to every server of ycli.
+    """
+
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[mt.CallToolRequestParams],
+        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        """The tool's result, or under ``dry_run`` the request it would have sent."""
+        given = dict(context.message.arguments or {})
+        inside = sorted(name for name, value in given.items() if _says_dry_run(value))
+        if not (DRY_RUN in given or inside) or context.fastmcp_context is None:
+            return await call_next(context)
+        tool = await context.fastmcp_context.fastmcp.get_tool(context.message.name)
+        if tool is None or not _writes(tool):
+            return await call_next(context)  # refused below as an argument it does not have
+        if inside:
+            # One who nests it believes they are planning: that must not end in a write.
+            raise ToolError(
+                f"`{DRY_RUN}` is the tool's own argument: give it beside `{inside[0]}`, "
+                "not inside it"
+            )
+        asked = given.pop(DRY_RUN)
+        if not isinstance(asked, bool):
+            raise ToolError("The arguments do not fit the tool:\n  dry_run: true or false")
+        without = context.copy(message=context.message.model_copy(update={"arguments": given}))
+        if not asked:
+            return await call_next(without)
+        call = _DryRunAsked()
+        token = _DRY_RUN.set(call)
+        try:
+            await call_next(without)
+        except _Planned as planned:
+            return _planned(planned.plan, tool)
+        finally:
+            _DRY_RUN.reset(token)
+        if not call.guarded:
+            # Its client was not the guarded one, so what it sent is not known: never a plan.
+            raise ToolError(f"{context.message.name} cannot be run with dry_run: it ran for real")
+        return _planned(None, tool)  # the guard let every request through: all were reads
+
+
+#: The argument, and the spellings of it one might write inside a body in its place.
+_SPELLED = frozenset({DRY_RUN, "dryRun", "dry-run"})
+
+
+def _says_dry_run(value: object) -> bool:
+    """Whether ``value``, an argument of a call, has a key that spells ``dry_run`` at any depth."""
+    if isinstance(value, dict):
+        return bool(_SPELLED & value.keys()) or any(map(_says_dry_run, value.values()))
+    return isinstance(value, list) and any(map(_says_dry_run, value))
+
+
+def _planned(request: PlannedRequest | None, tool: Tool) -> ToolResult:
+    """The plan as an answer of ``tool``, lying where the tool's own answers lie.
+
+    Under ``result`` for a tool that answers a list, as FastMCP puts those. The request is
+    written out by the serializer FastMCP writes every answer with, the model's own.
+    """
+    plan: dict[str, Any] = {DRY_RUN: True, "request": request}
+    if request is not None and request.grants_access:
+        plan["grants_access"] = True
+    written = to_jsonable_python(plan, by_alias=True)
+    wrapped = bool(tool.output_schema and tool.output_schema.get(_WRAPS))
+    return ToolResult(structured_content={"result": written} if wrapped else written)
+
+
+class DryRunOffered(Transform):
+    """Lists ``dry_run`` on every tool that writes, and the plan beside its own answer.
+
+    One statement for all of them: no tool declares the argument, and none of them could
+    forget it. A server mounted in another passes its tools through here twice, which changes
+    nothing the second time.
+    """
+
+    @staticmethod
+    def _offered(tool: Tool) -> Tool:
+        if not _writes(tool) or DRY_RUN in tool.parameters.get("properties", {}):
+            return tool
+        argument = {"type": "boolean", "default": False, "description": DRY_RUN_SAID}
+        properties = {**tool.parameters.get("properties", {}), DRY_RUN: argument}
+        changed: dict[str, Any] = {"parameters": {**tool.parameters, "properties": properties}}
+        own = tool.output_schema
+        # The plan first: it is told by `dry_run: true` and takes no other key, so an answer of
+        # the tool is never read as one, while the tool's own models take any object.
+        if own is not None and own.get(_WRAPS):
+            answer = {"anyOf": [PLAN_SCHEMA, own["properties"]["result"]]}
+            changed["output_schema"] = {
+                **own,
+                "properties": {**own["properties"], "result": answer},
+            }
+        elif own is not None:
+            # The definitions the tool's schema refers to stay at the root, where its
+            # references look for them; the plan has none of its own to clash with them.
+            beside = {key: value for key, value in own.items() if key != "$defs"}
+            defs = {"$defs": own["$defs"]} if "$defs" in own else {}
+            changed["output_schema"] = {"type": "object", "anyOf": [PLAN_SCHEMA, beside], **defs}
+        return tool.model_copy(update=changed)
+
+    async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools, each one that writes offering ``dry_run``."""
+        return [self._offered(tool) for tool in tools]
+
+    async def get_tool(
+        self, name: str, call_next: GetToolNext, *, version: VersionSpec | None = None
+    ) -> Tool | None:
+        """The tool ``name``, offering ``dry_run`` when it writes."""
+        tool = await call_next(name, version=version)
+        return None if tool is None else self._offered(tool)
+
+
 class NextSteps(Middleware):
     """Ends a tool's error with the next step the CLI prints under ``Hint:``.
 
@@ -341,6 +532,8 @@ def new_server(
         'forms-surveys'
     """
     server = FastMCP(name, instructions=instructions, auth=auth)
+    server.add_middleware(DryRun())
     server.add_middleware(ArgumentRefusals())
+    server.add_transform(DryRunOffered())
     server.add_middleware(NextSteps())
     return server
