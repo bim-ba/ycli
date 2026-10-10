@@ -107,7 +107,11 @@ def create(
     caller: CallerFields,
     datalens: DataLensClient,
 ) -> HTMLPageCreated:
-    """Create an HTML page; `content` is required, from --content or --body-file."""
+    """Create an HTML page; `content` is required, from --content or --body-file.
+
+    Creating publishes: the new page is saved and published at once. A draft comes with the
+    first `update --mode save`.
+    """
     flags = {
         "content": content,
         "annotation": annotation,

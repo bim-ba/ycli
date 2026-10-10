@@ -1195,6 +1195,9 @@ $ ycli datalens htmlpages get [OPTIONS] ENTRY_ID
 
 Create an HTML page; `content` is required, from --content or --body-file.
 
+Creating publishes: the new page is saved and published at once. A draft comes with the
+first `update --mode save`.
+
 **Usage**:
 
 ```console

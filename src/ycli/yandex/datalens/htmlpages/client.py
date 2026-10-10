@@ -73,6 +73,9 @@ class HTMLPagesClient(Resource):
     ) -> HTMLPageCreated:
         """``createHtmlPage`` — create an HTML page → it, with what DataLens warns of.
 
+        Creating publishes: the new page's saved and published revisions are the same one
+        (measured). A draft comes with the first ``update`` whose ``mode`` is ``save``.
+
         Args:
             content: The HTML of the page.
             annotation: A description of the page.

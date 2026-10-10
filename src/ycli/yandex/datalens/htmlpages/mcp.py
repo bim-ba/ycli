@@ -78,7 +78,11 @@ def create(
     name: Annotated[str | None, Field(description="The page's name, in a workbook.")] = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> HTMLPageCreated:
-    """Create an HTML page; the reply has it under ``entry`` and ``warnings`` about its HTML."""
+    """Create an HTML page; the reply has it under ``entry`` and ``warnings`` about its HTML.
+
+    Creating publishes: the page is saved and published at once. A draft comes with the first
+    ``htmlpages_update`` with ``mode="save"``.
+    """
     return client.htmlpages.create(
         content=content, annotation=annotation, key=key, workbook_id=workbook_id, name=name
     )

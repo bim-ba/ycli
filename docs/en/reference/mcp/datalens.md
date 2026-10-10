@@ -489,6 +489,9 @@ it. ``entries_list`` with the scope ``artifact`` finds the pages.
 
 Create an HTML page; the reply has it under ``entry`` and ``warnings`` about its HTML.
 
+Creating publishes: the page is saved and published at once. A draft comes with the first
+``htmlpages_update`` with ``mode="save"``.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `content` | string | yes | The HTML of the page. |
