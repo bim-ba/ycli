@@ -135,7 +135,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.2.0
       - name: Plan
         run: |
-          uvx yandex-cli==0.132.0 sync diff --exit-code -o json > plan.json || code=$?
+          uvx yandex-cli==0.133.0 sync diff --exit-code -o json > plan.json || code=$?
           jq -r '.[] | "### `\(.path)`: \(.state)\n\n```diff\n\(.diff // .detail // "")\n```\n"' plan.json > plan.md
           test -s plan.md || echo "Nothing to push." > plan.md
           gh pr comment "${{ github.event.pull_request.number }}" --body-file plan.md

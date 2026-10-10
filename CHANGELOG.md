@@ -9,6 +9,28 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.133.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.132.0
+  ([`6cab169`](https://github.com/bim-ba/ycli/commit/6cab16937d49b9cec2bbdfe9d6d50c78a9f937c1))
+
+### Features
+
+- Every listing takes `limit`, everything and `next` on the SDK, the CLI and the MCP server
+  ([#534](https://github.com/bim-ba/ycli/pull/534),
+  [`9173bde`](https://github.com/bim-ba/ycli/commit/9173bde5c70a364ba1c50fadbe800b94b243da30))
+
+### Breaking Changes
+
+- The list methods of the SDK return a lazy `Listing[T]` in place of `ItemList[T]`: iterate it, or
+  call `.collect().items`; `.root` is gone. Every list tool of the MCP server returns an object,
+  `{items, truncated, next, total}`, in place of a bare list, and so does a list command under `-o
+  json` and `-o yaml`: a script reads `.items[]` where it read `.[]`. `tracker.entities.search`
+  takes `limit` and `next` in place of `per_page` and `page`.
+
+
 ## v0.132.0 (2026-10-10)
 
 ### Build System
