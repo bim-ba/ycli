@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.141.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.140.0
+  ([`6b6c178`](https://github.com/bim-ba/ycli/commit/6b6c1787debaea16985f1f5b256438ba9e1af7eb))
+
+### Features
+
+- **sdk**: `client.plan(...)` gives the request a call would send, and `with_options` sets a call's
+  options ([#577](https://github.com/bim-ba/ycli/pull/577),
+  [`9dca735`](https://github.com/bim-ba/ycli/commit/9dca735d1845ca4635a9722fa1d571df3cda2ff0))
+
+
 ## v0.140.0 (2026-10-10)
 
 ### Build System
