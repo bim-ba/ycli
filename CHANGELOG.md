@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.135.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.134.0
+  ([`7b08335`](https://github.com/bim-ba/ycli/commit/7b08335b7f0e6b043f66703f1366f7cb42441f0b))
+
+### Features
+
+- **cli**: `-o csv`, `-o markdown` and `-o ndjson` print a table or one item on a line
+  ([#568](https://github.com/bim-ba/ycli/pull/568),
+  [`32dd442`](https://github.com/bim-ba/ycli/commit/32dd442c6eea8d12abd96cf652fcd971bd146c29))
+
+
 ## v0.134.0 (2026-10-10)
 
 ### Build System
