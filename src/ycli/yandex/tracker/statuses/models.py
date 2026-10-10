@@ -1,10 +1,11 @@
 """Pydantic models for Tracker statuses (Status + ItemList[Status] + typed write bodies)."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import LocalizedName
 
 #: The kind of an issue status: where in the life of an issue it stands.
@@ -28,7 +29,9 @@ class Status(APIModel):
         default=None, description="Unique identifier of the issue status in Tracker."
     )
     version: int | None = Field(default=None, description="Version of the issue status.")
-    key: str | None = Field(default=None, description="Key of the issue status.")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Key of the issue status."
+    )
     name: str | None = Field(default=None, description="Display name of the issue status.")
     description: str | None = Field(default=None, description="Description of the issue status.")
     order: int | None = Field(

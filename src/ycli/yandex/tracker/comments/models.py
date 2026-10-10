@@ -1,6 +1,6 @@
 """Pydantic models for Tracker issue comments (Comment + ItemList[Comment])."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import Reference
 
 #: The reaction names ``POST …/comments/{id}/reactions/{name}`` documents.
@@ -42,7 +43,9 @@ class Comment(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource URL of the comment."
     )
-    id: int | str | None = Field(default=None, description="Comment identifier.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Comment identifier."
+    )
     long_id: str | None = Field(
         default=None, alias="longId", description="Comment identifier as a string."
     )

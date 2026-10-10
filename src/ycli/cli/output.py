@@ -37,7 +37,9 @@ from rich.table import Table
 
 from ycli.cli.formats import OutputFormat
 from ycli.yandex.core.listing import Listing
+from ycli.yandex.errors import YandexUnexpectedReplyError
 from ycli.yandex.models import ItemList, Listed
+from ycli.yandex.sync.marks import Identity
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -75,6 +77,7 @@ class SerializationStrategy(ABC):
             OutputFormat.csv: CSVStrategy,
             OutputFormat.markdown: MarkdownStrategy,
             OutputFormat.ndjson: NDJSONStrategy,
+            OutputFormat.name: NameStrategy,
         }[output_format](declared)
 
 
@@ -364,6 +367,81 @@ class MarkdownStrategy(TableStrategy):
     @staticmethod
     def _escaped(cell: str) -> str:
         return cell.replace("|", "\\|").replace("\r\n", "<br>").replace("\n", "<br>")
+
+
+def _identifier(kind: type) -> _Column | None:
+    """The column that names an object of ``kind``: its one field marked ``Identity()``.
+
+    What is not an object (a tag, a number) is its own name.
+    """
+    if not issubclass(kind, BaseModel):
+        return ()
+    marked = [
+        (field.serialization_alias or field.alias or name,)
+        for name, field in kind.model_fields.items()
+        if any(isinstance(mark, Identity) for mark in field.metadata)
+    ]
+    return marked[0] if len(marked) == 1 else None
+
+
+def has_names(declared: object) -> bool:
+    """Whether ``-o name`` can print what a command says it returns.
+
+    Args:
+        declared: The return type the command declares.
+
+    Returns:
+        Whether every kind of row it returns has a field that names it.
+
+    Examples:
+        >>> from ycli.yandex.models import Ack
+        >>> has_names(Listing[str]), has_names(Listing[Ack]), has_names(None)
+        (True, False, False)
+    """
+    kinds = list(_kinds(declared))
+    return bool(kinds) and all(_identifier(kind) is not None for kind in kinds)
+
+
+class NameStrategy(SerializationStrategy):
+    """``--format name``: the identifier of each item on a line, what the read command takes.
+
+    ``ycli tracker issues search … -o name | xargs -n1 ycli tracker issues get``. An object
+    inside another one prints its own identifier, not its parent's; a reply that
+    left the identifier of an item out is an error, and nothing is printed. A command whose result
+    has no name is refused before it sends anything; a result that is not what the command
+    declares (the plan of ``--dry-run``) is printed as JSON.
+    """
+
+    def render(self, result: BaseModel, console: Console) -> None:
+        """Print the identifier of each item of ``result`` on its own line.
+
+        Args:
+            result: What the command returned.
+            console: Where to print.
+
+        Raises:
+            YandexUnexpectedReplyError: The reply left the identifier of an item out; nothing
+                is printed, so a script does not act on fewer objects than were listed.
+        """
+        items = _items(result)
+        columns = [_identifier(kind) for kind, _ in items]
+        if None in columns:
+            JSONStrategy().render(result, console)
+            return
+        names = [
+            _cell(item, column)
+            for (_, item), column in zip(items, columns, strict=True)
+            if column is not None
+        ]
+        unnamed = [number for number, name in enumerate(names, start=1) if not name]
+        if unnamed:
+            first = unnamed[0]
+            more = f" (and {len(unnamed) - 1} more)" if len(unnamed) > 1 else ""
+            key = ".".join(columns[first - 1] or ())
+            raise YandexUnexpectedReplyError(
+                f"item {first} of this listing has no {key}{more}: `-o name` cannot name it"
+            )
+        console.file.writelines(name + "\n" for name in names)
 
 
 @dataclass(frozen=True)

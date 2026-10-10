@@ -1,10 +1,11 @@
 """Pydantic models for Tracker saved filters (Filter + nested permission models)."""
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import Reference, UserReference
 
 
@@ -51,7 +52,9 @@ class Filter(APIModel):
         'My open issues'
     """
 
-    id: int | None = Field(default=None, description="Unique identifier of the filter.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the filter."
+    )
     self_url: str | None = Field(
         default=None,
         alias="self",

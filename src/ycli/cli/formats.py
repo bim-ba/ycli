@@ -13,3 +13,4 @@ class OutputFormat(enum.StrEnum):
     csv = "csv"
     markdown = "markdown"
     ndjson = "ndjson"
+    name = "name"

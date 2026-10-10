@@ -1,6 +1,6 @@
 """Pydantic models for Tracker sprints (Reference + Sprint + ItemList[Sprint])."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import Reference
 
 #: The stage of a sprint.
@@ -31,7 +32,9 @@ class Sprint(APIModel):
         alias="self",
         description="API resource URL that returns full information about the sprint.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the sprint.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the sprint."
+    )
     version: int | None = Field(
         default=None,
         description="Sprint version; every change to the sprint increments this number.",

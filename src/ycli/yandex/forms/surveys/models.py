@@ -1,12 +1,13 @@
 """Pydantic models for Forms /surveys (Survey + SurveysResponse envelope + ItemList[Survey])."""
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, SecretStr
 
 from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.models import QuizShowFormat, UserRef
 from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
+from ycli.yandex.sync.marks import Identity
 
 #: The captcha a form asks before it is submitted.
 CaptchaType = Literal["std", "ocr", "nbg"] | str
@@ -187,7 +188,9 @@ class Survey(APIModel):
         444
     """
 
-    id: str | None = Field(default=None, description="Form id, a 24-character hex string.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Form id, a 24-character hex string."
+    )
     name: str | None = Field(default=None, description="Form name (title).")
     dir_id: str | None = Field(default=None, description="Id of the Yandex 360 organization.")
     collab_id: str | None = Field(default=None, description="Id of the meta-organization.")

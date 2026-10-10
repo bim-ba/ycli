@@ -9,11 +9,12 @@ field and allow the rest (``extra="allow"``) so any documented shape round-trips
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
@@ -50,7 +51,9 @@ class Trigger(APIModel):
         alias="self",
         description="API resource URL that returns the trigger's parameters.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the trigger.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the trigger."
+    )
     queue: KeyedReference | None = Field(
         default=None, description="Queue the trigger is configured in."
     )
@@ -125,7 +128,9 @@ class WebhookLogEntry(APIModel):
         235
     """
 
-    id: str | None = Field(default=None, description="Identifier of the trigger run.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the trigger run."
+    )
     start_time: str | None = Field(
         default=None,
         alias="startTime",

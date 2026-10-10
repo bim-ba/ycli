@@ -7,7 +7,7 @@ The ``--wait`` CLI path drives that poll via :func:`ycli.yandex.polling.poll`, u
 :attr:`BulkChange.is_terminal` as the stop predicate.
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -17,6 +17,7 @@ from ycli.yandex.models import (
     KeyStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 
 #: Statuses at which a bulk-change operation has stopped running (poll terminates here).
 TERMINAL_STATUSES = frozenset({"COMPLETE", "FAILED"})
@@ -38,7 +39,9 @@ class BulkChange(APIModel):
         alias="self",
         description="API resource address of this bulk-change operation.",
     )
-    id: str | None = Field(default=None, description="Identifier of the bulk-change operation.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the bulk-change operation."
+    )
     created_by: DisplayStr = Field(
         default=None,
         alias="createdBy",
@@ -108,7 +111,9 @@ class BulkIssueResult(APIModel):
         'TEST-1'
     """
 
-    issue: KeyStr = Field(default=None, description="Key of the affected issue.")
+    issue: Annotated[KeyStr, Identity()] = Field(
+        default=None, description="Key of the affected issue."
+    )
     status: str | None = Field(
         default=None, description="Outcome for this issue; ``COMPLETED`` when it went well."
     )

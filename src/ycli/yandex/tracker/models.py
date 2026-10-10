@@ -6,9 +6,12 @@ the account ids of a user. The plain reference is the base class and the other t
 fields to it, whichever resource reads them.
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, DisplayStr, KeyStr, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class Reference(APIModel):
@@ -180,7 +183,9 @@ class LinkType(APIModel):
         'relates'
     """
 
-    id: str | None = Field(default=None, description="Link type identifier, e.g. ``relates``.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Link type identifier, e.g. ``relates``."
+    )
     inward: str | None = Field(
         default=None, description="Name of the link as seen from the linked issue."
     )
@@ -296,7 +301,7 @@ class IssueChecklistItem(APIModel):
         'do it'
     """
 
-    id: str | None = Field(default=None, description="Checklist item id.")
+    id: Annotated[str | None, Identity()] = Field(default=None, description="Checklist item id.")
     text: str | None = Field(default=None, description="Item text.")
     text_html: str | None = Field(
         default=None, alias="textHtml", description="Item text rendered to HTML."
@@ -319,7 +324,9 @@ class Issue(APIModel):
         'task'
     """
 
-    key: str | None = Field(default=None, description="Issue key, e.g. ``TEST-1``.")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Issue key, e.g. ``TEST-1``."
+    )
     summary: str | None = Field(default=None, description="Issue title.")
     type: KeyStr = Field(default=None, description="Key of the issue type, e.g. ``task``.")
     status: KeyStr = Field(default=None, description="Key of the current status.")
@@ -428,7 +435,9 @@ class Application(APIModel):
         alias="self",
         description="API resource URL that returns full information about the application.",
     )
-    id: str | None = Field(default=None, description="Unique identifier of the application.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique identifier of the application."
+    )
     type: str | None = Field(
         default=None, description="Type of the application; matches the value of the id parameter."
     )
@@ -452,7 +461,9 @@ class User(APIModel):
         default=None,
         description="Unique identifier of the user account in Tracker (the default id type).",
     )
-    login: str | None = Field(default=None, description="Login (username) of the user.")
+    login: Annotated[str | None, Identity()] = Field(
+        default=None, description="Login (username) of the user."
+    )
     tracker_uid: int | None = Field(
         default=None,
         alias="trackerUid",

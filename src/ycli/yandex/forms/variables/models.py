@@ -5,11 +5,12 @@ e-mail, a quiz score, …) with the renderers and arguments each accepts, not th
 configured on a subscription (those are ``SubscriptionVariable``).
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class VariableCategory(APIModel):
@@ -53,7 +54,9 @@ class VariableInfo(APIModel):
     type: str | None = Field(
         default=None, description="Variable type, e.g. form.answer_url or user.email."
     )
-    name: str | None = Field(default=None, description="Variable display name.")
+    name: Annotated[str | None, Identity()] = Field(
+        default=None, description="Variable display name."
+    )
     category: VariableCategory | None = Field(
         default=None, description="The group the variable belongs to."
     )

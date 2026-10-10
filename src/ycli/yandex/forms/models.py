@@ -1,10 +1,11 @@
 """Forms models that several resources share: one class per shape."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 #: Statuses at which a background operation has stopped running.
 TERMINAL_STATUSES = frozenset({"ok", "fail"})
@@ -73,7 +74,7 @@ class OperationResult(APIModel):
         True
     """
 
-    id: str | None = Field(
+    id: Annotated[str | None, Identity()] = Field(
         default=None, description="Operation id (echoes the id an async trigger returned)."
     )
     status: str | None = Field(
@@ -132,7 +133,7 @@ class Condition(APIModel):
         'and'
     """
 
-    id: int | None = Field(default=None, description="Condition group ID.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Condition group ID.")
     operator: str | None = Field(default=None, description="Operator combining the group's items.")
     items: list[ConditionItem] | None = Field(
         default=None, description="Clauses evaluated within this group."

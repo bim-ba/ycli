@@ -5,9 +5,12 @@ see the Forms "form-filling keys" API. ``keyset_id`` is an **integer** (unlike `
 which is a 24-char hex string).
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class Keyset(APIModel):
@@ -18,7 +21,7 @@ class Keyset(APIModel):
         3
     """
 
-    id: int | None = Field(default=None, description="Key set id (integer).")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Key set id (integer).")
     name: str | None = Field(default=None, description="Key set name.")
     total: int | None = Field(default=None, description="Number of keys in the set.")
     used: int | None = Field(default=None, description="Number of keys already used.")

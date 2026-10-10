@@ -7,11 +7,12 @@ access_lists,owner`` reads them back (see :class:`~ycli.yandex.wiki.pages.models
 Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, GroupSource, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.wiki.models import PageAccessType, User, UserIdentity
 
 #: What a grant lets its holder do, weakest first.
@@ -63,7 +64,9 @@ class PageAccess(APIModel):
         'reader'
     """
 
-    id: str = Field(description="Id of the grant, the ``access_id`` of update and delete.")
+    id: Annotated[str, Identity()] = Field(
+        description="Id of the grant, the ``access_id`` of update and delete."
+    )
     created_at: str | None = Field(default=None, description="ISO-8601 time of the grant.")
     user: User | None = Field(default=None, description="The user, for a user grant.")
     group: AccessGroup | None = Field(default=None, description="The group, for a group grant.")

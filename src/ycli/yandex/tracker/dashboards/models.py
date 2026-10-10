@@ -1,6 +1,6 @@
 """Pydantic models for Tracker dashboards and their cycle-time widgets."""
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 
 
 class Dashboard(APIModel):
@@ -22,7 +23,9 @@ class Dashboard(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of this dashboard."
     )
-    id: int | str | None = Field(default=None, description="Dashboard identifier.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Dashboard identifier."
+    )
     version: int | None = Field(
         default=None, description="Dashboard version (bumped on each edit)."
     )
@@ -50,7 +53,9 @@ class Widget(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of this widget."
     )
-    id: int | str | None = Field(default=None, description="Widget identifier.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Widget identifier."
+    )
     version: int | None = Field(default=None, description="Widget version (bumped on each edit).")
     description: str | None = Field(default=None, description="Widget name.")
     dashboard: DisplayStr = Field(

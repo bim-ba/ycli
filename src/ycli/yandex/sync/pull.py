@@ -3,7 +3,7 @@
 import enum
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path, PurePosixPath
-from typing import Any, Protocol
+from typing import Annotated, Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -39,7 +39,9 @@ class Action(enum.StrEnum):
 class Pulled(APIModel):
     """One object ``pull`` met, and what became of it."""
 
-    path: str = Field(description="The file of the object, from the root of the repository.")
+    path: Annotated[str, Identity()] = Field(
+        description="The file of the object, from the root of the repository."
+    )
     kind: str = Field(description="The kind that read it.")
     action: Action = Field(
         description="Written (would be, when nothing is written), already the same, or skipped."

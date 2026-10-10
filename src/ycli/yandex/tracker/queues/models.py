@@ -6,11 +6,12 @@ both; the extra ``expand`` blocks (``workflows``, ``issueTypesConfig``, …) are
 so a plain list stays valid.
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import (
     AccessPermissions,
     KeyedReference,
@@ -63,7 +64,7 @@ class Queue(APIModel):
         default=None,
         description="Unique identifier of the queue (a number; may arrive as an int or a string).",
     )
-    key: str | None = Field(
+    key: Annotated[str | None, Identity()] = Field(
         default=None,
         description="Queue key (case-sensitive), e.g. TEST — used as the issue prefix.",
     )
@@ -152,7 +153,9 @@ class QueueVersionInfo(APIModel):
         alias="self",
         description="API resource URL that returns full information about the version.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the version.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the version."
+    )
     version: int | None = Field(default=None, description="Sequence number of the version.")
     queue: KeyedReference | None = Field(
         default=None, description="Reference to the queue this version belongs to."
@@ -188,7 +191,9 @@ class QueueField(APIModel):
         alias="self",
         description="API resource URL that returns full information about the field.",
     )
-    id: str | None = Field(default=None, description="Identifier of the field.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the field."
+    )
     name: str | None = Field(default=None, description="Human-readable name of the field.")
     version: int | None = Field(
         default=None, description="Field version; incremented on every change to the field."

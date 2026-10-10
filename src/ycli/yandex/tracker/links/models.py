@@ -1,6 +1,6 @@
 """Pydantic models for Tracker issue links (Link + ItemList[Link])."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -11,6 +11,7 @@ from ycli.yandex.models import (
     KeyStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference
 
 #: The link verbs ``POST /issues/{key}/links`` documents.
@@ -41,7 +42,9 @@ class Link(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource URL of the link."
     )
-    id: int | str | None = Field(default=None, description="Link identifier.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Link identifier."
+    )
     type: IDStr = Field(default=None, description="Identifier of the link type, e.g. ``relates``.")
     direction: str | None = Field(
         default=None,

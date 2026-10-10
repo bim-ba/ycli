@@ -4,11 +4,12 @@ The docs call this API legacy and point to the unified entities API for projects
 portfolios (``ycli tracker entities``); these models serve the older endpoints.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import UserReference
 
 #: The stage of a project, as a request spells it (replies print it in lower case).
@@ -26,7 +27,9 @@ class Project(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource URL of the project."
     )
-    id: int | str | None = Field(default=None, description="Identifier of the project.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Identifier of the project."
+    )
     version: int | None = Field(
         default=None, description="Version of the project; each change increments it."
     )

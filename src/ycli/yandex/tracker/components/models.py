@@ -1,8 +1,11 @@
 """Pydantic models for Tracker components (Component + ItemList[Component])."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import AccessPermissions, KeyedReference, Reference, UserReference
 
 
@@ -19,7 +22,9 @@ class Component(APIModel):
         alias="self",
         description="API resource URL that returns full information about the component.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the component.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the component."
+    )
     version: int | None = Field(
         default=None,
         description="Version of the component; each change increments the version number.",

@@ -7,7 +7,7 @@ type: how-to
 
 ## Get JSON
 
-At a terminal ycli prints tables; piped, it prints JSON. Force a format with the global `--format` / `-o` (`auto`, `json`, `yaml`, `pretty`, `csv`, `markdown`, `ndjson`), before or after the command:
+At a terminal ycli prints tables; piped, it prints JSON. Force a format with the global `--format` / `-o` (`auto`, `json`, `yaml`, `pretty`, `csv`, `markdown`, `ndjson`, `name`), before or after the command:
 
 ```bash
 ycli tracker issues get TRACKER-1 | jq .        # JSON, because the output is piped
@@ -43,6 +43,21 @@ ycli tracker issues search 'Queue: TEST' -o ndjson | jq -r .key
 - A command that answers with one object prints a table of one row, or one line.
 - `csv` is UTF-8 with no byte order mark, its lines end with a line feed alone, and a cell is the service's text as it came. A spreadsheet reads a cell that starts with `=` as a formula, so open a file of someone else's text with that in mind.
 - Where a listing stopped is said on stderr, as with `-o pretty`: stdout holds the rows alone.
+
+## Feed one command to another
+
+`-o name` prints the identifier of each object on a line: what the command that reads it takes.
+
+```bash
+ycli tracker issues search 'Queue: TEST' -o name | xargs -n1 ycli tracker issues get
+new=$(ycli tracker issues create --queue TEST --summary 'From a script' -o name)
+```
+
+- An object that lies inside another one prints its own identifier: `ycli tracker comments list TEST-1 -o name` prints comment ids, and the issue key is yours to add.
+- A command whose result has no identifier (a grant of access, a count) is refused before it sends anything, with exit code 2.
+- A reply that leaves the identifier of an item out is an error: nothing is printed, so a script never acts on fewer objects than were listed.
+- With `--dry-run` the plan comes back in place of the object, and it is printed as JSON.
+- DataLens commands do not print names yet.
 
 ## Take a long listing in pieces
 

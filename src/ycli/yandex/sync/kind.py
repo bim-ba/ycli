@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, fields
 from functools import partial
 from types import NoneType
-from typing import Any, Protocol, get_args, get_type_hints
+from typing import Annotated, Any, Protocol, get_args, get_type_hints
 
 from pydantic import BaseModel, Field
 
@@ -253,7 +253,9 @@ class Kind[L: Link, C: BaseModel]:
 class KindSummary(APIModel):
     """One kind as ``ycli sync kinds`` lists it."""
 
-    name: str = Field(description="What a file of the kind carries under `ycli`.")
+    name: Annotated[str, Identity()] = Field(
+        description="What a file of the kind carries under `ycli`."
+    )
     file: str = Field(description="The suffix of its files.")
     operations: list[str] = Field(description="What the API can do with an object of the kind.")
     version: str = Field(description="How a write proves the version it worked from.")

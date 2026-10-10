@@ -1,10 +1,11 @@
 """Wiki models that several resources share: one class per shape."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 #: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
 OperationType = Literal["move", "clone", "clone_inline_grid"] | str
@@ -41,7 +42,9 @@ class PageIdentity(APIModel):
     """
 
     id: int | None = Field(default=None, description="Numeric id of the page.")
-    slug: str | None = Field(default=None, description="Slug of the page, e.g. ``data/x``.")
+    slug: Annotated[str | None, Identity()] = Field(
+        default=None, description="Slug of the page, e.g. ``data/x``."
+    )
 
 
 class OperationIdentity(APIModel):

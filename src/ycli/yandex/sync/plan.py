@@ -6,7 +6,7 @@
 import difflib
 from collections.abc import Callable, Sequence
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -22,7 +22,7 @@ from ycli.yandex.sync.document import (
 )
 from ycli.yandex.sync.files import State, files_under, offline_state, read_file
 from ycli.yandex.sync.kind import Kind
-from ycli.yandex.sync.marks import Version
+from ycli.yandex.sync.marks import Identity, Version
 from ycli.yandex.sync.paths import tree_of
 from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, read_one
 
@@ -32,7 +32,9 @@ MASK = "***"
 class Planned(APIModel):
     """One file, or one object that has no file, and what ``push`` would do with it."""
 
-    path: str = Field(description="The file, from the root of the repository.")
+    path: Annotated[str, Identity()] = Field(
+        description="The file, from the root of the repository."
+    )
     kind: str | None = Field(default=None, description="The kind of the file.")
     state: State = Field(description="What `push` would do with the file.")
     detail: str | None = Field(default=None, description="Why, where the state alone does not say.")

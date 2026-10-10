@@ -1,11 +1,12 @@
 """Models for `ycli auth status` and the `status_get` MCP tool."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.settings import CredentialKind, OrganizationKind
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync import marks
 
 
 class Identity(APIModel):
@@ -108,7 +109,7 @@ class SavedProfile(APIModel):
         False
     """
 
-    name: str = Field(description="Name of the profile.")
+    name: Annotated[str, marks.Identity()] = Field(description="Name of the profile.")
     organization_id: str | None = Field(
         default=None, description="`null` when the profile's file cannot be used."
     )
