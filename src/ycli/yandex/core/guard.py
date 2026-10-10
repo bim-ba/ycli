@@ -126,6 +126,17 @@ class RequestPlanned(Exception):  # noqa: N818  # a signal that stops a call, no
         self.plan = plan
 
 
+def _plan(endpoint: Endpoint[Any], request: httpx2.Request) -> PlannedRequest:
+    """The plan of ``request``, told whether its operation grants access.
+
+    Told of a plan that is only shown as well as of one that is asked about: the one who is
+    shown it may be the one asked next.
+    """
+    plan = PlannedRequest.of(request)
+    plan._grants_access = endpoint.grants_access
+    return plan
+
+
 @dataclass(frozen=True)
 class Guard:
     """The rule every write goes through, the same for every surface.
@@ -154,12 +165,11 @@ class Guard:
         if endpoint.effect is Effect.READ:
             return
         if self.dry_run:
-            raise RequestPlanned(PlannedRequest.of(request))
+            raise RequestPlanned(_plan(endpoint, request))
         asked_about = endpoint.effect is Effect.DESTRUCTIVE or endpoint.grants_access
         if not asked_about or self.confirm is None:
             return
-        plan = PlannedRequest.of(request)
-        plan._grants_access = endpoint.grants_access
+        plan = _plan(endpoint, request)
         if not self.confirm(plan):
             raise YandexDeclinedError(
                 f"{plan.method} {plan.url} was not confirmed; nothing was sent", url=plan.url

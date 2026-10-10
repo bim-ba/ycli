@@ -13,20 +13,23 @@ Examples:
 
 from __future__ import annotations
 
+import copy
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, Self
 
 from pydantic import SecretStr
 
 from ycli.settings import CLOUD_ORGANIZATION_ID_ENV, ORGANIZATION_ID_ENV, HTTPConfig
+from ycli.yandex.errors import YandexInvalidRequestError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import TracebackType
 
     import httpx2
 
     from ycli.yandex.core.endpoint import Endpoint, Paged
-    from ycli.yandex.core.guard import Guard
+    from ycli.yandex.core.guard import Guard, PlannedRequest
     from ycli.yandex.core.listing import Listing
     from ycli.yandex.core.profile import ServiceProfile
     from ycli.yandex.core.session import BeforeSend, SyncSession
@@ -89,6 +92,8 @@ class DomainClient(ABC):
             guard=guard,
         )
         self._wire(self._session)
+        #: A view made by :meth:`with_options` shares the session of the client it came from.
+        self._owns_session = True
 
     def __enter__(self) -> Self:
         return self
@@ -102,8 +107,80 @@ class DomainClient(ABC):
         self.close()
 
     def close(self) -> None:
-        """Close the core session's connection pool."""
-        self._session.close()
+        """Close the core session's connection pool; a view of a client has none of its own."""
+        if self._owns_session:
+            self._session.close()
+
+    def with_options(
+        self,
+        *,
+        timeout_seconds: float | None = None,
+        retries: int | None = None,
+        dry_run: bool | None = None,
+    ) -> Self:
+        """This client with other options, for the calls made through what is returned.
+
+        A view of this client: the same connections and the same credentials, so nothing is
+        opened and there is nothing of its own to close.
+
+        Args:
+            timeout_seconds: The timeout of each request; ``None`` keeps this client's.
+            retries: How many times an idempotent request is tried again; ``None`` keeps it.
+            dry_run: Whether a write is stopped and raised as
+                :class:`~ycli.yandex.core.guard.RequestPlanned` in place of being sent
+                (:meth:`plan` returns it as a value); ``None`` keeps what this client does.
+
+        Returns:
+            The client to make those calls through.
+
+        Examples:
+            >>> patient = tracker.with_options(timeout_seconds=120, retries=5)
+            >>> patient.issues.get("DE-7").key
+            'DE-7'
+        """
+        view = copy.copy(self)
+        view._session = self._session.with_options(
+            timeout_seconds=timeout_seconds, retries=retries, dry_run=dry_run
+        )
+        view._wire(view._session)
+        view._owns_session = False
+        return view
+
+    def plan(self, call: Callable[[Self], object]) -> PlannedRequest:
+        """The first write ``call`` would send, not sent: ``client -> the request``.
+
+        ``call`` is given this client under ``dry_run`` and makes its calls through it. What it
+        reads before its first write is read for real; the write is stopped and returned, and
+        nothing after it runs. The plan says whether the request would grant access
+        (``grants_access``).
+
+        Args:
+            call: What to plan, as a function of the client: ``lambda tracker: ...``.
+
+        Returns:
+            The request that would have gone out: its method, its URL and its body, with
+            secrets masked.
+
+        Raises:
+            YandexInvalidRequestError: ``call`` sent no write: there is nothing to plan.
+
+        Examples:
+            >>> planned = tracker.plan(lambda tracker: tracker.boards.delete(31))
+            >>> planned.method, planned.url.endswith("/v3/boards/31"), planned.grants_access
+            ('DELETE', True, False)
+            >>> tracker.plan(lambda tracker: tracker.boards.get(31))
+            Traceback (most recent call last):
+            ycli.yandex.errors.YandexInvalidRequestError: the call sends no write: nothing to plan
+        """
+        # Imported here, like the rest of the core: httpx2 is paid for once a client is built.
+        from ycli.yandex.core.guard import RequestPlanned
+
+        try:
+            call(self.with_options(dry_run=True))
+        except RequestPlanned as planned:
+            return planned.plan
+        # violation(arch-9): the caller asked for the plan of a call that writes nothing
+        raise YandexInvalidRequestError("the call sends no write: nothing to plan")
 
     def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call any ``endpoint`` of this service through its session: auth, retries, errors, logs.
