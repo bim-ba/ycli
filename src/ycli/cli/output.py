@@ -3,7 +3,8 @@
 The root ``result_callback`` hands every command's return value to :func:`render`:
 - a pydantic model goes through the ``--format`` strategy. stdout is data: when output is
   piped/redirected (not a TTY) the default ``auto`` stays raw JSON so scripts and agents keep a
-  stable machine format; an interactive TTY gets a pretty table;
+  stable machine format; an interactive TTY gets a pretty table. ``csv`` and ``markdown`` print
+  a table whose columns are the fields the model declares, ``ndjson`` one item on a line;
 - a ``str`` or ``int`` prints verbatim (raw page markdown, a count);
 - :class:`BinaryResult` writes bytes to a file or stdout;
 - :class:`ExitWith` renders its result, then exits with a non-zero status;
@@ -18,30 +19,36 @@ from __future__ import annotations
 # older versions ignore the name.
 __lazy_modules__ = {"yaml", "rich.table"}
 
+import csv
+import json
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from types import NoneType, UnionType
+from typing import TYPE_CHECKING, Annotated, Any, Union, get_args, get_origin
 
 import typer
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
 from ycli.cli.formats import OutputFormat
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import ItemList, Listed
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-
-    from ycli.yandex.core.listing import Listing
+    from collections.abc import Iterator, Sequence
 
 
 class SerializationStrategy(ABC):
     """Prints a command result to a console; one subclass per ``--format`` choice."""
+
+    def __init__(self, declared: object = None) -> None:
+        #: What the command says it returns, where the result is that.
+        self.declared = declared
 
     @abstractmethod
     def render(self, result: BaseModel, console: Console) -> None:
@@ -56,14 +63,19 @@ class SerializationStrategy(ABC):
         self.render(listed, console)
 
     @classmethod
-    def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
+    def from_format(
+        cls, output_format: OutputFormat, declared: object = None
+    ) -> SerializationStrategy:
         """Resolve a CLI ``--format`` choice to its strategy (no module-level registry)."""
         return {
             OutputFormat.json: JSONStrategy,
             OutputFormat.yaml: YAMLStrategy,
             OutputFormat.pretty: PrettyStrategy,
             OutputFormat.auto: AutoStrategy,
-        }[output_format]()
+            OutputFormat.csv: CSVStrategy,
+            OutputFormat.markdown: MarkdownStrategy,
+            OutputFormat.ndjson: NDJSONStrategy,
+        }[output_format](declared)
 
 
 class JSONStrategy(SerializationStrategy):
@@ -194,6 +206,166 @@ class AutoStrategy(SerializationStrategy):
         return PrettyStrategy() if console.is_terminal else JSONStrategy()
 
 
+def _unwrapped(value: object) -> object:
+    """What a root model holds, so a result that wraps one object is that object."""
+    while isinstance(value, RootModel):
+        value = value.root
+    return value
+
+
+def _items(result: BaseModel) -> list[tuple[type, Any]]:
+    """The rows of a result, each with its class and as JSON carries it, under the API's keys.
+
+    The rows are the items of a listing, or the one object the result is.
+    """
+    held = result.items if isinstance(result, Listed) else _unwrapped(result)
+    data = result.model_dump(by_alias=True, mode="json")
+    if isinstance(result, Listed):
+        data = data["items"]
+    if not isinstance(held, list):
+        held, data = [held], [data]
+    return [(type(_unwrapped(item)), dumped) for item, dumped in zip(held, data, strict=True)]
+
+
+def _compact(value: Any) -> str:
+    """``value`` as one line of JSON, the text ``-o json`` prints on a pipe."""
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+class NDJSONStrategy(SerializationStrategy):
+    """``--format ndjson``: one item on a line; a result that is one object is one line.
+
+    Only the items are printed: where a listing stopped is said on stderr, so every line
+    parses the same way.
+    """
+
+    def render(self, result: BaseModel, console: Console) -> None:
+        """Print each item of ``result`` as a line of JSON."""
+        console.file.writelines(_compact(item) + "\n" for _, item in _items(result))
+
+
+#: The path of a column inside an item, by the API's keys; the empty path is the item itself.
+type _Column = tuple[str, ...]
+
+
+def _nested(annotation: object) -> type[BaseModel] | None:
+    """The one model a field holds (``Status`` or ``Status | None``), if it holds just that."""
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        return _nested(get_args(annotation)[0])
+    if origin in (Union, UnionType):
+        held = [kind for kind in get_args(annotation) if kind is not NoneType]
+        return _nested(held[0]) if len(held) == 1 else None
+    plain = isinstance(annotation, type) and issubclass(annotation, BaseModel)
+    return annotation if plain and not issubclass(annotation, RootModel) else None
+
+
+def _kinds(declared: object, *, item: bool = False) -> Iterator[type]:
+    """The classes of the rows a command says it returns: ``Listing[Board]`` → ``Board``.
+
+    A listing of several kinds names each. What is not a model is a row only as an item of a
+    listing (``Listing[str]``); a result that is no model has no table.
+    """
+    origin = get_origin(declared)
+    if origin is Annotated:
+        yield from _kinds(get_args(declared)[0], item=item)
+    elif origin in (Union, UnionType):
+        for kind in get_args(declared):
+            yield from _kinds(kind, item=item)
+    elif origin in (Listing, list):
+        yield from _kinds(get_args(declared)[0], item=True)
+    elif isinstance(declared, type) and issubclass(declared, RootModel):
+        yield from _kinds(declared.model_fields["root"].annotation, item=item)
+    elif isinstance(declared, type) and issubclass(declared, Listed):
+        yield from _kinds(declared.model_fields["items"].annotation, item=item)
+    else:
+        kind = origin or declared
+        if (
+            isinstance(kind, type)
+            and kind is not NoneType
+            and (item or issubclass(kind, BaseModel))
+        ):
+            yield kind
+
+
+def _columns(model: type[BaseModel], above: tuple[type[BaseModel], ...] = ()) -> Iterator[_Column]:
+    """The columns a model declares: a nested object is laid out as ``status.key``.
+
+    A list, a mapping and a model that holds itself stay one column, printed as JSON text.
+    """
+    if not model.model_fields:
+        yield ()  # nothing declared: the object is one cell
+        return
+    for name, field in model.model_fields.items():
+        key = field.serialization_alias or field.alias or name
+        nested = _nested(field.annotation)
+        if nested is None or nested in above or nested is model:
+            yield (key,)
+        else:
+            yield from ((key, *rest) for rest in _columns(nested, (*above, model)))
+
+
+def _cell(item: Any, column: _Column) -> str:
+    """The text of one cell: a scalar as it is, a list or an object as JSON text."""
+    value = item
+    for key in column:
+        value = value.get(key) if isinstance(value, dict) else None
+    if value is None:
+        return ""
+    return value if isinstance(value, str) else _compact(value)
+
+
+class TableStrategy(SerializationStrategy):
+    """A table whose columns are the fields the model declares, so data does not move them.
+
+    A result that is one object is a table of one row. A field the service added and the
+    model does not declare has no column; ``-o json`` prints it.
+    """
+
+    def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` as a header and one row for each item."""
+        items = _items(result)
+        columns: list[_Column] = []
+        # The declared kinds first: the header is the same whatever the reply holds, if anything.
+        for kind in dict.fromkeys([*_kinds(self.declared), *(kind for kind, _ in items)]):
+            declared = _columns(kind) if issubclass(kind, BaseModel) else [()]
+            columns.extend(column for column in declared if column not in columns)
+        if not columns:
+            return
+        header = [".".join(column) or "value" for column in columns]
+        rows = [[_cell(item, column) for column in columns] for _, item in items]
+        self.write(header, rows, console)
+
+    @abstractmethod
+    def write(self, header: Sequence[str], rows: Sequence[Sequence[str]], console: Console) -> None:
+        """Print the header and the rows of cells."""
+
+
+class CSVStrategy(TableStrategy):
+    """``--format csv``: RFC 4180 quoting, UTF-8 with no byte order mark, cells as they came.
+
+    A cell is the service's text unchanged, so one that starts with ``=`` is a formula to a
+    spreadsheet that opens the file.
+    """
+
+    def write(self, header: Sequence[str], rows: Sequence[Sequence[str]], console: Console) -> None:
+        """Print the table as CSV."""
+        csv.writer(console.file, lineterminator="\n").writerows([header, *rows])
+
+
+class MarkdownStrategy(TableStrategy):
+    """``--format markdown``: a pipe table; ``|`` and a line break inside a cell are escaped."""
+
+    def write(self, header: Sequence[str], rows: Sequence[Sequence[str]], console: Console) -> None:
+        """Print the table as Markdown."""
+        lines = [header, ["---"] * len(header), *([self._escaped(c) for c in row] for row in rows)]
+        console.file.writelines(f"| {' | '.join(line)} |\n" for line in lines)
+
+    @staticmethod
+    def _escaped(cell: str) -> str:
+        return cell.replace("|", "\\|").replace("\r\n", "<br>").replace("\n", "<br>")
+
+
 @dataclass(frozen=True)
 class BinaryResult:
     """Raw bytes (an attachment, an export) for the file at ``path``, or stdout for ``None``/``-``.
@@ -222,15 +394,41 @@ class Continuable:
     command: str
 
 
-def render(result: object, output_format: OutputFormat) -> None:
-    """Print a command's return value to stdout — the only place CLI output is produced."""
+@dataclass(frozen=True)
+class Declared:
+    """What a command returned, and what it says it returns: a table takes its columns from that.
+
+    So an empty listing has a header too, and a listing of several kinds has the columns of each
+    whatever the reply held.
+    """
+
+    result: object
+    returns: object
+
+
+def render(result: object, output_format: OutputFormat, declared: object = None) -> None:
+    """Print a command's return value to stdout — the only place CLI output is produced.
+
+    Args:
+        result: What the command returned.
+        output_format: The ``--format`` choice.
+        declared: What the command says it returns, where ``result`` is that.
+
+    Raises:
+        TypeError: The command returned a value that has no rendering.
+        typer.Exit: After an :class:`ExitWith` is printed, with its exit code.
+    """
     match result:
         case None:
             return
+        case Declared(result=inner, returns=returns):
+            render(inner, output_format, returns)
         case Continuable(listing=listing, command=command):
             # What it gave, as the format shows a listing; where it stopped is said on stderr.
             listed = listing.collect()
-            SerializationStrategy.from_format(output_format).render_listing(listed, Console())
+            SerializationStrategy.from_format(output_format, declared).render_listing(
+                listed, Console()
+            )
             if listed.truncated:
                 # It stopped at the limit; whether anything is left only the next call can say.
                 of = "" if listed.total is None else f" of {listed.total}"
@@ -240,7 +438,7 @@ def render(result: object, output_format: OutputFormat) -> None:
                 hint = f"{shown}; go on with: {command} --next {listed.next}  (or --all)"
                 typer.echo(hint, err=True)
         case BaseModel():
-            SerializationStrategy.from_format(output_format).render(result, Console())
+            SerializationStrategy.from_format(output_format, declared).render(result, Console())
         case str() | int():
             print(result)
         case BinaryResult(data=data, path=None | "-"):

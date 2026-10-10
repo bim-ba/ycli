@@ -44,7 +44,7 @@ $ ycli mcp start [OPTIONS]
 * `--transport [stdio|http]`: stdio (default): one local client, credentials from the environment or from --profile. http: Streamable HTTP for many users, each signed in through Yandex ID (needs YCLI__MCP__BASE_URL and your Yandex OAuth app; see https://ycli.savaznatnov.dev/how-to/self-host-over-http/).  [default: stdio]
 * `--host TEXT`: HTTP only: listen address (YCLI__MCP__HOST).
 * `--port INTEGER`: HTTP only: listen port (YCLI__MCP__PORT).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -73,7 +73,7 @@ $ ycli mcp methods [OPTIONS]
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
 * `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get and schema_get stay.
 * `--kind [tools|prompts|resources]`: What to list: tools (default), prompts, or resources (addresses and templates).  [default: tools]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.

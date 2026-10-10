@@ -1,18 +1,28 @@
 """output.py serialization strategies."""
 
-from io import StringIO
+from __future__ import annotations
 
-from pydantic import BaseModel
+import csv
+import json
+from io import StringIO
+from typing import Annotated, Any
+
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 from rich.console import Console
 
 from ycli.cli.output import (
     AutoStrategy,
+    CSVStrategy,
     JSONStrategy,
+    MarkdownStrategy,
+    NDJSONStrategy,
     OutputFormat,
     PrettyStrategy,
     SerializationStrategy,
     YAMLStrategy,
 )
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import ItemList, Listed
 
 
 class _Row(BaseModel):
@@ -144,3 +154,127 @@ def test_pretty_strategy_prints_markup_like_keys_and_headers_verbatim():
     out = buf.getvalue()
     assert "[col]" in out
     assert "[/x]" in out
+
+
+class _Status(BaseModel):
+    key: str
+    display: str | None = None
+
+
+class _Node(BaseModel):
+    """A model that holds itself, an annotated model and a field of more than one kind."""
+
+    key: str
+    status: _Status | None = None
+    resolution: Annotated[_Status, Field(description="how it ended")] | None = None
+    tags: list[str] = []
+    parent: _Node | None = None
+    owner: _Status | str | None = None
+    created_at: str | None = Field(default=None, serialization_alias="createdAt")
+
+
+class _Bare(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+
+def _printed(strategy: SerializationStrategy, result: BaseModel) -> str:
+    console, buf = _console(terminal=False)
+    strategy.render(result, console)
+    return buf.getvalue()
+
+
+_NODE = _Node(
+    key="A-1",
+    status=_Status(key="open", display="Открыт"),
+    tags=["a", "b"],
+    parent=_Node(key="A-0"),
+    owner="ann",
+    created_at="today",
+)
+_HEADER = (
+    "key,status.key,status.display,resolution.key,resolution.display,tags,parent,owner,createdAt"
+)
+
+
+def test_csv_lays_a_nested_object_out_in_columns_and_keeps_a_list_as_json_text():
+    header, row = list(csv.reader(StringIO(_printed(CSVStrategy(), _NODE))))
+    assert ",".join(header) == _HEADER
+    cells = dict(zip(header, row, strict=True))
+    assert cells["status.display"] == "Открыт"
+    assert cells["resolution.key"] == ""
+    assert json.loads(cells["tags"]) == ["a", "b"]
+    # A model that holds itself is one cell, not columns without end.
+    assert json.loads(cells["parent"])["key"] == "A-0"
+    assert cells["owner"] == "ann"
+
+
+def test_the_columns_are_the_fields_the_model_declares_whatever_the_items_hold():
+    listed = Listed[_Node](items=[_Node(key="A-1"), _NODE], truncated=True, next="eJw")
+    header, first, second = list(csv.reader(StringIO(_printed(CSVStrategy(), listed))))
+    assert ",".join(header) == _HEADER
+    assert first == ["A-1", "", "", "", "", "[]", "", "", ""]
+    assert second[0] == "A-1" and second[-1] == "today"
+
+
+def test_csv_quotes_what_would_break_a_row_and_leaves_a_formula_as_it_came():
+    printed = _printed(CSVStrategy(), _Row(key='=1+1, "x"', name="two\nlines"))
+    assert printed == 'key,name\n"=1+1, ""x""","two\nlines"\n'
+    assert list(csv.reader(StringIO(printed)))[1] == ['=1+1, "x"', "two\nlines"]
+
+
+def test_markdown_escapes_a_pipe_and_a_line_break_inside_a_cell():
+    printed = _printed(MarkdownStrategy(), _Row(key="a|b", name="one\r\ntwo\nthree"))
+    assert printed == "| key | name |\n| --- | --- |\n| a\\|b | one<br>two<br>three |\n"
+
+
+def test_ndjson_prints_the_items_alone_one_on_a_line():
+    listed = Listed[_Row](items=[_Row(key="A", name="Имя"), _Row(key="B", name="y")], next="eJw")
+    assert _printed(NDJSONStrategy(), listed) == (
+        '{"key":"A","name":"Имя"}\n{"key":"B","name":"y"}\n'
+    )
+    assert _printed(NDJSONStrategy(), _M(key="A")) == '{"key":"A"}\n'
+
+
+def test_items_that_are_not_objects_are_one_column():
+    assert _printed(CSVStrategy(), ItemList[str](["a", "b"])) == "value\na\nb\n"
+    assert _printed(CSVStrategy(), ItemList[int]([1])) == "value\n1\n"
+    assert _printed(NDJSONStrategy(), ItemList[str](["a"])) == '"a"\n'
+
+
+def test_an_object_that_declares_no_field_is_one_cell():
+    printed = _printed(CSVStrategy(), _Bare.model_validate({"a": 1}))
+    assert list(csv.reader(StringIO(printed))) == [["value"], ['{"a":1}']]
+
+
+def test_a_root_model_of_one_object_is_that_object():
+    assert _printed(CSVStrategy(), RootModel[_Row](_Row(key="A", name="x"))) == "key,name\nA,x\n"
+
+
+def test_from_format_maps_the_table_and_line_formats():
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.csv), CSVStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.markdown), MarkdownStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.ndjson), NDJSONStrategy)
+
+
+def test_an_empty_listing_has_the_header_of_what_the_command_says_it_returns():
+    nothing = Listed[_Row](items=[])
+    assert _printed(CSVStrategy(Listing[_Row]), nothing) == "key,name\n"
+    assert _printed(MarkdownStrategy(ItemList[_Row]), nothing) == "| key | name |\n| --- | --- |\n"
+    assert _printed(CSVStrategy(Listing[_Row | _M]), nothing) == "key,name\n"
+    assert _printed(CSVStrategy(Listing[Annotated[_Status | _Row, "kinds"]]), nothing) == (
+        "key,display,name\n"
+    )
+    assert _printed(CSVStrategy(Listed[_Status] | None), nothing) == "key,display\n"
+    assert _printed(CSVStrategy(Listing[str]), nothing) == "value\n"
+    assert _printed(CSVStrategy(Listing[dict[str, int]]), nothing) == "value\n"
+
+
+def test_a_result_that_is_no_model_gives_no_columns():
+    nothing = Listed[_Row](items=[])
+    for declared in (None, str, int | None, Any):
+        assert _printed(CSVStrategy(declared), nothing) == ""
+
+
+def test_the_declared_kinds_come_first_and_what_else_came_is_added():
+    printed = _printed(CSVStrategy(Listing[_M]), Listed[Any](items=[_Row(key="A", name="x")]))
+    assert printed == "key,name\nA,x\n"

@@ -8,7 +8,7 @@ from tests.architecture.scanners import SRC, _dotted, _import_aliases, unexplain
 # Serializers that turn a result into text. Only output.render may call them (ARCH-4).
 _SERIALIZERS = frozenset(
     {"json.dump", "json.dumps", "yaml.dump", "yaml.safe_dump", "yaml.dump_all",
-     "yaml.safe_dump_all", "pydantic_core.to_json"}
+     "yaml.safe_dump_all", "pydantic_core.to_json", "csv.writer", "csv.DictWriter"}
 )  # fmt: skip
 _SERIALIZER_METHODS = frozenset({"model_dump_json", "dump_json"})  # BaseModel / TypeAdapter
 # Where a result may be serialized, and why.
@@ -24,8 +24,8 @@ ARCH4_SERIALIZATION_HOMES = {
 def _serializations(source: str) -> list[str]:
     """Calls in ``source`` that serialize a value.
 
-    They are ``json.dumps``, ``yaml.safe_dump``, ``pydantic_core.to_json`` (import aliases
-    resolved) or a ``.model_dump_json()``.
+    They are ``json.dumps``, ``yaml.safe_dump``, ``pydantic_core.to_json``, ``csv.writer`` and
+    ``csv.DictWriter`` (import aliases resolved) or a ``.model_dump_json()``.
     """
     tree = ast.parse(source)
     aliases = _import_aliases(tree)
@@ -58,6 +58,8 @@ def test_arch4_serialization_guard_bites():
         "text = result.model_dump_json()",
         "from pydantic_core import to_json\ndata = to_json(result)",
         "import pydantic_core\ndata = pydantic_core.to_json(result)",
+        "import csv\ncsv.writer(out).writerows(rows)",
+        "from csv import DictWriter\nDictWriter(out, fieldnames=names).writerows(rows)",
     ):
         assert _serializations(source), source
     assert _serializations("data = result.model_dump(mode='json')\nvalue = json.loads(text)") == []
