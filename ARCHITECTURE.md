@@ -167,7 +167,8 @@ program stays a test.
   resolved: no `print` in any spelling — `builtins.print`, `rich.print`, `pprint` — no stdout
   `Console`, `typer.echo` without `err=True`, `sys.stdout`/`sys.__stdout__` or `os.write`) and
   `test_arch4_serialization_confined_to_output` (AST: `json.dumps`, `yaml.safe_dump`,
-  `pydantic_core.to_json`, `.model_dump_json()` and their aliases), each with a bite test.
+  `pydantic_core.to_json`, `csv.writer`, `csv.DictWriter`, `.model_dump_json()` and their
+  aliases), each with a bite test.
 - **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
   `json.dumps`; the file engine writes a file of a repository in `sync/formats.py` and takes a
   fingerprint from a canonical form in `sync/document.py`, neither a result of a command; `core/continuation.py` packs where a listing stopped into the token that goes on from there) and `# violation(arch-4): <reason>` above a line that touches stdout (the eager

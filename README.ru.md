@@ -72,7 +72,7 @@ pipx install 'yandex-cli[mcp]'      # или через pipx
 ```bash
 ycli tracker issues get TRACKER-1                  # таблица в терминале
 ycli tracker issues get TRACKER-1 | jq .summary    # JSON при передаче по конвейеру
-ycli -o yaml wiki pages get onboarding             # или выберите: -o json | yaml | pretty
+ycli -o yaml wiki pages get onboarding             # или выберите: -o json | yaml | pretty | csv | markdown | ndjson
 ycli tracker boards delete 7 --dry-run             # напечатать запрос, который отправила бы запись
 ycli tracker boards delete 7 --yes                 # удаление сначала спрашивает; --yes отвечает
 ycli api issues/TRACKER-1 --service tracker        # эндпоинт, который ycli не оборачивает

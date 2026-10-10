@@ -38,7 +38,7 @@ from ycli.cli.global_options import (
     leaf_parameters,
     refuse_fields,
 )
-from ycli.cli.output import Continuable
+from ycli.cli.output import Continuable, Declared
 from ycli.yandex.core.continuation import HANDLES, NOTHING_ELSE
 from ycli.yandex.core.guard import RequestPlanned
 from ycli.yandex.core.listing import Listing
@@ -188,8 +188,8 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
             # violation(arch-9): the command sent no body at all, so the fields went nowhere
             raise typer.BadParameter(NO_BODY, param_hint="-F / --body-file")
         if isinstance(result, Listing):
-            return Continuable(result, _again(context))
-        return result
+            result = Continuable(result, _again(context))
+        return Declared(result, hints.get("return"))
 
     context = inspect.Parameter(_CONTEXT, inspect.Parameter.KEYWORD_ONLY, annotation=typer.Context)
     run.__signature__ = signature.replace(  # ty: ignore[unresolved-attribute]

@@ -7,7 +7,7 @@ type: how-to
 
 ## Get JSON
 
-At a terminal ycli prints tables; piped, it prints JSON. Force a format with the global `--format` / `-o` (`auto`, `json`, `yaml`, `pretty`), before or after the command:
+At a terminal ycli prints tables; piped, it prints JSON. Force a format with the global `--format` / `-o` (`auto`, `json`, `yaml`, `pretty`, `csv`, `markdown`, `ndjson`), before or after the command:
 
 ```bash
 ycli tracker issues get TRACKER-1 | jq .        # JSON, because the output is piped
@@ -27,6 +27,22 @@ ycli tracker issues search 'Queue: TEST' -o json | jq -r '.items[].key'
 ```
 
 `-o json` makes the format explicit; without it a pipe gets JSON anyway.
+
+## Get a table or one item on a line
+
+`-o csv` and `-o markdown` print a table, `-o ndjson` prints one item on a line:
+
+```bash
+ycli tracker issues search 'Queue: TEST' -o csv > issues.csv
+ycli tracker queues list -o markdown >> report.md
+ycli tracker issues search 'Queue: TEST' -o ndjson | jq -r .key
+```
+
+- The columns are the fields ycli knows for that kind of object, the same whatever the reply holds. A field the service added since has no column; `-o json` prints it.
+- A nested object becomes columns named through a dot (`status.key`); a list stays one cell, as JSON text.
+- A command that answers with one object prints a table of one row, or one line.
+- `csv` is UTF-8 with no byte order mark, its lines end with a line feed alone, and a cell is the service's text as it came. A spreadsheet reads a cell that starts with `=` as a formula, so open a file of someone else's text with that in mind.
+- Where a listing stopped is said on stderr, as with `-o pretty`: stdout holds the rows alone.
 
 ## Take a long listing in pieces
 

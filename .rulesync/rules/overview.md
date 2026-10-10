@@ -27,7 +27,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   plugin (skills + instructions) lives in `plugins/yandex-360/`, listed by the repo-root
   `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
-  · `pretty`); no output surface hardcodes a service UI URL, and a general per-model deeplink
+  · `pretty` · `csv` · `markdown` · `ndjson`); no output surface hardcodes a service UI URL, and a general per-model deeplink
   mechanism is deferred. Serialization confinement (ARCH-4), single sources of truth (ARCH-5)
   and MCP read/write annotation honesty with `ycli mcp start --read-only` (ARCH-3) are
   specified and enforced in [`ARCHITECTURE.md`](ARCHITECTURE.md); read them there.

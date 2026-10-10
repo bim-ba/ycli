@@ -25,7 +25,7 @@ $ ycli [OPTIONS] COMMAND [ARGS]...
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).  [default: auto]
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).  [default: auto]
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.

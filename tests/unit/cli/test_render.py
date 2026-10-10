@@ -2,12 +2,15 @@
 
 import io
 import sys
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
 import typer
 from pydantic import BaseModel
 
-from ycli.cli.output import BinaryResult, ExitWith, OutputFormat, render
+from ycli.cli.output import BinaryResult, Continuable, ExitWith, OutputFormat, render
+from ycli.yandex.core.listing import Listing
 
 
 class _Model(BaseModel):
@@ -54,3 +57,24 @@ def test_exit_with_renders_then_exits(capsys):
 def test_an_unknown_value_is_a_bug_not_silence():
     with pytest.raises(TypeError, match="returned dict"):
         render({"raw": "dict"}, OutputFormat.json)
+
+
+@pytest.mark.parametrize(
+    ("output_format", "printed"),
+    [
+        (OutputFormat.csv, "key\nA\nB\n"),
+        (OutputFormat.markdown, "| key |\n| --- |\n| A |\n| B |\n"),
+        (OutputFormat.ndjson, '{"key":"A"}\n{"key":"B"}\n'),
+    ],
+)
+def test_a_listing_cut_at_the_limit_prints_rows_alone_and_says_so_on_stderr(
+    capsys, output_format, printed
+):
+    stopped: Any = SimpleNamespace(truncated=True, next="eJw", total=5, seen=2)
+    rows = Listing(stopped, lambda: iter([_Model(key="A"), _Model(key="B")]))
+    render(Continuable(rows, "ycli things list"), output_format)
+    captured = capsys.readouterr()
+    assert captured.out == printed
+    assert captured.err == (
+        "stopped at 2 of 5; go on with: ycli things list --next eJw  (or --all)\n"
+    )

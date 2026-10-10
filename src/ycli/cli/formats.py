@@ -10,3 +10,6 @@ class OutputFormat(enum.StrEnum):
     json = "json"
     yaml = "yaml"
     pretty = "pretty"
+    csv = "csv"
+    markdown = "markdown"
+    ndjson = "ndjson"
