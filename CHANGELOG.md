@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.136.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.135.0
+  ([`496bd7d`](https://github.com/bim-ba/ycli/commit/496bd7d94623ef18159cd94237553b8feb839fba))
+
+### Features
+
+- **cli**: `-o name` prints the identifier of each object, what the command that reads it takes
+  ([#569](https://github.com/bim-ba/ycli/pull/569),
+  [`418691f`](https://github.com/bim-ba/ycli/commit/418691fae75183c9a51c0217b0d48bbf82e03583))
+
+
 ## v0.135.0 (2026-10-10)
 
 ### Build System
