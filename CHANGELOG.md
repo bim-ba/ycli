@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.131.1 (2026-10-10)
+
+### Bug Fixes
+
+- **tracker**: `projects create` no longer demands `--queues`, which the service accepts and ignores
+  ([#563](https://github.com/bim-ba/ycli/pull/563),
+  [`e9216df`](https://github.com/bim-ba/ycli/commit/e9216df848ffcde56dfa34478eb232c702e5f720))
+
+### Build System
+
+- Re-lock uv.lock for 0.131.0
+  ([`7d2dbd3`](https://github.com/bim-ba/ycli/commit/7d2dbd30bfe401e0b1fff719604614fff11d3034))
+
+### Documentation
+
+- **datalens**: `htmlpages create` says that creating publishes
+  ([#564](https://github.com/bim-ba/ycli/pull/564),
+  [`1879c35`](https://github.com/bim-ba/ycli/commit/1879c355a8e30e2e87ed20bce2c3c42fd6c386b4))
+
+
 ## v0.131.0 (2026-10-08)
 
 ### Build System
