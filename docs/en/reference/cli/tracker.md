@@ -5745,6 +5745,8 @@ $ ycli tracker projects queues-list [OPTIONS] PROJECT_ID
 
 Create a project (POST /projects).
 
+The service binds no queue to the new project, with --queues or without it.
+
 **Usage**:
 
 ```console
@@ -5754,7 +5756,7 @@ $ ycli tracker projects create [OPTIONS]
 **Options**:
 
 * `--name TEXT`: Name of the project.  [required]
-* `--queues TEXT`: Key of the queue whose issues go into the project.  [required]
+* `--queues TEXT`: Key of a queue. The service accepts the option and binds no queue.
 * `--description TEXT`: Description of the project.
 * `--lead TEXT`: Login or id of the project's lead.
 * `--status TEXT`: Stage of the project. Known values: DRAFT, IN_PROGRESS, LAUNCHED, POSTPONED.

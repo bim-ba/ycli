@@ -54,7 +54,10 @@ def queues_list(
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Name of the project.")],
-    queues: QueuesOpt,
+    queues: Annotated[
+        str | None,
+        typer.Option(help="Key of a queue. The service accepts the option and binds no queue."),
+    ] = None,
     description: DescriptionOpt = None,
     lead: LeadOpt = None,
     status: StatusOpt = None,
@@ -63,7 +66,10 @@ def create(
     *,
     tracker: TrackerClient,
 ) -> Project:
-    """Create a project (POST /projects)."""
+    """Create a project (POST /projects).
+
+    The service binds no queue to the new project, with --queues or without it.
+    """
     body = ProjectCreate(
         name=name,
         queues=queues,
