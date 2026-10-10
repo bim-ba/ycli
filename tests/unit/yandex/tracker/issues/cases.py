@@ -1,12 +1,29 @@
 """Contract cases for Tracker ``/issues`` (see tests/contract/)."""
 
+import httpx2
+
 from tests.contract import Case, Reply, Sent, with_query
 from tests.unit.yandex.tracker.issues.bulk_cases import BULK_CASES
 from tests.unit.yandex.tracker.issues.import_cases import IMPORT_CASES
+from ycli.yandex.core import continuation
 from ycli.yandex.core.endpoint import Effect
-from ycli.yandex.tracker.issues.models import IssueCreate, IssueSearch, IssueUpdate, ScrollClear
+from ycli.yandex.tracker.issues.models import IssueCreate, IssueSearch, IssueUpdate
 
 ISSUE = {"key": "DE-7", "summary": "Fix the login page"}
+_SCROLLED = httpx2.Request(
+    "POST", "https://api.tracker.yandex.net/v3/issues/_search?scrollType=sorted&scrollId=scroll-1"
+)
+# The `next` of a search by a scroll in the organization of the tests: it keeps what the
+# replies of the scroll carried, its id and its own token.
+OF_A_SCROLL = continuation.encode(
+    _SCROLLED,
+    _SCROLLED,
+    way="ScrollPagination",
+    skip=0,
+    seen=2,
+    organization="X-Org-Id: o",
+    kept={"scrollId": "scroll-1", "scrollToken": "token-1"},
+)
 SEARCH = {"page": "1", "perPage": "100"}
 
 CASES = [
@@ -184,9 +201,9 @@ CASES = [
     ),
     Case(
         "tracker.issues.scroll_clear",
-        args=(ScrollClear.model_validate({"scroll-1": "token-1"}),),
-        cli=["tracker", "issues", "scroll-clear", "--pair", "scroll-1=token-1"],
-        mcp=("tracker_issues_scroll_clear", {"body": {"scroll-1": "token-1"}}),
+        args=(OF_A_SCROLL,),
+        cli=["tracker", "issues", "scroll-clear", "--next", OF_A_SCROLL],
+        mcp=("tracker_issues_scroll_clear", {"next": OF_A_SCROLL}),
         exchanges=[
             (Sent("POST", "system/search/scroll/_clear", json={"scroll-1": "token-1"}), Reply())
         ],

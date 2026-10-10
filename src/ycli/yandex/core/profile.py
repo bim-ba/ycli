@@ -58,3 +58,29 @@ class ServiceProfile:
         elif self.cloud_org_header and cloud_organization_id:
             headers[self.cloud_org_header] = cloud_organization_id
         return headers
+
+    def organization(
+        self, organization_id: str | None, cloud_organization_id: str | None = None
+    ) -> str:
+        """The organization :meth:`headers_for` names to this service, with the header it is in.
+
+        The header is a part of it: organization ``7`` of Yandex 360 and organization ``7`` of
+        Yandex Cloud are two organizations. Empty when the service is named none.
+
+        Args:
+            organization_id: The Yandex 360 organization, when configured.
+            cloud_organization_id: The Yandex Cloud organization, when configured.
+
+        Returns:
+            The one organization header as ``Name: id``, or ``""``.
+
+        Examples:
+            >>> ServiceProfile("https://x").organization("org-1", "cloud-1")
+            'X-Org-Id: org-1'
+            >>> ServiceProfile("https://x", org_header=None).organization("org-1", "cloud-1")
+            'X-Cloud-Org-Id: cloud-1'
+            >>> ServiceProfile("https://x").organization(None)
+            ''
+        """
+        named = set(self.headers_for(organization_id, cloud_organization_id).items())
+        return "".join(f"{name}: {value}" for name, value in named - set(self.headers.items()))

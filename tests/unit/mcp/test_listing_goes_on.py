@@ -7,6 +7,10 @@ so for every listing and each of its optional arguments the request of the requi
 to lie within the request with that argument. A listing that sends a default beside an
 optional argument (a type of scroll, a sort order, a flag), or a page size of its own that the
 limit shapes, fails here, not at a user's second page.
+
+One thing it cannot see: a constant page size put back into the operation of a listing that
+follows a link of the service (`forms notifications list`). It differs from nothing here, and
+is refused only when the link names another size; the pager owns it for that reason.
 """
 
 from typing import Any
@@ -67,7 +71,7 @@ async def test_what_is_required_alone_lies_within_the_request_of_every_fuller_ca
 
         for tool in await client.list_tools():
             properties = tool.input_schema.get("properties", {})
-            if "next" not in properties:
+            if not {"limit", "next"} <= properties.keys():  # a listing has both
                 continue
             listings += 1
             # One of the two credentials is given: DataLens takes the IAM token, the rest OAuth.
@@ -94,13 +98,16 @@ async def test_what_is_required_alone_lies_within_the_request_of_every_fuller_ca
                     unasked.add((tool.name, name))
                     continue
                 held = continuation.Continuation(
-                    v=1,
+                    v=2,
                     of="",
+                    at="/",
+                    org="",
                     way="",
                     query=fuller.url.query.decode(),
                     body=fuller.content.decode(),
                     skip=0,
                     seen=0,
+                    kept={},
                 )
                 if differing := continuation._differing(base, held):
                     refused.append(f"{tool.name} with {name}={value!r}: {differing}")

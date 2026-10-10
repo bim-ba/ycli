@@ -358,3 +358,20 @@ def test_a_step_reads_a_listing_as_its_items_or_as_it_is_printed():
     held = {"length(items)": 1, "truncated": True, "type(next)": "string"}
     whole: dict[str, object] = {"id": "a", "run": "boards", "output": "listing", "expect": held}
     run_scenario(_scenario(whole), driver, {})
+
+
+def test_a_step_whose_point_is_a_refusal_passes_on_that_exit_code_alone():
+    driver = ScriptedDriver({"gone": CommandResult(9, "", "the listing cannot go on")})
+    run_scenario(_scenario({"id": "a", "run": "gone", "exits": 9}), driver, {})
+    with pytest.raises(ScenarioError, match="exited 9, not 2"):
+        run_scenario(_scenario({"id": "a", "run": "gone", "exits": 2}), driver, {})
+    went = ScriptedDriver({"gone": _ok([])})
+    with pytest.raises(ScenarioError, match="exited 0, not 9"):
+        run_scenario(_scenario({"id": "a", "run": "gone", "exits": 9}), went, {})
+
+
+@pytest.mark.parametrize("beside", [{"expect": {"length(@)": 1}}, {"save": {"key": "id"}}])
+def test_a_step_that_expects_a_refusal_and_reads_its_output_is_no_scenario(beside):
+    """`exits` reads nothing of the output: what would be passed over is refused at load."""
+    with pytest.raises(ValueError, match="`expect` and `save` beside it would be passed over"):
+        _scenario({"id": "a", "run": "gone", "exits": 9, **beside})

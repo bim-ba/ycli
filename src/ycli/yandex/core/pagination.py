@@ -83,6 +83,14 @@ class Pagination(ABC):
         """The first page's request (by default the endpoint's own request)."""
         return request
 
+    def kept(self, response: httpx2.Response) -> dict[str, str]:
+        """What a reply says of the listing beyond its next request; nothing, for most ways.
+
+        It goes into the token beside the request, for an operation that needs it later (a
+        scroll is released by an id and a token its replies carry).
+        """
+        return {}
+
     @abstractmethod
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
@@ -158,6 +166,14 @@ class ScrollPagination(Pagination):
 
     scroll_param: str = "scrollId"
     scroll_header: str = "X-Scroll-Id"
+    #: The next page does not take it (the API's own word); releasing the scroll does.
+    token_header: str = "X-Scroll-Token"
+
+    def kept(self, response: httpx2.Response) -> dict[str, str]:
+        """The scroll's id and its token, where the reply carries both: what releases it."""
+        scroll = response.headers.get(self.scroll_header)
+        token = response.headers.get(self.token_header)
+        return {"scrollId": scroll, "scrollToken": token} if scroll and token else {}
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]

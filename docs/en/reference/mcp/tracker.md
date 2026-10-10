@@ -148,14 +148,14 @@ dropped. Returns the moved issue with its new key.
 
 *Clear Tracker search scroll* · idempotent write
 
-Release the server resources of a scrolled issue search (harmless housekeeping).
+Release the scroll of an issue search before it expires (harmless housekeeping).
 
-``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
-``issues.search`` response. Returns an acknowledgement on success.
+Only a search by a scroll (`scroll_type`) has something to release; after this its
+`next` goes on nowhere. Returns an acknowledgement on success.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | A bare ``{scrollId: scrollToken}`` mapping — body for ``POST …/scroll/_clear``. Each entry releases the server resources of one scrolled ``issues.search`` response. |
+| `next` | string | yes | The `next` a search by a scroll returned: it names the scroll. |
 
 ## `tracker_issues_update_bulk`
 

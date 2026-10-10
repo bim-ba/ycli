@@ -3,6 +3,7 @@
 import asyncio
 import inspect
 import json
+import re
 import shlex
 from typing import Annotated
 
@@ -335,11 +336,11 @@ def test_an_argument_of_the_address_given_again_and_differing_is_named(api):
     api.add("GET", url.format("DE-1"), json=[{"id": 1}, {"id": 2}, {"id": 3}])
     token = asyncio.run(_call("tracker_comments_list", issue_key="DE-1", limit=2))["next"]
     asked = len(api.calls)
-    said = "this token is of another listing than GET /v3/issues/DE-2/comments"
+    said = "it differs in the address: DE-2 (the token holds DE-1)"
     refused = CliRunner().invoke(cli.app, ["tracker", "comments", "list", "DE-2", "--next", token])
     assert isinstance(refused.exception, YandexInvalidRequestError)
     assert said in str(refused.exception)
-    with pytest.raises(ToolError, match=said):
+    with pytest.raises(ToolError, match=re.escape(said)):
         asyncio.run(_call("tracker_comments_list", issue_key="DE-2", next=token))
     assert len(api.calls) == asked
 
@@ -352,7 +353,7 @@ def _listing_methods() -> list[tuple[str, object]]:
             if not isinstance(resource, Resource):
                 continue
             for method_name, method in inspect.getmembers(type(resource), inspect.isfunction):
-                if "next" in inspect.signature(method).parameters:
+                if {"limit", "next"} <= inspect.signature(method).parameters.keys():
                     found.append((f"{service.name}.{resource_name}.{method_name}", method))
     return found
 
@@ -392,3 +393,58 @@ def test_the_cap_of_a_tool_is_a_setting_of_its_own(boards, monkeypatch):
     monkeypatch.setenv("YCLI__HTTP__MAX_ITEMS", "4")  # the command's cap is another setting
     answered = _tool()
     assert [board["id"] for board in answered["items"]] == [1] and answered["truncated"]
+
+
+#: A token of the first format: what `continuation.encode` of ycli 0.133 (the code of #534)
+#: wrote for `tracker boards list --limit 2`.
+RECORDED_V1 = (
+    "eyJ2IjoxLCJvZiI6ImUwMzU5OTJhOTBjYzRlNWE5YTVlYmQwYTgxMjY1NjI2Iiwid2F5IjoiUmVsYXRpdmVJRFBh"
+    "Z2luYXRpb24iLCJxdWVyeSI6InBlclBhZ2U9MiZpZD0yIiwiYm9keSI6IiIsInNraXAiOjAsInNlZW4iOjJ9"
+)
+
+
+def test_a_token_of_the_first_format_is_refused_by_name_on_every_surface(boards):
+    """It names no organization, so it is not guessed at: start again, says each surface."""
+    said = "this token was given by an earlier version of ycli: start the listing again without it"
+    tracker = TrackerClient(oauth_token="t", organization_id="o")
+    with tracker, pytest.raises(YandexInvalidRequestError, match=said):
+        tracker.boards.list(next=RECORDED_V1)
+    refused = CliRunner().invoke(cli.app, ["tracker", "boards", "list", "--next", RECORDED_V1])
+    assert isinstance(refused.exception, YandexInvalidRequestError)
+    assert said in str(refused.exception)
+    assert exit_code_for(refused.exception) is ExitCode.USAGE
+    with pytest.raises(ToolError, match=said):
+        _tool(next=RECORDED_V1)
+    assert boards.calls == []
+
+
+def test_a_scroll_is_released_by_the_token_of_its_search_on_every_surface(api):
+    """The token holds the scroll's id and the scroll's own token: no more is asked for."""
+    scroll = {"X-Scroll-Id": "scroll-1", "X-Scroll-Token": "token-of-the-scroll"}
+    api.add("POST", SEARCH, json=[{"key": "DE-1"}, {"key": "DE-2"}], headers=scroll)
+    clear = "https://api.tracker.yandex.net/v3/system/search/scroll/_clear"
+    api.add("POST", clear, status=204)
+    search = ["-o", "json", "tracker", "issues", "search", "Queue: DE", "--scroll-type", "sorted"]
+    first = CliRunner().invoke(cli.app, [*search, "--per-scroll", "2", "--limit", "2"])
+    assert first.exit_code == 0, first.output
+    token = json.loads(first.stdout)["next"]
+    assert "token-of-the-scroll" not in first.stderr.replace(token, "")  # only inside the token
+    released = CliRunner().invoke(cli.app, ["tracker", "issues", "scroll-clear", "--next", token])
+    assert released.exit_code == 0, released.output
+    asyncio.run(_call("tracker_issues_scroll_clear", next=token))
+    with TrackerClient(oauth_token="t", organization_id="o") as tracker:
+        tracker.issues.scroll_clear(token)
+    sent = [json.loads(call.content) for call in api.calls if str(call.url) == clear]
+    assert sent == [{"scroll-1": "token-of-the-scroll"}] * 3
+
+
+def test_a_token_that_is_not_of_a_scroll_has_nothing_to_release(boards):
+    token = _tool(limit=2)["next"]
+    asked = len(boards.calls)
+    said = "this token is not of a scroll: only a search by a scroll has something to release"
+    refused = CliRunner().invoke(cli.app, ["tracker", "issues", "scroll-clear", "--next", token])
+    assert isinstance(refused.exception, YandexInvalidRequestError)
+    assert said in str(refused.exception)
+    with pytest.raises(ToolError, match=said):
+        asyncio.run(_call("tracker_issues_scroll_clear", next=token))
+    assert len(boards.calls) == asked

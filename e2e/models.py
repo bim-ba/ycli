@@ -53,9 +53,24 @@ class Step(BaseModel):
         "markdown). bytes: it prints a file; `expect` sees `size` and `head` (the first 16 "
         "bytes, in hex).",
     )
+    exits: int = Field(
+        default=0,
+        description="The exit code the command must end with. Not 0: the refusal is the point "
+        "of the step (9: a listing that cannot go on), and nothing of its output is read.",
+    )
     expect: dict[str, Any] = Field(default_factory=dict)
     save: dict[str, str] = Field(default_factory=dict)
     cleanup: str | None = None
+
+    @model_validator(mode="after")
+    def _a_refusal_has_no_output(self) -> Self:
+        if self.exits and (self.expect or self.save):
+            raise ValueError(
+                f"step {self.id}: `exits: {self.exits}` reads nothing of the output, so "
+                "`expect` and `save` beside it would be passed over"
+            )
+        return self
+
     disarms: tuple[str, ...] = ()
     reads: tuple[str, ...] = ()
     needs: tuple[str, ...] = ()

@@ -28,6 +28,22 @@ steps:
     expect:
       "length(@)": 1
       "[0].key": ${key}
+  # A scroll taken in pieces, released by its own token, and gone after that. Measured
+  # 2026-10-10: the clear answers 204 and the next page of a released scroll 403, which the
+  # CLI tells as a listing that cannot go on (exit 9).
+  - id: scroll-in-pieces
+    run: 'tracker issues search "Queue: ${QUEUE}" --scroll-type unsorted --per-scroll 1 --limit 1'
+    output: listing
+    expect:
+      "length(items)": 1
+      truncated: true
+    save:
+      scrolled: next
+  - id: scroll-clear
+    run: tracker issues scroll-clear --next ${scrolled}
+  - id: scroll-released
+    run: 'tracker issues search "Queue: ${QUEUE}" --next ${scrolled}'
+    exits: 9
   - id: suggest
     run: tracker issues suggest "${RUN}" --queue ${QUEUE} --full --fields summary
   - id: priorities

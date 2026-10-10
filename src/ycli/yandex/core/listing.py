@@ -37,10 +37,14 @@ class Walk[P, I]:
         limit: int | None,
         token: str | None,
         longest_token: int,
+        organization: str = "",
     ) -> None:
         self._paged = paged
         self._way = type(paged.pagination).__name__
         self._first = first
+        self._organization = organization
+        #: What the way of paging kept from the replies so far (a scroll: what releases it).
+        self._kept: dict[str, str] = {}
         self._limit = limit
         self._produced = 0
         #: Given by the calls before this one, as the token says.
@@ -51,9 +55,14 @@ class Walk[P, I]:
         self.resuming = token is not None
         if token is not None:
             self.request, state = continuation.resume(
-                asked, first, token, way=self._way, longest=longest_token
+                asked,
+                first,
+                token,
+                way=self._way,
+                longest=longest_token,
+                organization=organization,
             )
-            self._skip, self._before = state.skip, state.seen
+            self._skip, self._before, self._kept = state.skip, state.seen, state.kept
         self.truncated = False
         self.next: str | None = None
         self.total: int | None = None
@@ -71,7 +80,15 @@ class Walk[P, I]:
         if self.total is not None and self.seen >= self.total:
             return  # the service said how many there are, and that many were given
         self.truncated = True
-        self.next = continuation.encode(self._first, page, way=self._way, skip=skip, seen=self.seen)
+        self.next = continuation.encode(
+            self._first,
+            page,
+            way=self._way,
+            skip=skip,
+            seen=self.seen,
+            organization=self._organization,
+            kept=self._kept,
+        )
 
     def cut(self) -> None:
         """Stop before the request about to be sent: the listing is truncated and goes on there."""
@@ -117,6 +134,7 @@ class Walk[P, I]:
         skipped, self._skip, resumed, self.resuming = self._skip, 0, self.resuming, False
         following = self._following(request, response, page, resumed=resumed)
         self.total = paging.total(response) if self.total is None else self.total
+        self._kept = paging.kept(response) or self._kept
         items = page[skipped:]
         room = None if self._limit is None else self._limit - self._produced
         if (
