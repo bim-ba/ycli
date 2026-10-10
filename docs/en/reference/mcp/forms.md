@@ -26,7 +26,7 @@ form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer or null |  | Max forms to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max forms to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `name` | string or null |  | Keep the forms whose name matches. |
@@ -596,7 +596,7 @@ in the merged result.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
-| `limit` | integer or null |  | Max answers to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max answers to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `questions` | string or null |  | Comma-separated question ids to return answers for. |
 | `use_slugs` | boolean or null |  | Name questions and options by slug instead of id. |
 | `date_from` | string or null |  | ISO-8601: answers given at or after. |

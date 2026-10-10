@@ -54,7 +54,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. Pair with
     ``pages_get_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.comments.list(
         page_id=page_id,
         limit=cap,
@@ -83,7 +83,7 @@ def thread_list(
     ``limit`` is given. Use ``comments_list`` first to discover a root comment id, then this to
     read its thread.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.tool_cap(limit)
     return client.comments.thread_list(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
@@ -108,7 +108,7 @@ def thread_get(
     root comment or a reply, plain or inline. Use ``comments_thread_list``, which rebuilds the
     thread from the page's comment list.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.comments.thread_get(
         page_id=page_id, comment_id=comment_id, limit=cap, next=next
     ).collect()

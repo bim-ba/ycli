@@ -54,7 +54,7 @@ def bucket_objects_list(
     rights.
     """
     return client.cloudenvironmentstorage.bucket_objects_list(
-        cloud_environment_id, prefix=prefix, limit=config.http.cap(limit, all_=all), next=next
+        cloud_environment_id, prefix=prefix, limit=config.http.tool_cap(limit, all_=all), next=next
     ).collect()
 
 

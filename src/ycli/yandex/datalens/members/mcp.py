@@ -47,7 +47,7 @@ def list_(
     the configured item cap unless ``limit`` is given.
     """
     return client.members.list(
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         language=language,
         search=search,

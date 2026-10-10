@@ -32,6 +32,15 @@ steps:
       - tracker workflows list-for-queue ${QUEUE}
       - tracker worklog search --created-from 2026-01-01T00:00:00 --created-to 2026-01-02T00:00:00
       - tracker worklog list-global
+  - id: where-a-listing-stopped
+    # A listing as `-o json` prints it, on a real reply: the items, and where it stopped.
+    run: tracker users list --limit 1
+    output: listing
+    expect:
+      "length(items)": 1
+      truncated: true
+      "type(next)": string
+      "contains(keys(@), 'total')": true
   - id: trigger-webhook-log
     needs: [TRIGGER]
     # The kept trigger is switched off, so its log may well be empty: only the reply's kind is

@@ -86,7 +86,7 @@ def list_(
     cap unless ``limit`` is given.
     """
     return client.entries.list(
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         ids=ids,
         scope=scope,
@@ -132,7 +132,7 @@ def relations_list(
     """
     return client.entries.relations_list(
         entry_ids,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         link_direction=link_direction,
         include_permissions_info=include_permissions_info,
@@ -170,7 +170,7 @@ def revisions_list(
 ) -> Listed[Revision]:
     """The revisions of an entry: who saved it and when. Auto-paginated."""
     return client.entries.revisions_list(
-        entry_id, limit=config.http.cap(limit, all_=all), next=next, rev_ids=rev_ids
+        entry_id, limit=config.http.tool_cap(limit, all_=all), next=next, rev_ids=rev_ids
     ).collect()
 
 

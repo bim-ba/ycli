@@ -59,7 +59,7 @@ def list_filtered(
     Prefer this over ``links_list`` for issues with many links or when only some link types
     or fields matter; it carries each link's author, dates, assignee and status.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.links.list_filtered(
         issue_key, link_types=link_types, fields=fields, limit=cap, next=next
     ).collect()

@@ -54,7 +54,7 @@ def list_(
     cap unless ``limit`` is given.
     """
     return client.sparkclusters.list(
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         collection_id=collection_id,
         filter=filter,
@@ -162,7 +162,7 @@ def resource_presets_list(
     Experimental API, not measured. Capped at the configured item cap unless ``limit`` is given.
     """
     return client.sparkclusters.resource_presets_list(
-        cloud_environment_id, limit=config.http.cap(limit, all_=all), next=next
+        cloud_environment_id, limit=config.http.tool_cap(limit, all_=all), next=next
     ).collect()
 
 

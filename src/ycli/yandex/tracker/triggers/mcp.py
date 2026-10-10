@@ -49,7 +49,7 @@ def list_(
     Auto-paginated and capped at the configured item cap unless ``limit`` is given. Use
     ``triggers_get`` for one trigger by id.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.triggers.list(queue_id, limit=cap, next=next).collect()
 
 

@@ -102,7 +102,7 @@ def descendants_list(
 
     Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.pages.descendants_list(
         slug=slug,
         limit=cap,
@@ -132,7 +132,7 @@ def grids_list(
     unless ``limit`` is given. Reads a page's numeric id — pair with
     ``pages_get_meta`` / ``pages_descendants_list`` (whose refs carry the ids) to find one.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.pages.grids_list(
         page_id=page_id,
         limit=cap,
@@ -194,7 +194,7 @@ def descendants_list_by_id(
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.pages.descendants_list_by_id(
         page_id=page_id,
         limit=cap,
@@ -370,7 +370,7 @@ def revisions_list(
     ``created_at``, ``page_type`` and publication state. Yandex does not document this operation
     (it is in the live OpenAPI only) and may change it.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.pages.revisions_list(page_id=page_id, ids=ids, limit=cap, next=next).collect()
 
 
@@ -400,7 +400,7 @@ def backlinks_list(
     Auto-paginated. Yandex does not document this operation (it is in the live OpenAPI only) and
     may change it.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.pages.backlinks_list(
         page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap, next=next
     ).collect()

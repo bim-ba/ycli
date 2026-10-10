@@ -44,7 +44,7 @@ def entries_updates_list(
     A deleted entry is listed too, with ``isDeleted``.
     """
     return client.audit.entries_updates_list(
-        from_, to=to, limit=config.http.cap(limit, all_=all), next=next
+        from_, to=to, limit=config.http.tool_cap(limit, all_=all), next=next
     ).collect()
 
 

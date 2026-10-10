@@ -349,3 +349,12 @@ def test_a_listing_is_read_as_its_items_and_any_other_document_as_it_is():
     # An object that only has a field called `items` is no listing.
     assert items({"items": [1], "name": "form"}) == {"items": [1], "name": "form"}
     assert items([1, 2]) == [1, 2]
+
+
+def test_a_step_reads_a_listing_as_its_items_or_as_it_is_printed():
+    printed = {"items": [{"id": 1}], "truncated": True, "next": "t", "total": None}
+    driver = ScriptedDriver({"boards": _ok(printed)})
+    run_scenario(_scenario({"id": "a", "run": "boards", "expect": {"length(@)": 1}}), driver, {})
+    held = {"length(items)": 1, "truncated": True, "type(next)": "string"}
+    whole: dict[str, object] = {"id": "a", "run": "boards", "output": "listing", "expect": held}
+    run_scenario(_scenario(whole), driver, {})

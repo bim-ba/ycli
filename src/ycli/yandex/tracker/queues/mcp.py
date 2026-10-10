@@ -56,7 +56,7 @@ def list_(
     queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TEST-123). Use
     ``queues_get`` for a single queue's full configuration (types, workflows, resolutions).
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.queues.list(limit=cap, next=next, expand=expand).collect()
 
 

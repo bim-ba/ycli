@@ -48,7 +48,7 @@ def search(
     A read done via POST; needs Tracker administrator rights. Every requested user appears,
     with an empty ``gaps`` list when they are not absent.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.gaps.search(
         users, date_from=date_from, date_to=date_to, limit=cap, next=next
     ).collect()

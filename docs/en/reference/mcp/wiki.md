@@ -48,7 +48,7 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
-| `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `include_self` | boolean or null |  | Also return the ancestor page itself. |
@@ -337,7 +337,7 @@ Capped at the configured item cap unless ``limit`` is given. Pair with
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
-| `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max comments to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `order_by` | string or null |  | Sort field: ``created_at``. |
@@ -421,7 +421,7 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
-| `limit` | integer or null |  | Max attachments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max attachments to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `order_by` | `name` · `size` · `created_at` or string or null |  | Sort field. |

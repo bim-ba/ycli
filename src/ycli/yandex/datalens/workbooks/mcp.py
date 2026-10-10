@@ -81,7 +81,7 @@ def list_(
     collection holds. Capped at the configured item cap unless ``limit`` is given.
     """
     return client.workbooks.list(
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         collection_id=collection_id,
         filter_string=filter_string,
@@ -123,7 +123,7 @@ def access_bindings_list(
     """Who has which role on a workbook, auto-paginated."""
     return client.workbooks.access_bindings_list(
         workbook_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         get_inherited_bindings=get_inherited_bindings,
     ).collect()
@@ -170,7 +170,7 @@ def entries_list(
     """
     return client.workbooks.entries_list(
         workbook_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         include_permissions_info=include_permissions_info,
         only_my=only_my,

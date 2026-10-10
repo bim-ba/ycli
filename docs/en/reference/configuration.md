@@ -34,7 +34,8 @@ Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern. An empty one co
 |---|---|---|
 | `YCLI__HTTP__TIMEOUT_SECONDS` | `30` | per-request timeout, seconds (> 0) |
 | `YCLI__HTTP__RETRIES` | `3` | retries of an idempotent request after a 429 or a 5xx (≥ 0) |
-| `YCLI__HTTP__MAX_ITEMS` | `500` | item cap of a listing without `--limit` or `--all` (> 0) |
+| `YCLI__HTTP__MAX_ITEMS` | `500` | item cap of a listing command without `--limit` or `--all` (> 0) |
+| `YCLI__HTTP__MAX_TOOL_ITEMS` | `50` | item cap of a listing tool of the MCP server without `limit` or `all`: its answer is read whole into a model's context (> 0) |
 | `YCLI__HTTP__MAX_PAGES` | `1000` | page cap of one listing: a listing that never ends stops here with a warning (> 0) |
 | `YCLI__HTTP__MAX_TOKEN_LENGTH` | `16384` | the longest `next` token read: a longer one is refused before it is decoded (> 0) |
 | `YCLI__HTTP__MAX_RETRY_AFTER_SECONDS` | `60` | longest pause a 429 may ask for in `Retry-After`; a longer one fails at once (> 0) |

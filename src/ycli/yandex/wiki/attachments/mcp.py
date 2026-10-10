@@ -49,7 +49,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.attachments.list(
         page_id=page_id,
         limit=cap,

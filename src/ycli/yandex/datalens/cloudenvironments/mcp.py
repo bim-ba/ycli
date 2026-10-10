@@ -63,7 +63,7 @@ def list_(
     return client.cloudenvironments.list(
         filter=filter,
         include_permissions=include_permissions,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
     ).collect()
 

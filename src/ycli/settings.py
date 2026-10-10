@@ -124,6 +124,8 @@ class HTTPConfig(BaseModel):
     timeout_seconds: PositiveFloat = 30.0
     retries: NonNegativeInt = 3
     max_items: PositiveInt = 500
+    # What a tool gives when no `limit` is asked: its answer is read whole into a context.
+    max_tool_items: PositiveInt = 50
     # A listing that never ends by itself stops after this many pages.
     max_pages: PositiveInt = 1000
     # The longest `next` token read: a caller far away sends it, so it is bounded before decoding.
@@ -134,13 +136,13 @@ class HTTPConfig(BaseModel):
     max_wait_seconds: PositiveFloat = 1380.0
 
     def cap(self, limit: int | None, *, all_: bool = False) -> int | None:
-        """A listing's item cap from ``limit`` and "everything", on the CLI and in a tool alike.
+        """A listing's item cap from ``limit`` and "everything", on the CLI.
 
         "Everything" uncaps (``None``); a given ``limit`` wins; otherwise ``max_items``.
 
         Args:
-            limit: The ``--limit`` option or a tool's ``limit``; ``None`` when not given.
-            all_: The CLI's ``--all`` flag, or a tool's ``all``.
+            limit: The ``--limit`` option; ``None`` when not given.
+            all_: The ``--all`` flag.
 
         Returns:
             The most items to fetch, or ``None`` for no cap.
@@ -154,6 +156,23 @@ class HTTPConfig(BaseModel):
             (500, 10, None)
         """
         return None if all_ else (self.max_items if limit is None else limit)
+
+    def tool_cap(self, limit: int | None, *, all_: bool = False) -> int | None:
+        """:meth:`cap` for a tool of the MCP server: ``max_tool_items`` where no limit is given.
+
+        Args:
+            limit: The tool's ``limit``; ``None`` when not given.
+            all_: The tool's ``all``.
+
+        Returns:
+            The most items to fetch, or ``None`` for no cap.
+
+        Examples:
+            >>> tools = HTTPConfig()
+            >>> tools.tool_cap(None), tools.tool_cap(10), tools.tool_cap(1, all_=True)
+            (50, 10, None)
+        """
+        return None if all_ else (self.max_tool_items if limit is None else limit)
 
 
 # `ycli doctor` asks PyPI for the latest release: one short attempt, so it never holds the report.

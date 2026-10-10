@@ -63,5 +63,5 @@ def list_(
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
     is given; use ``users_get`` instead when you already know the specific login or uid.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.users.list(limit=cap, next=next, expand=expand).collect()

@@ -58,7 +58,7 @@ def licenses_list(
         status=status,
         sort_by=sort_by,
         order=order,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
     ).collect()
 

@@ -1,0 +1,15 @@
+id: tool-takes-the-tool-cap
+language: python
+severity: error
+message: A tool caps its listing with `config.http.tool_cap(...)`, not with the CLI's `cap(...)`.
+note: |-
+  A tool's answer is read whole into a model's context, so a tool that is given no `limit`
+  gives `HTTPConfig.max_tool_items` (50), where a command gives `max_items` (500). The owner's
+  decision in #561 (2026-10-10), which changes #502 for the MCP server only.
+url: https://github.com/bim-ba/ycli/issues/561
+files:
+  - src/ycli/**/mcp.py
+  - src/ycli/**/mcp/**/*.py
+rule:
+  pattern: $CONFIG.http.cap($$$ARGUMENTS)
+fix: $CONFIG.http.tool_cap($$$ARGUMENTS)

@@ -57,7 +57,7 @@ def list_(
     nothing knows answers 403 Permission denied, not 404: it is not a lack of rights.
     """
     return client.sparkapplications.list(
-        cluster_id, filter=filter, limit=config.http.cap(limit, all_=all), next=next
+        cluster_id, filter=filter, limit=config.http.tool_cap(limit, all_=all), next=next
     ).collect()
 
 

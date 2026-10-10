@@ -53,7 +53,7 @@ def list_(
     Scoped to one issue by ``issue_key``. To search worklog across the whole org (by author and/or a
     creation-time range) use ``worklog_search`` instead.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.worklog.list(issue_key, limit=cap, next=next).collect()
 
 
