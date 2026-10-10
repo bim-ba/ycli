@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.134.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.133.0
+  ([`81bc214`](https://github.com/bim-ba/ycli/commit/81bc214dc8089071d917ba2089a9f41f2d7ca698))
+
+### Features
+
+- **mcp**: A listing tool gives 50 items when no `limit` is asked
+  ([#566](https://github.com/bim-ba/ycli/pull/566),
+  [`bce186a`](https://github.com/bim-ba/ycli/commit/bce186af5b08acb1781fac781d71164281bd333f))
+
+### Breaking Changes
+
+- **mcp**: A list tool of the MCP server called with no `limit` returns 50 items in place of 500.
+  Pass `limit`, go on with `next`, or set `YCLI__HTTP__MAX_TOOL_ITEMS`.
+
+
 ## v0.133.0 (2026-10-10)
 
 ### Build System
