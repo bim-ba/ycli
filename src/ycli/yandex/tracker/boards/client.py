@@ -1,7 +1,7 @@
 """Tracker ``/boards`` client on the httpx2 core."""
 
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.boards import endpoints
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 
@@ -9,7 +9,7 @@ from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 class BoardsClient(Resource):
     """List (relative-paginated), get, create, update and delete agile boards."""
 
-    def list(self, *, limit: int | None = None) -> ItemList[Board]:
+    def list(self, *, limit: int | None = None, next: str | None = None) -> Listing[Board]:
         """All agile boards in the organisation, draining the ``id=<last board id>`` cursor.
 
         ``/boards/_paginate`` sorts by ascending board id; each next page repeats with
@@ -18,17 +18,19 @@ class BoardsClient(Resource):
 
         Args:
             limit: The most boards to return; ``None`` returns every board.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The boards, in ascending id order.
 
         Examples:
-            >>> [board.name for board in tracker.boards.list(limit=500).root]
+            >>> [board.name for board in tracker.boards.list(limit=500)]
             ['Alpha', 'Beta', 'Gamma']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_(page_size=page_size)
-        return ItemList[Board](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, board_id: int) -> Board:
         """``GET /boards/{board_id}`` → a single agile board.

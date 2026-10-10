@@ -6,9 +6,10 @@ from typing import Annotated
 import typer
 
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.core.listing import Listing
+from ycli.yandex.models import SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.models import AsyncOperation, Location, OrderPosition, UserIdentity
 from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
@@ -96,17 +97,23 @@ def descendants_list(
     slug: SlugArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     include_self: IncludeSelfOption = None,
     show_all: ShowAllOption = None,
     actuality: ActualityOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[PageRef]:
+) -> Listing[PageRef]:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_list(
-        slug=slug, limit=cap, actuality=actuality, include_self=include_self, show_all=show_all
+        slug=slug,
+        limit=cap,
+        next=next_,
+        actuality=actuality,
+        include_self=include_self,
+        show_all=show_all,
     )
 
 
@@ -135,18 +142,20 @@ def descendants_list_by_id(
     page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     include_self: IncludeSelfOption = None,
     show_all: ShowAllOption = None,
     actuality: ActualityOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[PageRef]:
+) -> Listing[PageRef]:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_list_by_id(
         page_id=page_id,
         limit=cap,
+        next=next_,
         actuality=actuality,
         include_self=include_self,
         show_all=show_all,
@@ -158,6 +167,7 @@ def grids_list(
     page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     order_by: Annotated[
         str | None, values_option(GridOrder, "--order-by", help="Sort field.")
     ] = None,
@@ -168,12 +178,13 @@ def grids_list(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[GridRef]:
+) -> Listing[GridRef]:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.grids_list(
         page_id=page_id,
         limit=cap,
+        next=next_,
         order_by=order_by,
         order_direction=order_direction,
     )
@@ -365,13 +376,14 @@ def revisions_list(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[PageRevision]:
+) -> Listing[PageRevision]:
     """List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.revisions_list(page_id=page_id, ids=ids, limit=cap)
+    return wiki.pages.revisions_list(page_id=page_id, ids=ids, limit=cap, next=next_)
 
 
 @app.command()
@@ -389,14 +401,15 @@ def backlinks_list(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[PageRef]:
+) -> Listing[PageRef]:
     """List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.backlinks_list(
-        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
+        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap, next=next_
     )
 
 

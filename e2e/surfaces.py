@@ -36,14 +36,15 @@ from pydantic import BaseModel, TypeAdapter
 from pydantic_core import to_jsonable_python
 
 from e2e.recording import NotAReadError, operations, public_names
-from e2e.runner import CommandResult, Driver, ScenarioError, hidden
+from e2e.runner import CommandResult, Driver, ScenarioError, hidden, items
 from ycli.mcp.selection import Selection
 from ycli.mcp.server import build_server
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, Effect
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.errors import YandexError
 from ycli.yandex.factory import build_client
-from ycli.yandex.models import WIRE
+from ycli.yandex.models import WIRE, ItemList
 from ycli.yandex.registry import SERVICES
 
 # How many differing paths of one reply are kept: the first ones name the defect.
@@ -297,7 +298,8 @@ def _document(result: Any) -> Any:
 def _unwrapped(tool: Tool, data: Any) -> Any:
     """A tool's reply as the tool returned it: FastMCP wraps what is not an object."""
     wrapped = tool.output_schema and tool.output_schema.get("x-fastmcp-wrap-result")
-    return (data or {}).get("result") if wrapped else data
+    # Where a listing stopped is not compared: the SDK gives all of it, the other two a piece.
+    return items((data or {}).get("result") if wrapped else data)
 
 
 def _only_reads(tool: Tool) -> bool:
@@ -412,6 +414,9 @@ class ThreeSurfaces(Driver):
             client_class = self._services[service].client_class()
             with build_client(client_class, Credentials(), AppConfig()) as client:
                 result = getattr(getattr(client, resource), method)(**call.arguments)
+                if isinstance(result, Listing):
+                    # Lazy: read while the client is open. What is compared is the items.
+                    result = ItemList[Any](list(result))
             self.report.written["sdk"].add(call.operation)
             return result
         sent = self._tool_arguments(call, tool)
@@ -435,7 +440,7 @@ class ThreeSurfaces(Driver):
 
     def _compare(self, call: Call, arguments: Sequence[str], stdout: str) -> None:
         try:
-            first = json.loads(stdout) if stdout.strip() else None
+            first = items(json.loads(stdout)) if stdout.strip() else None
         except json.JSONDecodeError:
             self.report.leave_out("the command prints no JSON", call.operation)
             return
@@ -452,7 +457,7 @@ class ThreeSurfaces(Driver):
             if found and again is _NO_JSON:
                 # Once more through the CLI: what it answers differently now moved by itself.
                 repeated = self._driver.run(arguments)
-                again = json.loads(repeated.stdout) if repeated.stdout.strip() else None
+                again = items(json.loads(repeated.stdout)) if repeated.stdout.strip() else None
             # Without the indexes: a list the service orders anew on every call differs at
             # some items between two reads of the CLI and, by chance, not at others.
             changed = (
@@ -472,6 +477,9 @@ class ThreeSurfaces(Driver):
         try:
             with build_client(client_class, Credentials(), AppConfig()) as client:
                 result = getattr(getattr(client, resource), method)(**call.arguments)
+                if isinstance(result, Listing):
+                    # Lazy: read while the client is open. What is compared is the items.
+                    result = ItemList[Any](list(result))
         except YandexError as error:
             return _Failed(hidden(str(error), self._listener.variables))
         document = _document(result)

@@ -4,11 +4,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.audit.models import AuditEntry, UserEntryPermissions
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.models import ItemList
 
 app = typer.Typer(name="audit", help="DataLens audit.", no_args_is_help=True)
 
@@ -22,13 +22,14 @@ def entries_updates_list(
     to: Annotated[str | None, typer.Option("--to", help="The end of the period.")] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[AuditEntry]:
+) -> Listing[AuditEntry]:
     """List the entries changed in a period, deleted ones too (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return datalens.audit.entries_updates_list(from_, to=to, limit=cap)
+    return datalens.audit.entries_updates_list(from_, to=to, limit=cap, next=next_)
 
 
 @app.command("entry-permissions-get")

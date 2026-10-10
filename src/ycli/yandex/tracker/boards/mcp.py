@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, Listed
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -15,7 +15,9 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
     BoardID,
+    Next,
     app_config,
     new_server,
     tracker_client,
@@ -30,17 +32,19 @@ def list_(
         int | None,
         Field(ge=1, description=f"Max boards to return; {LIMIT_CAP}"),
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Board]:
+) -> Listed[Board]:
     """All agile boards in the organisation, sorted by ascending board id.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
     is given. Use ``boards_get`` when you know one board id, and ``sprints_list`` to list a
     board's sprints.
     """
-    cap = config.http.cap(limit)
-    return client.boards.list(limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.boards.list(limit=cap, next=next).collect()
 
 
 @mcp.tool(name="boards_get", annotations={**RO, "title": "Get Tracker board"})

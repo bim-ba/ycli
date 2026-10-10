@@ -5,7 +5,7 @@ session page the same way: a session sends ``walk.request``, hands the response 
 :meth:`Walk.take` and yields what it returns, until there is no request left.
 """
 
-from collections.abc import AsyncIterator, Callable, Iterator, Sequence
+from collections.abc import AsyncIterator, Callable, Iterable, Iterator, Sequence
 from typing import Any
 
 import httpx2
@@ -31,6 +31,7 @@ class Walk[P, I]:
     def __init__(
         self,
         paged: Paged[P, I],
+        asked: httpx2.Request,
         first: httpx2.Request,
         *,
         limit: int | None,
@@ -50,7 +51,7 @@ class Walk[P, I]:
         self.resuming = token is not None
         if token is not None:
             self.request, state = continuation.resume(
-                first, token, way=self._way, longest=longest_token
+                asked, first, token, way=self._way, longest=longest_token
             )
             self._skip, self._before = state.skip, state.seen
         self.truncated = False
@@ -71,6 +72,12 @@ class Walk[P, I]:
             return  # the service said how many there are, and that many were given
         self.truncated = True
         self.next = continuation.encode(self._first, page, way=self._way, skip=skip, seen=self.seen)
+
+    def cut(self) -> None:
+        """Stop before the request about to be sent: the listing is truncated and goes on there."""
+        request = self.request
+        assert request is not None  # a session cuts only a walk that would ask again
+        self._stop(request, 0)
 
     def _following(
         self,
@@ -133,17 +140,58 @@ class Walk[P, I]:
         return items
 
 
+#: What reading ``next`` or ``truncated`` of a listing that was not read to its end is told.
+NOT_READ = "the listing is not read to its end: iterate it, or call collect(), and then ask"
+
+
+class _Whole:
+    """What a listing that was given whole knows of itself: it ended, and nothing goes on."""
+
+    truncated = False
+    next: str | None = None
+    total: int | None = None
+    seen = 0
+
+
 class Listing[I]:
     """The items of a listing, fetched page by page as they are asked for.
 
     Iterate it once. When the iteration ends, ``truncated`` says whether the listing has more,
     ``next`` is what to give the same call to go on, and ``total`` is how many items the whole
-    listing has, where the service says.
+    listing has, where the service says. Before it ends neither of the first two is known, and
+    asking for one is a mistake (``RuntimeError``): "nothing yet" must not read as "it ended".
     """
 
-    def __init__(self, walk: Walk[Any, I], pages: Callable[[], Iterator[I]]) -> None:
+    def __init__(self, walk: Walk[Any, I] | _Whole, pages: Callable[[], Iterator[I]]) -> None:
         self._walk = walk
-        self._items = pages()
+        self._ended = False
+        self._items = self._read(pages())
+
+    def _read(self, items: Iterator[I]) -> Iterator[I]:
+        yield from items
+        self._ended = True
+
+    def _stopped(self) -> Walk[Any, I] | _Whole:
+        if not self._ended:
+            raise RuntimeError(NOT_READ)
+        return self._walk
+
+    @classmethod
+    def whole(cls, items: Iterable[I]) -> "Listing[I]":
+        """A listing that is all there already: one reply of a service that does not page it.
+
+        Args:
+            items: Every item of the listing.
+
+        Returns:
+            The listing; it is not truncated and has nothing to go on from.
+
+        Examples:
+            >>> listing = Listing.whole(["a", "b"])
+            >>> (list(listing), listing.truncated, listing.next)
+            (['a', 'b'], False, None)
+        """
+        return cls(_Whole(), lambda: iter(items))
 
     def __iter__(self) -> Iterator[I]:
         return self._items
@@ -154,12 +202,12 @@ class Listing[I]:
     @property
     def truncated(self) -> bool:
         """Whether the listing has more items than were given."""
-        return self._walk.truncated
+        return self._stopped().truncated
 
     @property
     def next(self) -> str | None:
         """What to give the same call to go on from here; ``None`` at the end."""
-        return self._walk.next
+        return self._stopped().next
 
     @property
     def total(self) -> int | None:
@@ -186,7 +234,18 @@ class AsyncListing[I]:
 
     def __init__(self, walk: Walk[Any, I], pages: Callable[[], AsyncIterator[I]]) -> None:
         self._walk = walk
-        self._items = pages()
+        self._ended = False
+        self._items = self._read(pages())
+
+    async def _read(self, items: AsyncIterator[I]) -> AsyncIterator[I]:
+        async for item in items:
+            yield item
+        self._ended = True
+
+    def _stopped(self) -> Walk[Any, I]:
+        if not self._ended:
+            raise RuntimeError(NOT_READ)
+        return self._walk
 
     def __aiter__(self) -> AsyncIterator[I]:
         return self._items
@@ -197,12 +256,12 @@ class AsyncListing[I]:
     @property
     def truncated(self) -> bool:
         """Whether the listing has more items than were given."""
-        return self._walk.truncated
+        return self._stopped().truncated
 
     @property
     def next(self) -> str | None:
         """What to give the same call to go on from here; ``None`` at the end."""
-        return self._walk.next
+        return self._stopped().next
 
     @property
     def total(self) -> int | None:

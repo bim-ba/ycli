@@ -16,6 +16,7 @@ from ycli.settings import HTTPConfig
 from ycli.yandex.core import continuation
 from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.pagination import (
     BodyCursorPagination,
     CursorPagination,
@@ -239,7 +240,7 @@ def test_a_listing_is_lazy_and_knows_where_it_stopped_once_it_was_read():
         return _cursor(request)
 
     listing = _connect(httpx2.MockTransport(counted)).iterate(WAYS["cursor"][1], limit=4)
-    assert asked == [] and listing.next is None
+    assert asked == []
     assert next(listing) == 1 and len(asked) == 1
     assert list(listing) == [2, 3, 4] and len(asked) == 2
     assert listing.truncated and listing.next and listing.total is None
@@ -258,15 +259,80 @@ def test_a_token_goes_on_only_the_listing_that_gave_it():
         session.iterate(posted, limit=4, next=token)
 
 
-def test_the_other_arguments_of_the_call_that_goes_on_take_no_part():
-    """The token carries the query and the body of its page: a filter given anew changes nothing."""
-    transport, paged = _served("cursor")
-    session = _connect(transport)
-    token = session.iterate(paged, limit=4).collect().next
-    filtered = Paged(
-        Endpoint(HTTPMethod.GET, "items", dict, params={"q": "b"}), paged.pagination, _items
+def _asked(**params: str) -> Paged:
+    """The listing of the cursor, as a call that gives ``params`` asks for it."""
+    return Paged(
+        Endpoint(HTTPMethod.GET, "items", dict, params=params), WAYS["cursor"][1].pagination, _items
     )
-    assert session.iterate(filtered, limit=4, next=token).collect().items == [5, 6, 7, 8]
+
+
+def test_an_argument_given_again_that_is_not_the_token_s_is_refused_by_its_name():
+    """What a call that goes on gives has to be what its token holds: nothing is passed over."""
+    transport, _ = _served("cursor")
+    session = _connect(transport)
+    token = session.iterate(_asked(q="a", kind="x"), limit=4).collect().next
+    with pytest.raises(YandexInvalidRequestError, match=r"it differs in: q$"):
+        session.iterate(_asked(q="b", kind="x"), limit=4, next=token)
+    # What the first call did not give is not the token's either.
+    with pytest.raises(YandexInvalidRequestError, match=r"it differs in: q, kind$"):
+        session.iterate(
+            _asked(q="b", kind="y"), limit=4, next=session.iterate(_asked(), limit=4).collect().next
+        )
+
+
+def test_what_is_given_again_as_it_was_goes_on_and_what_is_left_out_stays_the_token_s():
+    transport, _ = _served("cursor")
+    session = _connect(transport)
+    token = session.iterate(_asked(q="a", kind="x"), limit=4).collect().next
+    # All of it again, a part of it, or none: the page is the token's.
+    for again in (_asked(q="a", kind="x"), _asked(q="a"), _asked()):
+        assert session.iterate(again, limit=4, next=token).collect().items == [5, 6, 7, 8]
+
+
+def _in_body_asked(body: object) -> Paged:
+    endpoint = Endpoint(HTTPMethod.POST, "items", dict, json=body, effect=Effect.READ)
+    return Paged(endpoint, WAYS["cursor in the body"][1].pagination, _items)
+
+
+def test_a_body_given_again_is_held_key_by_key_and_nothing_is_in_anything():
+    session = _connect(httpx2.MockTransport(_in_body))
+    first = {"query": "a", "filter": {"queue": "DE", "tags": ["x"]}, "expand": None}
+    token = session.iterate(_in_body_asked(first), limit=4).collect().next
+    for again in (first, {"query": "a"}, {"filter": {}}, {"filter": {"queue": "DE"}}, {}):
+        got = session.iterate(_in_body_asked(again), limit=4, next=token).collect()
+        assert got.items == [5, 6, 7, 8], again
+    for other, named in (
+        ({"query": "b"}, "query"),
+        ({"filter": {"queue": "QA"}}, "filter"),
+        ({"filter": {"tags": ["x", "y"]}}, "filter"),
+        ({"fields": "key"}, "fields"),
+    ):
+        with pytest.raises(YandexInvalidRequestError, match=rf"it differs in: {named}$"):
+            session.iterate(_in_body_asked(other), limit=4, next=token)
+
+
+def test_a_body_that_is_no_object_is_held_whole():
+    session = _connect(httpx2.MockTransport(_in_body))
+    paged = _in_body_asked({"query": "a"})
+    token = session.iterate(paged, limit=4).collect().next
+    with pytest.raises(YandexInvalidRequestError, match=r"it differs in: the body$"):
+        session.iterate(_in_body_asked(["a"]), limit=4, next=token)
+    first = paged.endpoint.request(httpx2.Client(base_url=BASE))
+    bare = continuation.encode(first, first, way="BodyCursorPagination", skip=0, seen=0)
+    listed = httpx2.Request("POST", f"{BASE}/items", json=["a"])
+    held = continuation.encode(listed, listed, way="BodyCursorPagination", skip=0, seen=0)
+    resume = continuation.resume
+    assert resume(listed, listed, held, way="BodyCursorPagination", longest=1000)
+    with pytest.raises(YandexInvalidRequestError, match=r"it differs in: the body$"):
+        resume(listed, first, bare, way="BodyCursorPagination", longest=1000)
+
+
+def test_a_token_whose_body_cannot_be_read_is_not_a_token():
+    first = httpx2.Request("POST", f"{BASE}/items", json={"query": "a"})
+    torn = httpx2.Request("POST", f"{BASE}/items", content=b"{")
+    token = continuation.encode(first, torn, way="BodyCursorPagination", skip=0, seen=0)
+    with pytest.raises(YandexInvalidRequestError, match="is not a token a listing gave"):
+        continuation.resume(first, first, token, way="BodyCursorPagination", longest=1000)
 
 
 def _packed(state: str) -> str:
@@ -323,7 +389,9 @@ def test_a_token_carries_no_path_and_no_other_version():
         continuation.encode(first, elsewhere, way="PageNumberPagination", skip=0, seen=0)
     page = httpx2.Request("GET", f"{BASE}/items?page=2")
     token = continuation.encode(first, page, way="PageNumberPagination", skip=1, seen=4)
-    resumed, state = continuation.resume(first, token, way="PageNumberPagination", longest=1000)
+    resumed, state = continuation.resume(
+        first, first, token, way="PageNumberPagination", longest=1000
+    )
     assert (str(resumed.url), state.skip, state.seen) == (f"{BASE}/items?page=2", 1, 4)
     assert continuation.way_of(token, longest=1000) == "PageNumberPagination"
     assert len(token) < 190 and token.isascii() and "=" not in token
@@ -363,6 +431,8 @@ def test_an_asynchronous_session_pages_the_same_way():
         while True:
             listing = session.iterate(paged, limit=4, next=token)
             first = await anext(listing)
+            with pytest.raises(RuntimeError, match="is not read to its end"):
+                _ = listing.next  # not known before the listing is read, here as well
             got = await listing.collect()
             found.append([first, *got.items])
             if not got.truncated:
@@ -391,8 +461,8 @@ def _narrowed(limit: int | None) -> Paged:
     """A listing whose client narrows the page to the limit, as ``tracker.boards.list`` does."""
     size = min(PAGE, limit) if limit else PAGE
     return Paged(
-        Endpoint(HTTPMethod.GET, "items", list[int], params={"perPage": size}),
-        RelativeIDPagination(id_of=str),
+        Endpoint(HTTPMethod.GET, "items", list[int]),
+        RelativeIDPagination(id_of=str, page_size=size),
         list,
     )
 
@@ -474,3 +544,83 @@ def test_a_way_that_fails_on_a_listing_nobody_continued_fails_as_itself():
     session = _connect(httpx2.MockTransport(_after_id))
     with pytest.raises(KeyError):
         session.iterate(Paged(_get(), Broken(id_of=str), list)).collect()
+
+
+def test_a_link_of_the_service_that_names_another_page_size_still_goes_on():
+    """The page size is the pager's, so the call that goes on gives none to differ (#559)."""
+
+    def served(request: httpx2.Request) -> httpx2.Response:
+        start = int(request.url.params.get("id", 0))
+        size = int(request.url.params["page_size"])
+        # The link narrows the page by itself, as a service may.
+        link = f"/items/?survey=s1&page_size=2&id={start + size}"
+        following = link if start + size < len(DATA) else None
+        return httpx2.Response(200, json={"items": DATA[start : start + size], "next": following})
+
+    def asked(**params: str) -> Paged:
+        pager = NextURLPagination(lambda r: r.json()["next"], query_only=True, page_size=PAGE)
+        return Paged(Endpoint(HTTPMethod.GET, "items", dict, params=params), pager, _items)
+
+    session = _connect(httpx2.MockTransport(served))
+    first = session.iterate(asked(survey="s1"), limit=4).collect()
+    assert first.items == [1, 2, 3, 4]
+    # The token holds the request of the link (`page_size=2`); the call gives only what is its.
+    rest = session.iterate(asked(), limit=3, next=first.next).collect()
+    assert rest.items == [5, 6, 7]
+    assert session.iterate(asked(survey="s1"), next=rest.next).collect().items == DATA[7:]
+
+
+def _unheaded(request: httpx2.Request) -> httpx2.Response:
+    """Pages by number or by offset of the size the request asks, and no header of how many."""
+    asked = request.url.params
+    size = int(asked.get("perPage") or asked["limit"])
+    start = (int(asked["page"]) - 1) * size if "page" in asked else int(asked["offset"])
+    return httpx2.Response(200, json=DATA[start : start + size])
+
+
+@pytest.mark.parametrize("pager", [PageNumberPagination, OffsetLimitPagination])
+def test_a_listing_gone_on_ends_by_the_page_size_of_its_token_not_of_the_call(pager):
+    """A short page is the last one by the size that was asked for, which is the token's (#534)."""
+
+    def narrowed(limit: int | None) -> Paged:
+        return Paged(_get(), pager(page_size=min(100, limit) if limit else 100), list)
+
+    session = _connect(httpx2.MockTransport(_unheaded))
+    first = session.iterate(narrowed(2), limit=2).collect()
+    assert first.items == [1, 2] and first.next
+    # The call that goes on would ask for pages of 100; the token asks for pages of 2.
+    rest = session.iterate(narrowed(None), next=first.next).collect()
+    assert (rest.items, rest.truncated, rest.next) == (DATA[2:], False, None)
+
+
+def test_a_listing_stopped_by_the_cap_on_pages_says_so_and_goes_on(caplog):
+    """What the cap on pages cut is not the end: it is truncated, with a token to go on from."""
+    transport, paged = _served("offset")
+    session = connect(
+        ServiceProfile(BASE),
+        auth=OAuthTokenAuth(SecretStr("y0_secret")),
+        organization_id="org",
+        http=HTTPConfig(retries=1, max_pages=2),
+        transport=transport,
+    )
+    cut = session.iterate(paged).collect()
+    assert (cut.items, cut.truncated) == (DATA[:6], True) and cut.next
+    assert "stopped after 2 pages" in caplog.text
+    rest = session.iterate(paged, next=cut.next).collect()
+    assert (rest.items, rest.truncated, rest.next) == (DATA[6:], False, None)
+
+
+def test_where_a_listing_stopped_is_not_known_before_it_is_read():
+    """`next` of a listing nobody read is not "it ended": asking for it is a mistake, said so."""
+    transport, paged = _served("cursor")
+    listing = _connect(transport).iterate(paged, limit=4)
+    for name in ("next", "truncated"):
+        with pytest.raises(RuntimeError, match="is not read to its end"):
+            getattr(listing, name)
+    assert next(listing) == 1
+    with pytest.raises(RuntimeError, match="is not read to its end"):
+        _ = listing.next
+    assert list(listing) == [2, 3, 4]
+    assert listing.truncated and listing.next
+    whole = Listing.whole(["a"])
+    assert list(whole) == ["a"] and (whole.truncated, whole.next) == (False, None)

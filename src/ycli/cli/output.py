@@ -32,9 +32,12 @@ from rich.markup import escape
 from rich.table import Table
 
 from ycli.cli.formats import OutputFormat
+from ycli.yandex.models import ItemList, Listed
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from ycli.yandex.core.listing import Listing
 
 
 class SerializationStrategy(ABC):
@@ -43,6 +46,14 @@ class SerializationStrategy(ABC):
     @abstractmethod
     def render(self, result: BaseModel, console: Console) -> None:
         """Print ``result`` to ``console``."""
+
+    def render_listing(self, listed: Listed[Any], console: Console) -> None:
+        """Print a listing as the MCP tool and the SDK give it: ``{items, truncated, next, total}``.
+
+        A structural format prints the result as it is (#538); a table overrides this and
+        prints the rows alone.
+        """
+        self.render(listed, console)
 
     @classmethod
     def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
@@ -94,6 +105,10 @@ class PrettyStrategy(SerializationStrategy):
         """Print ``result`` as a table, or ``No results.`` when nothing is left to show."""
         rendered = self._render(result.model_dump(by_alias=True, mode="json"))
         console.print("[dim]No results.[/dim]" if rendered is None else rendered)
+
+    def render_listing(self, listed: Listed[Any], console: Console) -> None:
+        """Print the rows: a table has no room for the envelope; where it stopped goes to stderr."""
+        self.render(ItemList[Any](listed.items), console)
 
     def _render(self, value: Any) -> Any:
         """Value → a rich renderable (``str`` or ``Table``), or ``None`` to omit it."""
@@ -168,7 +183,15 @@ class AutoStrategy(SerializationStrategy):
 
     def render(self, result: BaseModel, console: Console) -> None:
         """Print ``result`` with the strategy that fits ``console``."""
-        (PrettyStrategy() if console.is_terminal else JSONStrategy()).render(result, console)
+        self._fitting(console).render(result, console)
+
+    def render_listing(self, listed: Listed[Any], console: Console) -> None:
+        """Print ``listed`` with the strategy that fits ``console``."""
+        self._fitting(console).render_listing(listed, console)
+
+    @staticmethod
+    def _fitting(console: Console) -> SerializationStrategy:
+        return PrettyStrategy() if console.is_terminal else JSONStrategy()
 
 
 @dataclass(frozen=True)
@@ -191,11 +214,31 @@ class ExitWith:
     exit_code: int = 1
 
 
+@dataclass(frozen=True)
+class Continuable:
+    """A listing, and the command line that goes on with it once ``--next`` is put after it."""
+
+    listing: Listing[Any]
+    command: str
+
+
 def render(result: object, output_format: OutputFormat) -> None:
     """Print a command's return value to stdout — the only place CLI output is produced."""
     match result:
         case None:
             return
+        case Continuable(listing=listing, command=command):
+            # What it gave, as the format shows a listing; where it stopped is said on stderr.
+            listed = listing.collect()
+            SerializationStrategy.from_format(output_format).render_listing(listed, Console())
+            if listed.truncated:
+                # It stopped at the limit; whether anything is left only the next call can say.
+                of = "" if listed.total is None else f" of {listed.total}"
+                # Counted over the calls this one went on from: a piece is not the whole.
+                shown = f"stopped at {listing.seen}{of}"
+                # A line to run as it is: the command with what it cannot be called without.
+                hint = f"{shown}; go on with: {command} --next {listed.next}  (or --all)"
+                typer.echo(hint, err=True)
         case BaseModel():
             SerializationStrategy.from_format(output_format).render(result, Console())
         case str() | int():

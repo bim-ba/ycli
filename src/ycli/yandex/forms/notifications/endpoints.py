@@ -41,10 +41,10 @@ def list_(filters: NotificationFilter) -> Paged[NotificationPage, Notification]:
     The link is a host-relative path that ends in a slash, so only its query (the ``id`` cursor
     plus the filters) is carried over onto the request.
     """
-    params = {**filters.params(), "page_size": PAGE_SIZE}
     return Paged(
-        Endpoint(HTTPMethod.GET, "notifications", NotificationPage, params=params),
-        NextURLPagination(url_of=_next_link, query_only=True),
+        Endpoint(HTTPMethod.GET, "notifications", NotificationPage, params=filters.params()),
+        # The size of a page is the pager's: the link of the service may name another.
+        NextURLPagination(url_of=_next_link, query_only=True, page_size=PAGE_SIZE),
         lambda page: page.result,
     )
 

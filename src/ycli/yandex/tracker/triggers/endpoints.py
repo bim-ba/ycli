@@ -42,9 +42,8 @@ def list_(
             HTTPMethod.GET,
             f"queues/{segment(queue_id)}/triggers",
             ItemList[Trigger],
-            params={"perPage": page_size},
         ),
-        RelativeIDPagination(id_of=_trigger_id),
+        RelativeIDPagination(id_of=_trigger_id, page_size=page_size),
         lambda page: page.root,
     )
 

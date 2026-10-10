@@ -6,8 +6,9 @@ import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.client import TrackerClient
@@ -66,13 +67,14 @@ def list_(
     issue_type: Annotated[str | None, typer.Option("--issue-type", help="Issue type key.")] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Issue]:
+) -> Listing[Issue]:
     """List issues matching the supplied filters (auto-paginated; --all for everything)."""
     body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=issue_type)
-    return tracker.issues.search(body, limit=config.http.cap(limit, all_=all_))
+    return tracker.issues.search(body, limit=config.http.cap(limit, all_=all_), next=next_)
 
 
 @app.command()
@@ -80,6 +82,7 @@ def search(
     query: Annotated[str, typer.Argument(help="TQL query.")],
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     expand: ExpandOpt = None,
     scroll_type: Annotated[
         str | None,
@@ -94,12 +97,16 @@ def search(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Issue]:
-    """Search issues by a TQL query string (auto-paginated; --all for everything)."""
+) -> Listing[Issue]:
+    """Search issues by a TQL query string (auto-paginated; --all for everything).
+
+    A token of a scroll (--scroll-type) works once: used again, it gives the portion after.
+    """
     cap = config.http.cap(limit, all_=all_)
     return tracker.issues.search(
         IssueSearch(query=query),
         limit=cap,
+        next=next_,
         expand=expand,
         scroll_type=scroll_type,
         per_scroll=per_scroll,

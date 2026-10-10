@@ -6,13 +6,15 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     new_server,
     tracker_client,
@@ -36,16 +38,20 @@ def search(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max users to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[UserGaps]:
+) -> Listed[UserGaps]:
     """The absences (vacation, illness, trips, duty, …) of the given users that overlap a window.
 
     A read done via POST; needs Tracker administrator rights. Every requested user appears,
     with an empty ``gaps`` list when they are not absent.
     """
-    cap = config.http.cap(limit)
-    return client.gaps.search(users, date_from=date_from, date_to=date_to, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.gaps.search(
+        users, date_from=date_from, date_to=date_to, limit=cap, next=next
+    ).collect()
 
 
 @mcp.tool(

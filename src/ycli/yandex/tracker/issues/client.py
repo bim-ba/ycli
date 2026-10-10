@@ -7,25 +7,27 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ycli.yandex.core.pagination import ScrollPagination
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.errors import YandexInvalidRequestError
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues import endpoints
-from ycli.yandex.tracker.issues.models import (
-    ImportTask,
-    Issue,
-    IssueCreate,
-    IssueSearch,
-    IssueUpdate,
-    ScrollClear,
-)
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.bulk.models import (
         BulkChange,
         BulkMove,
         BulkTransition,
         BulkUpdate,
+    )
+    from ycli.yandex.tracker.issues.models import (
+        ImportTask,
+        Issue,
+        IssueCreate,
+        IssueSearch,
+        IssueUpdate,
+        ScrollClear,
     )
 
 
@@ -60,21 +62,24 @@ class IssuesClient(Resource):
         body: IssueSearch,
         *,
         limit: int | None = None,
+        next: str | None = None,
         expand: str | None = None,
         scroll_type: str | None = None,
         per_scroll: int | None = None,
         scroll_ttl_millis: int | None = None,
-    ) -> ItemList[Issue]:
+    ) -> Listing[Issue]:
         """``POST /issues/_search`` → every matching issue, page by page, at most ``limit``.
 
         ``body`` is ``{"filter": …}`` or ``{"query": …}``. ``limit=None`` fetches every page (up
-        to Tracker's 10 000 results); when the cap leaves issues behind, a warning is logged to
-        ``ycli.http``. ``scroll_type`` reads the results by scrolling instead, which has no such
-        cap.
+        to Tracker's 10 000 results). ``scroll_type`` reads the results by scrolling instead,
+        which has no such cap. A token of a scroll works once: used again, it gives the portion
+        after.
 
         Args:
             body: The search body, ``{"filter": …}`` or ``{"query": …}``.
             limit: The most issues to return; ``None`` fetches every page.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             expand: The extra blocks to include: ``transitions``, ``attachments``, ``comments``.
             scroll_type: ``sorted`` (the order of the search) or ``unsorted`` to scroll through
                 the results instead of paging by number.
@@ -93,7 +98,7 @@ class IssuesClient(Resource):
             ...     IssueSearch.model_validate({"filter": {"queue": "DE", "status": "open"}}),
             ...     limit=500,
             ... )
-            >>> found.root[0].key
+            >>> found.collect().items[0].key
             'DE-7'
         """
         if limit is not None and limit < 1:
@@ -104,17 +109,20 @@ class IssuesClient(Resource):
             )
         # A small cap needs no 100-issue page.
         page_size = min(limit, endpoints.SEARCH_PAGE_SIZE) if limit else endpoints.SEARCH_PAGE_SIZE
-        if scroll_type is not None:
+        # A token goes on with the search it is of: by a scroll or by pages, one path for both.
+        scrolled = next is not None and self._session.way_of(next) == ScrollPagination.__name__
+        if scroll_type is not None or scrolled:
             paged = endpoints.search_scroll(
                 body,
                 expand=expand,
+                # Where a token goes on, the request is the token's: the type takes no part.
                 scroll_type=scroll_type,
                 per_scroll=per_scroll,
                 scroll_ttl_millis=scroll_ttl_millis,
             )
         else:
             paged = endpoints.search(body, expand=expand, page_size=page_size)
-        return ItemList[Issue](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def count(self, body: IssueSearch) -> int:
         """``POST /issues/_count`` → the number of matching issues.

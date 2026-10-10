@@ -16,11 +16,13 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     app_config,
     datalens_client,
     new_server,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-cloudenvironmentstorage")
 
@@ -40,9 +42,11 @@ def bucket_objects_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max paths to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[str]:
+) -> Listed[str]:
     """The paths of the objects in a cloud environment's storage bucket, auto-paginated.
 
     Experimental in the DataLens API and written from its document: not measured. An
@@ -50,8 +54,8 @@ def bucket_objects_list(
     rights.
     """
     return client.cloudenvironmentstorage.bucket_objects_list(
-        cloud_environment_id, prefix=prefix, limit=config.http.cap(limit)
-    )
+        cloud_environment_id, prefix=prefix, limit=config.http.cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(

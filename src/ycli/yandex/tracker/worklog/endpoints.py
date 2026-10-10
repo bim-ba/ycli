@@ -36,9 +36,8 @@ def list_(issue_key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Workl
             HTTPMethod.GET,
             f"issues/{segment(issue_key)}/worklog",
             ItemList[Worklog],
-            params={"perPage": page_size},
         ),
-        RelativeIDPagination(id_of=_record_id),
+        RelativeIDPagination(id_of=_record_id, page_size=page_size),
         lambda page: page.root,
     )
 

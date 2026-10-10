@@ -180,3 +180,25 @@ def test_a_body_cursor_is_sent_as_the_number_it_is_read_as():
     assert pagination.next(first, httpx2.Response(200, json={"page": 0}), [1]) is None
     assert pagination.next(first, httpx2.Response(200, json={"page": ""}), [1]) is None
     assert pagination.next(first, httpx2.Response(200, json={}), [1]) is None
+
+
+@pytest.mark.parametrize(
+    ("sized", "bare", "sent"),
+    [
+        (
+            RelativeIDPagination(id_of=str, page_size=7),
+            RelativeIDPagination(id_of=str),
+            "perPage=7",
+        ),
+        (
+            NextURLPagination(url_of=lambda response: None, page_size=7),
+            NextURLPagination(url_of=lambda response: None),
+            "page_size=7",
+        ),
+    ],
+)
+def test_the_size_of_a_page_is_the_pagination_s_to_send(sized, bare, sent):
+    """The request of the operation holds what its caller gave; the pager adds the page size."""
+    request = httpx2.Request("GET", "https://x/items?expand=all")
+    assert sized.first(request).url.query.decode() == f"expand=all&{sent}"
+    assert bare.first(request) is request

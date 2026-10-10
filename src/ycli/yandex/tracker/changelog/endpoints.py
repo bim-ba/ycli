@@ -34,8 +34,8 @@ def list_(
             HTTPMethod.GET,
             f"issues/{segment(issue_key)}/changelog",
             ItemList[ChangelogEntry],
-            params={"perPage": page_size, "field": field, "type": change_type, "sort": sort},
+            params={"field": field, "type": change_type, "sort": sort},
         ),
-        RelativeIDPagination(id_of=_entry_id),
+        RelativeIDPagination(id_of=_entry_id, page_size=page_size),
         lambda page: page.root,
     )

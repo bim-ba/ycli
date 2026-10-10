@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.cloudenvironments import endpoints
-from ycli.yandex.datalens.cloudenvironments.models import CloudEnvironment
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.cloudenvironments.models import (
+        CloudEnvironment,
         CloudEnvironmentNewStorage,
         CloudEnvironmentStorageChange,
     )
@@ -33,7 +33,8 @@ class CloudEnvironmentsClient(Resource):
         filter: Sequence[str] | None = None,  # noqa: A002  # the API's own name for it
         include_permissions: bool | None = None,
         limit: int | None = None,
-    ) -> ItemList[CloudEnvironment]:
+        next: str | None = None,
+    ) -> Listing[CloudEnvironment]:
         """``listCloudEnvironments`` → the cloud environments, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every environment).
@@ -43,17 +44,19 @@ class CloudEnvironmentsClient(Resource):
                 ``cloud_id``, ``status`` or ``created_by_id``.
             include_permissions: Also say what the caller may do with each one.
             limit: The most environments to return; ``None`` returns every one.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The cloud environments.
 
         Examples:
-            >>> found = datalens.cloudenvironments.list(filter=['status="READY"']).root
+            >>> found = datalens.cloudenvironments.list(filter=['status="READY"']).collect().items
             >>> [(environment.id, environment.status) for environment in found]
             [('env0000000001', 'READY')]
         """
         paged = endpoints.list_(filter=filter, include_permissions=include_permissions)
-        return ItemList[CloudEnvironment](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(
         self,

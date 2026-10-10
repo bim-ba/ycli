@@ -5,24 +5,22 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.pages import endpoints
-from ycli.yandex.wiki.pages.models import (
-    GridRef,
-    PageAppendContent,
-    PageClone,
-    PageCreate,
-    PageMove,
-    PageRef,
-    PageRevision,
-    PageUpdate,
-)
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.wiki.models import AsyncOperation
     from ycli.yandex.wiki.pages.models import (
+        GridRef,
+        PageAppendContent,
+        PageClone,
+        PageCreate,
         PageDeleteResult,
         PageDetails,
+        PageMove,
+        PageRef,
+        PageRevision,
+        PageUpdate,
         SearchPage,
         SearchRequest,
     )
@@ -104,10 +102,11 @@ class PagesClient(Resource):
         slug: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         actuality: str | None = None,
         include_self: bool | None = None,
         show_all: bool | None = None,
-    ) -> ItemList[PageRef]:
+    ) -> Listing[PageRef]:
         """All descendant refs under ``slug``, draining ``next_cursor`` internally.
 
         Capped at ``limit``.
@@ -115,6 +114,8 @@ class PagesClient(Resource):
         Args:
             slug: The ancestor page's slug.
             limit: The most refs to return; ``None`` returns every ref.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             actuality: The page state to list.
             include_self: Also return the ancestor page itself.
             show_all: The API's flag of that name.
@@ -123,23 +124,24 @@ class PagesClient(Resource):
             The descendants' refs.
 
         Examples:
-            >>> [ref.slug for ref in wiki.pages.descendants_list("eng", limit=40).root]
+            >>> [ref.slug for ref in wiki.pages.descendants_list("eng", limit=40)]
             ['eng/a', 'eng/b']
         """
         paged = endpoints.descendants_list(
             slug, actuality=actuality, include_self=include_self, show_all=show_all
         )
-        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def descendants_list_by_id(
         self,
         page_id: int,
         *,
         limit: int | None = None,
+        next: str | None = None,
         actuality: str | None = None,
         include_self: bool | None = None,
         show_all: bool | None = None,
-    ) -> ItemList[PageRef]:
+    ) -> Listing[PageRef]:
         """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
 
         The numeric-id twin of :meth:`descendants_list`; capped at ``limit`` (``None`` = every ref).
@@ -147,6 +149,8 @@ class PagesClient(Resource):
         Args:
             page_id: The ancestor page's numeric id.
             limit: The most refs to return; ``None`` returns every ref.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             actuality: The page state to list.
             include_self: Also return the ancestor page itself.
             show_all: The API's flag of that name.
@@ -155,22 +159,23 @@ class PagesClient(Resource):
             The descendants' refs.
 
         Examples:
-            >>> [ref.slug for ref in wiki.pages.descendants_list_by_id(4210, limit=35).root]
+            >>> [ref.slug for ref in wiki.pages.descendants_list_by_id(4210, limit=35)]
             ['sales/a', 'sales/b']
         """
         paged = endpoints.descendants_list_by_id(
             page_id, actuality=actuality, include_self=include_self, show_all=show_all
         )
-        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def grids_list(
         self,
         page_id: int,
         *,
         limit: int | None = None,
+        next: str | None = None,
         order_by: str | None = None,
         order_direction: str | None = None,
-    ) -> ItemList[GridRef]:
+    ) -> Listing[GridRef]:
         """``GET /pages/{id}/grids`` → flat ``ItemList[GridRef]``, draining ``next_cursor``.
 
         Dynamic tables (grids) attached to the page. Capped at ``limit`` (``None`` = every
@@ -179,6 +184,8 @@ class PagesClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most grids to return; ``None`` returns every grid.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             order_by: The sort field: ``title`` or ``created_at``.
             order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
 
@@ -186,11 +193,11 @@ class PagesClient(Resource):
             The page's grids.
 
         Examples:
-            >>> [grid.title for grid in wiki.pages.grids_list(4301, limit=30).root]
+            >>> [grid.title for grid in wiki.pages.grids_list(4301, limit=30)]
             ['Roadmap', 'Budget']
         """
         paged = endpoints.grids_list(page_id, order_by=order_by, order_direction=order_direction)
-        return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(
         self, body: PageCreate, *, fields: str | None = None, is_silent: bool | None = None
@@ -361,7 +368,8 @@ class PagesClient(Resource):
         *,
         ids: str | None = None,
         limit: int | None = None,
-    ) -> ItemList[PageRevision]:
+        next: str | None = None,
+    ) -> Listing[PageRevision]:
         """``GET /pages/{id}/revisions`` → ``ItemList[PageRevision]``, draining ``next_cursor``.
 
         Undocumented by Yandex (live OpenAPI only), may change. A revision ``id`` is what
@@ -372,17 +380,19 @@ class PagesClient(Resource):
             page_id: The page's id.
             ids: The comma-separated revision ids to keep.
             limit: The most revisions to return; ``None`` returns every revision.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The page's revisions.
 
         Examples:
             >>> revisions = wiki.pages.revisions_list(6201, ids="7002,7003", limit=40)
-            >>> [revision.id for revision in revisions.root]
+            >>> [revision.id for revision in revisions]
             [7003, 7002]
         """
         paged = endpoints.revisions_list(page_id, ids=ids)
-        return ItemList[PageRevision](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def backlinks_list(
         self,
@@ -391,7 +401,8 @@ class PagesClient(Resource):
         for_cluster: bool | None = None,
         show_all: bool | None = None,
         limit: int | None = None,
-    ) -> ItemList[PageRef]:
+        next: str | None = None,
+    ) -> Listing[PageRef]:
         """``GET /pages/{id}/backlinks`` → refs of the pages that link here, draining the cursor.
 
         Undocumented by Yandex (live OpenAPI only), may change. ``for_cluster`` also reports links
@@ -404,17 +415,19 @@ class PagesClient(Resource):
             for_cluster: Also report links to the page's descendants.
             show_all: The API's flag of that name.
             limit: The most refs to return; ``None`` returns every ref.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The refs of the pages that link here.
 
         Examples:
             >>> refs = wiki.pages.backlinks_list(6301, for_cluster=True, show_all=True, limit=30)
-            >>> [ref.slug for ref in refs.root]
+            >>> [ref.slug for ref in refs]
             ['eng/linker-a', 'eng/linker-b']
         """
         paged = endpoints.backlinks_list(page_id, for_cluster=for_cluster, show_all=show_all)
-        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def search(self, body: SearchRequest) -> SearchPage:
         """``POST /search`` → one :class:`SearchPage` of hits for the query.

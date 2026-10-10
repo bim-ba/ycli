@@ -11,7 +11,9 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE_IDEMPOTENT,
+    All,
     EntryID,
+    Next,
     PermissionsInfo,
     app_config,
     datalens_client,
@@ -27,7 +29,7 @@ from ycli.yandex.datalens.entries.models import (
     Revision,
 )
 from ycli.yandex.datalens.models import EntryScope
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, Listed
 
 mcp = new_server("datalens-entries")
 
@@ -39,6 +41,8 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max entries to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     ids: Annotated[list[str] | None, Field(description="Keep the entries with these ids.")] = None,
     scope: Annotated[EntryScope | None, Field(description="Keep one kind of entry.")] = None,
     scopes: Annotated[
@@ -74,7 +78,7 @@ def list_(
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Entry]:
+) -> Listed[Entry]:
     """Entries across the whole organization: dashboards, charts, datasets, connections.
 
     The API requires one of ``scope``, ``scopes`` and ``ids``. An entry the caller may not read
@@ -82,7 +86,8 @@ def list_(
     cap unless ``limit`` is given.
     """
     return client.entries.list(
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         ids=ids,
         scope=scope,
         scopes=scopes,
@@ -96,7 +101,7 @@ def list_(
         ignore_workbook_entries=ignore_workbook_entries,
         ignore_shared_entries=ignore_shared_entries,
         include_data=include_data,
-    )
+    ).collect()
 
 
 @mcp.tool(
@@ -108,6 +113,8 @@ def relations_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max relations to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     link_direction: Annotated[
         str | None,
         Field(description="`from`: what the entries use; `to`: what uses them."),
@@ -118,18 +125,19 @@ def relations_list(
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Relation]:
+) -> Listed[Relation]:
     """What entries use (a chart's dataset, a dataset's connection) or what uses them.
 
     Use it before changing or deleting an entry, to see what depends on it. Auto-paginated.
     """
     return client.entries.relations_list(
         entry_ids,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         link_direction=link_direction,
         include_permissions_info=include_permissions_info,
         scope=scope,
-    )
+    ).collect()
 
 
 @mcp.tool(
@@ -154,12 +162,16 @@ def revisions_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max revisions to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     rev_ids: Annotated[list[str] | None, Field(description="Keep only these revisions.")] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Revision]:
+) -> Listed[Revision]:
     """The revisions of an entry: who saved it and when. Auto-paginated."""
-    return client.entries.revisions_list(entry_id, limit=config.http.cap(limit), rev_ids=rev_ids)
+    return client.entries.revisions_list(
+        entry_id, limit=config.http.cap(limit, all_=all), next=next, rev_ids=rev_ids
+    ).collect()
 
 
 @mcp.tool(name="entries_rename", annotations={**WRITE_IDEMPOTENT, "title": "Rename DataLens entry"})

@@ -24,6 +24,8 @@ from ycli.yandex.datalens.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     PermissionsInfo,
     app_config,
     datalens_client,
@@ -35,7 +37,7 @@ from ycli.yandex.datalens.models import (
     OrderField,
     SubjectWithBindings,
 )
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import ItemList, Listed, SortDirection
 
 mcp = new_server("datalens-collections")
 
@@ -74,6 +76,8 @@ def content_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max items to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     filter_string: Annotated[
         str | None, Field(description="Keep the items whose title has this text.")
     ] = None,
@@ -84,7 +88,7 @@ def content_list(
     include_permissions_info: PermissionsInfo = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[ContentItem]:
+) -> Listed[ContentItem]:
     """What a collection holds: collections, workbooks and entries, auto-paginated.
 
     Start here to find a workbook: list the root, then descend. Capped at the configured item
@@ -92,14 +96,15 @@ def content_list(
     """
     return client.collections.content_list(
         collection_id,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         filter_string=filter_string,
         order_field=order_field,
         order_direction=order_direction,
         only_my=only_my,
         mode=mode,
         include_permissions_info=include_permissions_info,
-    )
+    ).collect()
 
 
 @mcp.tool(
@@ -135,18 +140,21 @@ def access_bindings_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max subjects to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     get_inherited_bindings: Annotated[
         bool | None, Field(description="Also list the roles inherited from above.")
     ] = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[SubjectWithBindings]:
+) -> Listed[SubjectWithBindings]:
     """Who has which role on a collection, auto-paginated."""
     return client.collections.access_bindings_list(
         collection_id,
-        limit=config.http.cap(limit),
+        limit=config.http.cap(limit, all_=all),
+        next=next,
         get_inherited_bindings=get_inherited_bindings,
-    )
+    ).collect()
 
 
 ParentID = Annotated[

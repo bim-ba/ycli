@@ -2,7 +2,7 @@
 
 Examples:
     >>> list_(per_page=10).endpoint.params
-    {'perPage': 10, 'expand': None}
+    {'expand': None}
 """
 
 from http import HTTPMethod
@@ -37,8 +37,8 @@ def list_(
             HTTPMethod.GET,
             "users/_relative",
             UsersRelativeResponse,
-            params={"perPage": per_page, "expand": expand},
+            params={"expand": expand},
         ),
-        RelativeIDPagination(id_of=_uid),
+        RelativeIDPagination(id_of=_uid, page_size=per_page),
         lambda page: page.users,
     )

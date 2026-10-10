@@ -187,19 +187,23 @@ def test_iterate_stops_after_max_pages(caplog):
 
 
 @pytest.mark.parametrize(("limit", "fetched"), [(1, 1), (2, 1), (3, 2)])
-def test_iterate_warns_when_the_limit_leaves_items(caplog, limit, fetched):
+def test_a_limit_that_leaves_items_is_said_by_the_listing_and_not_by_the_log(
+    caplog, limit, fetched
+):
     api = MockAPI()
     api.add("GET", URL, json=[1, 2])
-    assert list(_session(api).iterate(_listing(), limit=limit)) == [1, 2, 1][:limit]
+    listing = _session(api).iterate(_listing(), limit=limit)
+    assert list(listing) == [1, 2, 1][:limit]
     assert len(api.calls) == fetched
-    assert f"stopped at {limit} items" in caplog.text
+    # One place says a listing stopped short: the listing itself.
+    assert listing.truncated and listing.next and "stopped at" not in caplog.text
 
 
-def test_iterate_at_an_exact_end_does_not_warn(caplog):
+def test_a_listing_that_ends_at_its_limit_is_not_truncated():
     api = MockAPI()
     api.add("GET", URL, json=[1])
-    assert list(_session(api).iterate(_listing(), limit=1)) == [1]
-    assert "stopped at" not in caplog.text
+    listing = _session(api).iterate(_listing(), limit=1)
+    assert list(listing) == [1] and not listing.truncated and listing.next is None
 
 
 def test_close_closes_the_client():

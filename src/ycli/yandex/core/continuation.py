@@ -2,9 +2,12 @@
 
 A token carries its listing: the whole request of the page to ask next, its query and its
 body, and how many of its items were already given. Of the call that goes on, only ``limit``
-counts; its other arguments take no part, so a page whose size the limit shapes goes on under
-another limit. A token is no credential: the request it resumes goes out with the caller's
-own, and its method, host and path are the operation's, which a token cannot change. What
+counts, so a page whose size the limit shapes goes on under another limit. What such a call
+cannot go without (a required argument) is given again, and has to be what the token holds:
+an argument that differs is refused by its name, never passed over.
+
+A token is no credential: the request it resumes goes out with the caller's own, and its
+method, host and path are the operation's, which a token cannot change. What
 ties a token to its operation is the fingerprint of that method and path, and the way the
 operation pages: a token of one operation, or of one object's listing, cannot continue
 another, and where two operations share a path (a search by pages and the same search by a
@@ -16,7 +19,8 @@ Examples:
     >>> first = httpx2.Request("GET", "https://x/v3/boards?perPage=2")
     >>> page = httpx2.Request("GET", "https://x/v3/boards?perPage=2&id=7")
     >>> token = encode(first, page, way="RelativeIDPagination", skip=1, seen=3)
-    >>> resumed, state = resume(first, token, way="RelativeIDPagination", longest=1000)
+    >>> asked = httpx2.Request("GET", "https://x/v3/boards")
+    >>> resumed, state = resume(asked, first, token, way="RelativeIDPagination", longest=1000)
     >>> (str(resumed.url), state.skip, state.seen)
     ('https://x/v3/boards?perPage=2&id=7', 1, 3)
     >>> way_of(token, longest=1000)
@@ -26,7 +30,8 @@ Examples:
 import base64
 import binascii
 import hashlib
-from typing import Literal
+import json
+from typing import Any, Literal
 
 import httpx2
 from pydantic import ConfigDict, Field, ValidationError
@@ -35,7 +40,21 @@ from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.models import RequestBody
 
 NOT_A_TOKEN = "this is not a token a listing gave: start again without it"
-OF_ANOTHER = "this token is of another listing: give it to the operation that returned it"
+#: A token given to another operation, or to the same one at another address (another issue,
+#: another page): the address the call asks at is named, the token holds none to compare.
+OF_ANOTHER = (
+    "this token is of another listing than {} {}: give it to the call that returned it, "
+    "with what that call named in its address"
+)
+#: What a call that goes on is answered when an argument it repeats is not the token's.
+DIFFERS = "with `next`, what is given again must be what the token holds; it differs in: {}"
+#: The one rule of going on, in the words of every place that says it: the help of `--next`,
+#: the description of a tool's `next`, the docstring of an SDK method, and the refusal.
+RULE = "the token carries its listing; give what is required again, and nothing else but the limit"
+#: What the CLI and the MCP server both answer a call that goes on and changes its listing.
+NOTHING_ELSE = f"with `next`, {RULE}"
+#: The handles of a listing: what a call that goes on may still give.
+HANDLES = frozenset({"limit", "all", "next"})
 
 
 class Continuation(RequestBody):
@@ -125,15 +144,57 @@ def way_of(token: str, *, longest: int) -> str:
     return _read(token, longest).way
 
 
+def _held(given: Any, held: Any) -> bool:
+    """Whether ``held`` has ``given`` in it: nothing is in anything, an object key by key.
+
+    Args:
+        given: A value of the request the call that goes on builds.
+        held: The value at the same place of the request the token holds.
+
+    Returns:
+        Whether the two say the same, as far as ``given`` says anything.
+
+    Examples:
+        >>> _held({"filter": {}, "expand": None}, {"filter": {"queue": "DE"}, "page": 2})
+        True
+        >>> _held({"query": "a"}, {"query": "b"})
+        False
+    """
+    if given is None:
+        return True
+    if isinstance(given, dict):
+        mapping = held if isinstance(held, dict) else {}
+        return all(_held(value, mapping.get(key)) for key, value in given.items())
+    return given == held
+
+
+def _differing(asked: httpx2.Request, state: Continuation) -> list[str]:
+    """The names of what ``asked`` gives that the token's request does not hold the same."""
+    held_query = httpx2.QueryParams(state.query)
+    names = [
+        name
+        for name in dict.fromkeys(asked.url.params.keys())
+        if asked.url.params.get_list(name) != held_query.get_list(name)
+    ]
+    if asked.content:
+        given, held = json.loads(asked.content), json.loads(state.body or "null")
+        whole = given if isinstance(given, dict) else {"the body": given}
+        mapping = held if isinstance(held, dict) else {"the body": held}
+        names += [name for name, value in whole.items() if not _held(value, mapping.get(name))]
+    return names
+
+
 def resume(
-    first: httpx2.Request, token: str, *, way: str, longest: int
+    asked: httpx2.Request, first: httpx2.Request, token: str, *, way: str, longest: int
 ) -> tuple[httpx2.Request, Continuation]:
     """The request ``token`` goes on from, built on the listing's own first request.
 
     The query and the body are the token's, whole: the arguments of the call that goes on
-    shape nothing but the method and the path.
+    shape nothing but the method and the path, and what they give has to be in the token.
 
     Args:
+        asked: The request of the operation before its pagination shaped it: what the
+            arguments of the call that goes on give, and nothing of the page.
         first: The first request of the listing, as the call's arguments build it.
         token: What an earlier call of the same listing returned.
         way: How the operation pages: the name of its pagination.
@@ -144,11 +205,18 @@ def resume(
         The request of the page to ask, and what the token holds beside it.
 
     Raises:
-        YandexInvalidRequestError: The token is not one, or is of another listing.
+        YandexInvalidRequestError: The token is not one, is of another listing, or an
+            argument given again is not what the token holds.
     """
     state = _read(token, longest)
     if state.of != _fingerprint(first) or state.way != way:
-        raise YandexInvalidRequestError(OF_ANOTHER)
+        raise YandexInvalidRequestError(OF_ANOTHER.format(first.method, first.url.path))
+    try:
+        differing = _differing(asked, state)
+    except ValueError as unread:
+        raise YandexInvalidRequestError(NOT_A_TOKEN) from unread
+    if differing:
+        raise YandexInvalidRequestError(DIFFERS.format(", ".join(differing)))
     headers = {
         name: value
         for name, value in first.headers.items()

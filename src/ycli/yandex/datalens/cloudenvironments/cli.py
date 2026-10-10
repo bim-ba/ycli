@@ -5,8 +5,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.cloudenvironments.models import (
     CloudEnvironment,
@@ -14,7 +15,6 @@ from ycli.yandex.datalens.cloudenvironments.models import (
     CloudEnvironmentStorageChange,
 )
 from ycli.yandex.datalens.models import LakehouseOperation
-from ycli.yandex.models import ItemList
 
 UNMEASURED = (
     "Experimental in the DataLens API. It creates or changes resources in a cloud, which may "
@@ -61,14 +61,15 @@ def list_(
     include_permissions: EnvironmentPermissionsOption = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[CloudEnvironment]:
+) -> Listing[CloudEnvironment]:
     """List the cloud environments (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.cloudenvironments.list(
-        filter=filter or None, include_permissions=include_permissions, limit=cap
+        filter=filter or None, include_permissions=include_permissions, limit=cap, next=next_
     )
 
 

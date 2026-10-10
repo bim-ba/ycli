@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_argument
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_argument
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate, Relationship
@@ -40,13 +41,16 @@ def list_filtered(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Link]:
+) -> Listing[Link]:
     """List links of ISSUE_KEY, filtered and paged (POST …/links/_list; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.links.list_filtered(issue_key, link_types=link_types, fields=fields, limit=cap)
+    return tracker.links.list_filtered(
+        issue_key, link_types=link_types, fields=fields, limit=cap, next=next_
+    )
 
 
 @app.command()

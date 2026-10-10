@@ -6,13 +6,15 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     QueueID,
     Version,
     app_config,
@@ -37,16 +39,18 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max triggers to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Trigger]:
+) -> Listed[Trigger]:
     """Every trigger of a queue, ascending by id: name, actions, conditions and active flag.
 
     Auto-paginated and capped at the configured item cap unless ``limit`` is given. Use
     ``triggers_get`` for one trigger by id.
     """
-    cap = config.http.cap(limit)
-    return client.triggers.list(queue_id, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.triggers.list(queue_id, limit=cap, next=next).collect()
 
 
 @mcp.tool(name="triggers_get", annotations={**RO, "title": "Get Tracker queue trigger"})

@@ -49,6 +49,8 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
 | `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `include_self` | boolean or null |  | Also return the ancestor page itself. |
 | `show_all` | boolean or null |  | The API's ``show_all`` flag. |
 | `actuality` | string or null |  | Only the pages in this state: `actual` or `obsolete`. |
@@ -67,6 +69,8 @@ unless ``limit`` is given. Reads a page's numeric id — pair with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose grids to list. |
 | `limit` | integer or null |  | Max grids (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `order_by` | `title` · `created_at` or string or null |  | Sort field. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
@@ -102,6 +106,8 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose subtree to list. |
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `include_self` | boolean or null |  | Also return the ancestor page itself. |
 | `show_all` | boolean or null |  | The API's ``show_all`` flag. |
 | `actuality` | string or null |  | Only the pages in this state: `actual` or `obsolete`. |
@@ -222,6 +228,8 @@ Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its 
 | `page_id` | integer | yes | Numeric page id whose revisions to list. |
 | `ids` | string or null |  | Only these revision ids (comma separated). |
 | `limit` | integer or null |  | Max revisions (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `wiki_pages_backlinks_list`
 
@@ -238,6 +246,8 @@ may change it.
 | `for_cluster` | boolean or null |  | Links to the page's whole subtree, not just the page. |
 | `show_all` | boolean or null |  | The API's ``show_all`` flag (undocumented; no effect seen live). |
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `wiki_pages_search`
 
@@ -328,6 +338,8 @@ Capped at the configured item cap unless ``limit`` is given. Pair with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
 | `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `order_by` | string or null |  | Sort field: ``created_at``. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 | `status_filter` | `resolved` · `unresolved` or string or null |  | Keep only the comments in this state. |
@@ -365,6 +377,8 @@ thread from the page's comment list.
 | `page_id` | integer | yes | Numeric page id the comment lives on. |
 | `comment_id` | integer | yes | Comment id whose server-side thread to fetch. |
 | `limit` | integer or null |  | Max comments (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
 ## `wiki_comments_create`
 
@@ -408,6 +422,8 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
 | `limit` | integer or null |  | Max attachments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `order_by` | `name` · `size` · `created_at` or string or null |  | Sort field. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
@@ -488,6 +504,8 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose resources to list. |
 | `limit` | integer or null |  | Max resources (omitted: the configured cap). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `q` | string or null |  | Optional title search filter. |
 | `types` | string or null |  | Comma-separated kinds to include: ``attachment,grid``. |
 | `order_by` | `name_title` · `created_at` or string or null |  | Sort field. |

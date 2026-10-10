@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList, SortDirection
+from ycli.yandex.models import Listed, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -14,6 +14,8 @@ from ycli.yandex.wiki.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
+    All,
+    Next,
     Slug,
     app_config,
     new_server,
@@ -88,20 +90,27 @@ def descendants_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max descendant refs to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     include_self: IncludeSelf = None,
     show_all: ShowAll = None,
     actuality: Actuality = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[PageRef]:
+) -> Listed[PageRef]:
     """All descendant refs under SLUG, auto-paginated.
 
     Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.pages.descendants_list(
-        slug=slug, limit=cap, actuality=actuality, include_self=include_self, show_all=show_all
-    )
+        slug=slug,
+        limit=cap,
+        next=next,
+        actuality=actuality,
+        include_self=include_self,
+        show_all=show_all,
+    ).collect()
 
 
 @mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"})
@@ -110,24 +119,27 @@ def grids_list(
     limit: Annotated[
         int | None, Field(ge=1, description="Max grids (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     order_by: Annotated[GridOrder | None, Field(description="Sort field.")] = None,
     order_direction: OrderDirection = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[GridRef]:
+) -> Listed[GridRef]:
     """Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_cursor``).
 
     Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
     unless ``limit`` is given. Reads a page's numeric id — pair with
     ``pages_get_meta`` / ``pages_descendants_list`` (whose refs carry the ids) to find one.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.pages.grids_list(
         page_id=page_id,
         limit=cap,
+        next=next,
         order_by=order_by,
         order_direction=order_direction,
-    )
+    ).collect()
 
 
 @mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"})
@@ -168,26 +180,29 @@ def descendants_list_by_id(
     limit: Annotated[
         int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     include_self: IncludeSelf = None,
     show_all: ShowAll = None,
     actuality: Actuality = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[PageRef]:
+) -> Listed[PageRef]:
     """All descendant page refs under a numeric page id, auto-paginated.
 
     The id-based twin of ``pages_descendants_list``. Capped at the configured item cap
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.pages.descendants_list_by_id(
         page_id=page_id,
         limit=cap,
+        next=next,
         actuality=actuality,
         include_self=include_self,
         show_all=show_all,
-    )
+    ).collect()
 
 
 @mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"})
@@ -344,17 +359,19 @@ def revisions_list(
     limit: Annotated[
         int | None, Field(ge=1, description="Max revisions (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[PageRevision]:
+) -> Listed[PageRevision]:
     """Saved revisions of a page, auto-paginated (``GET /pages/{id}/revisions``).
 
     Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its ``author``,
     ``created_at``, ``page_type`` and publication state. Yandex does not document this operation
     (it is in the live OpenAPI only) and may change it.
     """
-    cap = config.http.cap(limit)
-    return client.pages.revisions_list(page_id=page_id, ids=ids, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.pages.revisions_list(page_id=page_id, ids=ids, limit=cap, next=next).collect()
 
 
 @mcp.tool(
@@ -373,18 +390,20 @@ def backlinks_list(
     limit: Annotated[
         int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[PageRef]:
+) -> Listed[PageRef]:
     """Refs (``id`` and ``slug``) of the pages that link to a page (``GET /pages/{id}/backlinks``).
 
     Auto-paginated. Yandex does not document this operation (it is in the live OpenAPI only) and
     may change it.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.pages.backlinks_list(
-        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
-    )
+        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap, next=next
+    ).collect()
 
 
 @mcp.tool(name="pages_search", annotations={**RO, "title": "Search Wiki"})

@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.models import (
     AccessBindingDelta,
@@ -48,6 +49,7 @@ def get(
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     collection_id: Annotated[
         str | None,
         typer.Option("--collection-id", help="Collection to list; the root when left out."),
@@ -68,11 +70,12 @@ def list_(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[WorkbookListed]:
+) -> Listing[WorkbookListed]:
     """List the workbooks of a collection (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.workbooks.list(
         limit=cap,
+        next=next_,
         collection_id=collection_id,
         filter_string=filter_string,
         order_field=order_field,
@@ -99,6 +102,7 @@ def access_bindings_list(
     workbook_id: WorkbookIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     get_inherited_bindings: Annotated[
         bool | None,
         typer.Option(
@@ -109,11 +113,11 @@ def access_bindings_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SubjectWithBindings]:
+) -> Listing[SubjectWithBindings]:
     """List who has which role on a workbook (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.workbooks.access_bindings_list(
-        workbook_id, limit=cap, get_inherited_bindings=get_inherited_bindings
+        workbook_id, limit=cap, next=next_, get_inherited_bindings=get_inherited_bindings
     )
 
 
@@ -131,6 +135,7 @@ def entries_list(
     workbook_id: WorkbookIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     include_permissions_info: PermissionsOption = None,
     only_my: Annotated[
         bool | None, typer.Option("--only-my/--no-only-my", help="Keep only what you created.")
@@ -156,12 +161,13 @@ def entries_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[WorkbookEntry]:
+) -> Listing[WorkbookEntry]:
     """List what a workbook holds: connections, datasets, charts, dashboards (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.workbooks.entries_list(
         workbook_id,
         limit=cap,
+        next=next_,
         include_permissions_info=include_permissions_info,
         only_my=only_my,
         created_by=created_by,

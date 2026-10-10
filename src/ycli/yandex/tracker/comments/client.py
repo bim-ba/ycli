@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.comments import endpoints
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
     from ycli.yandex.tracker.models import CommentCreate
 
 
@@ -21,8 +21,9 @@ class CommentsClient(Resource):
         issue_key: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         expand: str | None = None,
-    ) -> ItemList[Comment]:
+    ) -> Listing[Comment]:
         """All comments on an issue, draining the ``id=<last comment id>`` relative cursor.
 
         ``GET /issues/{key}/comments`` returns one page at a time; each next page repeats with
@@ -32,18 +33,20 @@ class CommentsClient(Resource):
         Args:
             issue_key: The issue key.
             limit: The most comments to return; ``None`` returns every comment.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             expand: The extra blocks to include: ``attachments``, ``html`` or ``all``.
 
         Returns:
             The issue's comments.
 
         Examples:
-            >>> [comment.text for comment in tracker.comments.list("DE-11", limit=500).root]
+            >>> [comment.text for comment in tracker.comments.list("DE-11", limit=500)]
             ['first', 'second', 'third']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_(issue_key, page_size=page_size, expand=expand)
-        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, issue_key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
         """``GET /issues/{key}/comments/{comment_id}`` — one comment. Returns it.

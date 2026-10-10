@@ -179,15 +179,15 @@ def _stale(walk: Walk, paged: Paged, error: YandexError) -> YandexError:
     )
 
 
-def _ended(walk: Walk, limit: int | None, pages: int, max_pages: int) -> None:
-    """Say in the log why a walk ended short of the listing's end."""
-    if walk.truncated:
-        logger.warning(
-            "stopped at %d items; more may be available (raise the limit, or use --all in the CLI)",
-            limit,
-        )
-    elif walk.request is not None and pages >= max_pages:
+def _ended(walk: Walk, pages: int, max_pages: int) -> None:
+    """A walk the cap on pages stopped short of its end says so: truncated, with a token.
+
+    It is said in the log too. A walk that stopped at its limit said so itself, and nothing
+    is logged.
+    """
+    if walk.request is not None and pages >= max_pages:
         logger.warning("stopped after %d pages; the listing did not end", max_pages)
+        walk.cut()
 
 
 def _first_page(paged: Paged, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
@@ -255,7 +255,7 @@ class SyncSession:
         paged: Paged[P, I],
         *,
         limit: int | None = None,
-        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+        next: str | None = None,
     ) -> Listing[I]:
         """The listing's items, fetched page by page as they are asked for.
 
@@ -272,7 +272,8 @@ class SyncSession:
             self._before_send, self._guard, paged.endpoint, _first_page(paged, self._client)
         )
         longest = self._http.max_token_length
-        walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
+        asked = paged.endpoint.request(self._client)
+        walk = Walk(paged, asked, first, limit=limit, token=next, longest_token=longest)
 
         def pages() -> Iterator[I]:
             asked = 0
@@ -287,7 +288,7 @@ class SyncSession:
                     raise _stale(walk, paged, error) from error
                 asked += 1
                 yield from walk.take(response)
-            _ended(walk, limit, asked, self._http.max_pages)
+            _ended(walk, asked, self._http.max_pages)
 
         return Listing(walk, pages)
 
@@ -365,7 +366,7 @@ class AsyncSession:
         paged: Paged[P, I],
         *,
         limit: int | None = None,
-        next: str | None = None,  # noqa: A002 - the caller's word, on every surface (#502)
+        next: str | None = None,
     ) -> AsyncListing[I]:
         """The listing's items, fetched page by page as they are asked for.
 
@@ -382,7 +383,8 @@ class AsyncSession:
             self._before_send, self._guard, paged.endpoint, _first_page(paged, self._client)
         )
         longest = self._http.max_token_length
-        walk = Walk(paged, first, limit=limit, token=next, longest_token=longest)
+        asked = paged.endpoint.request(self._client)
+        walk = Walk(paged, asked, first, limit=limit, token=next, longest_token=longest)
 
         async def pages() -> AsyncIterator[I]:
             asked = 0
@@ -398,7 +400,7 @@ class AsyncSession:
                 asked += 1
                 for item in walk.take(response):
                     yield item
-            _ended(walk, limit, asked, self._http.max_pages)
+            _ended(walk, asked, self._http.max_pages)
 
         return AsyncListing(walk, pages)
 

@@ -5,15 +5,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.datalens.models import SubjectWithBindings
 from ycli.yandex.datalens.workbooks import endpoints
-from ycli.yandex.datalens.workbooks.models import WorkbookEntry, WorkbookListed
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ycli.yandex.datalens.models import AccessBindingDelta, Operation, OrderField
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.datalens.models import (
+        AccessBindingDelta,
+        Operation,
+        OrderField,
+        SubjectWithBindings,
+    )
     from ycli.yandex.datalens.workbooks.models import (
         EntriesFilters,
         EntriesOrder,
@@ -21,10 +24,12 @@ if TYPE_CHECKING:
         Workbook,
         WorkbookCreated,
         WorkbookDetails,
+        WorkbookEntry,
+        WorkbookListed,
         WorkbooksDeleted,
         WorkbooksMoved,
     )
-    from ycli.yandex.models import SortDirection
+    from ycli.yandex.models import ItemList, SortDirection
 
 
 class WorkbooksClient(Resource):
@@ -54,19 +59,22 @@ class WorkbooksClient(Resource):
         self,
         *,
         limit: int | None = None,
+        next: str | None = None,
         collection_id: str | None = None,
         filter_string: str | None = None,
         order_field: OrderField | None = None,
         order_direction: SortDirection | None = None,
         only_my: bool | None = None,
         include_permissions_info: bool | None = None,
-    ) -> ItemList[WorkbookListed]:
+    ) -> Listing[WorkbookListed]:
         """``getWorkbooksList`` → the workbooks of a collection, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every workbook).
 
         Args:
             limit: The most workbooks to return; ``None`` returns every workbook.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             collection_id: The collection to list; the root when left out.
             filter_string: Keep the workbooks whose title has this text.
             order_field: What to sort by: ``title``, ``createdAt`` or ``updatedAt``.
@@ -79,7 +87,7 @@ class WorkbooksClient(Resource):
 
         Examples:
             >>> found = datalens.workbooks.list(collection_id="col00000000001", limit=45)
-            >>> [workbook.title for workbook in found.root]
+            >>> [workbook.title for workbook in found]
             ['Q1', 'Q2']
         """
         paged = endpoints.list_(
@@ -90,7 +98,7 @@ class WorkbooksClient(Resource):
             only_my=only_my,
             include_permissions_info=include_permissions_info,
         )
-        return ItemList[WorkbookListed](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def list_by_ids(self, workbook_ids: Sequence[str]) -> ItemList[Workbook]:
         """``getWorkbooksByIds`` → the workbooks with these ids.
@@ -113,8 +121,9 @@ class WorkbooksClient(Resource):
         workbook_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         get_inherited_bindings: bool | None = None,
-    ) -> ItemList[SubjectWithBindings]:
+    ) -> Listing[SubjectWithBindings]:
         """``listWorkbookAccessBindings`` → who has which role, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every subject).
@@ -122,33 +131,36 @@ class WorkbooksClient(Resource):
         Args:
             workbook_id: The workbook's id.
             limit: The most subjects to return; ``None`` returns every subject.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             get_inherited_bindings: Also list the roles inherited from the collections above.
 
         Returns:
             The subjects with their roles.
 
         Examples:
-            >>> subjects = datalens.workbooks.access_bindings_list("wb000000000001").root
+            >>> subjects = datalens.workbooks.access_bindings_list("wb000000000001").collect().items
             >>> subjects[0].access_bindings[0].role_id
             'datalens.workbooks.editor'
         """
         paged = endpoints.access_bindings_list(
             workbook_id, get_inherited_bindings=get_inherited_bindings
         )
-        return ItemList[SubjectWithBindings](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def entries_list(
         self,
         workbook_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         include_permissions_info: bool | None = None,
         only_my: bool | None = None,
         created_by: str | None = None,
         scope: EntryScope | Sequence[EntryScope] | None = None,
         order_by: EntriesOrder | None = None,
         filters: EntriesFilters | None = None,
-    ) -> ItemList[WorkbookEntry]:
+    ) -> Listing[WorkbookEntry]:
         """``getWorkbookEntries`` → what a workbook holds, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every entry).
@@ -156,6 +168,8 @@ class WorkbooksClient(Resource):
         Args:
             workbook_id: The workbook's id.
             limit: The most entries to return; ``None`` returns every entry.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             include_permissions_info: Also say what the caller may do with each entry.
             only_my: Keep only what the caller created.
             created_by: Keep only what this user created.
@@ -167,7 +181,9 @@ class WorkbooksClient(Resource):
             The connections, datasets, charts and dashboards of the workbook.
 
         Examples:
-            >>> entries = datalens.workbooks.entries_list("wb000000000001", limit=45).root
+            >>> entries = (
+            ...     datalens.workbooks.entries_list("wb000000000001", limit=45).collect().items
+            ... )
             >>> [(entry.scope.root, entry.key) for entry in entries]
             [('dataset', 'Sales/orders'), ('dash', 'Sales/overview')]
         """
@@ -180,7 +196,7 @@ class WorkbooksClient(Resource):
             order_by=order_by,
             filters=filters,
         )
-        return ItemList[WorkbookEntry](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(
         self, *, title: str, collection_id: str | None = None, description: str | None = None

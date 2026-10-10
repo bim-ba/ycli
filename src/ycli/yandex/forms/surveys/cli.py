@@ -4,14 +4,15 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
 from ycli.yandex.forms.typedefs import (
     SurveyIDArg,
 )
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack
 
 app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
 
@@ -40,6 +41,7 @@ PublicOpt = Annotated[
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     name: Annotated[str | None, typer.Option(help="Only forms whose name matches.")] = None,
     published: Annotated[
         bool | None,
@@ -65,11 +67,12 @@ def list_(
     *,
     config: AppConfig,
     forms: FormsClient,
-) -> ItemList[Survey]:
+) -> Listing[Survey]:
     """List forms, filtered (auto-paginated over offset pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return forms.surveys.list(
         limit=cap,
+        next=next_,
         name=name,
         published=published,
         ownership=ownership,

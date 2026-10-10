@@ -4,15 +4,15 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.cloudenvironmentstorage.models import (
     BucketDownloadUrl,
     BucketObjectMetadata,
     BucketUploadUrl,
 )
-from ycli.yandex.models import ItemList
 
 UNMEASURED = (
     "Experimental in the DataLens API and written from its document: not measured. An "
@@ -41,14 +41,15 @@ def bucket_objects_list(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[str]:
+) -> Listing[str]:
     """List the paths of the objects in the bucket (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.cloudenvironmentstorage.bucket_objects_list(
-        cloud_environment_id, prefix=prefix, limit=cap
+        cloud_environment_id, prefix=prefix, limit=cap, next=next_
     )
 
 

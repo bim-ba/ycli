@@ -137,8 +137,8 @@ async def test_schema_get_serves_the_reply_of_a_tool_one_definition_at_a_time():
 async def test_a_reply_that_is_a_list_is_shown_as_the_list_the_tool_returns():
     """FastMCP wraps what is not an object as ``{"result": ...}``; the tool returns the list."""
     async with Client(full) as client:
-        assert await _reply(client, "tracker_queues_list") == {"$ref": "#/$defs/ItemList_Queue_"}
-        assert (await _reply(client, "tracker_queues_list", "ItemList_Queue_"))["type"] == "array"
+        assert await _reply(client, "tracker_macros_list") == {"$ref": "#/$defs/ItemList_Macro_"}
+        assert (await _reply(client, "tracker_macros_list", "ItemList_Macro_"))["type"] == "array"
         assert await _reply(client, "wiki_pages_get") == {"type": "string"}
 
 

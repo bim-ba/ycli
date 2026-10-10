@@ -5,14 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.datalens.models import SubjectWithBindings
 from ycli.yandex.datalens.sharedentries import endpoints
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ycli.yandex.datalens.models import AccessBindingDelta, Operation
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.datalens.models import AccessBindingDelta, Operation, SubjectWithBindings
 
 
 class SharedEntriesClient(Resource):
@@ -23,8 +22,9 @@ class SharedEntriesClient(Resource):
         entry_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         get_inherited_bindings: bool | None = None,
-    ) -> ItemList[SubjectWithBindings]:
+    ) -> Listing[SubjectWithBindings]:
         """``listSharedEntryAccessBindings`` → who has which role, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every subject). An entry that lies in a workbook, or an
@@ -33,20 +33,24 @@ class SharedEntriesClient(Resource):
         Args:
             entry_id: The shared entry's id.
             limit: The most subjects to return; ``None`` returns every subject.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             get_inherited_bindings: Also list the roles inherited from the collections above.
 
         Returns:
             The subjects with their roles.
 
         Examples:
-            >>> subjects = datalens.sharedentries.access_bindings_list("ent0000000001").root
+            >>> subjects = (
+            ...     datalens.sharedentries.access_bindings_list("ent0000000001").collect().items
+            ... )
             >>> subjects[0].access_bindings[0].role_id
             'datalens.sharedEntries.admin'
         """
         paged = endpoints.access_bindings_list(
             entry_id, get_inherited_bindings=get_inherited_bindings
         )
-        return ItemList[SubjectWithBindings](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def access_bindings_update(
         self, entry_id: str, *, deltas: Sequence[AccessBindingDelta]

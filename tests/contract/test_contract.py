@@ -39,6 +39,7 @@ from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
 from ycli.cli.app import app
 from ycli.yandex.core.auth import IAMTokenAuth
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.registry import SERVICES
 
@@ -108,6 +109,9 @@ def _run_sdk(case: Case) -> object:
     with _client(SERVICE_BY_NAME[domain]) as client:
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
         result = getattr(getattr(client, resource), method)(*args, **case.kwargs)
+        if isinstance(result, Listing):
+            # Lazy: read while the client is open. Every surface shows a listing as `Listed`.
+            result = result.collect()
     return (
         result.model_dump(by_alias=True, mode="json") if isinstance(result, BaseModel) else result
     )

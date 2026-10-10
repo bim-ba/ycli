@@ -4,11 +4,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.members.models import Member, MemberKind, MemberLanguage
-from ycli.yandex.models import ItemList
 
 app = typer.Typer(name="members", help="DataLens members.", no_args_is_help=True)
 
@@ -17,6 +17,7 @@ app = typer.Typer(name="members", help="DataLens members.", no_args_is_help=True
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     language: Annotated[
         str | None, values_option(MemberLanguage, "--language", help="Language of the names.")
     ] = None,
@@ -32,9 +33,9 @@ def list_(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[Member]:
+) -> Listing[Member]:
     """List the users, groups and service accounts a role can be given to (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.members.list(
-        limit=cap, language=language, search=search, tab_id=tab_id, filter=filter_
+        limit=cap, next=next_, language=language, search=search, tab_id=tab_id, filter=filter_
     )

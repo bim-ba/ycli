@@ -6,14 +6,17 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.sparkclusters import endpoints
-from ycli.yandex.datalens.sparkclusters.models import SparkCluster, SparkResourcePreset
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.models import LakehouseOperation
-    from ycli.yandex.datalens.sparkclusters.models import NewClusterConfig
+    from ycli.yandex.datalens.sparkclusters.models import (
+        NewClusterConfig,
+        SparkCluster,
+        SparkResourcePreset,
+    )
 
 
 class SparkClustersClient(Resource):
@@ -27,13 +30,16 @@ class SparkClustersClient(Resource):
         self,
         *,
         limit: int | None = None,
+        next: str | None = None,
         collection_id: str | None = None,
         filter: Sequence[str] | None = None,  # noqa: A002  # the API's own name for it
-    ) -> ItemList[SparkCluster]:
+    ) -> Listing[SparkCluster]:
         """``listSparkClusters`` → the Spark clusters, draining ``nextPageToken``.
 
         Args:
             limit: The most clusters to return; ``None`` returns every cluster.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             collection_id: Keep the clusters of one collection.
             filter: Filter expressions of the API.
 
@@ -41,13 +47,13 @@ class SparkClustersClient(Resource):
             The clusters found.
 
         Examples:
-            >>> [cluster.name for cluster in datalens.sparkclusters.list(limit=45).root]
+            >>> [cluster.name for cluster in datalens.sparkclusters.list(limit=45)]
             ['etl', 'adhoc']
         """
         paged = endpoints.list_(
             collection_id=collection_id, filter=None if filter is None else [*filter]
         )
-        return ItemList[SparkCluster](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def get(self, id: str) -> SparkCluster:  # noqa: A002  # the API's own name for it
         """``getSparkCluster`` → one Spark cluster: its settings, health and status.
@@ -154,24 +160,26 @@ class SparkClustersClient(Resource):
         return self._session.send(endpoints.stop(cluster_id))
 
     def resource_presets_list(
-        self, cloud_environment_id: str, *, limit: int | None = None
-    ) -> ItemList[SparkResourcePreset]:
+        self, cloud_environment_id: str, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[SparkResourcePreset]:
         """``listSparkResourcePresets`` → the sizes an instance of a cluster can take.
 
         Args:
             cloud_environment_id: The cloud environment the presets are for.
             limit: The most presets to return; ``None`` returns every preset.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The presets found.
 
         Examples:
             >>> found = datalens.sparkclusters.resource_presets_list("env00000000001", limit=45)
-            >>> [preset.id for preset in found.root]
+            >>> [preset.id for preset in found]
             ['c2-m8', 'c4-m16']
         """
         paged = endpoints.resource_presets_list(cloud_environment_id)
-        return ItemList[SparkResourcePreset](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def resource_presets_get(
         self, resource_preset_id: str, *, cloud_environment_id: str

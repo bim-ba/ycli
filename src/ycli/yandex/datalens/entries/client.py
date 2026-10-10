@@ -6,19 +6,22 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.entries import endpoints
-from ycli.yandex.datalens.entries.models import Entry, Relation, Revision
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.entries.models import (
         EntriesPermissions,
+        Entry,
         ListFilters,
         ListOrder,
+        Relation,
         Renamed,
+        Revision,
     )
     from ycli.yandex.datalens.models import EntryScope
+    from ycli.yandex.models import ItemList
 
 
 class EntriesClient(Resource):
@@ -28,6 +31,7 @@ class EntriesClient(Resource):
         self,
         *,
         limit: int | None = None,
+        next: str | None = None,
         ids: Sequence[str] | None = None,
         scope: EntryScope | None = None,
         scopes: Sequence[EntryScope] | None = None,
@@ -41,7 +45,7 @@ class EntriesClient(Resource):
         ignore_workbook_entries: bool | None = None,
         ignore_shared_entries: bool | None = None,
         include_data: bool | None = None,
-    ) -> ItemList[Entry]:
+    ) -> Listing[Entry]:
         """``getEntries`` → entries across the organization, draining ``nextPageToken``.
 
         The API requires one of ``scope``, ``scopes`` and ``ids``. Capped at ``limit``
@@ -49,6 +53,8 @@ class EntriesClient(Resource):
 
         Args:
             limit: The most entries to return; ``None`` returns every entry.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             ids: Keep only the entries with these ids.
             scope: Keep one kind of entry, e.g. ``dash`` or ``dataset``.
             scopes: Keep several kinds of entries.
@@ -67,7 +73,7 @@ class EntriesClient(Resource):
             The entries found; one the caller may not read comes with ``is_locked`` set.
 
         Examples:
-            >>> found = datalens.entries.list(scope="dash", limit=45).root
+            >>> found = datalens.entries.list(scope="dash", limit=45).collect().items
             >>> [(entry.entry_id, entry.key) for entry in found]
             [('ent00000000002', 'Sales/overview'), ('ent00000000003', 'Sales/margin')]
         """
@@ -86,17 +92,18 @@ class EntriesClient(Resource):
             ignore_shared_entries=ignore_shared_entries,
             include_data=include_data,
         )
-        return ItemList[Entry](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def relations_list(
         self,
         entry_ids: Sequence[str],
         *,
         limit: int | None = None,
+        next: str | None = None,
         link_direction: str | None = None,
         include_permissions_info: bool | None = None,
         scope: EntryScope | None = None,
-    ) -> ItemList[Relation]:
+    ) -> Listing[Relation]:
         """``getEntriesRelations`` → what entries use, or what uses them, draining the pages.
 
         Capped at ``limit`` (``None`` = every relation).
@@ -104,6 +111,8 @@ class EntriesClient(Resource):
         Args:
             entry_ids: The ids of the entries.
             limit: The most relations to return; ``None`` returns every relation.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             link_direction: ``from`` lists what the entries use, ``to`` what uses them.
             include_permissions_info: Also say what the caller may do with each related entry.
             scope: Keep one kind of related entry.
@@ -113,7 +122,7 @@ class EntriesClient(Resource):
 
         Examples:
             >>> related = datalens.entries.relations_list(["ent00000000002"], link_direction="from")
-            >>> [relation.entry_id for relation in related.root]
+            >>> [relation.entry_id for relation in related]
             ['ent00000000001']
         """
         paged = endpoints.relations_list(
@@ -122,7 +131,7 @@ class EntriesClient(Resource):
             include_permissions_info=include_permissions_info,
             scope=scope,
         )
-        return ItemList[Relation](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def permissions_get(self, entry_ids: Sequence[str]) -> EntriesPermissions:
         """``getEntriesPermissions`` → what the caller may do with each entry.
@@ -151,8 +160,9 @@ class EntriesClient(Resource):
         entry_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         rev_ids: Sequence[str] | None = None,
-    ) -> ItemList[Revision]:
+    ) -> Listing[Revision]:
         """``getRevisions`` → the revisions of an entry, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every revision).
@@ -160,18 +170,22 @@ class EntriesClient(Resource):
         Args:
             entry_id: The entry's id.
             limit: The most revisions to return; ``None`` returns every revision.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             rev_ids: Keep only these revisions.
 
         Returns:
             The revisions, the newest first.
 
         Examples:
-            >>> revisions = datalens.entries.revisions_list("ent00000000001", limit=45).root
+            >>> revisions = (
+            ...     datalens.entries.revisions_list("ent00000000001", limit=45).collect().items
+            ... )
             >>> [revision.rev_id for revision in revisions]
             ['rev2', 'rev1']
         """
         paged = endpoints.revisions_list(entry_id, rev_ids=rev_ids)
-        return ItemList[Revision](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def rename(self, entry_id: str, *, name: str) -> ItemList[Renamed]:
         """``renameEntry`` — give an entry another name.

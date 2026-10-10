@@ -10,7 +10,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList, SortDirection
+from ycli.yandex.models import Ack, ItemList, Listed, SortDirection
 from ycli.yandex.wiki.attachments.models import AttachedFile, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
@@ -18,6 +18,8 @@ from ycli.yandex.wiki.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     PageID,
     app_config,
     new_server,
@@ -33,25 +35,28 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max attachments to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     order_by: Annotated[AttachmentOrder | None, Field(description="Sort field.")] = None,
     order_direction: Annotated[
         SortDirection | None, Field(description="Sort direction for ``order_by``.")
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[AttachedFile]:
+) -> Listed[AttachedFile]:
     """Attachments (name, size, mime type) on a page id, auto-paginated (drains ``next_cursor``).
 
     Capped at the configured item cap unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.attachments.list(
         page_id=page_id,
         limit=cap,
+        next=next,
         order_by=order_by,
         order_direction=order_direction,
-    )
+    ).collect()
 
 
 @mcp.tool(

@@ -5,7 +5,7 @@
 Examples:
     >>> get("project", "655f", expand=None, fields="summary").params
     {'expand': None, 'fields': 'summary'}
-    >>> search("goal", {}, fields=None, per_page=None, page=None).effect
+    >>> search("goal", {}, fields=None, per_page=100).endpoint.effect
     <Effect.READ: 'read'>
     >>> events = events_list(
     ...     "project", "655f", per_page=100, selected=None, new_events_on_top=None, direction=None
@@ -20,7 +20,7 @@ from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIDPagination
+from ycli.yandex.core.pagination import PageNumberPagination, RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
     ACL,
@@ -106,22 +106,21 @@ def delete(entity_type: str, entity_id: str, *, with_board: bool | None) -> Endp
 
 
 def search(
-    entity_type: str,
-    body: EntitySearch,
-    *,
-    fields: str | None,
-    per_page: int | None,
-    page: int | None,
-) -> Endpoint[EntitySearchResponse]:
-    """``POST …/_search`` only reads; one page, the one ``per_page``/``page`` select."""
-    # violation(arch-3): POST _search only reads
-    return Endpoint(
-        HTTPMethod.POST,
-        f"entities/{segment(entity_type)}/_search",
-        EntitySearchResponse,
-        params={"fields": fields, "perPage": per_page, "page": page},
-        json=body,
-        effect=Effect.READ,
+    entity_type: str, body: EntitySearch, *, fields: str | None, per_page: int
+) -> Paged[EntitySearchResponse, Entity]:
+    """``POST …/_search`` only reads; pages of ``per_page``, each next one from ``page=``."""
+    return Paged(
+        # violation(arch-3): POST _search only reads
+        Endpoint(
+            HTTPMethod.POST,
+            f"entities/{segment(entity_type)}/_search",
+            EntitySearchResponse,
+            params={"fields": fields},
+            json=body,
+            effect=Effect.READ,
+        ),
+        PageNumberPagination(page_size=per_page),
+        lambda page: page.values,
     )
 
 
@@ -141,13 +140,12 @@ def events_list(
             f"{_entity(entity_type, entity_id)}/events/_relative",
             EntityEventsResponse,
             params={
-                "perPage": per_page,
                 "selected": selected,
                 "newEventsOnTop": new_events_on_top,
                 "direction": direction,
             },
         ),
-        RelativeIDPagination(id_of=lambda event: event.id, id_param="from"),
+        RelativeIDPagination(id_of=lambda event: event.id, id_param="from", page_size=per_page),
         lambda page: page.events,
     )
 
@@ -209,9 +207,10 @@ def comments_list_relative(
             HTTPMethod.GET,
             f"{_entity(entity_type, entity_id)}/comments/_relative",
             CommentsRelativeResponse,
-            params={"perPage": per_page},
         ),
-        RelativeIDPagination(id_of=lambda comment: comment.long_id, id_param="from"),
+        RelativeIDPagination(
+            id_of=lambda comment: comment.long_id, id_param="from", page_size=per_page
+        ),
         lambda page: page.comments,
     )
 

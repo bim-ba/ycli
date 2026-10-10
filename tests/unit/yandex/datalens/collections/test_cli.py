@@ -73,6 +73,6 @@ def test_an_item_of_a_kind_the_document_does_not_know_is_listed_as_it_came(api):
     api.add("POST", "https://api.datalens.tech/rpc/getCollectionContent", json={"items": items})
     result = CliRunner().invoke(cli.app, ["-o", "json", "datalens", "collections", "content-list"])
     assert result.exit_code == 0, result.output
-    known, unknown = json.loads(result.stdout)
+    known, unknown = json.loads(result.stdout)["items"]
     assert (known["entity"], known["workbookId"]) == ("workbook", "wb1")
     assert unknown == items[1]

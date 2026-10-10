@@ -15,5 +15,7 @@ def test_a_capped_listing_warns_on_stderr(api):
         cli.app, ["-o", "json", "tracker", "issues", "list", "--queue", "DE", "--limit", "5"]
     )
     assert res.exit_code == 0, res.output
-    assert len(json.loads(res.stdout)) == 5
-    assert "stopped at 5 items; more may be available" in res.stderr
+    assert len(json.loads(res.stdout)["items"]) == 5
+    # One line says it, with the token to go on from; the log says nothing of it.
+    assert "stopped at 5; go on with: ycli tracker issues list --next " in res.stderr
+    assert "WARNING" not in res.stderr

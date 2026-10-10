@@ -5,8 +5,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.queues.models import (
@@ -38,14 +39,15 @@ QueueFieldsOpt = Annotated[
 def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> ItemList[Queue]:
+) -> Listing[Queue]:
     """List all queues (auto-paginated over pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.queues.list(limit=cap, expand=expand)
+    return tracker.queues.list(limit=cap, next=next_, expand=expand)
 
 
 @app.command()

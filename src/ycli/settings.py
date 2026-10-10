@@ -134,14 +134,13 @@ class HTTPConfig(BaseModel):
     max_wait_seconds: PositiveFloat = 1380.0
 
     def cap(self, limit: int | None, *, all_: bool = False) -> int | None:
-        """A listing's item cap from a ``limit`` option and the CLI's ``--all`` flag.
+        """A listing's item cap from ``limit`` and "everything", on the CLI and in a tool alike.
 
-        ``--all`` uncaps (``None``); a given ``limit`` wins; otherwise ``max_items``. The MCP
-        surface has no ``--all``, so it is always capped.
+        "Everything" uncaps (``None``); a given ``limit`` wins; otherwise ``max_items``.
 
         Args:
             limit: The ``--limit`` option or a tool's ``limit``; ``None`` when not given.
-            all_: The CLI's ``--all`` flag.
+            all_: The CLI's ``--all`` flag, or a tool's ``all``.
 
         Returns:
             The most items to fetch, or ``None`` for no cap.

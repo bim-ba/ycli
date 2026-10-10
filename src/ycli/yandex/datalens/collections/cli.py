@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.collections.models import (
     Collection,
@@ -65,6 +66,7 @@ def content_list(
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     filter_string: Annotated[
         str | None, typer.Option("--filter-string", help="Keep the items whose title has this.")
     ] = None,
@@ -84,12 +86,13 @@ def content_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[ContentItem]:
+) -> Listing[ContentItem]:
     """List what a collection holds: collections, workbooks and entries (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.collections.content_list(
         collection_id,
         limit=cap,
+        next=next_,
         filter_string=filter_string,
         order_field=order_field,
         order_direction=order_direction,
@@ -123,6 +126,7 @@ def access_bindings_list(
     collection_id: CollectionIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     get_inherited_bindings: Annotated[
         bool | None,
         typer.Option(
@@ -133,11 +137,11 @@ def access_bindings_list(
     *,
     config: AppConfig,
     datalens: DataLensClient,
-) -> ItemList[SubjectWithBindings]:
+) -> Listing[SubjectWithBindings]:
     """List who has which role on a collection (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return datalens.collections.access_bindings_list(
-        collection_id, limit=cap, get_inherited_bindings=get_inherited_bindings
+        collection_id, limit=cap, next=next_, get_inherited_bindings=get_inherited_bindings
     )
 
 

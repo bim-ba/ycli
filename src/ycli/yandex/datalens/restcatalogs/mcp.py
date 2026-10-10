@@ -11,6 +11,8 @@ from ycli.yandex.datalens.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     PermissionsInfo,
     app_config,
     datalens_client,
@@ -22,7 +24,7 @@ from ycli.yandex.datalens.restcatalogs.models import (
     RestCatalogBucketSettings,
     RestCatalogSortField,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import Listed
 
 mcp = new_server("datalens-restcatalogs")
 
@@ -44,9 +46,11 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max catalogs to return; {LIMIT_CAP}")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: DataLensClient = Depends(datalens_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[RestCatalog]:
+) -> Listed[RestCatalog]:
     """The REST catalogs of the DataLens instance, auto-paginated.
 
     Experimental in the DataLens API. An instance with none answers an empty list.
@@ -57,8 +61,9 @@ def list_(
         sort_by=sort_by,
         reverse_order=reverse_order,
         include_permissions=include_permissions,
-        limit=config.http.cap(limit),
-    )
+        limit=config.http.cap(limit, all_=all),
+        next=next,
+    ).collect()
 
 
 @mcp.tool(

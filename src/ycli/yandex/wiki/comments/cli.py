@@ -4,8 +4,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
@@ -25,6 +26,7 @@ def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     order_by: Annotated[
         str | None, typer.Option("--order-by", help="Sort field: created_at.")
     ] = None,
@@ -39,12 +41,13 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[Comment]:
+) -> Listing[Comment]:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.comments.list(
         page_id=page_id,
         limit=cap,
+        next=next_,
         order_by=order_by,
         order_direction=order_direction,
         status_filter=status_filter,
@@ -76,17 +79,18 @@ def thread_get(
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ItemList[Comment]:
+) -> Listing[Comment]:
     """Print what the server returns as the thread of COMMENT_ID (GET .../comments/{id}/thread).
 
     The server answers an empty list for every real thread (checked 2026-10-02); use `thread-list`,
     which rebuilds it from the comment list.
     """
     cap = config.http.cap(limit, all_=all_)
-    return wiki.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
+    return wiki.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap, next=next_)
 
 
 @app.command()

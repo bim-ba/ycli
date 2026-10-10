@@ -6,13 +6,11 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.datalens.collections import endpoints
-from ycli.yandex.datalens.collections.models import ContentItem
-from ycli.yandex.datalens.models import SubjectWithBindings
-from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.datalens.collections.models import (
         Collection,
         CollectionBreadcrumb,
@@ -20,11 +18,17 @@ if TYPE_CHECKING:
         CollectionDetails,
         CollectionsDeleted,
         CollectionsMoved,
+        ContentItem,
         ContentMode,
         RootPermissions,
     )
-    from ycli.yandex.datalens.models import AccessBindingDelta, Operation, OrderField
-    from ycli.yandex.models import SortDirection
+    from ycli.yandex.datalens.models import (
+        AccessBindingDelta,
+        Operation,
+        OrderField,
+        SubjectWithBindings,
+    )
+    from ycli.yandex.models import ItemList, SortDirection
 
 
 class CollectionsClient(Resource):
@@ -71,13 +75,14 @@ class CollectionsClient(Resource):
         collection_id: str | None = None,
         *,
         limit: int | None = None,
+        next: str | None = None,
         filter_string: str | None = None,
         order_field: OrderField | None = None,
         order_direction: SortDirection | None = None,
         only_my: bool | None = None,
         mode: ContentMode | None = None,
         include_permissions_info: bool | None = None,
-    ) -> ItemList[ContentItem]:
+    ) -> Listing[ContentItem]:
         """``getCollectionContent`` → what a collection holds, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every item).
@@ -85,6 +90,8 @@ class CollectionsClient(Resource):
         Args:
             collection_id: The collection's id; the root when left out.
             limit: The most items to return; ``None`` returns every item.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             filter_string: Keep the items whose title has this text.
             order_field: What to sort by: ``title``, ``createdAt`` or ``updatedAt``.
             order_direction: The sort direction: ``asc`` or ``desc``.
@@ -97,7 +104,9 @@ class CollectionsClient(Resource):
             The collections, workbooks and entries of the collection.
 
         Examples:
-            >>> items = datalens.collections.content_list("col00000000001", limit=45).root
+            >>> items = (
+            ...     datalens.collections.content_list("col00000000001", limit=45).collect().items
+            ... )
             >>> [item.title for item in items]
             ['Reports', 'Q1']
         """
@@ -110,7 +119,7 @@ class CollectionsClient(Resource):
             mode=mode,
             include_permissions_info=include_permissions_info,
         )
-        return ItemList[ContentItem](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def breadcrumbs_list(
         self, collection_id: str, *, include_permissions_info: bool | None = None
@@ -152,8 +161,9 @@ class CollectionsClient(Resource):
         collection_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         get_inherited_bindings: bool | None = None,
-    ) -> ItemList[SubjectWithBindings]:
+    ) -> Listing[SubjectWithBindings]:
         """``listCollectionAccessBindings`` → who has which role, draining ``nextPageToken``.
 
         Capped at ``limit`` (``None`` = every subject).
@@ -161,20 +171,24 @@ class CollectionsClient(Resource):
         Args:
             collection_id: The collection's id.
             limit: The most subjects to return; ``None`` returns every subject.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             get_inherited_bindings: Also list the roles inherited from the collections above.
 
         Returns:
             The subjects with their roles.
 
         Examples:
-            >>> subjects = datalens.collections.access_bindings_list("col00000000001").root
+            >>> subjects = (
+            ...     datalens.collections.access_bindings_list("col00000000001").collect().items
+            ... )
             >>> subjects[0].access_bindings[0].role_id
             'datalens.collections.editor'
         """
         paged = endpoints.access_bindings_list(
             collection_id, get_inherited_bindings=get_inherited_bindings
         )
-        return ItemList[SubjectWithBindings](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(
         self, *, title: str, parent_id: str | None = None, description: str | None = None

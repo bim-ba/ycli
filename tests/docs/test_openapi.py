@@ -162,7 +162,9 @@ def test_parameters_take_the_type_of_the_sdk_argument_or_of_the_value_sent():
     assert (listing["limit"], listing["offset"]) == ({}, {})
     assert listing["published"] == {"type": "boolean"}  # ``published: bool | None``
     comments = _operations("tracker")[("GET", "/issues/{issue_key}/comments")]["parameters"]
-    assert {"name": "perPage", "in": "query", "schema": {"type": "integer"}} in comments
+    assert {"name": "expand", "in": "query", "schema": {"type": "string"}} in comments
+    # The size of a page is the pager's too since #559: the operation gives only its own.
+    assert {"name": "perPage", "in": "query", "schema": {}} in comments
 
 
 @pytest.mark.parametrize(("service", "at_least"), [("tracker", 62), ("wiki", 35), ("forms", 31)])

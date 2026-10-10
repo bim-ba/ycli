@@ -13,6 +13,7 @@ from ycli.yandex.wiki.comments.models import Comment, CommentCreate
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.core.listing import Listing
     from ycli.yandex.wiki.comments.models import CommentCreated, CommentDeleteResult
 
 
@@ -24,10 +25,11 @@ class CommentsClient(Resource):
         page_id: int,
         *,
         limit: int | None = None,
+        next: str | None = None,
         order_by: str | None = None,
         order_direction: str | None = None,
         status_filter: str | None = None,
-    ) -> ItemList[Comment]:
+    ) -> Listing[Comment]:
         """``GET /pages/{id}/comments`` → flat ``ItemList[Comment]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every comment).
@@ -35,6 +37,8 @@ class CommentsClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most comments to return; ``None`` returns every comment.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             order_by: The sort field; the API accepts ``created_at``.
             order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
             status_filter: Keep only ``resolved`` or only ``unresolved`` comments.
@@ -43,13 +47,13 @@ class CommentsClient(Resource):
             The page's comments.
 
         Examples:
-            >>> [comment.author for comment in wiki.comments.list(5501, limit=45).root]
+            >>> [comment.author for comment in wiki.comments.list(5501, limit=45)]
             ['Vera', 'Ivan']
         """
         paged = endpoints.list_(
             page_id, order_by=order_by, order_direction=order_direction, status_filter=status_filter
         )
-        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def thread_list(
         self, page_id: int, comment_id: int, *, limit: int | None = None
@@ -80,7 +84,7 @@ class CommentsClient(Resource):
             ... ]
             ['Ship it?', 'Agreed']
         """
-        comments = self.list(page_id=page_id).root
+        comments = list(self.list(page_id=page_id))
         return self._collect_thread(comments, comment_id, limit=limit)
 
     @staticmethod
@@ -137,8 +141,8 @@ class CommentsClient(Resource):
 
     # violation(naming): the thread of one comment is one object, its comments are the list
     def thread_get(
-        self, page_id: int, comment_id: int, *, limit: int | None = None
-    ) -> ItemList[Comment]:
+        self, page_id: int, comment_id: int, *, limit: int | None = None, next: str | None = None
+    ) -> Listing[Comment]:
         """``GET /pages/{id}/comments/{comment_id}/thread`` → what the server calls the thread.
 
         Checked live on 2026-10-02: the endpoint answers ``{"results": []}`` for a root comment
@@ -150,16 +154,18 @@ class CommentsClient(Resource):
             page_id: The page's id.
             comment_id: The comment's id.
             limit: The most comments to return; ``None`` returns everything.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
 
         Returns:
             The thread's comments.
 
         Examples:
-            >>> wiki.comments.thread_get(5508, 5512).root
+            >>> wiki.comments.thread_get(5508, 5512).collect().items
             []
         """
         paged = endpoints.thread_get(page_id, comment_id)
-        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
+        return self._session.iterate(paged, limit=limit, next=next)
 
     def create(self, page_id: int, body: CommentCreate) -> CommentCreated:
         """``POST /pages/{id}/comments`` — add a comment; returns a :class:`CommentCreated`.

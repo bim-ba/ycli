@@ -23,10 +23,22 @@ ycli has no filter of its own: pipe the JSON to [jq](https://jqlang.org).
 
 ```bash
 ycli tracker issues get TRACKER-1 -o json | jq -r .summary
-ycli tracker issues search 'Queue: TEST' -o json | jq -r '.[].key'
+ycli tracker issues search 'Queue: TEST' -o json | jq -r '.items[].key'
 ```
 
 `-o json` makes the format explicit; without it a pipe gets JSON anyway.
+
+## Take a long listing in pieces
+
+A listing stops at 500 items unless told otherwise. `--limit N` takes the first N, `--all` takes everything, and `--next` goes on from where a run stopped. `-o json` and `-o yaml` print what the MCP tool and the SDK give: `{items, truncated, next, total}`, so a script takes the token with `jq -r .next`. A table (`-o pretty`) prints the rows, and where it stopped goes to stderr, ready to paste. The line says that the run stopped at its limit, not that more is left: only the next run can tell, and it may give nothing.
+
+```console
+$ ycli tracker issues search 'Queue: DE' --limit 100 > first.json
+stopped at 100 of 752; go on with: ycli tracker issues search 'Queue: DE' --next eyJ2IjoxLCJvZiI6…  (or --all)
+$ ycli tracker issues search 'Queue: DE' --limit 100 --next eyJ2IjoxLCJvZiI6… > second.json
+```
+
+A token carries its listing: with `--next`, give nothing but the limit and what the command cannot be called without, and that as it was: an argument that differs from the token's is refused by its name, never passed over. A token of a Tracker issue search by a scroll (`--scroll-type`) works once; any other token works again. A listing that can no longer go on exits with `9`: start it again without the token. A run that asks more pages than `YCLI__HTTP__MAX_PAGES` stops there and says so the same way, with a token to go on from.
 
 ## Delete without a prompt
 

@@ -118,7 +118,7 @@ guessing:
   active statuses are `backlog` / `inProgress` / `inReview` / `blockedGoal` / `onHold`,
   none of which match `--status open`. For "all active", drop the `--status` filter and
   post-filter with `jq`, e.g.
-  `jq '.[] | select(.status.key != "closed" and .status.key != "cancelled")'`. If a
+  `jq '.items[] | select(.status.key != "closed" and .status.key != "cancelled")'`. If a
   query you expect to return many returns 1, suspect filter semantics.
 - **`linktypes list`** shows every link type Tracker recognises for reading — not
   whether each is creatable via `POST /links`.

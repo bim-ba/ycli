@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from e2e.models import Scenario
-from e2e.runner import CommandResult, Driver, ScenarioError, run_scenario, scrub, search
+from e2e.runner import CommandResult, Driver, ScenarioError, items, run_scenario, scrub, search
 from e2e.settings import OPTIONAL_VARIABLES, optional_variables
 
 if TYPE_CHECKING:
@@ -341,3 +341,11 @@ def test_a_failed_cleanup_prints_the_name_too(capsys):
     ):
         run_scenario(scenario, _Refusing(), {})
     assert "ivan.petrov" not in capsys.readouterr().err
+
+
+def test_a_listing_is_read_as_its_items_and_any_other_document_as_it_is():
+    listing = {"items": [{"id": 1}], "truncated": True, "next": "t", "total": None}
+    assert items(listing) == [{"id": 1}]
+    # An object that only has a field called `items` is no listing.
+    assert items({"items": [1], "name": "form"}) == {"items": [1], "name": "form"}
+    assert items([1, 2]) == [1, 2]

@@ -13,15 +13,18 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, Listed
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
     AddToFollowers,
+    All,
     Expand,
+    Next,
     Notify,
     NotifyAuthor,
     ReplyFields,
@@ -103,15 +106,22 @@ def search(
     fields: Annotated[
         str | None, Field(description="Comma-separated extra fields to include.")
     ] = None,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max entities to return; {LIMIT_CAP}")
+    ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
-) -> ItemList[Entity]:
+    config: AppConfig = Depends(app_config),
+) -> Listed[Entity]:
     """Entities of a given type that match a name substring and a filter, sorted server-side.
 
-    Returns a flat list of entities. ``body.input`` matches part of the name, ``body.filter``
-    is a field → value object (author, status, followers, …), ``body.orderBy`` with
+    Returns the entities, and whether there are more. ``body.input`` matches part of the name,
+    ``body.filter`` is a field → value object (author, status, followers, …), ``body.orderBy`` with
     ``body.orderAsc`` sorts, and ``body.rootOnly`` keeps the entities with no parent.
     """
-    return client.entities.search(entity_type, body, fields=fields)
+    cap = config.http.cap(limit, all_=all)
+    return client.entities.search(entity_type, body, fields=fields, limit=cap, next=next).collect()
 
 
 @mcp.tool(
@@ -124,6 +134,8 @@ def events_list(
     limit: Annotated[
         int | None, Field(ge=1, description="Max events (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     selected: Annotated[
         str | None,
         Field(description="Event id to build the list around, instead of from the start."),
@@ -134,21 +146,22 @@ def events_list(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[EntityEvent]:
+) -> Listed[EntityEvent]:
     """An entity's event history (created/updated/commented/…), auto-paginated.
 
     Each event carries an author, a timestamp, a display title and the individual field changes.
     Capped at the configured item cap unless ``limit`` is given.
     """
-    cap = config.http.cap(limit)
+    cap = config.http.cap(limit, all_=all)
     return client.entities.events_list(
         entity_type,
         entity_id,
         limit=cap,
+        next=next,
         selected=selected,
         new_events_on_top=new_events_on_top,
         direction=direction,
-    )
+    ).collect()
 
 
 @mcp.tool(
@@ -288,16 +301,20 @@ def comments_list_relative(
     limit: Annotated[
         int | None, Field(ge=1, description="Max comments (omitted: the configured cap).")
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> ItemList[Comment]:
+) -> Listed[Comment]:
     """An entity's comments via the cursor-paginated ``…/comments/_relative`` endpoint.
 
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
     pages up to ``limit`` (the configured item cap by default).
     """
-    cap = config.http.cap(limit)
-    return client.entities.comments_list_relative(entity_type, entity_id, limit=cap)
+    cap = config.http.cap(limit, all_=all)
+    return client.entities.comments_list_relative(
+        entity_type, entity_id, limit=cap, next=next
+    ).collect()
 
 
 @mcp.tool(name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"})

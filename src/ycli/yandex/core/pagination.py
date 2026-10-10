@@ -106,9 +106,11 @@ class OffsetLimitPagination(Pagination):
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
         """The next offset, or ``None`` after a page shorter than ``page_size``."""
-        if len(items) < self.page_size:
+        # The size that was asked for is the request's: a token may go on with another.
+        size = int(request.url.params[self.limit_param])
+        if len(items) < size:
             return None
-        offset = int(request.url.params[self.offset_param]) + self.page_size
+        offset = int(request.url.params[self.offset_param]) + size
         return _with_params(request, {self.offset_param: offset})
 
 
@@ -135,7 +137,9 @@ class PageNumberPagination(Pagination):
         """The next page number, or ``None`` after the last page."""
         page = int(request.url.params[self.page_param])
         total = response.headers.get(self.total_pages_header) if self.total_pages_header else None
-        last = page >= int(total) if total is not None else len(items) < self.page_size
+        # The size that was asked for is the request's: a token may go on with another.
+        size = int(request.url.params[self.size_param])
+        last = page >= int(total) if total is not None else len(items) < size
         return None if last else _with_params(request, {self.page_param: page + 1})
 
 
@@ -252,11 +256,20 @@ class NextURLPagination(Pagination):
     ``query_only`` carries just the link's query over onto the current request, for an API
     whose links point at a path that does not answer: Forms prints answers links under a
     retired ``/v3/`` route. The request's own parameters (its filters) stay, and the link's
-    override them.
+    override them. ``page_size``, when given, is sent with the first page as ``size_param``;
+    the pages after it are the link's, which may name another size.
     """
 
     url_of: Callable[[httpx2.Response], str | None]
     query_only: bool = False
+    page_size: int | None = None
+    size_param: str = "page_size"
+
+    def first(self, request: httpx2.Request) -> httpx2.Request:
+        """The endpoint's own request, with the page size when one is set."""
+        if self.page_size is None:
+            return request
+        return _with_params(request, {self.size_param: self.page_size})
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
@@ -273,10 +286,22 @@ class NextURLPagination(Pagination):
 
 @dataclass(frozen=True)
 class RelativeIDPagination(Pagination):
-    """``?id=<last item's id>`` (Tracker ``_relative`` listings, worklog)."""
+    """``?id=<last item's id>`` (Tracker ``_relative`` listings, worklog).
+
+    ``page_size``, when given, is sent with every page as ``size_param``: the size of a page
+    is the pagination's to say, so the request of the operation holds only what its caller gave.
+    """
 
     id_of: Callable[[Any], str | None]
     id_param: str = "id"
+    page_size: int | None = None
+    size_param: str = "perPage"
+
+    def first(self, request: httpx2.Request) -> httpx2.Request:
+        """The endpoint's own request, with the page size when one is set."""
+        if self.page_size is None:
+            return request
+        return _with_params(request, {self.size_param: self.page_size})
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
