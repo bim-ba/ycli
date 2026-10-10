@@ -34,9 +34,11 @@ Examples:
 
 from __future__ import annotations
 
+import copy
 import logging
 import math
 import time
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 import httpx2
@@ -190,6 +192,33 @@ def _ended(walk: Walk, pages: int, max_pages: int) -> None:
         walk.cut()
 
 
+def _timed(request: httpx2.Request, timeout_seconds: float | None) -> None:
+    """Give ``request`` a timeout of its own, where the session was given one for its calls."""
+    if timeout_seconds is not None:
+        request.extensions["timeout"] = httpx2.Timeout(timeout_seconds).as_dict()
+
+
+def _with_options[S: (SyncSession, AsyncSession)](
+    session: S, *, timeout_seconds: float | None, retries: int | None, dry_run: bool | None
+) -> S:
+    """A copy of ``session`` over the same client, with the options that were given."""
+    # Here and not above: the guard masks a URL with this module's `shown`, so it imports it.
+    from ycli.yandex.core.guard import Guard
+
+    other = copy.copy(session)
+    given = {"timeout_seconds": timeout_seconds, "retries": retries}
+    changed = {name: value for name, value in given.items() if value is not None}
+    # Validated like the configuration it stands in for: no negative retries, no zero timeout.
+    other._http = HTTPConfig.model_validate({**session._http.model_dump(), **changed})
+    other._attempts = other._http.retries + 1
+    other._timeout_seconds = (
+        session._timeout_seconds if timeout_seconds is None else timeout_seconds
+    )
+    if dry_run is not None:
+        other._guard = replace(session._guard or Guard(), dry_run=dry_run)
+    return other
+
+
 def _first_page(paged: Paged, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
     """The request for a listing's first page; it and the pages after it carry ``paged``."""
     request = paged.pagination.first(paged.endpoint.request(client))
@@ -216,6 +245,8 @@ class SyncSession:
         self._attempts = self._http.retries + 1
         self._before_send = before_send
         self._guard = guard
+        #: The timeout of each request where it is not the client's own (:meth:`with_options`).
+        self._timeout_seconds: float | None = None
 
     def _send(
         self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
@@ -234,6 +265,7 @@ class SyncSession:
                 _log_retry(request, attempt.num, self._attempts)
                 started = time.perf_counter()
                 try:
+                    _timed(request, self._timeout_seconds)
                     response = self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
                     url = shown(request.url)
@@ -303,6 +335,31 @@ class SyncSession:
 
         return Listing(walk, pages)
 
+    def with_options(
+        self,
+        *,
+        timeout_seconds: float | None = None,
+        retries: int | None = None,
+        dry_run: bool | None = None,
+    ) -> SyncSession:
+        """This session with other options for the calls made through what is returned.
+
+        The connection pool is this session's own: nothing is opened, and closing either
+        closes both.
+
+        Args:
+            timeout_seconds: The timeout of each request; ``None`` keeps this session's.
+            retries: How many times an idempotent request is tried again; ``None`` keeps it.
+            dry_run: Whether a write is stopped and shown in place of being sent; ``None``
+                keeps what this session does.
+
+        Returns:
+            A session over the same connections, with the options given.
+        """
+        return _with_options(
+            self, timeout_seconds=timeout_seconds, retries=retries, dry_run=dry_run
+        )
+
     def way_of(self, token: str) -> str:
         """How the operation that gave ``token`` pages: the name of its pagination.
 
@@ -350,6 +407,8 @@ class AsyncSession:
         self._attempts = self._http.retries + 1
         self._before_send = before_send
         self._guard = guard
+        #: The timeout of each request where it is not the client's own (:meth:`with_options`).
+        self._timeout_seconds: float | None = None
 
     async def _send(
         self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
@@ -368,6 +427,7 @@ class AsyncSession:
                 _log_retry(request, attempt.num, self._attempts)
                 started = time.perf_counter()
                 try:
+                    _timed(request, self._timeout_seconds)
                     response = await self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
                     url = shown(request.url)
@@ -437,6 +497,31 @@ class AsyncSession:
             _ended(walk, asked, self._http.max_pages)
 
         return AsyncListing(walk, pages)
+
+    def with_options(
+        self,
+        *,
+        timeout_seconds: float | None = None,
+        retries: int | None = None,
+        dry_run: bool | None = None,
+    ) -> AsyncSession:
+        """This session with other options for the calls made through what is returned.
+
+        The connection pool is this session's own: nothing is opened, and closing either
+        closes both.
+
+        Args:
+            timeout_seconds: The timeout of each request; ``None`` keeps this session's.
+            retries: How many times an idempotent request is tried again; ``None`` keeps it.
+            dry_run: Whether a write is stopped and shown in place of being sent; ``None``
+                keeps what this session does.
+
+        Returns:
+            A session over the same connections, with the options given.
+        """
+        return _with_options(
+            self, timeout_seconds=timeout_seconds, retries=retries, dry_run=dry_run
+        )
 
     def way_of(self, token: str) -> str:
         """How the operation that gave ``token`` pages: the name of its pagination.

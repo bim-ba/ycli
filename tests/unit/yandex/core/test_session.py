@@ -11,6 +11,7 @@ from tests.mock_api import MockAPI
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION, Endpoint, Paged
+from ycli.yandex.core.guard import RequestPlanned
 from ycli.yandex.core.pagination import CursorPagination, PageNumberPagination
 from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import (
@@ -481,3 +482,23 @@ def test_a_session_is_given_its_organization_as_a_header_and_an_id_or_not_at_all
         AsyncSession(httpx2.AsyncClient(), organization=organization)
     assert SyncSession(client, organization="X-Org-Id: o 7/x")  # any id, under a header's name
     assert SyncSession(client)  # a service that names none
+
+
+async def test_an_asynchronous_session_takes_the_same_options():
+    api = MockAPI()
+    api.add("DELETE", f"{URL}/1", status=204)
+    api.add("GET", URL, json=[1])
+    session = connect_async(
+        PROFILE,
+        auth=OAuthTokenAuth(SecretStr("t")),
+        http=HTTPConfig(retries=1),
+        transport=api.transport(),
+    )
+    view = session.with_options(timeout_seconds=5, retries=0, dry_run=True)
+    assert view._client is session._client and (view._attempts, session._attempts) == (1, 2)
+    with pytest.raises(RequestPlanned):
+        await view.send(Endpoint(HTTPMethod.DELETE, "items/1"))
+    await view.send(Endpoint(HTTPMethod.GET, "items", list[int]))
+    assert [call.method for call in api.calls] == ["GET"]
+    assert api.calls[0].extensions["timeout"]["connect"] == 5
+    await session.aclose()
