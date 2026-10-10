@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.142.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.141.0
+  ([`ec27827`](https://github.com/bim-ba/ycli/commit/ec278275b0fcb2124ca28f78ff87806fc63af582))
+
+### Features
+
+- **mcp**: Every tool that writes takes `dry_run` and answers the request it would send
+  ([#576](https://github.com/bim-ba/ycli/pull/576),
+  [`8d6b914`](https://github.com/bim-ba/ycli/commit/8d6b914d382e9dc0c2c506a5521a5f1df76f1dd8))
+
+
 ## v0.141.0 (2026-10-10)
 
 ### Build System
