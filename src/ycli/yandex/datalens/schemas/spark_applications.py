@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, KindByOwnField, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class ListSparkApplicationsArgs(RequestBody):
@@ -359,7 +360,9 @@ class CreateSparkApplicationArgsVariant3SparkConnectApplication(APIModel):
 
 
 class SparkApplication(APIModel):
-    id: str | None = Field(default=None, description="ID of the Spark application.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the Spark application."
+    )
     cluster_id: str | None = Field(
         default=None, alias="clusterId", description="ID of the Spark cluster."
     )

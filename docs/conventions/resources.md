@@ -133,8 +133,10 @@ has `get` and `get-by-id`, plain `get` decides), so `ycli … list -o name | xar
 works. `-o name` prints it, and a command whose result has no such field is refused before
 any request. An item of a listing with no identifier of its own stands in `NO_NAME` of
 `tests/architecture/test_names.py` with its reason. The models generated from the DataLens
-specification are not marked yet: their resources will name the identifier where the
-generator reads it.
+specification get the mark from the generator: `_IDENTIFIERS` in
+`scripts/gen_datalens_models.py` names the key of each section of the specification (or
+`_NO_IDENTIFIER` says why it has none), and `_RETURNS_ANOTHER_KIND` the operations whose
+reply holds objects of another kind.
 
 ---
 

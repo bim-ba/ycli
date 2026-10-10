@@ -1,10 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class ListCloudEnvironmentsArgs(RequestBody):
@@ -91,7 +92,9 @@ class UpdateCloudEnvironmentArgsStorage(APIModel):
 
 
 class CloudEnvironment(APIModel):
-    id: str | None = Field(default=None, description="ID of the cloud environment.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the cloud environment."
+    )
     name: str | None = Field(default=None, description="Name of the cloud environment.")
     description: str | None = Field(
         default=None, description="Description of the cloud environment."

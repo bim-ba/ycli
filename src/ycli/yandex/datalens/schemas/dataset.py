@@ -6,6 +6,7 @@ from typing import Annotated, Any, Literal
 from pydantic import AwareDatetime, Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
@@ -2835,7 +2836,7 @@ class DatasetRead(APIModel):
     ctime: str | None = None
     dataset: DatasetContentInternal | None = None
     full_permissions: dict[str, bool] | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     is_favorite: bool | None = None
     key: str | None = None
     mtime: str | None = None

@@ -1,9 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
+from typing import Annotated
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class CreateEntryLockResult(APIModel):
@@ -15,7 +17,7 @@ class CreateEntryLockResult(APIModel):
 
 
 class EntryLock(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="ID of the locked entry."
     )
     lock_id: str | None = Field(

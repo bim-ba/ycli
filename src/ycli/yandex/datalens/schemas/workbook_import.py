@@ -5,12 +5,13 @@ from typing import Annotated, Any
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
 
 class StartWorkbookImportResult(APIModel):
-    import_id: str | None = Field(
+    import_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="importId", description="ID of the started workbook import."
     )
     workbook_id: str | None = Field(
@@ -34,7 +35,7 @@ class StartWorkbookImportArgs(RequestBody):
 
 
 class GetWorkbookImportStatusResult(APIModel):
-    import_id: str | None = Field(
+    import_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="importId", description="ID of the workbook import."
     )
     workbook_id: str | None = Field(

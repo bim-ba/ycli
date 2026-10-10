@@ -1,10 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class EntryScope(
@@ -785,7 +786,9 @@ class ListAccessBindingsResult(APIModel):
 
 
 class LakehouseOperation(APIModel):
-    id: str | None = Field(default=None, description="Unique ID of the operation.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique ID of the operation."
+    )
     description: str | None = Field(default=None, description="Description of the operation.")
     created_at: LakehouseOperationCreatedAt | None = Field(default=None, alias="createdAt")
     created_by: str | None = Field(

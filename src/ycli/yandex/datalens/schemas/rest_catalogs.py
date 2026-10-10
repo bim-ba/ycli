@@ -1,10 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class ListCatalogsArgs(RequestBody):
@@ -149,7 +150,9 @@ class ListCatalogsResultRestCatalogsItemBucket(APIModel):
 
 
 class ListCatalogsResultRestCatalogsItem(APIModel):
-    id: str | None = Field(default=None, description="ID of the REST catalog.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the REST catalog."
+    )
     organization_id: str | None = Field(
         default=None,
         alias="organizationId",

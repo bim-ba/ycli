@@ -1,14 +1,15 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class AccessExtSubjectClaims(APIModel):
-    sub: str | None = Field(default=None, description="Subject identifier.")
+    sub: Annotated[str | None, Identity()] = Field(default=None, description="Subject identifier.")
     sub_type: (
         Literal[
             "SUBJECT_TYPE_UNSPECIFIED",

@@ -18,6 +18,14 @@ from tests.architecture.scanners import GENERATED, SRC
 
 REF = "#/components/schemas/"
 
+_MARK_IDENTIFIERS = gen._mark_identifiers
+
+
+@pytest.fixture(autouse=True)
+def _small_documents_declare_no_identifier(monkeypatch):
+    """The documents of these tests have sections of their own, which the tables do not list."""
+    monkeypatch.setattr(gen, "_mark_identifiers", lambda spec: 0)
+
 
 def _json(schema: dict) -> dict:
     return {"content": {"application/json": {"schema": schema}}}
@@ -955,9 +963,10 @@ def test_the_model_template_is_the_generators_own_but_for_what_ycli_adds():
     changes = [line for line in difflib.ndiff(theirs, ours) if line[:1] in "+-"]
     assert [line[2:] for line in changes if line[0] == "-"] == ["    {{ description }}"]
     added = [line[2:].strip() for line in changes if line[0] == "+"]
-    assert len(added) == 9
-    assert sum(line.startswith("{#- ycli:") for line in added) == 2
+    assert len(added) == 14
+    assert sum(line.startswith("{#- ycli:") for line in added) == 3
     assert sum("Annotated[{{ field.type_hint }}, NoDropNull()]" in line for line in added) == 2
+    assert sum("Annotated[{{ field.type_hint }}, Identity()]" in line for line in added) == 2
 
 
 def test_the_root_model_template_is_the_generators_own_but_for_what_ycli_adds():
@@ -1144,3 +1153,142 @@ def test_the_marked_classes_of_the_layer_are_its_unions_of_request_envelopes():
                 unions.add(name)
     assert marked == unions
     assert {"CreateSparkApplicationArgs", "UpdateHtmlPageArgs"} <= marked
+
+
+def _named_document() -> dict:
+    """Two sections: things are read by ``thingId``; a part lists parts of a thing."""
+    thing = {"type": "object", "properties": {"thingId": _text(), "title": _text()}}
+    part = {"type": "object", "properties": {"partId": _text(), "thingId": _text()}}
+    paths = {
+        "/rpc/getThing": {"post": {"tags": ["Things"], "responses": {"200": _json(thing)}}},
+        "/rpc/getThingParts": {
+            "post": {
+                "tags": ["Things"],
+                "responses": {
+                    "200": _json(
+                        {
+                            "type": "object",
+                            "properties": {"parts": {"type": "array", "items": part}},
+                        }
+                    )
+                },
+            }
+        },
+        "/rpc/getStatus": {
+            "post": {
+                "tags": ["Status"],
+                "responses": {"200": _json({"type": "object", "properties": {"ok": _text()}})},
+            }
+        },
+    }
+    return {"openapi": "3.1.0", "paths": paths, "components": {"schemas": {}}}
+
+
+def _declare(monkeypatch, identifiers: dict, nothing: dict, another: dict) -> None:
+    monkeypatch.setattr(gen, "_mark_identifiers", _MARK_IDENTIFIERS)
+    monkeypatch.setattr(gen, "_IDENTIFIERS", identifiers)
+    monkeypatch.setattr(gen, "_NO_IDENTIFIER", nothing)
+    monkeypatch.setattr(gen, "_RETURNS_ANOTHER_KIND", another)
+
+
+def test_the_field_that_names_an_object_is_marked_by_its_section_or_its_operation(monkeypatch):
+    _declare(
+        monkeypatch, {"Things": "thingId"}, {"Status": "no object"}, {"getThingParts": "partId"}
+    )
+    schemas = gen.prepare(_named_document())["components"]["schemas"]
+    named = {
+        (name, key)
+        for name, schema in schemas.items()
+        for key, field in (schema.get("properties") or {}).items()
+        if isinstance(field, dict) and field.get(gen._NAMES)
+    }
+    # A part carries the key of its thing too: the operation says it is named by its own.
+    assert named == {
+        ("things.GetThingResponse", "thingId"),
+        ("things.GetThingPartsResponsePartsItem", "partId"),
+    }
+    module = gen.generate(_named_document())["things.py"]
+    assert "thing_id: Annotated[str | None, Identity()] = Field(" in module
+    assert "part_id: Annotated[str | None, Identity()] = Field(" in module
+    assert "x-ycli" not in module and gen.foreign(module) == []
+
+
+def test_only_a_row_of_a_reply_is_marked_not_what_lies_inside_it(monkeypatch):
+    """A field of the object that holds the same key is read by no command: it has no mark."""
+    document = _named_document()
+    owner = {"type": "object", "properties": {"thingId": _text(), "name": _text()}}
+    reply = document["paths"]["/rpc/getThing"]["post"]["responses"]["200"]
+    reply["content"]["application/json"]["schema"]["properties"]["owner"] = owner
+    _declare(monkeypatch, {"Things": "thingId"}, {"Status": "no object"}, {"getThingParts": None})
+    schemas = gen.prepare(document)["components"]["schemas"]
+    marked = {
+        name
+        for name, schema in schemas.items()
+        for field in (schema.get("properties") or {}).values()
+        if isinstance(field, dict) and field.get(gen._NAMES)
+    }
+    assert marked == {"things.GetThingResponse"}
+    assert "thingId" in schemas["things.GetThingResponseOwner"]["properties"]
+
+
+def test_an_operation_that_returns_several_kinds_names_none(monkeypatch):
+    _declare(monkeypatch, {"Things": "thingId"}, {"Status": "no object"}, {"getThingParts": None})
+    schemas = gen.prepare(_named_document())["components"]["schemas"]
+    part = schemas["things.GetThingPartsResponsePartsItem"]["properties"]
+    assert not any(field.get(gen._NAMES) for field in part.values())
+
+
+@pytest.mark.parametrize(
+    ("identifiers", "nothing", "another", "said"),
+    [
+        ({"Things": "thingId"}, {}, {}, "neither ['Status']"),
+        ({"Things": "thingId", "Status": "ok"}, {"Status": "no object"}, {}, "both ['Status']"),
+        ({"Things": "thingId"}, {"Status": "x", "Gone": "x"}, {}, "no such section ['Gone']"),
+        (
+            {"Things": "thingId"},
+            {"Status": "x"},
+            {"getGone": "id"},
+            "no such operation ['getGone']",
+        ),
+        (
+            {"Things": "noSuchKey"},
+            {"Status": "x"},
+            {},
+            "no reply schema has the key declared for: ['Things']",
+        ),
+        (
+            {"Things": "thingId"},
+            {"Status": "x"},
+            {"getThingParts": "noSuchKey"},
+            "['getThingParts']",
+        ),
+    ],
+)
+def test_a_declaration_the_specification_does_not_bear_out_stops_the_run(
+    monkeypatch, identifiers, nothing, another, said
+):
+    _declare(monkeypatch, identifiers, nothing, another)
+    with pytest.raises(SystemExit) as stopped:
+        gen.prepare(_named_document())
+    assert said in str(stopped.value)
+
+
+def test_a_schema_two_sections_would_name_differently_stops_the_run(monkeypatch):
+    document = _named_document()
+    both = {"type": "object", "properties": {"thingId": _text(), "statusId": _text()}}
+    document["components"]["schemas"]["Shared"] = both
+    ref = {"$ref": "#/components/schemas/Shared"}
+    document["paths"]["/rpc/getThing"]["post"]["responses"]["200"] = _json(ref)
+    document["paths"]["/rpc/getStatus"]["post"]["responses"]["200"] = _json(ref)
+    _declare(monkeypatch, {"Things": "thingId", "Status": "statusId"}, {}, {})
+    with pytest.raises(SystemExit, match="would be named by two keys"):
+        gen.prepare(document)
+
+
+def test_every_section_of_the_published_names_declares_its_identifier_once():
+    """The tables and the snapshot of what DataLens publishes agree, both ways."""
+    snapshot = gen.ROOT / "scripts" / "api_snapshot" / "datalens.json"
+    published = {operation["group"] for operation in json.loads(snapshot.read_text())}
+    declared = gen._IDENTIFIERS.keys() | gen._NO_IDENTIFIER.keys()
+    assert declared == published
+    assert not gen._IDENTIFIERS.keys() & gen._NO_IDENTIFIER.keys()

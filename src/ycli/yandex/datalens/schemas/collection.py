@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
@@ -20,7 +21,7 @@ class CreateCollectionArgs(RequestBody):
 
 
 class Collection(APIModel):
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="collectionId",
         description="Unique identifier of the collection.",
@@ -479,7 +480,7 @@ class GetStructureItemsResultItemsItemVariant2Permissions(APIModel):
 
 
 class CreateCollectionResult(APIModel):
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="collectionId",
         description="Unique identifier of the collection.",
@@ -517,7 +518,7 @@ class CreateCollectionResult(APIModel):
 
 
 class GetCollectionResult(APIModel):
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="collectionId",
         description="Unique identifier of the collection.",
@@ -597,7 +598,7 @@ class StructureItemEntry(APIModel):
 
 
 class GetCollectionBreadcrumbsResultItem(APIModel):
-    collection_id: str | None = Field(
+    collection_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="collectionId",
         description="Unique identifier of the collection.",

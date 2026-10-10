@@ -5,12 +5,13 @@ from typing import Annotated, Literal
 from pydantic import AwareDatetime, Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
 
 class AuditEntry(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Unique identifier of the entry"
     )
     key: Annotated[str | None, NoDropNull()] = Field(

@@ -1,9 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
+from typing import Annotated
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class EmbedSettings(APIModel):
@@ -15,7 +17,7 @@ class EmbedSettings(APIModel):
 
 
 class Embed(APIModel):
-    embed_id: str | None = Field(
+    embed_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="embedId", description="Unique identifier of the embedding."
     )
     title: str | None = Field(default=None, description="Name of the embedding.")
@@ -106,7 +108,7 @@ class ListEmbedsArgs(RequestBody):
 
 
 class DeleteEmbedResult(APIModel):
-    embed_id: str | None = Field(
+    embed_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="embedId", description="ID of the deleted embedding."
     )
 

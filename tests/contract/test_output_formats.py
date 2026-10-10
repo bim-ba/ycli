@@ -157,6 +157,8 @@ def test_the_header_is_the_same_for_an_empty_listing_as_for_a_full_one(
 #: Operations with a case whose reply leaves out the field that names the item: ``-o name``
 #: says so and prints nothing, so a script does not act on fewer objects than were listed.
 SPARSE = {
+    "datalens.datasets.update",
+    "datalens.datasets.validate",
     "forms.filling.submit",
     "tracker.boards.list",
     "tracker.comments.list",
@@ -217,3 +219,27 @@ def test_name_prints_one_identifier_for_each_item_or_refuses_before_any_request(
     for name, item in zip(names, items, strict=True):
         own = item.values() if isinstance(item, dict) else [item]
         assert name in {value if isinstance(value, str) else json.dumps(value) for value in own}
+
+
+def test_what_lies_in_a_workbook_is_named_by_its_own_id_not_by_the_workbook(monkeypatch):
+    """Under the section's key alone every line was the id of the workbook asked for.
+
+    The same holds for the two other listings whose items are of another kind than their
+    section: ``collections content-list`` is refused, ``entries revisions-list`` prints
+    revisions.
+    """
+    case = _first("datalens.workbooks.entries_list")
+    assert case.cli is not None
+    workbook = case.cli[3]
+    result, _ = _named(case, monkeypatch)
+    names = result.stdout.split()
+    assert names == ["ent00000000001", "ent00000000002"]
+    assert workbook not in names and len(set(names)) == len(names)
+
+    refused, api = _named(_first("datalens.collections.content_list"), monkeypatch)
+    assert refused.exit_code == 2 and api.calls == []
+    revisions, _ = _named(_first("datalens.entries.revisions_list"), monkeypatch)
+    listed = _items(
+        json.loads(_printed(_first("datalens.entries.revisions_list"), "json", monkeypatch))
+    )
+    assert revisions.stdout.split() == [item["revId"] for item in listed]

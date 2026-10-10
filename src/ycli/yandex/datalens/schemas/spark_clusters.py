@@ -1,10 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class ListSparkClustersArgs(RequestBody):
@@ -46,7 +47,9 @@ class StopSparkClusterArgs(RequestBody):
 
 
 class SparkResourcePreset(APIModel):
-    id: str | None = Field(default=None, description="ID of the resource preset.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the resource preset."
+    )
     cores: str | None = Field(
         default=None,
         description="Number of CPU cores for an instance created with the preset.",
@@ -376,7 +379,9 @@ class CreateSparkClusterArgsConfig(APIModel):
 
 
 class SparkCluster(APIModel):
-    id: str | None = Field(default=None, description="ID of the Spark cluster.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the Spark cluster."
+    )
     cluster_id: str | None = Field(
         default=None, alias="clusterId", description="ID of the managed Spark cluster."
     )

@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
@@ -167,7 +168,7 @@ class GetEntriesV2Args(RequestBody):
 class ListDirectoryBreadCrumb(APIModel):
     title: str | None = Field(default=None, description="Title of the breadcrumb item.")
     path: str | None = Field(default=None, description="Path of the breadcrumb item.")
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Entry ID of the breadcrumb item."
     )
     is_locked: bool | None = Field(
@@ -177,7 +178,7 @@ class ListDirectoryBreadCrumb(APIModel):
 
 
 class ListDirectoryEntry(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
     key: str | None = Field(default=None, description="Key identifier of the entry.")
@@ -277,7 +278,7 @@ class GetEntriesV2ResultEntriesItem(APIModel):
         alias="isLocked",
         description="Indicates that the entry is locked.",
     )
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="entryId",
         description="Unique identifier of the locked entry.",

@@ -1,13 +1,15 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
+from typing import Annotated
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class CreateEmbeddingSecretResult(APIModel):
-    embedding_secret_id: str | None = Field(
+    embedding_secret_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="embeddingSecretId",
         description="ID of the newly created key for embedding.",
@@ -29,7 +31,7 @@ class CreateEmbeddingSecretArgs(RequestBody):
 
 
 class EmbeddingSecret(APIModel):
-    embedding_secret_id: str | None = Field(
+    embedding_secret_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="embeddingSecretId",
         description="Unique identifier of the key for embedding.",
@@ -61,7 +63,7 @@ class ListEmbeddingSecretsArgs(RequestBody):
 
 
 class DeleteEmbeddingSecretResult(APIModel):
-    embedding_secret_id: str | None = Field(
+    embedding_secret_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="embeddingSecretId",
         description="ID of the deleted key for embedding.",
