@@ -4,11 +4,14 @@ A hook groups integrations (``subscriptions``) that share trigger conditions: on
 a hook whose conditions match runs each of its active integrations.
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.forms.models import ConditionsResponse
 from ycli.yandex.forms.subscriptions.models import Subscription
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class Hook(APIModel):
@@ -26,7 +29,9 @@ class Hook(APIModel):
         4
     """
 
-    id: int | None = Field(default=None, description="Integration group id (integer).")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Integration group id (integer)."
+    )
     name: str | None = Field(default=None, description="Integration group name.")
     active: bool | None = Field(default=None, description="Whether the group's integrations run.")
     conditions: ConditionsResponse | None = Field(

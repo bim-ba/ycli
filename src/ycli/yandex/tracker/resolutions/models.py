@@ -1,8 +1,11 @@
 """Pydantic models for Tracker resolutions (Resolution + ItemList[Resolution] + write bodies)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -22,7 +25,9 @@ class Resolution(APIModel):
     id: int | None = Field(
         default=None, description="Unique identifier of the resolution in Tracker."
     )
-    key: str | None = Field(default=None, description="Key of the resolution.")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Key of the resolution."
+    )
     version: int | None = Field(default=None, description="Version of the resolution.")
     name: str | None = Field(default=None, description="Display name of the resolution.")
     description: str | None = Field(default=None, description="Description of the resolution.")

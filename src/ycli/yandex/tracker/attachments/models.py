@@ -1,11 +1,14 @@
 """Pydantic models for Tracker issue attachments (Attachment + ItemList[Attachment])."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
     DisplayStr,
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import AttachmentMetadata
 
 
@@ -24,7 +27,9 @@ class Attachment(APIModel):
         alias="self",
         description="API resource address of this attachment.",
     )
-    id: str | None = Field(default=None, description="Unique file identifier.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique file identifier."
+    )
     name: str | None = Field(default=None, description="File name.")
     content: str | None = Field(
         default=None,

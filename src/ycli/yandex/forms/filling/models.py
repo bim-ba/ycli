@@ -12,12 +12,13 @@ Three families:
   ``layer`` shapes, so extra keys are preserved).
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import ConfigDict, Field
 
 from ycli.yandex.forms.models import QuizShowFormat
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class FrontendTexts(APIModel):
@@ -73,7 +74,9 @@ class FillableForm(APIModel):
         'Feedback'
     """
 
-    id: str | None = Field(default=None, description="Form id (hex ObjectId string).")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Form id (hex ObjectId string)."
+    )
     name: str | None = Field(default=None, description="Form name.")
     teaser: bool | None = Field(default=None, description="Whether to show the teaser.")
     footer: bool | None = Field(default=None, description="Whether to show the footer.")
@@ -149,7 +152,9 @@ class SubmitResult(APIModel):
         99
     """
 
-    id: str | None = Field(default=None, description="Form id (hex ObjectId string).")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Form id (hex ObjectId string)."
+    )
     name: str | None = Field(default=None, description="Form name.")
     answer_id: int | None = Field(default=None, description="Id of the saved response.")
     answer_key: str | None = Field(default=None, description="Key of the saved response.")
@@ -197,7 +202,7 @@ class Suggestion(APIModel):
     model_config = ConfigDict(extra="allow")
 
     layer: str | None = Field(default=None, description="Suggestion type / data layer.")
-    id: str | None = Field(default=None, description="Suggestion object id.")
+    id: Annotated[str | None, Identity()] = Field(default=None, description="Suggestion object id.")
     text: str | None = Field(default=None, description="Display text of the suggestion.")
     orig_id: str | None = Field(default=None, description="Source-database id, where applicable.")
     country_id: str | None = Field(default=None, description="Id of the country (city).")

@@ -1,10 +1,11 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/attachments responses."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.wiki.models import User
 
 #: What a listing of attachments can be sorted by.
@@ -35,7 +36,9 @@ class AttachedFile(APIModel):
         7
     """
 
-    id: int | None = Field(default=None, description="Numeric id of the new attachment.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Numeric id of the new attachment."
+    )
     name: str | None = Field(default=None, description="File name of the attachment.")
     is_downloadable: bool | None = Field(
         default=None, description="Whether the file's bytes can be downloaded."

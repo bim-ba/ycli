@@ -124,6 +124,18 @@ lists the field; `tests/tooling/test_api_drift.py` fails on a mark that explains
 query parameter has no model to carry the mark: it is listed in `EXPLAINED` with the `IGNORED`
 reason.
 
+### The field that names the object
+
+A reply model marks the one field that says which object it is with `Identity()`
+(`ycli.yandex.sync.marks`): `key: Annotated[str | None, Identity()]`. It is the field the
+resource's read command takes (`issues get` takes a key, `boards get` an id; where a resource
+has `get` and `get-by-id`, plain `get` decides), so `ycli … list -o name | xargs -n1 ycli … get`
+works. `-o name` prints it, and a command whose result has no such field is refused before
+any request. An item of a listing with no identifier of its own stands in `NO_NAME` of
+`tests/architecture/test_names.py` with its reason. The models generated from the DataLens
+specification are not marked yet: their resources will name the identifier where the
+generator reads it.
+
 ---
 
 ## 2. Lists: `ItemList[X]` is flat, `XResponse` is the envelope
@@ -584,6 +596,7 @@ the code sees that the departure was chosen, and a search for `violation(` lists
 | Acronyms keep their capitals in a CapWords name | `tests/architecture/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
 | One name on every surface, no synonym, `get` returns one object | `tests/architecture/test_arch1.py`: `test_arch1_cli_path_equals_mcp_name`, `test_arch1_sdk_method_equals_tool_name`, `test_arch1_a_get_returns_one_object` |
 | The verb, the parts and their order | review: `/arch-review` against [Naming an operation](#7-naming-an-operation) |
+| The item of a listing names itself, and so does what its resource reads, makes or changes | `tests/architecture/test_names.py` (reasons in `NO_NAME`) |
 | An `Annotated` alias is defined once | `tests/architecture/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/architecture/test_conventions.py::test_every_model_field_has_a_description` |
 | An alias name means one thing | `tests/architecture/test_conventions.py::test_an_alias_name_means_one_thing` |

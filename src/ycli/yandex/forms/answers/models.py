@@ -1,11 +1,12 @@
 """Pydantic models for Forms answers (Column + Answer + AnswersResponse envelope)."""
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 #: The file an export of answers produces.
 ExportFormat = Literal["csv", "xlsx", "json"] | str
@@ -83,7 +84,7 @@ class AnswerDetails(APIModel):
         '686d'
     """
 
-    id: int | None = Field(default=None, description="Answer id (integer).")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Answer id (integer).")
     created: str | None = Field(default=None, description="ISO-8601 submission timestamp.")
     survey: AnswerSurveyRef | None = Field(
         default=None, description="The form this answer belongs to."
@@ -168,7 +169,7 @@ class AnswerIntegration(APIModel):
         'DE-7'
     """
 
-    id: int | None = Field(default=None, description="Integration id.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Integration id.")
     status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )

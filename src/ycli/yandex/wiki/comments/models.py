@@ -1,6 +1,6 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses."""
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (
     DisplayNameStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.wiki.models import ResolveStatus, User
 
 
@@ -44,7 +45,9 @@ class Comment(APIModel):
         'ok'
     """
 
-    id: int | None = Field(default=None, description="Numeric id of the comment.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Numeric id of the comment."
+    )
     parent_id: int | None = Field(
         default=None, description="Id of the comment this one replies to; ``None`` on a root."
     )
@@ -101,7 +104,9 @@ class CommentCreated(APIModel):
         5
     """
 
-    id: int | None = Field(default=None, description="Numeric id of the created comment.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Numeric id of the created comment."
+    )
     body: str | None = Field(default=None, description="The stored comment text.")
     inline_text: str | None = Field(
         default=None, description="Page fragment the comment is pinned to, if inline."

@@ -63,7 +63,7 @@ $ ycli wiki auth status [OPTIONS]
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -101,7 +101,7 @@ $ ycli wiki me get [OPTIONS]
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -159,7 +159,7 @@ $ ycli wiki pages get [OPTIONS] SLUG
 
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
 * `--raise-on-redirect / --no-raise-on-redirect`: Fail if the page is a redirect, do not follow it.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -183,7 +183,7 @@ $ ycli wiki pages get-meta [OPTIONS] SLUG
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -213,7 +213,7 @@ $ ycli wiki pages descendants-list [OPTIONS] SLUG
 * `--include-self / --no-include-self`: Also list the ancestor page itself.
 * `--show-all / --no-show-all`: The API's show_all flag.
 * `--actuality TEXT`: Only the pages in this state: actual or obsolete.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -240,7 +240,7 @@ $ ycli wiki pages get-by-id [OPTIONS] PAGE_ID
 * `--fields TEXT`: Comma-separated fields, e.g. content,attributes.
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
 * `--raise-on-redirect / --no-raise-on-redirect`: Fail if the page is a redirect, do not follow it.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -270,7 +270,7 @@ $ ycli wiki pages descendants-list-by-id [OPTIONS] PAGE_ID
 * `--include-self / --no-include-self`: Also list the ancestor page itself.
 * `--show-all / --no-show-all`: The API's show_all flag.
 * `--actuality TEXT`: Only the pages in this state: actual or obsolete.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -299,7 +299,7 @@ $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
 * `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--order-by TEXT`: Sort field. Known values: title, created_at.
 * `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -324,7 +324,7 @@ $ ycli wiki pages create [OPTIONS]
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -353,7 +353,7 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
 * `--allow-merge / --no-allow-merge`: Merge with a concurrent edit instead of failing.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -378,7 +378,7 @@ $ ycli wiki pages delete [OPTIONS] PAGE_ID
 **Options**:
 
 * `--recursive / --no-recursive`: Also delete every page under it.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -409,7 +409,7 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 * `--location TEXT`: Where in the body; without a placement the API answers 400. Known values: top, bottom.
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -437,7 +437,7 @@ $ ycli wiki pages clone [OPTIONS] PAGE_ID
 * `--title TEXT`: Title of the copy, if renaming.
 * `--subscribe-me / --no-subscribe-me`: Subscribe yourself to the copy.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -467,7 +467,7 @@ $ ycli wiki pages move [OPTIONS] SOURCE TARGET
 * `--copy-inherited-access / --no-copy-inherited-access`: Copy accesses inherited from the old parent; the API can refuse a move without a choice.
 * `--validate-only / --no-validate-only`: Validate the move without applying it (nothing to wait for).
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -495,7 +495,7 @@ $ ycli wiki pages revisions-list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -524,7 +524,7 @@ $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -563,7 +563,7 @@ $ ycli wiki pages search [OPTIONS] QUERY
 * `--highlight / --no-highlight`: Wrap matches in <em> tags.
 * `--limit INTEGER`: Results per page.
 * `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -617,7 +617,7 @@ $ ycli wiki access create [OPTIONS] PAGE_ID
 * `--group-src TEXT`: Where the group is kept. Known values: dir, cloud, com, staff.
 * `--group-id TEXT`: Id of the group to grant in that directory.
 * `--inheritance TEXT`: Whether the access also covers subpages. Known values: inherited, not_inherited.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -645,7 +645,7 @@ $ ycli wiki access update [OPTIONS] PAGE_ID ACCESS_ID
 * `--role TEXT`: New role. Known values: reader, editor, extra_editor, author.
 * `--inheritance TEXT`: Whether the access also covers subpages. Known values: inherited, not_inherited.
 * `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -671,7 +671,7 @@ $ ycli wiki access delete [OPTIONS] PAGE_ID ACCESS_ID
 **Options**:
 
 * `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -696,7 +696,7 @@ $ ycli wiki access clear [OPTIONS] PAGE_ID
 **Options**:
 
 * `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -748,7 +748,7 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 * `--order-by TEXT`: Sort field: created_at.
 * `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
 * `--status-filter TEXT`: Only comments in this state. Known values: resolved, unresolved.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -778,7 +778,7 @@ $ ycli wiki comments thread-list [OPTIONS] PAGE_ID COMMENT_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -809,7 +809,7 @@ $ ycli wiki comments thread-get [OPTIONS] PAGE_ID COMMENT_ID
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -837,7 +837,7 @@ $ ycli wiki comments create [OPTIONS] PAGE_ID
 * `--inline-text TEXT`: Page fragment to pin the comment to.
 * `--parent-id INTEGER`: Reply to this comment id (threaded).
 * `--thread-id INTEGER`: File into this existing thread id.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -862,7 +862,7 @@ $ ycli wiki comments delete [OPTIONS] PAGE_ID COMMENT_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -916,7 +916,7 @@ $ ycli wiki attachments list [OPTIONS] PAGE_ID
 * `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--order-by TEXT`: Sort field. Known values: name, size, created_at.
 * `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -941,7 +941,7 @@ $ ycli wiki attachments get [OPTIONS] PAGE_ID FILE_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -970,7 +970,7 @@ $ ycli wiki attachments previews-download [OPTIONS] PAGE_ID FILE_ID
 **Options**:
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -996,7 +996,7 @@ $ ycli wiki attachments download [OPTIONS] PAGE_ID FILE_ID
 **Options**:
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1021,7 +1021,7 @@ $ ycli wiki attachments download-by-url [OPTIONS] URL
 **Options**:
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1046,7 +1046,7 @@ $ ycli wiki attachments delete [OPTIONS] PAGE_ID FILE_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1071,7 +1071,7 @@ $ ycli wiki attachments attach [OPTIONS] PAGE_ID
 **Options**:
 
 * `--session-ids TEXT`: Finished upload-session id to attach (repeatable).  [required]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1096,7 +1096,7 @@ $ ycli wiki attachments upload [OPTIONS] PAGE_ID FILE_PATH
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1145,7 +1145,7 @@ $ ycli wiki resources list [OPTIONS] PAGE_ID
 * `--types TEXT`: Comma-separated kinds: attachment,grid.
 * `--order-by TEXT`: Sort field. Known values: name_title, created_at.
 * `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1187,7 +1187,7 @@ $ ycli wiki recovery recover [OPTIONS] TOKEN
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1242,7 +1242,7 @@ $ ycli wiki grids get [OPTIONS] GRID_ID
 * `--only-rows TEXT`: Only these row ids (CSV).
 * `--revision TEXT`: Load a historical revision.
 * `--sort TEXT`: Row sort, e.g. slug,-slug2.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1265,7 +1265,7 @@ $ ycli wiki grids create [OPTIONS]
 * `--title TEXT`: Title of the new grid.  [required]
 * `--page-slug TEXT`: Target page slug, e.g. data/x.
 * `--page-id INTEGER`: Target page numeric id.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1295,7 +1295,7 @@ $ ycli wiki grids update [OPTIONS] GRID_ID
 * `--revision TEXT`: Grid revision the edit is based on.
 * `--title TEXT`: New grid title.
 * `--default-sort TEXT`: New default sort as JSON in the write shape '[{"<column_slug>": "asc"|"desc"}]', e.g. '[{"priority": "desc"}]'.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1319,7 +1319,7 @@ $ ycli wiki grids delete [OPTIONS] GRID_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1347,7 +1347,7 @@ $ ycli wiki grids clone [OPTIONS] GRID_ID
 * `--title TEXT`: Title of the copy, if renaming.
 * `--with-data / --no-with-data`: Copy the rows too, not just the structure.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1396,7 +1396,7 @@ $ ycli wiki grids rows create [OPTIONS] GRID_ID
 * `--revision TEXT`: Grid revision the edit is based on.
 * `--position INTEGER`: Zero-based target index.
 * `--after-row-id TEXT`: Insert after this row id.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1422,7 +1422,7 @@ $ ycli wiki grids rows delete [OPTIONS] GRID_ID
 
 * `--row-id TEXT`: Row id to delete (repeatable).  [required]
 * `--revision TEXT`: Grid revision the edit is based on.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1451,7 +1451,7 @@ $ ycli wiki grids rows move [OPTIONS] GRID_ID
 * `--after-row-id TEXT`: Move to just after this row id.
 * `--position INTEGER`: Zero-based target index.
 * `--rows-count INTEGER`: How many consecutive rows to move.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1479,7 +1479,7 @@ $ ycli wiki grids rows update [OPTIONS] GRID_ID ROW_ID
 * `--revision TEXT`: Grid revision (this endpoint does not enforce it).
 * `--pinned / --no-pinned`: Pin or unpin the row.
 * `--color TEXT`: Row background colour. Known values: blue, yellow, pink, red, green, mint, grey, orange, magenta, purple, copper, ocean.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1530,7 +1530,7 @@ $ ycli wiki grids columns create [OPTIONS] GRID_ID
 * `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string","slug":"c"}]'.  [required]
 * `--revision TEXT`: Grid revision the edit is based on.
 * `--position INTEGER`: Zero-based target index.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1556,7 +1556,7 @@ $ ycli wiki grids columns delete [OPTIONS] GRID_ID
 
 * `--column-slug TEXT`: Column slug to delete (repeatable).  [required]
 * `--revision TEXT`: Grid revision the edit is based on.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1584,7 +1584,7 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 * `--position INTEGER`: Zero-based destination index.  [required]
 * `--revision TEXT`: Grid revision the edit is based on.
 * `--columns-count INTEGER`: How many consecutive columns to move.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1612,7 +1612,7 @@ $ ycli wiki grids columns suggest [OPTIONS] GRID_ID
 
 * `--title TEXT`: Title to turn into a slug and check.
 * `--slug TEXT`: Slug to check.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1648,7 +1648,7 @@ $ ycli wiki grids columns update [OPTIONS] GRID_ID COLUMN_SLUG
 * `--pinned TEXT`: The edge to pin the column to. Known values: left, right.
 * `--color TEXT`: Column background colour. Known values: blue, yellow, pink, red, green, mint, grey, orange, magenta, purple, copper, ocean.
 * `--select-option TEXT`: Allowed choice of a select column (repeatable).
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1692,7 +1692,7 @@ $ ycli wiki grids cells update [OPTIONS] GRID_ID
 
 * `--cells TEXT`: Cells as JSON, e.g. '[{"row_id":1,"column_slug":"name","value":"x"}]'.  [required]
 * `--revision TEXT`: Grid revision the edit is based on.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1736,7 +1736,7 @@ $ ycli wiki operations clone-get [OPTIONS] TASK_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1760,7 +1760,7 @@ $ ycli wiki operations clone-inline-grid-get [OPTIONS] TASK_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1784,7 +1784,7 @@ $ ycli wiki operations move-get [OPTIONS] TASK_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1829,7 +1829,7 @@ $ ycli wiki uploadsessions create [OPTIONS]
 
 * `--file-name TEXT`: Name to give the uploaded file.  [required]
 * `--file-size INTEGER`: Total file size in bytes (sum of all parts).  [required]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1853,7 +1853,7 @@ $ ycli wiki uploadsessions get [OPTIONS] SESSION_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1879,7 +1879,7 @@ $ ycli wiki uploadsessions parts-upload [OPTIONS] SESSION_ID FILE_PATH
 **Options**:
 
 * `--part-number INTEGER`: 1-based part index (1 for the first part, +1 per next part).  [required]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1903,7 +1903,7 @@ $ ycli wiki uploadsessions finish [OPTIONS] SESSION_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1927,7 +1927,7 @@ $ ycli wiki uploadsessions abort [OPTIONS] SESSION_ID
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -1947,7 +1947,7 @@ $ ycli wiki uploadsessions abort-all [OPTIONS]
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.

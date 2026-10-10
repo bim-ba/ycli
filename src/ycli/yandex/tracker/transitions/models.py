@@ -1,8 +1,11 @@
 """Pydantic models for Tracker issue transitions (Transition + ItemList[Transition])."""
 
+from typing import Annotated
+
 from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference, Reference
 
 
@@ -22,7 +25,9 @@ class Transition(APIModel):
         'Closed'
     """
 
-    id: str | None = Field(default=None, description="Transition identifier, e.g. ``close``.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Transition identifier, e.g. ``close``."
+    )
     display: str | None = Field(
         default=None,
         description="Display name of the transition, as on the Tracker button.",

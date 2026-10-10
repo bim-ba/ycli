@@ -4,12 +4,13 @@ A notification is one run of one integration for one answer. It is ``pending`` u
 integration finishes, then ``success``, ``error`` or ``canceled``.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.models import APIModel, RequestBody, SortDirection
+from ycli.yandex.sync.marks import Identity
 
 #: How a field of an integration run is displayed.
 NotificationFieldType = Literal["text", "textarea", "code", "json", "xml", "url"] | str
@@ -23,7 +24,9 @@ class Notification(APIModel):
         'error'
     """
 
-    id: int | None = Field(default=None, description="Notification id (integer).")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Notification id (integer)."
+    )
     status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )
@@ -113,7 +116,7 @@ class NotificationStatus(APIModel):
         'pending'
     """
 
-    id: int | None = Field(default=None, description="Notification id.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Notification id.")
     status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )
@@ -148,7 +151,7 @@ class NotificationAction(APIModel):
         'ok'
     """
 
-    id: int | None = Field(default=None, description="Notification id.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Notification id.")
     survey_id: str | None = Field(default=None, description="Form id.")
     subscription_id: int | None = Field(default=None, description="Integration id.")
     result: NotificationActionResult | None = Field(

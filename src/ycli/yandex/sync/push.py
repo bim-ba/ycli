@@ -4,7 +4,7 @@ import enum
 import subprocess
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path, PurePosixPath
-from typing import Any, get_type_hints
+from typing import Annotated, Any, get_type_hints
 
 from pydantic import BaseModel, Field, ValidationError
 
@@ -40,7 +40,9 @@ class OnError(enum.StrEnum):
 class Pushed(APIModel):
     """One file and what ``push`` did with it."""
 
-    path: str = Field(description="The file, from the root of the repository.")
+    path: Annotated[str, Identity()] = Field(
+        description="The file, from the root of the repository."
+    )
     kind: str | None = Field(default=None, description="The kind of the file.")
     state: State = Field(description="What the plan said of the file.")
     result: Result = Field(description="What was done.")

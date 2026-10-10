@@ -1,8 +1,11 @@
 """Pydantic models for Tracker board columns (Column and its write bodies)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference
 
 
@@ -22,7 +25,9 @@ class Column(APIModel):
         alias="self",
         description="API resource URL that returns full information about the column.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the column.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the column."
+    )
     name: str | None = Field(default=None, description="Name of the column.")
     statuses: list[KeyedReference] = Field(
         default_factory=list,

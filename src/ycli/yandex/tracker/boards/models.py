@@ -1,6 +1,6 @@
 """Pydantic models for Tracker agile boards (Reference + Calendar + Board + ItemList[Board])."""
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import Reference
 
 
@@ -43,7 +44,9 @@ class Board(APIModel):
         alias="self",
         description="API resource URL that returns full information about the board.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the board.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the board."
+    )
     version: int | None = Field(
         default=None,
         description="Board version; every change to the board increments this number.",

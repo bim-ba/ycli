@@ -1,8 +1,11 @@
 """Pydantic models for Tracker issue types (IssueType + ItemList[IssueType] + write bodies)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -17,7 +20,9 @@ class IssueType(APIModel):
         'Task'
     """
 
-    key: str | None = Field(default=None, description="Key of the issue type, e.g. ``task``.")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Key of the issue type, e.g. ``task``."
+    )
     name: str | None = Field(default=None, description="Display name of the issue type.")
     display: str | None = Field(
         default=None,

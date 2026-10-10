@@ -1,6 +1,6 @@
 """Pydantic models for the Tracker changelog (ChangeField + ChangelogEntry)."""
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     DisplayStr,
     IDStr,
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference
 
 
@@ -47,7 +48,9 @@ class ChangelogEntry(APIModel):
         'Сава'
     """
 
-    id: str | None = Field(default=None, description="Identifier of the change.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the change."
+    )
     updated_at: str | None = Field(
         default=None, alias="updatedAt", description="When the issue was changed (ISO 8601)."
     )

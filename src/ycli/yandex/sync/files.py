@@ -3,7 +3,7 @@
 import enum
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -52,7 +52,9 @@ OFFLINE = (
 class FileState(APIModel):
     """One file of a repository and what it is now."""
 
-    path: str = Field(description="Where the file lies, from the root of the repository.")
+    path: Annotated[str, Identity()] = Field(
+        description="Where the file lies, from the root of the repository."
+    )
     kind: str | None = Field(default=None, description="The kind the file names.")
     state: State = Field(description="What `push` would do with the file.")
     detail: str | None = Field(

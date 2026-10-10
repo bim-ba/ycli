@@ -5,9 +5,12 @@ Every write in the pipeline (create / parts-upload / finish / abort) returns the
 The lone typed request body is :class:`UploadSessionCreate` (``file_name`` + ``file_size``).
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.wiki.models import User
 
 
@@ -23,7 +26,7 @@ class UploadSession(APIModel):
         's1'
     """
 
-    session_id: str | None = Field(
+    session_id: Annotated[str | None, Identity()] = Field(
         default=None, description="UUID4 identifying the upload session across the pipeline."
     )
     file_name: str | None = Field(default=None, description="Name of the file being uploaded.")

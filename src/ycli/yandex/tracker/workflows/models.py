@@ -11,11 +11,12 @@ write the API's, so the JSON of the docs can be passed to the CLI as is while Py
 snake_case.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import AliasChoices, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference, LocalizedName, Reference, UserReference
 
 
@@ -70,7 +71,9 @@ class Workflow(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource URL of the workflow."
     )
-    id: str | None = Field(default=None, description="Identifier of the workflow.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the workflow."
+    )
     name: str | None = Field(default=None, description="Name of the workflow.")
     version: int | None = Field(
         default=None, description="Version of the workflow; each change increments it."

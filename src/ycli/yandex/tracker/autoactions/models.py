@@ -8,11 +8,12 @@ The two log endpoints return different shapes: ``/logs`` lists run summaries
 (:class:`AutoactionRunEntry`).
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
@@ -40,7 +41,9 @@ class Autoaction(APIModel):
         alias="self",
         description="API resource URL that returns the autoaction's parameters.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the autoaction.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the autoaction."
+    )
     queue: KeyedReference | None = Field(
         default=None, description="Queue the autoaction is configured in."
     )
@@ -135,7 +138,9 @@ class AutoactionLogEntry(APIModel):
         3
     """
 
-    id: str | None = Field(default=None, description="Identifier of the autoaction run.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Identifier of the autoaction run."
+    )
     launch_time: str | None = Field(
         default=None,
         alias="launchTime",
@@ -198,7 +203,7 @@ class AutoactionRunEntry(APIModel):
         'TEST-1'
     """
 
-    id: int | None = Field(
+    id: Annotated[int | None, Identity()] = Field(
         default=None, description="Zero-based sequence number of the issue within the run."
     )
     issue_reference: AutoactionIssueRef | None = Field(

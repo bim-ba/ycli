@@ -6,11 +6,12 @@ a canned comment plus field updates on an issue. Note the asymmetry the API expo
 of field→value on the way in (see :class:`MacroCreate`).
 """
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import KeyedReference, Reference
 
 
@@ -45,7 +46,9 @@ class Macro(APIModel):
         alias="self",
         description="API resource URL that returns the macro's parameters.",
     )
-    id: int | None = Field(default=None, description="Unique identifier of the macro.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Unique identifier of the macro."
+    )
     queue: KeyedReference | None = Field(
         default=None, description="Queue whose issues the macro applies to."
     )

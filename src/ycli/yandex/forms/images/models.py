@@ -1,11 +1,12 @@
 """Pydantic models for Forms images (an uploaded or cloned image, and the clone request)."""
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.forms.models import FileCheckStatus
 from ycli.yandex.models import IGNORED_BY_API, APIModel, WarnsOnIgnored
+from ycli.yandex.sync.marks import Identity
 
 #: How strictly an uploaded image is scanned.
 FileCheckMode = Literal["strict", "loose"] | str
@@ -25,7 +26,7 @@ class Image(APIModel):
         7
     """
 
-    id: int | None = Field(
+    id: Annotated[int | None, Identity()] = Field(
         default=None, description="Image ID (reference it from a form image field)."
     )
     links: dict[str, Any] = Field(

@@ -73,7 +73,7 @@ Something not working? [If it does not work](https://ycli.savaznatnov.dev/how-to
 ```bash
 ycli tracker issues get TRACKER-1                  # a table at a terminal
 ycli tracker issues get TRACKER-1 | jq .summary    # JSON when piped
-ycli -o yaml wiki pages get onboarding             # or pick: -o json | yaml | pretty | csv | markdown | ndjson
+ycli -o yaml wiki pages get onboarding             # or pick: -o json | yaml | pretty | csv | markdown | ndjson | name
 ycli tracker boards delete 7 --dry-run             # print the request a write would send
 ycli tracker boards delete 7 --yes                 # a delete asks first; --yes answers
 ycli api issues/TRACKER-1 --service tracker        # an endpoint ycli does not wrap

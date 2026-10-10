@@ -7,6 +7,7 @@ import json
 from io import StringIO
 from typing import Annotated, Any
 
+import pytest
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 from rich.console import Console
 
@@ -15,14 +16,18 @@ from ycli.cli.output import (
     CSVStrategy,
     JSONStrategy,
     MarkdownStrategy,
+    NameStrategy,
     NDJSONStrategy,
     OutputFormat,
     PrettyStrategy,
     SerializationStrategy,
     YAMLStrategy,
+    has_names,
 )
 from ycli.yandex.core.listing import Listing
+from ycli.yandex.errors import YandexUnexpectedReplyError
 from ycli.yandex.models import ItemList, Listed
+from ycli.yandex.sync.marks import Identity
 
 
 class _Row(BaseModel):
@@ -278,3 +283,40 @@ def test_a_result_that_is_no_model_gives_no_columns():
 def test_the_declared_kinds_come_first_and_what_else_came_is_added():
     printed = _printed(CSVStrategy(Listing[_M]), Listed[Any](items=[_Row(key="A", name="x")]))
     assert printed == "key,name\nA,x\n"
+
+
+class _Named(BaseModel):
+    id: int
+    key: Annotated[str | None, Identity()] = Field(default=None, serialization_alias="issueKey")
+
+
+def test_name_prints_the_marked_field_of_each_item_on_a_line():
+    listed = Listed[_Named](items=[_Named(id=1, key="A-1"), _Named(id=2, key="A-2")], next="eJw")
+    assert _printed(NameStrategy(), listed) == "A-1\nA-2\n"
+    assert _printed(NameStrategy(), _Named(id=1, key="A-1")) == "A-1\n"
+    assert _printed(NameStrategy(), ItemList[str](["bug", "ui"])) == "bug\nui\n"
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.name), NameStrategy)
+
+
+def test_a_result_that_is_not_what_the_command_declares_is_printed_as_json_under_name():
+    # The plan of --dry-run comes back in place of the object: it has no name.
+    assert _printed(NameStrategy(), _Row(key="A", name="x")) == '{"key":"A","name":"x"}\n'
+
+
+def test_a_command_has_names_when_every_kind_it_returns_marks_one_field():
+    assert has_names(Listing[_Named]) and has_names(_Named) and has_names(Listing[str])
+    assert not has_names(Listing[_Named | _Row])
+    assert not has_names(_Row) and not has_names(None) and not has_names(str)
+
+
+def test_name_prints_nothing_and_says_which_item_the_reply_left_unnamed():
+    listed = Listed[_Named](items=[_Named(id=1, key="A-1"), _Named(id=2), _Named(id=3)])
+    console, buf = _console(terminal=False)
+    with pytest.raises(YandexUnexpectedReplyError) as failed:
+        NameStrategy().render(listed, console)
+    assert str(failed.value) == (
+        "item 2 of this listing has no issueKey (and 1 more): `-o name` cannot name it"
+    )
+    assert buf.getvalue() == ""
+    with pytest.raises(YandexUnexpectedReplyError, match="item 1 of this listing has no issueKey:"):
+        NameStrategy().render(_Named(id=1), console)

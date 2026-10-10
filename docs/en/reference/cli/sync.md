@@ -40,7 +40,7 @@ $ ycli sync kinds [OPTIONS]
 
 **Options**:
 
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -71,7 +71,7 @@ $ ycli sync status [OPTIONS] [PATHS]...
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
 * `--show-unchanged`: Also list the files that were not edited.
 * `--exit-code`: Exit with 7 when there is something to push.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -99,7 +99,7 @@ $ ycli sync validate [OPTIONS] [PATHS]...
 **Options**:
 
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -129,7 +129,7 @@ $ ycli sync pull [OPTIONS] PATH
 
 * `--kind TEXT`: Keep the files of this kind, e.g. wiki/page (repeatable).
 * `--show-unchanged`: Also list the files that were the same.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -162,7 +162,7 @@ $ ycli sync diff [OPTIONS] [PATHS]...
 * `--show-unchanged`: Also list the files with nothing to push.
 * `--show-secrets`: Show secrets as they are, not masked.
 * `--exit-code`: Exit with 7 when there is something to push, 8 when a file and its object went apart.
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -196,7 +196,7 @@ $ ycli sync push [OPTIONS] [PATHS]...
 * `--show-unchanged`: Also list the files with nothing to push.
 * `--prune COMMIT`: Also delete the objects whose files were deleted since this commit.
 * `--on-error [fail|abort]`: After a file fails: go on to the next, or end the run.  [default: fail]
-* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.

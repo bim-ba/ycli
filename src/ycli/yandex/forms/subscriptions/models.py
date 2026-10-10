@@ -12,6 +12,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, SecretStr, TypeAdapter
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class SubscriptionHeader(APIModel):
@@ -198,7 +199,9 @@ class _SubscriptionBase(APIModel):
     """Fields every subscription type shares."""
 
     # violation(api-drift): one model builds the body and reads the reply, which carries `id`
-    id: int | None = Field(default=None, description="Subscription id (integer, read only).")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Subscription id (integer, read only)."
+    )
     active: bool | None = Field(default=None, description="Whether the integration runs.")
     follow: bool | None = Field(
         default=None, description="Notify the form's followers about the run."

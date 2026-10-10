@@ -4,9 +4,12 @@ The single-record class is named ``CustomField`` (not ``Field``) so it never sha
 ``pydantic.Field``, which every attribute in this module is declared with.
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import (
     FieldSchema,
     LocalizedName,
@@ -52,7 +55,9 @@ class CustomField(APIModel):
         alias="self",
         description="API resource URL that returns full information about the field.",
     )
-    id: str | None = Field(default=None, description="Unique identifier of the field.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique identifier of the field."
+    )
     name: str | None = Field(default=None, description="Display name of the field.")
     key: str | None = Field(default=None, description="Key of the field.")
     description: str | None = Field(default=None, description="Description of the field.")
@@ -117,7 +122,9 @@ class FieldCategoryRecord(APIModel):
         alias="self",
         description="API resource URL that returns full information about the category.",
     )
-    id: str | None = Field(default=None, description="Unique identifier of the field category.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique identifier of the field category."
+    )
     name: str | None = Field(default=None, description="Display name of the category.")
     version: int | None = Field(
         default=None, description="Version of the category; each change increments it."

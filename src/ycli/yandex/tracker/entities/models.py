@@ -10,7 +10,7 @@ Every field carries ``Field(description=…)`` — those descriptions surface in
 ``outputSchema`` and in generated docs — and full, unabbreviated names.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import AliasChoices, ConfigDict, Field
 
@@ -18,6 +18,7 @@ from ycli.yandex.models import (
     APIModel,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import (
     AttachmentMetadata,
     Deadline,
@@ -137,7 +138,9 @@ class Attachment(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of the attachment."
     )
-    id: str | None = Field(default=None, description="Unique file identifier.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Unique file identifier."
+    )
     name: str | None = Field(default=None, description="File name.")
     content: str | None = Field(default=None, description="Download URL for the file's raw bytes.")
     thumbnail: str | None = Field(
@@ -246,7 +249,7 @@ class Entity(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of the entity."
     )
-    id: str | None = Field(default=None, description="Entity identifier.")
+    id: Annotated[str | None, Identity()] = Field(default=None, description="Entity identifier.")
     version: int | None = Field(
         default=None, description="Entity version (bumps on every change; edits lock at the cap)."
     )
@@ -305,7 +308,9 @@ class Comment(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of the comment."
     )
-    id: int | None = Field(default=None, description="Numeric comment identifier.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Numeric comment identifier."
+    )
     long_id: str | None = Field(
         default=None, alias="longId", description="String (long) comment identifier."
     )
@@ -427,7 +432,7 @@ class EntityEvent(APIModel):
         'Issue updated'
     """
 
-    id: str | None = Field(default=None, description="Event identifier.")
+    id: Annotated[str | None, Identity()] = Field(default=None, description="Event identifier.")
     author: UserReference | None = Field(default=None, description="Event author.")
     date: str | None = Field(default=None, description="Event timestamp (YYYY-MM-DDThh:mm…).")
     transport: str | None = Field(default=None, description="Service field.")
@@ -531,7 +536,9 @@ class BulkChangeOperation(APIModel):
         'CREATED'
     """
 
-    id: str | None = Field(default=None, description="Bulk-change operation identifier.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="Bulk-change operation identifier."
+    )
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of the operation."
     )

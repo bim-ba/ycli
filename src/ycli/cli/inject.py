@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any, get_type_hints
 import typer
 
 from ycli.cli.context import AppContext
+from ycli.cli.formats import OutputFormat
 from ycli.cli.global_options import (
     NO_BODY,
     apply_leaf_values,
@@ -38,7 +39,7 @@ from ycli.cli.global_options import (
     leaf_parameters,
     refuse_fields,
 )
-from ycli.cli.output import Continuable, Declared
+from ycli.cli.output import Continuable, Declared, has_names
 from ycli.yandex.core.continuation import HANDLES, NOTHING_ELSE
 from ycli.yandex.core.guard import RequestPlanned
 from ycli.yandex.core.listing import Listing
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
 _CONTEXT = "_ycli_typer_context"
 # What a command with its own ``-F`` says to the common one given before the subcommand.
 OWN_FIELD = "this command has a --field of its own; the common one before it has no use"
+NO_NAME = "what this command prints has no identifier to print; nothing was sent"
 
 
 def inject_dependencies(app: typer.Typer) -> None:
@@ -170,6 +172,12 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
             # the name two meanings
             raise typer.BadParameter(OWN_FIELD, param_hint="-F")
         apply_leaf_values(kwargs, root.params)
+        # The choice is still the text given here: typer makes it an OutputFormat later.
+        if root.params.get("output_format") == OutputFormat.name and not has_names(
+            hints.get("return")
+        ):
+            # violation(arch-9): nothing to print in this format, so nothing is asked for
+            raise typer.BadParameter(NO_NAME, param_hint="-o name")
         if kwargs.get("next_") is not None:
             _only_the_limit(context, {parameter.name for parameter in leaf})
         if not can_send:

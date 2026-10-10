@@ -10,10 +10,12 @@ from types import ModuleType
 
 @dataclass(frozen=True)
 class Identity:
-    """Marks the argument of an operation that says which object it is.
+    """Marks what says which object it is: an argument of an operation, a field of a reply.
 
-    ``trigger_id: Annotated[int, Identity()]``. An object addressed by several arguments has
-    several; one that is the only one of its container has none.
+    On an argument, ``trigger_id: Annotated[int, Identity()]``: an object addressed by several
+    arguments has several; one that is the only one of its container has none. On a field of
+    a reply, ``id: Annotated[int | None, Identity()]``: the one field the read command of the
+    resource takes, which ``-o name`` prints.
     """
 
 

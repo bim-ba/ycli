@@ -19,6 +19,7 @@ from pydantic import Field, TypeAdapter
 from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.models import ConditionsResponse, FileCheckStatus
 from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
+from ycli.yandex.sync.marks import Identity
 
 #: What happens to ``force`` of a question delete: the API takes the parameter and ignores it.
 FORCE_IGNORED = "a question that a display condition refers to is refused all the same."
@@ -37,7 +38,9 @@ class Question(APIModel):
         's'
     """
 
-    id: int | None = Field(default=None, description="Question ID (integer).")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Question ID (integer)."
+    )
     label: str | None = Field(default=None, description="Question label / title.")
     slug: str | None = Field(
         default=None, description="Stable machine slug (also the answers-table column key)."
@@ -651,4 +654,6 @@ class QuestionMoveResult(APIModel):
         17
     """
 
-    id: int | None = Field(default=None, description="ID of the moved question.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="ID of the moved question."
+    )

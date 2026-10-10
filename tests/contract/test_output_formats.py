@@ -19,7 +19,9 @@ from typer.testing import CliRunner
 
 from tests.contract.test_contract import CASES, _serve
 from ycli.cli.app import app
+from ycli.cli.inject import NO_NAME
 from ycli.cli.output import _columns
+from ycli.yandex.errors import YandexUnexpectedReplyError
 from ycli.yandex.models import APIModel
 
 if TYPE_CHECKING:
@@ -150,3 +152,68 @@ def test_the_header_is_the_same_for_an_empty_listing_as_for_a_full_one(
     printed = _printed(empty, "csv", monkeypatch).decode()
     assert printed.count("\n") == 1  # the header line, and nothing else
     assert printed.rstrip("\n").split(",") == _header(case, monkeypatch)
+
+
+#: Operations with a case whose reply leaves out the field that names the item: ``-o name``
+#: says so and prints nothing, so a script does not act on fewer objects than were listed.
+SPARSE = {
+    "forms.filling.submit",
+    "tracker.boards.list",
+    "tracker.comments.list",
+    "tracker.resolutions.update",
+    "tracker.statuses.update",
+    "tracker.users.list",
+    "tracker.worklog.list",
+}
+
+
+def _named(case: Case, monkeypatch: pytest.MonkeyPatch) -> tuple[Any, Any]:
+    assert case.cli is not None
+    for name, value in case.env.items():
+        monkeypatch.setenv(name, value)
+    api = _serve(monkeypatch, case)
+    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
+    return CliRunner().invoke(app, ["--format", "name", *confirmed, *case.cli]), api
+
+
+def test_every_sparse_operation_has_a_case_that_leaves_an_item_unnamed(monkeypatch):
+    refused = {
+        case.operation
+        for case in CLI_CASES
+        if case.operation in SPARSE
+        and isinstance(_named(case, monkeypatch)[0].exception, YandexUnexpectedReplyError)
+    }
+    assert refused == SPARSE
+
+
+@pytest.mark.parametrize("case", CLI_CASES, ids=[case.id for case in CLI_CASES])
+def test_name_prints_one_identifier_for_each_item_or_refuses_before_any_request(
+    case: Case, monkeypatch
+):
+    result, api = _named(case, monkeypatch)
+    said = " ".join(result.output.replace("│", " ").split())
+    if isinstance(result.exception, YandexUnexpectedReplyError):
+        assert "`-o name` cannot name it" in str(result.exception)
+        assert result.stdout == ""
+        assert case.operation in SPARSE
+        return
+    if result.exit_code:
+        assert result.exit_code == 2, result.output
+        assert NO_NAME in said
+        assert api.calls == []
+        return
+    as_json = _printed(case, "json", monkeypatch)
+    try:
+        shown = json.loads(as_json)
+    except ValueError:
+        shown = None
+    if not isinstance(shown, dict | list):
+        # Text, a count, bytes: printed as they are in every format.
+        assert result.stdout_bytes == as_json
+        return
+    items = _items(shown)
+    names = result.stdout.splitlines()
+    assert len(names) == len(items) and all(names)
+    for name, item in zip(names, items, strict=True):
+        own = item.values() if isinstance(item, dict) else [item]
+        assert name in {value if isinstance(value, str) else json.dumps(value) for value in own}

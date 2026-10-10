@@ -1,8 +1,11 @@
 """Pydantic models for Tracker priorities (Priority + ItemList[Priority] + typed write bodies)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -18,7 +21,9 @@ class Priority(APIModel):
         'Normal'
     """
 
-    key: str | None = Field(default=None, description="Key of the priority, e.g. ``normal``.")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Key of the priority, e.g. ``normal``."
+    )
     name: str | LocalizedName | None = Field(
         default=None,
         description="Name in the caller's language, or in every language when not localized.",

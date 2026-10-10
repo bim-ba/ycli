@@ -5,9 +5,12 @@ Mirrors ``GET /queues/{id}/localFields`` (array) and
 queue; the same object shape serves both endpoints.
 """
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import (
     FieldSchema,
     KeyedReference,
@@ -72,7 +75,9 @@ class LocalField(APIModel):
     id: str | None = Field(default=None, description="Unique identifier of the field.")
     name: str | None = Field(default=None, description="Human-readable name of the field.")
     description: str | None = Field(default=None, description="Free-text description of the field.")
-    key: str | None = Field(default=None, description="Key of the field (used to reference it).")
+    key: Annotated[str | None, Identity()] = Field(
+        default=None, description="Key of the field (used to reference it)."
+    )
     version: int | None = Field(
         default=None, description="Field version; incremented on every change to the field."
     )

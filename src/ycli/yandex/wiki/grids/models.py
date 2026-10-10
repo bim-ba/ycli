@@ -14,11 +14,12 @@ you poll through the ``operations`` resource.
 Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody, SortDirection
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.wiki.models import PageIdentity
 
 #: Sort order of a column in the grid's default sort.
@@ -224,7 +225,9 @@ class Grid(APIModel):
         '3'
     """
 
-    id: str | int | None = Field(default=None, description="The grid's identifier (uuid4 or int).")
+    id: Annotated[str | int | None, Identity()] = Field(
+        default=None, description="The grid's identifier (uuid4 or int)."
+    )
     created_at: str | None = Field(default=None, description="ISO-8601 creation timestamp.")
     title: str | None = Field(default=None, description="Human-readable grid title.")
     page: PageIdentity | None = Field(default=None, description="Page the grid belongs to.")
@@ -537,7 +540,9 @@ class ColumnSuggestion(APIModel):
         ['name_1']
     """
 
-    slug: str | None = Field(default=None, description="The slug that was checked.")
+    slug: Annotated[str | None, Identity()] = Field(
+        default=None, description="The slug that was checked."
+    )
     occupied: bool | None = Field(
         default=None, description="Whether a column already has that slug."
     )

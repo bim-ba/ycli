@@ -7,7 +7,7 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.sync.document import Body
-from ycli.yandex.sync.marks import Place, Version
+from ycli.yandex.sync.marks import Identity, Place, Version
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
 from ycli.yandex.wiki.models import (
     Location,
@@ -52,7 +52,7 @@ class PageRef(APIModel):
     """
 
     id: int = Field(description="Numeric id of the page.")
-    slug: str = Field(description="Slug of the page, e.g. ``data/a``.")
+    slug: Annotated[str, Identity()] = Field(description="Slug of the page, e.g. ``data/a``.")
 
 
 class PageSummary(PageRef):
@@ -158,7 +158,7 @@ class PageRevision(APIModel):
         'ivan'
     """
 
-    id: Annotated[int, Version()] = Field(
+    id: Annotated[int, Version(), Identity()] = Field(
         description="Revision id (the ``revision_id`` of ``GET /pages``)."
     )
     author: User | None = Field(default=None, description="Who saved the revision.")
@@ -189,7 +189,9 @@ class PageDetails(APIModel):
     """
 
     id: int = Field(description="Numeric id of the page.")
-    slug: Annotated[str, Place()] = Field(description="Slug of the page, e.g. ``data/x``.")
+    slug: Annotated[str, Place(), Identity()] = Field(
+        description="Slug of the page, e.g. ``data/x``."
+    )
     title: str = Field(description="Title of the page.")
     page_type: str | None = Field(
         default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
@@ -234,7 +236,7 @@ class GridRef(APIModel):
         'Roadmap'
     """
 
-    id: str = Field(description="The grid's permanent UUID4 identifier.")
+    id: Annotated[str, Identity()] = Field(description="The grid's permanent UUID4 identifier.")
     title: str | None = Field(default=None, description="Human-readable grid title.")
     created_at: str | None = Field(
         default=None, description="ISO-8601 timestamp of when the grid was created."

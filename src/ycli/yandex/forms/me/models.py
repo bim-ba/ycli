@@ -1,8 +1,11 @@
 """Pydantic model for Forms /users/me (User)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class User(APIModel):
@@ -13,7 +16,9 @@ class User(APIModel):
         'e@x'
     """
 
-    id: int | None = Field(default=None, description="Forms' numeric id of the user.")
+    id: Annotated[int | None, Identity()] = Field(
+        default=None, description="Forms' numeric id of the user."
+    )
     uid: str | None = Field(default=None, description="Passport uid of the user.")
     cloud_uid: str | None = Field(default=None, description="Cloud uid of the user.")
     login: str | None = Field(default=None, description="Login of the user.")

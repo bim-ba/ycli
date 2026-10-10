@@ -1,9 +1,12 @@
 """Pydantic models for a Forms change log (``/surveys/{id}/history``)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.forms.models import UserRef
 from ycli.yandex.models import APIModel
+from ycli.yandex.sync.marks import Identity
 
 
 class HistoryEvent(APIModel):
@@ -16,7 +19,7 @@ class HistoryEvent(APIModel):
         'surveyhook'
     """
 
-    id: int | None = Field(default=None, description="Event id (integer).")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Event id (integer).")
     created: str | None = Field(default=None, description="ISO-8601 time of the change.")
     user: UserRef | None = Field(default=None, description="Who made the change.")
     model: str | None = Field(

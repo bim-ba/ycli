@@ -1,5 +1,7 @@
 """Pydantic models for Tracker issue remote links (links to external-application objects)."""
 
+from typing import Annotated
+
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -7,6 +9,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.tracker.models import Application, LinkType
 
 
@@ -41,7 +44,9 @@ class RemoteLink(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of this remote link."
     )
-    id: int | str | None = Field(default=None, description="Identifier of the remote link.")
+    id: Annotated[int | str | None, Identity()] = Field(
+        default=None, description="Identifier of the remote link."
+    )
     type: LinkType | None = Field(default=None, description="The link type.")
     direction: str | None = Field(
         default=None, description="Link direction (``outward`` / ``inward``) for asymmetric types."
