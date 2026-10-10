@@ -59,6 +59,7 @@ Only the fields you set are sent. Follow up with ``questions_create`` to add que
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for creating a form (``POST /surveys``). Every setting the API publishes is a field. The CLI has an option for the common ones; the rest are set with its common ``-F key=value`` and ``--body-file``. Unset (``None``) fields are dropped before the request is sent. ``language``, ``is_published`` and ``is_public`` are accepted and ignored by the API (checked live on 2026-10-04): they stay for callers that send them, and setting one logs a warning. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_surveys_update`
 
@@ -72,6 +73,7 @@ Untouched settings keep their current values, so a partial patch is safe to repe
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | Typed request body for modifying a form (``PATCH /surveys/{survey_id}``). Same optional fields as :class:`SurveyCreate`; only the fields you set are sent, so a partial patch never disturbs untouched settings. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_surveys_delete`
 
@@ -84,6 +86,7 @@ The API answers ``204 No Content``; the returned record confirms the accepted ac
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_surveys_publish`
 
@@ -97,6 +100,7 @@ Reverse with ``surveys_unpublish``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_surveys_unpublish`
 
@@ -109,6 +113,7 @@ The API answers a bare ``200 OK``; the returned record confirms the accepted act
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_questions_list`
 
@@ -150,6 +155,7 @@ afterwards with ``questions_move``.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) to add the question to. |
 | `body` | StringQuestion or BooleanQuestion or IntegerQuestion or FileQuestion or CommentQuestion or DateQuestion or DateRangeQuestion or PaymentQuestion or EnumQuestion or SuggestQuestion or MatrixQuestion or SeriesQuestion | yes | Typed question body; the ``type`` tag selects the question schema. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_questions_update`
 
@@ -165,6 +171,7 @@ The body's ``type`` must match the existing question's type; look it up with
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to modify. |
 | `body` | StringQuestion or BooleanQuestion or IntegerQuestion or FileQuestion or CommentQuestion or DateQuestion or DateRangeQuestion or PaymentQuestion or EnumQuestion or SuggestQuestion or MatrixQuestion or SeriesQuestion | yes | Typed question body; ``type`` must match the existing question. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_questions_delete`
 
@@ -181,6 +188,7 @@ The API answers ``204 No Content``; the returned record confirms the accepted ac
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to delete. |
 | `force` | boolean or null |  | Ignored by the API: a question that a display condition refers to is refused all the same. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_questions_move`
 
@@ -199,6 +207,7 @@ server-side — moving a question above one its conditions depend on is rejected
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to reposition. |
 | `body` | object | yes | Target placement: page / page_id / create_page and position. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_question_list`
 
@@ -243,6 +252,7 @@ Returns the created group with its server-assigned integer ``id``.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `question_id` | string | yes | Question id (integer) from questions_list. |
 | `body` | object | yes | The new group: operator + at least one clause. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_question_update`
 
@@ -259,6 +269,7 @@ clause are both required; the group ``id`` is never sent.
 | `question_id` | string | yes | Question id (integer) from questions_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 | `body` | object | yes | FULL replacement (PATCH validates the complete group). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_question_delete`
 
@@ -271,6 +282,7 @@ Delete one condition group from a question; the other groups stay untouched.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `question_id` | string | yes | Question id (integer) from questions_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_question_update_operator`
 
@@ -285,6 +297,7 @@ Group-internal operators are untouched — change those via ``conditions_questio
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `question_id` | string | yes | Question id (integer) from questions_list. |
 | `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_page_list`
 
@@ -326,6 +339,7 @@ created group with its server-assigned integer ``id``.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
 | `body` | object | yes | The new group: operator + at least one clause. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_page_update`
 
@@ -339,6 +353,7 @@ Replace a page's condition group — a FULL replacement, not a partial update.
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 | `body` | object | yes | FULL replacement (PATCH validates the complete group). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_page_delete`
 
@@ -351,6 +366,7 @@ Delete one condition group from a page; the other groups stay untouched.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_page_update_operator`
 
@@ -363,6 +379,7 @@ Set the boolean operator BETWEEN a page's condition groups; returns the envelope
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
 | `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_submit_list`
 
@@ -397,6 +414,7 @@ Add a condition group gating the form's submit button; returns it with its ``id`
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | The new group: operator + at least one clause. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_submit_update`
 
@@ -409,6 +427,7 @@ Replace a submit-button condition group — a FULL replacement, not a partial up
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 | `body` | object | yes | FULL replacement (PATCH validates the complete group). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_submit_delete`
 
@@ -420,6 +439,7 @@ Delete one condition group from the submit button; the other groups stay untouch
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_submit_update_operator`
 
@@ -431,6 +451,7 @@ Set the boolean operator BETWEEN the submit button's condition groups.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_hook_list`
 
@@ -468,6 +489,7 @@ Add a condition group to an integration group; returns it with its ``id``.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `body` | object | yes | The new group: operator + at least one clause. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_hook_update`
 
@@ -481,6 +503,7 @@ Replace an integration group's condition group — a FULL replacement.
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
 | `body` | object | yes | FULL replacement (PATCH validates the complete group). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_hook_delete`
 
@@ -493,6 +516,7 @@ Delete one condition group from an integration group; the others stay untouched.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `condition_id` | integer | yes | Condition group id (integer) from the matching *_list tool. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_conditions_hook_update_operator`
 
@@ -505,6 +529,7 @@ Set the boolean operator BETWEEN an integration group's condition groups.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_access_list`
 
@@ -531,6 +556,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | The action and its new access level. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_access_grant`
 
@@ -546,6 +572,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | The action and the user or group to add. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_access_revoke`
 
@@ -557,6 +584,7 @@ Stop a user or a group performing an action on a form; returns every permission.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | The action and the user or group to remove. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_history_list`
 
@@ -638,6 +666,7 @@ An empty ``body`` exports every answer as ``xlsx``. Poll the returned ``id`` wit
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | Typed request body for ``POST /v1/surveys/{id}/answers/export`` (start an async export). Every field is optional — the API defaults ``format`` to ``xlsx`` and ``upload`` to ``default``. Unset (``None``) fields are dropped before the request is sent, so a bare ``AnswerExport()`` exports every answer of the form in ``xlsx``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_answers_integrations_list`
 
@@ -663,6 +692,7 @@ Delete one answer of a form; ``answers_restore`` brings it back.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex). |
 | `answer_id` | integer | yes | Answer id (integer) from answers_list. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_answers_restore`
 
@@ -674,6 +704,7 @@ Bring a deleted answer of a form back.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex). |
 | `answer_id` | integer | yes | Id of the deleted answer (integer). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_keysets_list`
 
@@ -717,6 +748,7 @@ The API rejects a body without ``is_enabled``, so set it explicitly alongside ``
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex) to add the key set to. |
 | `body` | object | yes | Key set settings; the API requires ``is_enabled`` on create. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_keysets_update`
 
@@ -733,6 +765,7 @@ only grow: a number smaller than the set has now is refused.
 | `survey_id` | string | yes | Form id (24-char hex) the key set belongs to. |
 | `keyset_id` | integer | yes | Key set id (integer) from ``keysets_list``. |
 | `body` | object | yes | Full key set record — name, total and is_enabled are all required. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_keysets_delete`
 
@@ -746,6 +779,7 @@ The API answers ``200 OK`` with no body, so a typed acknowledgement is returned.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex) the key set belongs to. |
 | `keyset_id` | integer | yes | Key set id (integer) to delete. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_operations_get`
 
@@ -822,6 +856,7 @@ A ``result.status`` of ``operation`` means it runs in the background: poll
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `notification_id` | integer | yes | Notification id (integer) from notifications_list. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_notifications_cancel`
 
@@ -834,6 +869,7 @@ A run that is already canceled or finished answers ``result.status`` ``skip``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `notification_id` | integer | yes | Notification id (integer) from notifications_list. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_notifications_errors_list`
 
@@ -875,6 +911,7 @@ no useful body, so the returned record confirms the accepted action.
 |---|---|:---:|---|
 | `path` | string or null |  | File download path (from the upload response). |
 | `url` | string or null |  | File download URL. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_images_clone`
 
@@ -888,6 +925,7 @@ Reference the returned ``id`` from a question's, option's or form style's ``imag
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex). |
 | `body` | object | yes | The image to copy and the clone's name. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_filling_get`
 
@@ -938,6 +976,7 @@ Returns the success-page payload (``answer_id`` confirms the save).
 | `body` | object | yes | Answer map keyed by question slug (see ``filling_get`` for the slugs). |
 | `validate_only` | boolean or null |  | Validate only — saves nothing and fires no integrations. |
 | `key` | string or null |  | Personal-link fill key, when the form uses one. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_hooks_list`
 
@@ -977,6 +1016,7 @@ Add integrations with ``subscriptions_create`` and conditions with
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `body` | object | yes | Group name and active flag (both optional). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_hooks_update`
 
@@ -989,6 +1029,7 @@ Rename an integration group or switch it on or off; only the fields set change.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `body` | object | yes | Fields to change; unset ones stay. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_hooks_delete`
 
@@ -1000,6 +1041,7 @@ Delete an integration group together with its integrations and conditions.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_subscriptions_list`
 
@@ -1041,6 +1083,7 @@ integration with its integer ``id``.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `body` | object | yes | The integration; ``type`` selects its schema. Its schema is not listed here: read `Subscription` with schema_get(service="forms", name="Subscription"), then the definitions it refers to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_subscriptions_update`
 
@@ -1054,6 +1097,7 @@ Change an integration: only the fields set in ``body`` change.
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `subscription_id` | integer | yes | Integration id (integer) from subscriptions_list. |
 | `body` | object | yes | Fields to change; ``type`` must match the integration's type. Its schema is not listed here: read `Subscription` with schema_get(service="forms", name="Subscription"), then the definitions it refers to. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_subscriptions_delete`
 
@@ -1066,6 +1110,7 @@ Delete one integration from a hook; the hook's other integrations stay.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `subscription_id` | integer | yes | Integration id (integer) from subscriptions_list. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `forms_variables_list`
 

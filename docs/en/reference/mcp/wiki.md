@@ -128,6 +128,7 @@ then answers 404 and links to it break, so pick the slug carefully. Returns the 
 | `body` | object | yes | Typed request body for ``POST /pages``: a new page at ``slug``. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
 | `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_update`
 
@@ -147,6 +148,7 @@ handles that quirk. Repeating the same call yields the same page state (idempote
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
 | `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
 | `allow_merge` | boolean or null |  | Merge with a concurrent edit (3-way merge) instead of failing. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_delete`
 
@@ -162,6 +164,7 @@ anchor too, so double-check the id (``pages_get_by_id``) before calling.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to delete. |
 | `recursive` | boolean or null |  | Also delete every page under it. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_append`
 
@@ -179,6 +182,7 @@ text ``body.anchor``. Returns the updated page.
 | `body` | object | yes | What to append and where: required ``content`` (YFM fragment) plus optional ``body`` (top/bottom), ``section`` or ``anchor`` placement. |
 | `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
 | `is_silent` | boolean or null |  | Do not notify the page's subscribers. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_clone`
 
@@ -194,6 +198,7 @@ Cloning leaves the original where it is; to give the page itself a new slug use
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to copy. |
 | `body` | object | yes | Clone spec: required ``target`` (destination slug) plus optional ``title`` and ``subscribe_me``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_move`
 
@@ -212,6 +217,7 @@ and may change it.
 |---|---|:---:|---|
 | `body` | object | yes | Move spec: ``operations`` (each ``source`` slug and new ``target`` slug, optionally ``next_to_slug`` with ``position`` before/after) and optional ``copy_inherited_access``. |
 | `validate_only` | boolean or null |  | Validate the move without applying it. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_pages_revisions_list`
 
@@ -283,6 +289,7 @@ Grants access: a client that honours the mark asks a person on every call.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page. |
 | `body` | object | yes | The grant: exactly one of ``user`` (uid / cloud_uid) and ``group`` (src + id), the ``role``, and optionally ``inheritance``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_access_update`
 
@@ -300,6 +307,7 @@ Grants access: a client that honours the mark asks a person on every call.
 | `access_id` | string | yes | Id of the access entry, from the page's ``access_lists``. |
 | `body` | object | yes | The new ``role`` and/or ``inheritance`` (one at least). |
 | `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_access_delete`
 
@@ -314,6 +322,7 @@ The page owner's own entry cannot be revoked.
 | `page_id` | integer | yes | Numeric id of the page. |
 | `access_id` | string | yes | Id of the access entry, from the page's ``access_lists``. |
 | `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_access_clear`
 
@@ -328,6 +337,7 @@ entries are not kept.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page. |
 | `prevent_selflock` | boolean or null |  | Refuse the change if it would leave you without read access or the right to change accesses. Set it unless you mean to lock yourself out. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_comments_list`
 
@@ -397,6 +407,7 @@ Pass ``body.parent_id`` to reply to an existing comment — find ids with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to comment on. |
 | `body` | object | yes | The comment: required ``body`` text plus optional placement — ``inline_text`` (pin to a page fragment), ``parent_id`` (reply), ``thread_id``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_comments_delete`
 
@@ -412,6 +423,7 @@ replies' threading.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page the comment lives on. |
 | `comment_id` | integer | yes | Numeric id of the comment to delete. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_attachments_list`
 
@@ -461,6 +473,7 @@ a single call. Returns the newly-attached files.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to attach to. |
 | `session_ids` | array of string | yes | ``session_id`` of each FINISHED upload session to attach. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_attachments_upload`
 
@@ -479,6 +492,7 @@ newly-attached files.
 | `page_id` | integer | yes | Numeric id of the page to attach the file to. |
 | `file_name` | string | yes | Name to give the uploaded file. |
 | `data` | string | yes | The file's bytes, base64-encoded. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_attachments_delete`
 
@@ -493,6 +507,7 @@ The API answers ``204 No Content``; a typed acknowledgement is returned instead.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page the file is attached to. |
 | `file_id` | integer | yes | Numeric id of the attachment to delete. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_resources_list`
 
@@ -529,6 +544,7 @@ the path is the whole request.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `token` | string | yes | UUID4 ``recovery_token`` returned by ``pages_delete``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_get`
 
@@ -564,6 +580,7 @@ A new grid has no rows or columns — add them afterwards with ``grids_columns_c
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Grid spec: ``title`` plus the ``page`` (by id or slug) to live on. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_update`
 
@@ -578,6 +595,7 @@ a mismatch fails the write. Returns the grid's new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | Editable fields (``title``, ``default_sort``) plus the required ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_delete`
 
@@ -591,6 +609,7 @@ result is a typed acknowledgement.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_rows_create`
 
@@ -605,6 +624,7 @@ the grid's new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``rows`` (each maps column slug → cell value) + ``revision``; optional ``position`` / ``after_row_id`` placement. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_rows_delete`
 
@@ -619,6 +639,7 @@ A rare DELETE-with-body: ids and revision travel in the JSON body. Find row ids 
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``row_ids`` to delete (at least one) + the current ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_rows_move`
 
@@ -632,6 +653,7 @@ Returns the grid's new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``row_id`` (first row to move) + destination (``position`` or ``after_row_id``) + optional ``rows_count`` + the current ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_columns_create`
 
@@ -647,6 +669,7 @@ Each column needs a ``title`` and a ``type`` (``string``, ``number``, ``select``
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``columns`` (each needs ``title`` + ``type``) + the current ``revision``; optional ``position``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_columns_delete`
 
@@ -661,6 +684,7 @@ new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``column_slugs`` to delete + the current ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_columns_move`
 
@@ -674,6 +698,7 @@ Returns the grid's new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``column_slug`` (first column to move) + ``position`` + optional ``columns_count`` + the current ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_cells_update`
 
@@ -688,6 +713,7 @@ plus the grid's new ``revision``.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``cells`` (each: ``row_id`` + ``column_slug`` + ``value``) + the current ``revision``. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_clone`
 
@@ -703,6 +729,7 @@ operation reference — poll ``operations_clone_inline_grid_get`` with the retur
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | Clone spec: ``target`` page slug (created if absent) + optional ``title`` and ``with_data`` (copy rows too). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_columns_suggest`
 
@@ -734,6 +761,7 @@ live OpenAPI only) and may change it.
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `column_slug` | string | yes | Slug of the column to edit. |
 | `body` | object | yes | The fields to change (``title``, ``description``, ``required``, ``width``, ``color``, ``pinned``, ``select_options``, …); ``revision`` is optional. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_grids_rows_update`
 
@@ -751,6 +779,7 @@ change it.
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `row_id` | string | yes | Id of the row to pin or colour. |
 | `body` | object | yes | ``pinned`` and/or ``color`` to set; ``revision`` is optional. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_operations_clone_get`
 
@@ -820,6 +849,7 @@ pipeline in one call instead.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | ``file_name`` + total ``file_size`` in bytes (sum of every part). |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_uploadsessions_parts_upload`
 
@@ -836,6 +866,7 @@ call. Returns the session (poll ``status`` via ``uploadsessions_get``).
 | `session_id` | string | yes | UUID4 of the upload session. |
 | `part_number` | integer | yes | 1-based part index (1 for the first part, +1 for each next). |
 | `data` | string | yes | This part's bytes, base64-encoded. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_uploadsessions_finish`
 
@@ -849,6 +880,7 @@ session with its final ``status``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `session_id` | string | yes | UUID4 of the upload session. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_uploadsessions_abort`
 
@@ -862,6 +894,7 @@ session with ``status: aborted``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `session_id` | string | yes | UUID4 of the upload session. |
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
 
 ## `wiki_uploadsessions_abort_all`
 
@@ -871,3 +904,7 @@ Cancel EVERY active upload session of the caller, discarding all uploaded parts.
 
 A quota-freeing sweep — use it when stale sessions block new uploads; prefer
 ``uploadsessions_abort`` to cancel a single known session.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |

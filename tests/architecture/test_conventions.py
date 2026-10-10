@@ -16,6 +16,7 @@ import ycli.yandex
 from tests.architecture.scanners import GENERATED, _import_aliases, is_generated, unexplained
 from tests.full_server import tools_with_output_schemas
 from ycli.yandex.core.pagination import BodyCursorPagination
+from ycli.yandex.mcp import PLAN_SCHEMA
 from ycli.yandex.models import (
     IGNORED_BY_API,
     APIModel,
@@ -184,7 +185,9 @@ def _undiscriminated_unions(
             objects = [
                 branch
                 for branch in schema.get(key, [])
-                if "$ref" in branch or branch.get("type") == "object"
+                # The plan a write tool answers under `dry_run` is no member to mistake: it is
+                # the first, is told by `dry_run: true` and takes no other key.
+                if ("$ref" in branch or branch.get("type") == "object") and branch != PLAN_SCHEMA
             ]
             layer = all(
                 branch.get("$ref", "").rsplit("/", 1)[-1] in generated for branch in objects
@@ -217,6 +220,8 @@ def test_the_union_check_bites():
     ]
     assert _undiscriminated_unions({"oneOf": members, "discriminator": {"propertyName": "t"}}) == []
     assert _undiscriminated_unions({"anyOf": [{"$ref": "#/$defs/A"}, {"type": "null"}]}) == []
+    assert _undiscriminated_unions({"anyOf": [PLAN_SCHEMA, {"$ref": "#/$defs/A"}]}) == []
+    assert _undiscriminated_unions({"anyOf": [PLAN_SCHEMA, *members]}) == ["$"]
     # Both sides of the generated layer: a union of its classes alone is left to it, and one
     # hand-written member brings the union back under the rule.
     layer = frozenset({"A", "B"})
