@@ -24,7 +24,7 @@ class Column(APIModel):
         'T'
     """
 
-    id: int | None = Field(default=None, description="Id of the column.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Id of the column.")
     slug: str | None = Field(default=None, description="Slug of the column.")
     type: str | None = Field(default=None, description="Question type of the column.")
     text: str | None = Field(default=None, description="Heading of the column, the question text.")
@@ -44,7 +44,7 @@ class Answer(APIModel):
         [{'value': 'x'}]
     """
 
-    id: int | None = Field(default=None, description="Id of the answer.")
+    id: Annotated[int | None, Identity()] = Field(default=None, description="Id of the answer.")
     created: str | None = Field(
         default=None, description="When the answer was submitted (ISO 8601)."
     )

@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.answers import endpoints
-from ycli.yandex.forms.answers.models import (
-    Answer,
-    AnswerDetails,
-    AnswerExport,
-    AnswerIntegration,
-    AnswersResponse,
-    Column,
-)
 
 if TYPE_CHECKING:
+    from ycli.yandex.core.listing import Listing
+    from ycli.yandex.forms.answers.models import (
+        Answer,
+        AnswerDetails,
+        AnswerExport,
+        AnswerIntegration,
+        Column,
+    )
     from ycli.yandex.forms.models import OperationResult
     from ycli.yandex.models import ItemList
 
@@ -48,6 +47,7 @@ class AnswersClient(Resource):
         survey_id: str,
         *,
         limit: int | None = None,
+        next: str | None = None,
         questions: str | None = None,
         use_slugs: bool | None = None,
         date_from: str | None = None,
@@ -55,30 +55,33 @@ class AnswersClient(Resource):
         ordering: str | None = None,
         page_size: int | None = None,
         answer_format: str | None = None,
-    ) -> AnswersResponse:
-        """Every answer across pages, at most ``limit`` (``None`` = all).
+    ) -> Listing[Answer]:
+        """``GET /surveys/{id}/answers`` → the form's answers, page by page, at most ``limit``.
 
-        ``columns`` come from the first page (identical across pages); the merged ``next`` is
-        ``None``.
+        The cells of an answer (``data``) stand in the order of :meth:`columns_list`, asked
+        with the same ``questions`` and ``use_slugs``; ``answer_format="raw"`` gives each
+        answer's data keyed by question instead, which needs no columns.
 
         Args:
             survey_id: The form's id.
             limit: The most answers to return; ``None`` returns every answer.
+            next: What an earlier call returned as ``next``. The token carries its listing;
+                give what is required again, and nothing else but the limit.
             questions: The comma-separated question ids to return answers for.
             use_slugs: Name questions and options by slug instead of id.
             date_from: ISO-8601 start of the period the answers were given in.
             date_to: ISO-8601 end of that period.
             ordering: ``asc`` (oldest first) or ``desc`` (the API's default).
             page_size: The most answers a page holds (the API's default is 25).
-            answer_format: ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's
-                data as the API stores it, with no ``columns``).
+            answer_format: ``default`` (cells in the order of the columns) or ``raw`` (each
+                answer's data as the API stores it).
 
         Returns:
-            The answers of every page, with the first page's columns.
+            The form's answers.
 
         Examples:
-            >>> len(forms.answers.list("686d0a1b2c3d4e5f00000030", limit=500).answers)
-            2
+            >>> [answer.id for answer in forms.answers.list("686d0a1b2c3d4e5f00000030", limit=500)]
+            [2, 1]
         """
         paged = endpoints.list_(
             survey_id,
@@ -90,15 +93,31 @@ class AnswersClient(Resource):
             page_size=page_size,
             answer_format=answer_format,
         )
-        columns: list[Column] = []
+        return self._session.iterate(paged, limit=limit, next=next)
 
-        def items_of(page: AnswersResponse) -> list[Answer]:
-            if not columns:
-                columns.extend(page.columns)
-            return page.answers
+    def columns_list(
+        self, survey_id: str, *, questions: str | None = None, use_slugs: bool | None = None
+    ) -> ItemList[Column]:
+        """``GET /surveys/{id}/answers`` → the columns the cells of an answer stand in.
 
-        answers = list(self._session.iterate(replace(paged, items_of=items_of), limit=limit))
-        return AnswersResponse(columns=columns, answers=answers, next=None)
+        The API has no request for the columns alone: one answer is read to learn them, and
+        left out. A form nobody answered yet has its columns all the same.
+
+        Args:
+            survey_id: The form's id.
+            questions: The comma-separated question ids to return columns for.
+            use_slugs: Name questions by slug instead of id.
+
+        Returns:
+            The columns, in the order of the cells of :meth:`list` asked the same way.
+
+        Examples:
+            >>> forms.answers.columns_list("686d0a1b2c3d4e5f00000037").root[0].text
+            'Name'
+        """
+        return self._session.send(
+            endpoints.columns_list(survey_id, questions=questions, use_slugs=use_slugs)
+        )
 
     def export(self, survey_id: str, body: AnswerExport) -> OperationResult:
         """``POST /surveys/{id}/answers/export`` — start an export → ``202`` with its operation.

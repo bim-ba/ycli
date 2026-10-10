@@ -1,1 +1,1 @@
-| ycli | Tracker, Wiki, Forms, DataLens | 457: Tracker 187, Wiki 56, Forms 78, DataLens 134, and `schema_get`, `status_get` | yes | `ycli mcp start --read-only` | all |
+| ycli | Tracker, Wiki, Forms, DataLens | 458: Tracker 187, Wiki 56, Forms 79, DataLens 134, and `schema_get`, `status_get` | yes | `ycli mcp start --read-only` | all |

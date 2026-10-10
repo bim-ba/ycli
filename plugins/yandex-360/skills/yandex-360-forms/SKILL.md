@@ -59,6 +59,7 @@ The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section 
 | List questions (schema) | `uv run ycli forms questions list <form_id>` | `forms_questions_list` |
 | Get one question | `uv run ycli forms questions get <form_id> <q_id>` | `forms_questions_get` |
 | List answers (responses) | `uv run ycli forms answers list <form_id> [--all]` | `forms_answers_list` |
+| The columns the cells of an answer stand in | `uv run ycli forms answers columns-list <form_id>` | `forms_answers_columns_list` |
 | Fillable form view (option ids!) | `uv run ycli forms filling get <form_id>` | `forms_filling_get` |
 | Suggest values for a question | `uv run ycli forms filling suggest <form_id> --question <slug> --text …` | `forms_filling_suggest` |
 | Keysets | `uv run ycli forms keysets list\|get …` | `forms_keysets_list` / `forms_keysets_get` |
@@ -78,7 +79,7 @@ forms.me.get()  # auth probe
 forms.surveys.list()  # list forms
 forms.surveys.get("<form_id>")  # form settings
 forms.questions.list("<form_id>")  # schema
-forms.answers.list("<form_id>")  # responses
+forms.answers.list("<form_id>")  # responses; forms.answers.columns_list("<form_id>") names their cells
 ```
 
 ---

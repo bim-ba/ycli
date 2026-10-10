@@ -20,6 +20,7 @@ from ycli.yandex.forms.answers.models import (
     AnswerExport,
     AnswerIntegration,
     AnswersResponse,
+    Column,
 )
 from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.models import ItemList
@@ -71,6 +72,22 @@ def list_(
         NextURLPagination(url_of=_next_url, query_only=True),
         lambda page: page.answers,
     )
+
+
+def _columns(response: httpx2.Response) -> ItemList[Column]:
+    return ItemList[Column](AnswersResponse.model_validate(response.json()).columns)
+
+
+def columns_list(
+    survey_id: str, *, questions: str | None, use_slugs: bool | None
+) -> Endpoint[ItemList[Column]]:
+    """``GET /surveys/{id}/answers`` for its ``columns``: the API has no request for them alone.
+
+    One answer is asked for, the least a page holds, and left out of the result.
+    """
+    params = {"questions": questions, "use_slugs": use_slugs, "page_size": 1}
+    path = f"surveys/{segment(survey_id)}/answers"
+    return Endpoint(HTTPMethod.GET, path, params=params, parser=_columns)
 
 
 def export(survey_id: str, body: AnswerExport) -> Endpoint[OperationResult]:

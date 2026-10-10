@@ -2,4 +2,4 @@
 
 Surveys, questions, answers, publishing.
 
-`85 operations` · CLI · MCP · Python
+`86 operations` · CLI · MCP · Python

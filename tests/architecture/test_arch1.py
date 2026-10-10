@@ -964,8 +964,6 @@ def test_arch1_argument_check_bites():
 # the pages of a listing takes `next` (#502), and so do its command and its tool: the check of
 # arguments above holds the surfaces to the method.
 ARCH1_LISTINGS_WITHOUT_NEXT = {
-    "forms.answers.list": "returns the columns with the answers, which a listing has no place "
-    "for; its own answer is with the owner",
     "wiki.comments.thread_list": "rebuilds one thread from every comment of the page: there is "
     "no page of the service to go on from",
 }
