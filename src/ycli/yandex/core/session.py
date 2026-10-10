@@ -211,7 +211,7 @@ class SyncSession:
     ) -> None:
         self._client = client
         #: The organization every request names: a token of a listing is of it, and no other.
-        self._organization = organization
+        self._organization = continuation.organization_of(organization)
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send
@@ -345,7 +345,7 @@ class AsyncSession:
     ) -> None:
         self._client = client
         #: The organization every request names: a token of a listing is of it, and no other.
-        self._organization = organization
+        self._organization = continuation.organization_of(organization)
         self._http = http or HTTPConfig()
         self._attempts = self._http.retries + 1
         self._before_send = before_send

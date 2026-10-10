@@ -664,7 +664,7 @@ def test_a_token_goes_on_only_in_the_organization_it_was_returned_in(profile, ar
     said = rf"is of another organization \({header}: 7\) than this call \({header}: o\): run it"
     with pytest.raises(YandexInvalidRequestError, match=said):
         _in(profile, counted, **{argument: "o"}).iterate(paged, next=token)
-    with pytest.raises(YandexInvalidRequestError, match=r"7\) than this call \(none\)"):
+    with pytest.raises(YandexInvalidRequestError, match=r"kind\) than this call \(none\)"):
         _in(profile, counted).iterate(paged, next=token)
     assert asked == []
     same = _in(profile, counted, **{argument: "7"}).iterate(paged, limit=4, next=token)
@@ -676,7 +676,7 @@ def test_the_same_id_in_another_kind_of_organization_is_another_organization():
     transport, paged = _served("cursor")
     both = ServiceProfile(BASE)
     token = _in(both, transport, organization_id="7").iterate(paged, limit=4).collect().next
-    said = r"\(X-Org-Id: 7\) than this call \(X-Cloud-Org-Id: 7\)"
+    said = r"\(of another kind\) than this call \(X-Cloud-Org-Id: 7\)"
     with pytest.raises(YandexInvalidRequestError, match=said):
         _in(both, transport, cloud_organization_id="7").iterate(paged, next=token)
 
