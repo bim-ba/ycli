@@ -39,9 +39,8 @@ def test_list_all_carries_the_dead_v3_cursor_onto_v1(api):
     )
     api.add("GET", ANSWERS, json={"columns": [{"slug": "ignored"}], "answers": [{"id": 2}]})
     with FormsClient(oauth_token="t", organization_id="o") as client:
-        result = client.answers.list(SID)
-    assert [answer.id for answer in result.answers] == [1, 2]
-    assert [column.slug for column in result.columns] == ["q1"]
+        result = list(client.answers.list(SID))
+    assert [answer.id for answer in result] == [1, 2]
     assert str(api.calls[1].url) == f"{ANSWERS}?id=100"
 
 
@@ -66,4 +65,21 @@ async def test_the_tool_stops_at_its_limit(api):
     api.add("GET", f"{BASE}/surveys/s1/answers", json={"answers": answers, "columns": []})
     async with Client(mcp) as client:
         result = await client.call_tool("forms_answers_list", {"survey_id": "s1", "limit": 2})
-    assert [answer["id"] for answer in result.structured_content["answers"]] == [1, 2]
+    assert [answer["id"] for answer in result.structured_content["items"]] == [1, 2]
+
+
+def test_the_cells_of_an_answer_stand_in_the_order_of_the_columns_asked_the_same_way(api):
+    """What the help of ``list`` says: as many cells as ``columns-list`` gives columns."""
+    page = {
+        "columns": [{"id": 17, "slug": "name"}, {"id": 18, "slug": "city"}],
+        "answers": [{"id": 1, "data": [{"value": "Ann"}, None]}],
+    }
+    api.add("GET", ANSWERS, json=page)
+    api.add("GET", ANSWERS, json=page)
+    with FormsClient(oauth_token="t", organization_id="o") as client:
+        columns = client.answers.columns_list(SID, questions="17,18", use_slugs=True)
+        (answer,) = client.answers.list(SID, questions="17,18", use_slugs=True)
+    assert len(answer.data) == len(columns.root) == 2
+    asked = [dict(call.url.params) for call in api.calls]
+    assert asked[0] == {"questions": "17,18", "use_slugs": "true", "page_size": "1"}
+    assert asked[1] == {"questions": "17,18", "use_slugs": "true"}

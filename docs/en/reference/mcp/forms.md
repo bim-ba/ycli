@@ -7,7 +7,7 @@ generated: true
 
 # Forms MCP tools
 
-78 tools.
+79 tools.
 
 ## `forms_me_get`
 
@@ -588,10 +588,11 @@ item is a self-describing question record (``{id, label, type, value, …}``).
 
 *List Forms answers* · read-only
 
-A form's responses, at most ``limit`` (drains pages via the next cursor).
+A form's responses, across pages, at most ``limit``.
 
-Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
-in the merged result.
+The cells of a response (``data``) stand in the order of ``answers_columns_list``, asked
+with the same ``questions`` and ``use_slugs``; ``answer_format="raw"`` gives the data
+keyed by question instead.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -604,6 +605,20 @@ in the merged result.
 | `ordering` | `asc` · `desc` or string or null |  | ``asc`` is oldest first; the default is ``desc``. |
 | `page_size` | integer or null |  | Answers per request (the API's default is 25). |
 | `answer_format` | `default` · `raw` or string or null |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
+| `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
+| `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
+
+## `forms_answers_columns_list`
+
+*List Forms answer columns* · read-only
+
+The columns the cells of a response stand in; one response is read to learn them.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `questions` | string or null |  | Comma-separated question ids to return columns for. |
+| `use_slugs` | boolean or null |  | Name questions by slug instead of id. |
 
 ## `forms_answers_export`
 

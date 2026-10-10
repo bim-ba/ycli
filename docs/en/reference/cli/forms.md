@@ -1454,6 +1454,7 @@ $ ycli forms answers [OPTIONS] COMMAND [ARGS]...
 
 * `get`: Fetch one answer (GET /answers).
 * `list`: List a form's responses, filtered...
+* `columns-list`: List the columns the cells of a response...
 * `export`: Export a form's answers (POST...
 * `integrations-list`: List the integration runs an answer...
 * `delete`: Delete an answer (DELETE...
@@ -1487,6 +1488,10 @@ $ ycli forms answers get [OPTIONS]
 
 List a form's responses, filtered (auto-paginated; --all for everything).
 
+The cells of a response stand in the order of `forms answers columns-list`, asked with
+the same --questions and --use-slugs; `--answer-format raw` gives the data keyed by
+question instead, which needs no columns.
+
 **Usage**:
 
 ```console
@@ -1501,6 +1506,7 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
+* `--next TOKEN`: Go on from where an earlier run stopped, with the token it printed: the token carries its listing; give what is required again, and nothing else but the limit.
 * `--questions TEXT`: Comma-separated question ids to return answers for.
 * `--use-slugs / --no-use-slugs`: Name questions and options by slug, not id.
 * `--date-from TEXT`: ISO-8601: answers given at or after.
@@ -1508,6 +1514,32 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 * `--ordering TEXT`: asc is oldest first; the default is desc. Known values: asc, desc.
 * `--page-size INTEGER`: Answers per request (the API's default is 25).
 * `--answer-format TEXT`: default is cells by column, raw is as stored. Known values: default, raw.
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli forms answers columns-list`
+
+List the columns the cells of a response stand in (reads one response to learn them).
+
+**Usage**:
+
+```console
+$ ycli forms answers columns-list [OPTIONS] SURVEY_ID
+```
+
+**Arguments**:
+
+* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
+
+**Options**:
+
+* `--questions TEXT`: Comma-separated question ids to return columns for.
+* `--use-slugs / --no-use-slugs`: Name questions by slug, not id.
 * `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

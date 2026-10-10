@@ -6,14 +6,16 @@ import typer
 
 from ycli.cli.output import BinaryResult
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, NextOption, values_option
 from ycli.settings import AppConfig
+from ycli.yandex.core.listing import Listing
 from ycli.yandex.forms.answers.models import (
+    Answer,
     AnswerDetails,
     AnswerExport,
     AnswerFormat,
     AnswerIntegration,
-    AnswersResponse,
+    Column,
     ExportFormat,
     ExportUpload,
 )
@@ -50,6 +52,7 @@ def list_(
     survey_id: SurveyIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
+    next_: NextOption = None,
     questions: Annotated[
         str | None, typer.Option(help="Comma-separated question ids to return answers for.")
     ] = None,
@@ -80,12 +83,18 @@ def list_(
     *,
     config: AppConfig,
     forms: FormsClient,
-) -> AnswersResponse:
-    """List a form's responses, filtered (auto-paginated; --all for everything)."""
+) -> Listing[Answer]:
+    """List a form's responses, filtered (auto-paginated; --all for everything).
+
+    The cells of a response stand in the order of `forms answers columns-list`, asked with
+    the same --questions and --use-slugs; `--answer-format raw` gives the data keyed by
+    question instead, which needs no columns.
+    """
     cap = config.http.cap(limit, all_=all_)
     return forms.answers.list(
         survey_id,
         limit=cap,
+        next=next_,
         questions=questions,
         use_slugs=use_slugs,
         date_from=date_from,
@@ -94,6 +103,23 @@ def list_(
         page_size=page_size,
         answer_format=answer_format,
     )
+
+
+@app.command()
+def columns_list(
+    survey_id: SurveyIDArg,
+    questions: Annotated[
+        str | None, typer.Option(help="Comma-separated question ids to return columns for.")
+    ] = None,
+    use_slugs: Annotated[
+        bool | None,
+        typer.Option("--use-slugs/--no-use-slugs", help="Name questions by slug, not id."),
+    ] = None,
+    *,
+    forms: FormsClient,
+) -> ItemList[Column]:
+    """List the columns the cells of a response stand in (reads one response to learn them)."""
+    return forms.answers.columns_list(survey_id, questions=questions, use_slugs=use_slugs)
 
 
 def _finish_export(

@@ -49,6 +49,15 @@ INTEGRATIONS = [
     {"id": 5, "status": "canceled", "type": "function", "function_id": "d4e0abc"},
 ]
 
+COLUMNS_OF = "686d0a1b2c3d4e5f00000037"
+COLUMN = {
+    "id": 17,
+    "slug": "answer_short_text_1",
+    "type": "string",
+    "text": "Name",
+    "has_scores": False,
+}
+COLUMNS_PAGE = {"columns": [COLUMN], "answers": [{"id": 1, "data": [{"value": "Ann"}]}]}
 FILTERED = "686d0a1b2c3d4e5f00000036"
 FILTERS = {
     "questions": "17,18",
@@ -94,23 +103,10 @@ CASES = [
             (Sent("GET", f"surveys/{SID}/answers"), Reply(json=FIRST_PAGE)),
             (Sent("GET", f"surveys/{SID}/answers", {"id": "2"}), Reply(json=PAGE)),
         ],
-        output={
-            "columns": [
-                {
-                    "id": None,
-                    "slug": "answer_short_text_1",
-                    "type": None,
-                    "text": None,
-                    "has_scores": None,
-                    "label": "Name",
-                }
-            ],
-            "answers": [
-                {"id": 2, "created": None, "uid": None, "data": ["Bob"]},
-                {"id": 1, "created": None, "uid": None, "data": ["Ann"]},
-            ],
-            "next": None,
-        },
+        output=[
+            {"id": 2, "created": None, "uid": None, "data": ["Bob"]},
+            {"id": 1, "created": None, "uid": None, "data": ["Ann"]},
+        ],
     ),
     # A limit below the page keeps only that many answers (MCP always uses the configured cap).
     Case(
@@ -125,20 +121,7 @@ CASES = [
                 Reply(json={**PAGE, "answers": [{"id": 1}, {"id": 2}]}),
             )
         ],
-        output={
-            "columns": [
-                {
-                    "id": None,
-                    "slug": "answer_short_text_1",
-                    "type": None,
-                    "text": None,
-                    "has_scores": None,
-                    "label": "Name",
-                }
-            ],
-            "answers": [{"id": 1, "created": None, "uid": None, "data": []}],
-            "next": None,
-        },
+        output=[{"id": 1, "created": None, "uid": None, "data": []}],
     ),
     Case(
         "forms.answers.list",
@@ -153,23 +136,49 @@ CASES = [
             )
         ],
         env={"YCLI__HTTP__MAX_ITEMS": "1"},
-        output={
-            "columns": [
-                {
-                    "id": None,
-                    "slug": "answer_short_text_1",
-                    "type": None,
-                    "text": None,
-                    "has_scores": None,
-                    "label": "Name",
-                }
-            ],
-            "answers": [
-                {"id": 7, "created": None, "uid": None, "data": []},
-                {"id": 8, "created": None, "uid": None, "data": []},
-            ],
-            "next": None,
-        },
+        output=[
+            {"id": 7, "created": None, "uid": None, "data": []},
+            {"id": 8, "created": None, "uid": None, "data": []},
+        ],
+    ),
+    # The columns alone: one answer is asked for and left out of what is returned.
+    Case(
+        "forms.answers.columns_list",
+        args=(COLUMNS_OF,),
+        cli=["forms", "answers", "columns-list", COLUMNS_OF],
+        mcp=("forms_answers_columns_list", {"survey_id": COLUMNS_OF}),
+        exchanges=[
+            (
+                Sent("GET", f"surveys/{COLUMNS_OF}/answers", {"page_size": "1"}),
+                Reply(json=COLUMNS_PAGE),
+            )
+        ],
+        output=[COLUMN],
+    ),
+    # A form nobody answered has its columns all the same; the two options go as given.
+    Case(
+        "forms.answers.columns_list",
+        args=(COLUMNS_OF,),
+        kwargs={"questions": "17,18", "use_slugs": True},
+        cli=[
+            *("forms", "answers", "columns-list", COLUMNS_OF),
+            *("--questions", "17,18", "--use-slugs"),
+        ],
+        mcp=(
+            "forms_answers_columns_list",
+            {"survey_id": COLUMNS_OF, "questions": "17,18", "use_slugs": True},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    f"surveys/{COLUMNS_OF}/answers",
+                    {"questions": "17,18", "use_slugs": "true", "page_size": "1"},
+                ),
+                Reply(json={**COLUMNS_PAGE, "answers": []}),
+            )
+        ],
+        output=[COLUMN],
     ),
     Case(
         "forms.answers.export",
@@ -318,13 +327,9 @@ CASES = [
                 Reply(json={"answers": [{"id": 32, "uid": "9105", "data": {"name": "Bob"}}]}),
             ),
         ],
-        output={
-            "columns": [],
-            "answers": [
-                {"id": 31, "created": None, "uid": "9104", "data": {"name": "Ann"}},
-                {"id": 32, "created": None, "uid": "9105", "data": {"name": "Bob"}},
-            ],
-            "next": None,
-        },
+        output=[
+            {"id": 31, "created": None, "uid": "9104", "data": {"name": "Ann"}},
+            {"id": 32, "created": None, "uid": "9105", "data": {"name": "Bob"}},
+        ],
     ),
 ]

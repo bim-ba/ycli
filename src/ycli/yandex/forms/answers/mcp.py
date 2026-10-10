@@ -12,11 +12,12 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
+    Answer,
     AnswerDetails,
     AnswerExport,
     AnswerFormat,
     AnswerIntegration,
-    AnswersResponse,
+    Column,
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
@@ -24,13 +25,15 @@ from ycli.yandex.forms.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
+    All,
+    Next,
     SurveyID,
     app_config,
     forms_client,
     new_server,
 )
 from ycli.yandex.forms.models import OperationResult
-from ycli.yandex.models import Ack, ItemList, SortDirection
+from ycli.yandex.models import Ack, ItemList, Listed, SortDirection
 
 mcp = new_server("forms-answers")
 
@@ -87,17 +90,22 @@ def list_(
             "data as stored, with no ``columns``)."
         ),
     ] = None,
+    all: All = False,
+    next: Next = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> AnswersResponse:
-    """A form's responses, at most ``limit`` (drains pages via the next cursor).
+) -> Listed[Answer]:
+    """A form's responses, across pages, at most ``limit``.
 
-    Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
-    in the merged result.
+    The cells of a response (``data``) stand in the order of ``answers_columns_list``, asked
+    with the same ``questions`` and ``use_slugs``; ``answer_format="raw"`` gives the data
+    keyed by question instead.
     """
+    cap = config.http.tool_cap(limit, all_=all)
     return client.answers.list(
         survey_id,
-        limit=config.http.tool_cap(limit),
+        limit=cap,
+        next=next,
         questions=questions,
         use_slugs=use_slugs,
         date_from=date_from,
@@ -105,7 +113,22 @@ def list_(
         ordering=ordering,
         page_size=page_size,
         answer_format=answer_format,
-    )
+    ).collect()
+
+
+@mcp.tool(name="answers_columns_list", annotations={**RO, "title": "List Forms answer columns"})
+def columns_list(
+    survey_id: SurveyID,
+    questions: Annotated[
+        str | None, Field(description="Comma-separated question ids to return columns for.")
+    ] = None,
+    use_slugs: Annotated[
+        bool | None, Field(description="Name questions by slug instead of id.")
+    ] = None,
+    client: FormsClient = Depends(forms_client),
+) -> ItemList[Column]:
+    """The columns the cells of a response stand in; one response is read to learn them."""
+    return client.answers.columns_list(survey_id, questions=questions, use_slugs=use_slugs)
 
 
 @mcp.tool(name="answers_export", annotations={**WRITE, "title": "Export Forms answers"})

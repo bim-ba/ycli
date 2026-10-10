@@ -142,11 +142,12 @@ forms access grant: --action:TEXT! --body-file:FILE --cloud-uid:TEXT --dry-run:B
 forms access list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms access revoke: --action:TEXT! --body-file:FILE --cloud-uid:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --group-id:TEXT --group-src:TEXT --profile:TEXT --uid:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms access update: --access:TEXT! --action:TEXT! --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms answers columns-list: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --questions:TEXT --use-slugs:BOOLEAN --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms answers delete: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
 forms answers export: --body-file:FILE --column:TEXT --dry-run:BOOLEAN=False --field:TEXT --finished-at:TEXT --format:TEXT --limit:INTEGER --output:TEXT --pk:INTEGER --profile:TEXT --started-at:TEXT --upload-files:BOOLEAN --upload:TEXT --wait:BOOLEAN=True --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms answers get: --answer-id:INTEGER --answer-key:TEXT --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 forms answers integrations-list: --answer-id:INTEGER --answer-key:TEXT --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
-forms answers list: --all:BOOLEAN=False --answer-format:TEXT --body-file:FILE --date-from:TEXT --date-to:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --ordering:TEXT --page-size:INTEGER --profile:TEXT --questions:TEXT --use-slugs:BOOLEAN --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms answers list: --all:BOOLEAN=False --answer-format:TEXT --body-file:FILE --date-from:TEXT --date-to:TEXT --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --next:TEXT --ordering:TEXT --page-size:INTEGER --profile:TEXT --questions:TEXT --use-slugs:BOOLEAN --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms answers restore: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
 forms auth status: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 forms conditions hook create: --body-file:FILE --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --item:TEXT --operator:TEXT --profile:TEXT --yes:BOOLEAN=False HOOK_ID:INTEGER! SURVEY_ID:TEXT!
