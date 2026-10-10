@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.139.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.138.1
+  ([`5e761a9`](https://github.com/bim-ba/ycli/commit/5e761a94b0a34680433c6c486078a2a69af8a1fc))
+
+### Features
+
+- **forms**: `forms answers list` is a listing like every other, and `columns-list` gives its
+  columns ([#574](https://github.com/bim-ba/ycli/pull/574),
+  [`3efcf71`](https://github.com/bim-ba/ycli/commit/3efcf71953609e683647aa25258d630dbfa94f1b))
+
+### Breaking Changes
+
+- **forms**: `forms answers list -o json` prints `{items, truncated, next, total}` instead of
+  `{columns, answers, next}`: a script reads `.items[]` where it read `.answers[]`, and takes the
+  columns from `forms answers columns-list`. `forms.answers.list()` returns `Listing[Answer]`
+  instead of `AnswersResponse`, and the tool `forms_answers_list` returns the listing object.
+
+
 ## v0.138.1 (2026-10-10)
 
 ### Bug Fixes
