@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.132.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.131.1
+  ([`0b27f91`](https://github.com/bim-ba/ycli/commit/0b27f914276dbebd665895dbdadac0052c1b704e))
+
+### Features
+
+- **core**: A 412 comes with a hint: read the current version and run the command again
+  ([#565](https://github.com/bim-ba/ycli/pull/565),
+  [`45b023b`](https://github.com/bim-ba/ycli/commit/45b023b478b91cdc32de385fce058ddfffa6eb70))
+
+
 ## v0.131.1 (2026-10-10)
 
 ### Bug Fixes
