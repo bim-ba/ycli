@@ -47,7 +47,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given, so very long threads
     are truncated at the cap rather than fetched forever.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.comments.list(issue_key, limit=cap, next=next, expand=expand).collect()
 
 

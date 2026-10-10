@@ -64,7 +64,7 @@ A log of the CI job is public. When a step fails, the runner prints its command 
 | `name`, `smoke` | test id; `smoke: true` also runs on pull requests |
 | `permanent` | `true` for a scenario that makes what the API cannot delete: it is skipped unless the run is given `--permanent` |
 | `steps[].run` | arguments after `ycli -o json --yes`; `${RUN}`, `${TAG}` (the four hex digits of the run's name, for a key that takes no dash), `${QUEUE}`, `${FILES}` (the directory `e2e/files`) and saved names are substituted |
-| `steps[].output` | `json` (default); `text` for a command that prints raw text, such as `wiki pages get`; `bytes` for one that prints a file: `expect` then sees `size` and `head`, the first 16 bytes in hex (`"starts_with(head, '89504e47')": true` for a PNG) |
+| `steps[].output` | `json` (default; a listing is read as its items); `listing` for a listing as it is printed, `{items, truncated, next, total}`; `text` for a command that prints raw text, such as `wiki pages get`; `bytes` for one that prints a file: `expect` then sees `size` and `head`, the first 16 bytes in hex (`"starts_with(head, '89504e47')": true` for a PNG) |
 | `steps[].expect` | JMESPath expression → expected value; `unique(array)` is added for duplicate checks |
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |
 | `steps[].cleanup` | command run when the scenario ends, newest first, even after a failure |

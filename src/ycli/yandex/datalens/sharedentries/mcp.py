@@ -50,7 +50,7 @@ def access_bindings_list(
     """
     return client.sharedentries.access_bindings_list(
         entry_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         get_inherited_bindings=get_inherited_bindings,
     ).collect()

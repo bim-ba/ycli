@@ -96,7 +96,7 @@ def content_list(
     """
     return client.collections.content_list(
         collection_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         filter_string=filter_string,
         order_field=order_field,
@@ -151,7 +151,7 @@ def access_bindings_list(
     """Who has which role on a collection, auto-paginated."""
     return client.collections.access_bindings_list(
         collection_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         get_inherited_bindings=get_inherited_bindings,
     ).collect()

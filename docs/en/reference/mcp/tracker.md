@@ -43,7 +43,7 @@ filters or raise ``limit``.
 | `assignee` | string or null |  | Assignee login or id. |
 | `epic` | string or null |  | Epic issue key. |
 | `issue_type` | string or null |  | Issue type key, e.g. bug or task. |
-| `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max issues to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -62,7 +62,7 @@ scroll (``scroll_type``) works once: used again, it gives the portion after. E.g
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /issues/_search`` and ``POST /issues/_count``. Give ``query`` (the query language) or ``filter`` (field name → value); a body with neither matches every issue the caller can see. ``extra="allow"`` passes the API's other keys (``keys``, ``queue``, ``order``) through. |
-| `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max issues to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
@@ -221,7 +221,7 @@ are truncated at the cap rather than fetched forever.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max comments to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
@@ -328,7 +328,7 @@ or fields matter; it carries each link's author, dates, assignee and status.
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_create``, not linktypes ids). |
 | `fields` | array of string or null |  | Fields to include in each link; all when omitted. |
-| `limit` | integer or null |  | Max links to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max links to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -410,7 +410,7 @@ creation-time range) use ``worklog_search`` instead.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer or null |  | Max records to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max records to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -505,7 +505,7 @@ is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer or null |  | Max changes to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max changes to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
@@ -750,7 +750,7 @@ is given; use ``users_get`` instead when you already know the specific login or 
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max users to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra data to include per user, e.g. groups. |
@@ -844,7 +844,7 @@ queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TES
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer or null |  | Max queues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max queues to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
@@ -1346,7 +1346,7 @@ board's sprints.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer or null |  | Max boards to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max boards to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -1671,7 +1671,7 @@ Auto-paginated and capped at the configured item cap unless ``limit`` is given. 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. DESIGN) or numeric queue id. |
-| `limit` | integer or null |  | Max triggers to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max triggers to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -1926,7 +1926,7 @@ Returns the entities, and whether there are more. ``body.input`` matches part of
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` (issue reports). |
 | `body` | object or null |  | What to find: name substring, filter, sort order; omit for all. |
 | `fields` | string or null |  | Comma-separated extra fields to include. |
-| `limit` | integer or null |  | Max entities to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max entities to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 
@@ -2570,7 +2570,7 @@ with an empty ``gaps`` list when they are not absent.
 | `users` | array of string | yes | Logins or ids of the users to look up (up to 100). |
 | `date_from` | string or null |  | Window start (ISO 8601); defaults to now. |
 | `date_to` | string or null |  | Window end (ISO 8601); must be after ``date_from``. |
-| `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max users to return; omitted means the configured cap of a tool (YCLI__HTTP__MAX_TOOL_ITEMS). |
 | `all` | boolean |  | Return everything, ignoring the cap. A long listing is better taken in pieces: `limit`, then `next`. |
 | `next` | string or null |  | Go on from where an earlier call stopped, with the `next` it returned: the token carries its listing; give what is required again, and nothing else but the limit. |
 

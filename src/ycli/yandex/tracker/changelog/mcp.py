@@ -47,7 +47,7 @@ def list_(
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
     is given.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.changelog.list(
         issue_key, limit=cap, next=next, field=field, change_type=change_type, sort=sort
     ).collect()

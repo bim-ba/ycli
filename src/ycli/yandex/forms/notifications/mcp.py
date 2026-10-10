@@ -79,7 +79,7 @@ def list_(
     narrow that form's runs. Capped at the configured item cap unless ``limit`` is given. Read
     one run's context, response and error with ``notifications_get``.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.notifications.list(
         survey_id=survey_id,
         hook_id=hook_id,

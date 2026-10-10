@@ -1,0 +1,11 @@
+id: tool-takes-the-tool-cap
+valid:
+  - |
+    cap = config.http.tool_cap(limit, all_=all)
+  - |
+    limit = config.http.tool_cap(limit)
+invalid:
+  - |
+    cap = config.http.cap(limit, all_=all)
+  - |
+    return client.answers.list(survey_id, limit=config.http.cap(limit))

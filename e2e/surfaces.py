@@ -21,11 +21,13 @@ import functools
 import importlib
 import inspect
 import json
+import os
 import re
 import typing
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
+from unittest.mock import patch
 
 import httpx2
 import pytest
@@ -521,8 +523,11 @@ class ThreeSurfaces(Driver):
         sent = self._tool_arguments(call, tool)
         if sent is None:
             return _NO_JSON
+        # The surfaces are compared at one cap: a tool gives fewer by default than a command.
+        cap = {"YCLI__HTTP__MAX_TOOL_ITEMS": str(AppConfig().http.max_items)}
         try:
-            data = self._runner.run(self._call_tool(tool.name, sent))
+            with patch.dict(os.environ, cap):
+                data = self._runner.run(self._call_tool(tool.name, sent))
         except ToolError as error:
             return _Failed(hidden(str(error), self._listener.variables))
         return _unwrapped(tool, data)

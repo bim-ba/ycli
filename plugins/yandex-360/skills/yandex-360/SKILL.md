@@ -120,7 +120,8 @@ semantics, a service ycli does not wrap yet), read the official docs directly, a
   adding it. `--dry-run` prints the write request instead of sending it, the JSON result pipes
   to `jq`, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,
   6 transient).
-- **A long listing comes in pieces** — a list tool returns `{items, truncated, next}`; when
+- **A long listing comes in pieces** — a list tool returns `{items, truncated, next}`, 50
+  items unless you give `limit` (a command gives 500); when
   `truncated` is true, call it again with that `next`, its required arguments as they were
   and nothing else but `limit` (the token carries its listing; an argument that differs from
   it is refused by name). `all=true` returns everything at once and can overflow the context.

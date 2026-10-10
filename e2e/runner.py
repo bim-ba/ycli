@@ -318,9 +318,10 @@ def _parse(where: str, step: Step, completed: CommandResult) -> Any:
     if not stdout.strip():
         return None
     try:
-        return items(json.loads(stdout))
+        document = json.loads(stdout)
     except json.JSONDecodeError:
         raise ScenarioError(f"{where} output is not JSON: {scrub(stdout)}") from None
+    return document if step.output == "listing" else items(document)
 
 
 def _shape(document: Any) -> str:

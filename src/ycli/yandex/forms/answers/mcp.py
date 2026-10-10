@@ -97,7 +97,7 @@ def list_(
     """
     return client.answers.list(
         survey_id,
-        limit=config.http.cap(limit),
+        limit=config.http.tool_cap(limit),
         questions=questions,
         use_slugs=use_slugs,
         date_from=date_from,

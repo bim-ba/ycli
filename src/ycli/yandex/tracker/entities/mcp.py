@@ -120,7 +120,7 @@ def search(
     ``body.filter`` is a field → value object (author, status, followers, …), ``body.orderBy`` with
     ``body.orderAsc`` sorts, and ``body.rootOnly`` keeps the entities with no parent.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.entities.search(entity_type, body, fields=fields, limit=cap, next=next).collect()
 
 
@@ -152,7 +152,7 @@ def events_list(
     Each event carries an author, a timestamp, a display title and the individual field changes.
     Capped at the configured item cap unless ``limit`` is given.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.entities.events_list(
         entity_type,
         entity_id,
@@ -311,7 +311,7 @@ def comments_list_relative(
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
     pages up to ``limit`` (the configured item cap by default).
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.entities.comments_list_relative(
         entity_type, entity_id, limit=cap, next=next
     ).collect()

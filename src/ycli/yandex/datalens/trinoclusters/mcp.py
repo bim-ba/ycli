@@ -61,7 +61,7 @@ def list_(
         filter=filter,
         collection_id=collection_id,
         catalog_id=catalog_id,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
     ).collect()
 
@@ -213,7 +213,7 @@ def resource_presets_list(
     environment nothing knows answers 403 Permission denied, not 404.
     """
     return client.trinoclusters.resource_presets_list(
-        cloud_environment_id, limit=config.http.cap(limit, all_=all), next=next
+        cloud_environment_id, limit=config.http.tool_cap(limit, all_=all), next=next
     ).collect()
 
 

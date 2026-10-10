@@ -152,7 +152,7 @@ def test_a_tool_returns_the_items_and_where_the_listing_stopped(boards):
 
 
 def test_a_tool_gives_everything_when_asked(boards, monkeypatch):
-    monkeypatch.setenv("YCLI__HTTP__MAX_ITEMS", "2")
+    monkeypatch.setenv("YCLI__HTTP__MAX_TOOL_ITEMS", "2")
     assert len(_tool()["items"]) == 2  # the cap, when nothing is said
     boards.calls.clear()
     everything = _tool(all=True)
@@ -374,3 +374,21 @@ def test_every_listing_method_of_the_sdk_says_the_rule_in_its_words(name):
 
 def test_the_listing_methods_are_all_found():
     assert len(LISTING_METHODS) > 40
+
+
+def test_a_tool_given_no_limit_gives_fewer_items_than_a_command(api):
+    """A tool's answer is read whole into a context: 50 by default, where a command gives 500."""
+    sixty = [{"id": number, "name": f"B{number}"} for number in range(1, 61)]
+    for page in (sixty, sixty, []):  # one page for the tool, then the command's listing
+        api.add("GET", BOARDS, json=page)
+    answered = _tool()
+    assert len(answered["items"]) == 50 and answered["truncated"] and answered["next"]
+    ids, said = _cli()
+    assert len(ids) == 60 and said == ""
+
+
+def test_the_cap_of_a_tool_is_a_setting_of_its_own(boards, monkeypatch):
+    monkeypatch.setenv("YCLI__HTTP__MAX_TOOL_ITEMS", "1")
+    monkeypatch.setenv("YCLI__HTTP__MAX_ITEMS", "4")  # the command's cap is another setting
+    answered = _tool()
+    assert [board["id"] for board in answered["items"]] == [1] and answered["truncated"]

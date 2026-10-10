@@ -9,7 +9,7 @@ from tests.architecture.scanners import SRC
 
 # `timeout=30` as a keyword argument, or `timeout: float = 30.0` as an annotated default.
 _LITERAL_DEFAULT_RE = re.compile(
-    r"\b(timeout|timeout_seconds|retries|max_items|max_pages|max_retry_after_seconds|"
+    r"\b(timeout|timeout_seconds|retries|max_items|max_tool_items|max_pages|max_retry_after_seconds|"
     r"max_wait_seconds)"
     r"\s*(:[^=\n]+)?=\s*\d"
 )

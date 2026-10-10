@@ -33,5 +33,5 @@ def list_(
 
     Capped at the configured item cap unless ``limit`` is given.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.history.list(survey_id, ordering=ordering, limit=cap, next=next).collect()

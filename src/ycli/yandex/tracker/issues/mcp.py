@@ -82,7 +82,9 @@ def list_(
         epic=epic,
         type_=issue_type,
     )
-    return client.issues.search(body, limit=config.http.cap(limit, all_=all), next=next).collect()
+    return client.issues.search(
+        body, limit=config.http.tool_cap(limit, all_=all), next=next
+    ).collect()
 
 
 @mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues"})
@@ -115,7 +117,7 @@ def search(
     """
     return client.issues.search(
         body,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
         expand=expand,
         scroll_type=scroll_type,

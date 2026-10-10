@@ -61,7 +61,7 @@ def list_(
         sort_by=sort_by,
         reverse_order=reverse_order,
         include_permissions=include_permissions,
-        limit=config.http.cap(limit, all_=all),
+        limit=config.http.tool_cap(limit, all_=all),
         next=next,
     ).collect()
 

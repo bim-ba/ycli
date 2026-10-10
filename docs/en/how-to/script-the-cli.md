@@ -38,7 +38,7 @@ stopped at 100 of 752; go on with: ycli tracker issues search 'Queue: DE' --next
 $ ycli tracker issues search 'Queue: DE' --limit 100 --next eyJ2IjoxLCJvZiI6… > second.json
 ```
 
-A token carries its listing: with `--next`, give nothing but the limit and what the command cannot be called without, and that as it was: an argument that differs from the token's is refused by its name, never passed over. A token of a Tracker issue search by a scroll (`--scroll-type`) works once; any other token works again. A listing that can no longer go on exits with `9`: start it again without the token. A run that asks more pages than `YCLI__HTTP__MAX_PAGES` stops there and says so the same way, with a token to go on from.
+A token carries its listing: with `--next`, give nothing but the limit and what the command cannot be called without, and that as it was: an argument that differs from the token's is refused by its name, never passed over. A token of a Tracker issue search by a scroll (`--scroll-type`) works once; any other token works again. A listing that can no longer go on exits with `9`: start it again without the token. A run that asks more pages than `YCLI__HTTP__MAX_PAGES` stops there and says so the same way, with a token to go on from. A small first `--limit` sets the size of the pages for every piece after it, so take the first piece as large as the ones you mean to go on with.
 
 ## Delete without a prompt
 

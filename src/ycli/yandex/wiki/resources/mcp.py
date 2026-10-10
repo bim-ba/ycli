@@ -39,7 +39,7 @@ def list_(
     expose separately (drains ``next_cursor`` internally). Capped at the configured item cap
     unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.resources.list(
         page_id=page_id,
         limit=cap,

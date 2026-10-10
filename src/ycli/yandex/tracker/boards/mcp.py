@@ -43,7 +43,7 @@ def list_(
     is given. Use ``boards_get`` when you know one board id, and ``sprints_list`` to list a
     board's sprints.
     """
-    cap = config.http.cap(limit, all_=all)
+    cap = config.http.tool_cap(limit, all_=all)
     return client.boards.list(limit=cap, next=next).collect()
 
 

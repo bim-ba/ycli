@@ -38,6 +38,7 @@ from tests.full_server import tool_with_output_schema
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
 from ycli.cli.app import app
+from ycli.settings import AppConfig
 from ycli.yandex.core.auth import IAMTokenAuth
 from ycli.yandex.core.listing import Listing
 from ycli.yandex.core.resource import Resource
@@ -72,6 +73,9 @@ def _serve(monkeypatch: pytest.MonkeyPatch, case: Case) -> MockAPI:
     # A service of Yandex Cloud names its organization with another id (``tests/conftest.py``
     # sets the Yandex 360 one).
     monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "c")
+    # One case states the requests of every surface, so a tool is given the cap of a command:
+    # what a tool gives by default is held by `test_listing_handles`.
+    monkeypatch.setenv("YCLI__HTTP__MAX_TOOL_ITEMS", str(AppConfig().http.max_items))
     if not SERVICE_BY_NAME[case.domain].profile.oauth_token:
         # The service takes an IAM token only: one way to sign in, so the OAuth token goes.
         monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)

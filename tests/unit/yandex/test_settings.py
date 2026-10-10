@@ -21,6 +21,7 @@ def _isolated_env(monkeypatch):
         "YCLI__HTTP__TIMEOUT_SECONDS",
         "YCLI__HTTP__RETRIES",
         "YCLI__HTTP__MAX_ITEMS",
+        "YCLI__HTTP__MAX_TOOL_ITEMS",
         "YCLI__LOGGING__LEVEL",
     ):
         monkeypatch.delenv(name, raising=False)
@@ -31,6 +32,7 @@ def test_app_config_defaults():
     assert config.http.timeout_seconds == 30.0
     assert config.http.retries == 3
     assert config.http.max_items == 500
+    assert config.http.max_tool_items == 50
     assert config.logging.level == "WARNING"
     assert config.logging.format == "text"
 
@@ -66,6 +68,7 @@ def test_app_config_keyword_arguments_win():
         ("YCLI__HTTP__TIMEOUT_SECONDS", "abc"),
         ("YCLI__HTTP__RETRIES", "-1"),
         ("YCLI__HTTP__MAX_ITEMS", "0"),
+        ("YCLI__HTTP__MAX_TOOL_ITEMS", "0"),
         ("YCLI__LOGGING__LEVEL", "bogus"),
     ],
 )
