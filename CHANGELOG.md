@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.138.0 (2026-10-10)
+
+### Build System
+
+- Re-lock uv.lock for 0.137.1
+  ([`823a408`](https://github.com/bim-ba/ycli/commit/823a408c123f33ca0029b6e1572085e7fc721097))
+
+### Features
+
+- **datalens**: `-o name` prints the identifier of DataLens objects too
+  ([#572](https://github.com/bim-ba/ycli/pull/572),
+  [`3ff757f`](https://github.com/bim-ba/ycli/commit/3ff757f6bf7ba97a0ddc08c15d0af1ed14c5912c))
+
+
 ## v0.137.1 (2026-10-10)
 
 ### Bug Fixes
