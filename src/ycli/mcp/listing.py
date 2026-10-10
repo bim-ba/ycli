@@ -14,7 +14,13 @@ from typing import TYPE_CHECKING, Any
 from fastmcp.server.transforms import Transform
 from fastmcp.server.transforms.visibility import is_enabled
 
-from ycli.yandex.mcp import NEEDS_TOOLS, REPEATS_TOOL, WRITE_TAG
+from ycli.yandex.mcp import (
+    GRANTS_ACCESS,
+    GRANTS_ACCESS_SAID,
+    NEEDS_TOOLS,
+    REPEATS_TOOL,
+    WRITE_TAG,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
@@ -146,6 +152,33 @@ class DerivedTags(Transform):
         """The tool ``name`` with its derived tags."""
         tool = await call_next(name, version=version)
         return None if tool is None else self._tagged(tool)
+
+
+class GrantsSaid(Transform):
+    """Says in the description of a tool that grants access what its mark says to a client.
+
+    The mark (``GRANTS_ACCESS``) is a key one client reads; the others pass it by, and for them
+    the words are all there is. One sentence, from one place, on every marked tool.
+    """
+
+    @staticmethod
+    def _said(tool: Tool) -> Tool:
+        marked = (tool.meta or {}).get(next(iter(GRANTS_ACCESS))) is True
+        if not marked or GRANTS_ACCESS_SAID in (tool.description or ""):
+            return tool
+        described = f"{tool.description or ''}\n\n{GRANTS_ACCESS_SAID}".strip()
+        return tool.model_copy(update={"description": described})
+
+    async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools, each marked one saying so in its description."""
+        return [self._said(tool) for tool in tools]
+
+    async def get_tool(
+        self, name: str, call_next: GetToolNext, *, version: VersionSpec | None = None
+    ) -> Tool | None:
+        """The tool ``name``, saying so in its description when it is marked."""
+        tool = await call_next(name, version=version)
+        return None if tool is None else self._said(tool)
 
 
 class UnknownToolError(ValueError):

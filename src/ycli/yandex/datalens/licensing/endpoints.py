@@ -45,7 +45,9 @@ def licenses_list(
 
 def licenses_assign(user_ids: Sequence[str]) -> Endpoint[ItemList[License]]:
     body = AssignLicensesArgs(userIds=list(user_ids))
-    return RPC("assignLicenses", ItemList[License], json=body, effect=Effect.WRITE)
+    return RPC(
+        "assignLicenses", ItemList[License], json=body, effect=Effect.WRITE, grants_access=True
+    )
 
 
 def limit_get() -> Endpoint[LicenseLimits]:

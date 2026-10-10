@@ -62,7 +62,10 @@ def update(
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:
-    """Set the access level of one action on form SURVEY_ID (POST …/access)."""
+    """Set the access level of one action on form SURVEY_ID (POST …/access).
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     body = AccessUpdate.model_validate({"action": action, "access": access})
     return forms.access.update(survey_id, body)
 
@@ -78,7 +81,10 @@ def grant(
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:
-    """Let a user (--uid / --cloud-uid) or a group (--group-src + --group-id) perform ACTION."""
+    """Let a user (--uid / --cloud-uid) or a group (--group-src + --group-id) perform ACTION.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     user, group = _principal(uid, cloud_uid, group_src, group_id)
     body = AccessGrant.model_validate({"action": action, "user": user, "group": group})
     return forms.access.grant(survey_id, body)

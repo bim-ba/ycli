@@ -21,7 +21,13 @@ def _selflock(prevent_selflock: bool | None) -> dict[str, bool | None]:
 
 
 def create(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
-    return Endpoint(HTTPMethod.POST, f"pages/{segment(page_id)}/access", PageAccess, json=body)
+    return Endpoint(
+        HTTPMethod.POST,
+        f"pages/{segment(page_id)}/access",
+        PageAccess,
+        json=body,
+        grants_access=True,
+    )
 
 
 def update(
@@ -36,6 +42,7 @@ def update(
         params=_selflock(prevent_selflock),
         json=body,
         effect=Effect.IDEMPOTENT_WRITE,
+        grants_access=True,
     )
 
 

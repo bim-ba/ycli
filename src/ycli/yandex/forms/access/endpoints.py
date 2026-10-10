@@ -33,6 +33,7 @@ def update(survey_id: str, body: AccessUpdate) -> Endpoint[ItemList[Permission]]
         ItemList[Permission],
         json=body,
         effect=Effect.IDEMPOTENT_WRITE,
+        grants_access=True,
     )
 
 
@@ -40,7 +41,12 @@ def grant(survey_id: str, body: AccessGrant) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/grant"
     # violation(arch-3): POST grants access: granting twice converges
     return Endpoint(
-        HTTPMethod.POST, path, ItemList[Permission], json=body, effect=Effect.IDEMPOTENT_WRITE
+        HTTPMethod.POST,
+        path,
+        ItemList[Permission],
+        json=body,
+        effect=Effect.IDEMPOTENT_WRITE,
+        grants_access=True,
     )
 
 

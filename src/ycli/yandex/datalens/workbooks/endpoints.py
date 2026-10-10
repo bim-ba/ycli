@@ -161,4 +161,10 @@ def access_bindings_update(
     workbook_id: str, *, deltas: Sequence[AccessBindingDelta]
 ) -> Endpoint[Operation]:
     body = UpdateWorkbookAccessBindingsArgs(workbookId=workbook_id, deltas=list(deltas))
-    return RPC("updateWorkbookAccessBindings", Operation, json=body, effect=Effect.WRITE)
+    return RPC(
+        "updateWorkbookAccessBindings",
+        Operation,
+        json=body,
+        effect=Effect.WRITE,
+        grants_access=True,
+    )

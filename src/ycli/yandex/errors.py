@@ -37,7 +37,7 @@ class YandexStaleContinuationError(YandexError):
 
 
 class YandexDeclinedError(YandexError):
-    """An operation that destroys data was not confirmed by the one asked; nothing was sent."""
+    """An operation that destroys or grants was not confirmed by the one asked; nothing was sent."""
 
 
 class YandexNotConfiguredError(YandexError):

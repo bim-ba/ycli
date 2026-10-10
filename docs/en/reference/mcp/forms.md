@@ -525,6 +525,8 @@ organization) or public (anyone with the link).
 
 Set the access level of one action (change or submit); returns every permission.
 
+Grants access: a client that honours the mark asks a person on every call.
+
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
@@ -537,6 +539,8 @@ Set the access level of one action (change or submit); returns every permission.
 Let a user or a group perform an action on a form; returns every permission.
 
 Granting someone who already has the action changes nothing.
+
+Grants access: a client that honours the mark asks a person on every call.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

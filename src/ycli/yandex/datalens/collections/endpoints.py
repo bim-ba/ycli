@@ -155,4 +155,10 @@ def access_bindings_update(
     collection_id: str, *, deltas: Sequence[AccessBindingDelta]
 ) -> Endpoint[Operation]:
     body = UpdateCollectionAccessBindingsArgs(collectionId=collection_id, deltas=list(deltas))
-    return RPC("updateCollectionAccessBindings", Operation, json=body, effect=Effect.WRITE)
+    return RPC(
+        "updateCollectionAccessBindings",
+        Operation,
+        json=body,
+        effect=Effect.WRITE,
+        grants_access=True,
+    )

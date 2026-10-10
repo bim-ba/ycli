@@ -32,6 +32,10 @@ from http import HTTPMethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import typer
+
+from ycli.cli.app import app
+from ycli.cli.guard import GRANTS_ACCESS_HELP
 from ycli.yandex.core.endpoint import _EFFECT_BY_METHOD, ENDPOINT_EXTENSION
 from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
 from ycli.yandex.models import Listed
@@ -339,6 +343,33 @@ def output_problems(case: Case, output: Any) -> list[str]:
 def effect_sent(requests: Sequence[httpx2.Request]) -> Effect:
     """The strongest effect the endpoints behind ``requests`` declared."""
     return strongest(request.extensions[ENDPOINT_EXTENSION].effect for request in requests)
+
+
+def grants_access(requests: Sequence[httpx2.Request]) -> bool:
+    """Whether an endpoint behind ``requests`` declared that it grants access."""
+    return any(request.extensions[ENDPOINT_EXTENSION].grants_access for request in requests)
+
+
+def help_of(argv: Sequence[str]) -> str:
+    """The help of the command ``argv`` runs, in one line."""
+    command: Any = typer.main.get_command(app)
+    words = list(argv)
+    while hasattr(command, "get_command"):
+        # A word that names no command is a global option given first, or its value.
+        command = command.get_command(typer.Context(command), words.pop(0)) or command
+    return " ".join((command.help or "").split())
+
+
+def confirmed(case: Case) -> list[str]:
+    """``--yes`` where the command of ``case`` asks: a test has no terminal to answer on.
+
+    It asks before it destroys data and before it grants access; the second it says in its
+    help, which ``test_cli_guard`` holds to the mark of its tool and the contract test to the
+    operation.
+    """
+    assert case.cli is not None
+    asks = case.expected_effect == "destructive" or GRANTS_ACCESS_HELP in help_of(case.cli)
+    return ["--yes"] if asks else []
 
 
 def hints_disagree(annotations: Mapping[str, Any], effect: Effect) -> list[str]:

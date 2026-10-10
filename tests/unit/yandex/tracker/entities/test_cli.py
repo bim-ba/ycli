@@ -33,7 +33,7 @@ def test_order_asc_without_order_by_is_sent_as_given(api):
 def test_set_direct_permissions_with_nothing_to_change_sends_an_empty_body(api):
     api.add("PATCH", f"{BASE}/entities/project/655f/permissions", json={})
     res = CliRunner().invoke(
-        cli.app, ["tracker", "entities", "permissions-update-direct", "project", "655f"]
+        cli.app, ["--yes", "tracker", "entities", "permissions-update-direct", "project", "655f"]
     )
     assert res.exit_code == 0
     assert api.body() == {}

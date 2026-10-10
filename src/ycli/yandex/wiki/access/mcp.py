@@ -10,6 +10,7 @@ from ycli.yandex.wiki.access.models import PageAccess, PageAccessCreate, PageAcc
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     WRITE,
     WRITE_IDEMPOTENT,
     new_server,
@@ -26,7 +27,11 @@ _PREVENT_SELFLOCK = Field(
 )
 
 
-@mcp.tool(name="access_create", annotations={**WRITE, "title": "Grant Wiki page access"})
+@mcp.tool(
+    name="access_create",
+    annotations={**WRITE, "title": "Grant Wiki page access"},
+    meta=GRANTS_ACCESS,
+)
 def create(
     page_id: Annotated[int, _PAGE_ID],
     body: Annotated[
@@ -50,6 +55,7 @@ def create(
 @mcp.tool(
     name="access_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki page access"},
+    meta=GRANTS_ACCESS,
 )
 def update(
     page_id: Annotated[int, _PAGE_ID],

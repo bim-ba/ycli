@@ -8,6 +8,7 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.dependencies import (
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -64,7 +65,9 @@ def licenses_list(
 
 
 @mcp.tool(
-    name="licensing_licenses_assign", annotations={**WRITE, "title": "Assign DataLens licences"}
+    name="licensing_licenses_assign",
+    annotations={**WRITE, "title": "Assign DataLens licences"},
+    meta=GRANTS_ACCESS,
 )
 def licenses_assign(
     user_ids: Annotated[list[str], Field(description="The users to give a licence to.")],

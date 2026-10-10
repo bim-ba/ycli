@@ -76,6 +76,8 @@ def create(
 
     Name the user with --user-uid / --user-cloud-uid, or the group with --group-src and
     --group-id.
+
+    Grants access: asks before it is sent (--yes to skip).
     """
     user = (
         UserIdentity(uid=user_uid, cloud_uid=user_cloud_uid)
@@ -105,7 +107,10 @@ def update(
     *,
     wiki: WikiClient,
 ) -> PageAccess:
-    """Change the role or reach of an access (POST /pages/{id}/access/{access_id})."""
+    """Change the role or reach of an access (POST /pages/{id}/access/{access_id}).
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     body = PageAccessUpdate(role=role, inheritance=inheritance)
     return wiki.access.update(
         page_id=page_id,

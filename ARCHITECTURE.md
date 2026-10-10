@@ -143,11 +143,18 @@ program stays a test.
   `POST`), the effect is always named: `RPC(name, …, effect=…)` has no default for it. A tool
   states its annotations only: the root server derives its tags, the service from the name and
   `write` from `readOnlyHint`.
+  An operation that lets someone at data they could not reach (a role, a permission, a
+  licence, an embedding) says so beside its effect, `grants_access=True`: from that one mark
+  the CLI asks before it sends it, as before a delete, and the tool carries
+  `_meta["anthropic/requiresUserInteraction"]` (`GRANTS_ACCESS`), which a client that honours
+  it answers by asking a person on every call. No list of such operations exists anywhere.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
 - **Check:** the contract test (`tests/contract/test_contract.py`, one case per way of reaching an
   operation, fail-closed both ways) runs every tool and compares its hints with the strongest
-  effect of the endpoints it sends; `test_arch3_effect_overrides_are_marked` keeps
+  effect of the endpoints it sends, and its `GRANTS_ACCESS` mark with whether one of them grants
+  access, both ways; `test_the_help_of_a_command_says_it_grants_access_where_its_tool_is_marked`
+  holds the command's help to the same mark; `test_arch3_effect_overrides_are_marked` keeps
   `# violation(arch-3): <reason>` above every `effect=`, and every such marker above one;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and the ast-grep rule `no-tool-tags` keeps a second statement out. `status_get`, the one

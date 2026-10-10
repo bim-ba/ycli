@@ -6,6 +6,7 @@ from pydantic import Field
 
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -64,6 +65,7 @@ Version = Annotated[
 
 __all__ = [
     "DESTRUCTIVE",
+    "GRANTS_ACCESS",
     "LIMIT_CAP",
     "RO",
     "TAGS",

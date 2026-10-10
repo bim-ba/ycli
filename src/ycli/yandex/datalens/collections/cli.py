@@ -231,6 +231,9 @@ def access_bindings_update(
     *,
     datalens: DataLensClient,
 ) -> Operation:
-    """Give or take away roles on a collection; the roles not named stay as they are."""
+    """Give or take away roles on a collection; the roles not named stay as they are.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     parsed = [AccessBindingDelta.model_validate_json(delta) for delta in deltas]
     return datalens.collections.access_bindings_update(collection_id, deltas=parsed)

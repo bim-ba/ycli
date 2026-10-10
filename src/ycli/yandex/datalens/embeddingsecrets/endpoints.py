@@ -34,7 +34,13 @@ def create(*, title: str, workbook_id: str) -> Endpoint[EmbeddingSecretCreated]:
     # The private key in the reply is the result of the call, given once: it is read as the
     # string it is, not masked (#448).
     body = CreateEmbeddingSecretArgs(title=title, workbookId=workbook_id)
-    return RPC("createEmbeddingSecret", EmbeddingSecretCreated, json=body, effect=Effect.WRITE)
+    return RPC(
+        "createEmbeddingSecret",
+        EmbeddingSecretCreated,
+        json=body,
+        effect=Effect.WRITE,
+        grants_access=True,
+    )
 
 
 def delete(embedding_secret_id: str) -> Endpoint[EmbeddingSecretDeleted]:

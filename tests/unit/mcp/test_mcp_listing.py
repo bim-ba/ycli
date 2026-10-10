@@ -10,8 +10,15 @@ from mcp.types import ToolAnnotations
 
 from tests.full_server import mcp
 from tests.hosts import TRACKER_BASE
-from ycli.mcp.listing import DerivedTags, strip_examples
-from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_TAG
+from ycli.mcp.listing import DerivedTags, GrantsSaid, strip_examples
+from ycli.yandex.mcp import (
+    DESTRUCTIVE,
+    GRANTS_ACCESS,
+    GRANTS_ACCESS_SAID,
+    RO,
+    WRITE,
+    WRITE_TAG,
+)
 from ycli.yandex.tracker.mcp.server import mcp as tracker_mcp
 
 
@@ -110,3 +117,27 @@ async def test_a_tool_the_server_does_not_hold_stays_absent():
         return None
 
     assert await DerivedTags().get_tool("tracker_ghost", nothing) is None
+
+
+async def test_a_tool_that_grants_access_says_so_in_words_once():
+    """The mark is a key one client reads: the description says it for the others."""
+
+    def grant() -> str:
+        """Give a user a role."""
+        return ""
+
+    marked = Tool.from_function(grant, name="wiki_access_create", meta=GRANTS_ACCESS)
+    plain = Tool.from_function(grant, name="wiki_access_list")
+    said, untouched = await GrantsSaid().list_tools([marked, plain])
+    assert said.description == f"Give a user a role.\n\n{GRANTS_ACCESS_SAID}"
+    assert untouched is plain
+    # A server mounted in another passes its tools through the transform twice.
+    [again] = await GrantsSaid().list_tools([said])
+    assert again is said
+
+    async def held(name: str, *, version: VersionSpec | None = None) -> Tool | None:
+        return marked if name == marked.name else None
+
+    found = await GrantsSaid().get_tool(marked.name, held)
+    assert found is not None and found.description == said.description
+    assert await GrantsSaid().get_tool("wiki_ghost", held) is None

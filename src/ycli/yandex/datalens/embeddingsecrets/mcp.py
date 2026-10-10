@@ -6,7 +6,14 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.datalens.client import DataLensClient
-from ycli.yandex.datalens.dependencies import DESTRUCTIVE, RO, WRITE, datalens_client, new_server
+from ycli.yandex.datalens.dependencies import (
+    DESTRUCTIVE,
+    GRANTS_ACCESS,
+    RO,
+    WRITE,
+    datalens_client,
+    new_server,
+)
 from ycli.yandex.datalens.embeddingsecrets.models import (
     EmbeddingSecret,
     EmbeddingSecretCreated,
@@ -44,6 +51,7 @@ def list_(
 @mcp.tool(
     name="embeddingsecrets_create",
     annotations={**WRITE, "title": "Create DataLens key for embedding"},
+    meta=GRANTS_ACCESS,
 )
 def create(
     title: Annotated[str, Field(description="The name of the key.")],

@@ -115,3 +115,33 @@ def test_an_asynchronous_session_keeps_the_same_rule():
         return [call.method for call in api.calls]
 
     assert asyncio.run(run()) == ["GET"]
+
+
+#: A write that lets someone at data: asked about like a delete, though it destroys nothing.
+GRANT = Endpoint(HTTPMethod.PATCH, "items/1", json={"role": "admin"}, grants_access=True)
+
+
+def test_what_grants_access_is_confirmed_and_the_one_asked_is_told_which_it_is():
+    api = _api()
+    asked: list[PlannedRequest] = []
+    session = _session(api, Guard(confirm=lambda plan: asked.append(plan) or True))
+    for operation in (PATCH, GRANT, DELETE):
+        session.send(operation)
+    assert [(plan.method, plan.grants_access) for plan in asked] == [
+        ("PATCH", True),
+        ("DELETE", False),
+    ]
+    # Why it is asked is for the one who asks: the plan a person is shown does not grow.
+    assert "grants_access" not in asked[0].model_dump() | asked[0].model_dump(by_alias=True)
+    assert "grants_access" not in type(asked[0]).model_fields
+
+
+def test_a_grant_that_is_not_confirmed_is_not_sent_and_a_dry_run_asks_nobody():
+    api = _api()
+    with pytest.raises(YandexDeclinedError, match="was not confirmed; nothing was sent"):
+        _session(api, Guard(confirm=lambda plan: False)).send(GRANT)
+    with pytest.raises(RequestPlanned) as planned:
+        _session(api, Guard(dry_run=True, confirm=lambda plan: pytest.fail("asked"))).send(GRANT)
+    assert planned.value.plan.body == {"role": "admin"} and api.calls == []
+    _session(api, Guard()).send(GRANT)  # nobody to ask: it is sent, as the SDK does
+    assert [call.method for call in api.calls] == ["PATCH"]

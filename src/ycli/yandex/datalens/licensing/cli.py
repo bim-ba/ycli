@@ -66,7 +66,10 @@ def licenses_assign(
     *,
     datalens: DataLensClient,
 ) -> ItemList[License]:
-    """Give each of these users a licence."""
+    """Give each of these users a licence.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     return datalens.licensing.licenses_assign(user_ids)
 
 

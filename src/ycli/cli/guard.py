@@ -5,9 +5,9 @@ surface goes through it. The CLI says how to ask and when not to:
 
 - ``--dry-run`` sends no write: the core stops at the first one, and the command wrapper turns
   the request it would have sent into the command's result;
-- an operation that destroys data asks first, unless ``--yes`` was given: on a terminal it
-  prompts on stderr, and a declined prompt aborts (exit 1); with no terminal to ask it fails as a
-  usage error (exit 2) that says to pass ``--yes``;
+- an operation that destroys data, or grants access, asks first, unless ``--yes`` was given:
+  on a terminal it prompts on stderr, and a declined prompt aborts (exit 1); with no terminal
+  to ask it fails as a usage error (exit 2) that says to pass ``--yes``;
 - ``--body-file`` and ``-F`` reach the body of any command: :class:`SendGuard`, the client's
   ``before_send`` hook, lays them under what the command built, so a field with no flag of its
   own can still be sent. It runs before the core's rule, so a plan shows the body as it would go.
@@ -40,6 +40,10 @@ def attended() -> bool:
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
+#: What the help of a command that grants access says of it, the same on each of them.
+GRANTS_ACCESS_HELP = "Grants access: asks before it is sent (--yes to skip)."
+
+
 def confirm_on_the_terminal(plan: PlannedRequest) -> bool:
     """Ask the person at the terminal whether ``plan`` may be sent.
 
@@ -52,7 +56,8 @@ def confirm_on_the_terminal(plan: PlannedRequest) -> bool:
     Raises:
         typer.Exit: Nobody can be asked; exits as a usage error that says to pass ``--yes``.
     """
-    what = f"{plan.method} {plan.url} — this deletes data."
+    does = "grants access" if plan.grants_access else "deletes data"
+    what = f"{plan.method} {plan.url} — this {does}."
     if not attended():
         typer.secho(
             f"{what} Pass --yes to confirm; there is no terminal to ask on.",

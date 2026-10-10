@@ -113,9 +113,12 @@ semantics, a service ycli does not wrap yet), read the official docs directly, a
 
 - **Never hardcode the token or org id** — always read them from the environment.
 - **Respect the MCP annotations** — write tools declare `readOnlyHint=False`; anything
-  with `destructiveHint=true` deletes data, so confirm intent before calling it. If the
+  with `destructiveHint=true` deletes data, so confirm intent before calling it. A tool that
+  grants access (a role, a permission, an access binding, an embedding) says so in its
+  description and is marked so that the client asks a person on every call; where nobody can
+  be asked the call is denied, and the CLI with `--yes` is the way, after the user agreed. If the
   session must not write at all, run the server with `ycli mcp start --read-only`.
-- **CLI deletes ask first** — a command that deletes data prompts on a terminal and, without
+- **CLI deletes and grants ask first** — a command that deletes data or grants access prompts on a terminal and, without
   one (an agent's shell), exits 2 unless given `--yes`; confirm intent with the user before
   adding it. `--dry-run` prints the write request instead of sending it, the JSON result pipes
   to `jq`, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,

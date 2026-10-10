@@ -36,7 +36,9 @@ FormatOption = Annotated[
 ]
 YesOption = Annotated[
     bool,
-    typer.Option("--yes", "-y", help="Do not ask before an operation that deletes data."),
+    typer.Option(
+        "--yes", "-y", help="Do not ask before an operation that deletes data or grants access."
+    ),
 ]
 ProfileOption = Annotated[
     str | None,

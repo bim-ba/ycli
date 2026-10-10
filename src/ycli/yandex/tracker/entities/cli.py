@@ -308,6 +308,9 @@ def permissions_update(
     The API accepts only ``grant`` / ``revoke`` actions, each mapping an access level
     (READ/WRITE/GRANT) to users/groups/roles, e.g.
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
+
+    Grants access: asks before it is sent (--yes to skip). It asks even when the body only
+    takes rights away: the mark is of the operation.
     """
     body = PermissionsUpdate.model_validate({"acl": parse_fields(field, structured=True)})
     return tracker.entities.permissions_update(entity_type, entity_id, body=body)
@@ -336,7 +339,11 @@ def permissions_update_direct(
     *,
     tracker: TrackerClient,
 ) -> ACL:
-    """Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke."""
+    """Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke.
+
+    Grants access: asks before it is sent (--yes to skip). It asks even when the body only
+    takes rights away: the mark is of the operation.
+    """
     body = DirectPermissionsUpdate(
         grant=ACLInput.model_validate_json(grant) if grant is not None else None,
         revoke=ACLInput.model_validate_json(revoke) if revoke is not None else None,

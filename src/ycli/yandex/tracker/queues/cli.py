@@ -154,6 +154,9 @@ def permissions_update(
     A removal is not always the inverse of an addition: taking a user out of --read took it
     out of --write too (seen once, 2026-10-06). The command prints the permissions as they
     are after the change.
+
+    Grants access: asks before it is sent (--yes to skip). It asks even when the body only
+    takes rights away: the mark is of the operation.
     """
     body = QueuePermissionsUpdate(
         create=json.loads(create) if create is not None else None,

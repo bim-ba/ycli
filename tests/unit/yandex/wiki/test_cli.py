@@ -50,7 +50,9 @@ def test_a_group_grant_needs_both_its_directory_and_its_id(api):
 
 def test_a_grant_naming_no_one_is_sent_as_given(api):
     api.add("POST", f"{BASE}/pages/1/access", json={"id": "5", "role": "reader"})
-    res = CliRunner().invoke(cli.app, ["wiki", "access", "create", "1", "--role", "reader"])
+    res = CliRunner().invoke(
+        cli.app, ["--yes", "wiki", "access", "create", "1", "--role", "reader"]
+    )
     assert res.exit_code == 0, res.output
     assert api.body() == {"role": "reader"}
 

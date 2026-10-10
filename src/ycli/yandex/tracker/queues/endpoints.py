@@ -76,7 +76,11 @@ def restore(queue_id: str) -> Endpoint[Queue]:
 
 def permissions_update(queue_id: str, body: QueuePermissionsUpdate) -> Endpoint[QueuePermissions]:
     return Endpoint(
-        HTTPMethod.PATCH, f"{_queue(queue_id)}/permissions", QueuePermissions, json=body
+        HTTPMethod.PATCH,
+        f"{_queue(queue_id)}/permissions",
+        QueuePermissions,
+        json=body,
+        grants_access=True,
     )
 
 

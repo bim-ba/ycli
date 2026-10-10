@@ -7,6 +7,7 @@ from pydantic import Field
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -30,6 +31,7 @@ datalens_client = client_provider(DataLensClient)
 
 __all__ = [
     "DESTRUCTIVE",
+    "GRANTS_ACCESS",
     "LIMIT_CAP",
     "RO",
     "TAGS",

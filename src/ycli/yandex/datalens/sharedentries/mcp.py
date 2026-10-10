@@ -8,6 +8,7 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.datalens.client import DataLensClient
 from ycli.yandex.datalens.dependencies import (
+    GRANTS_ACCESS,
     LIMIT_CAP,
     RO,
     WRITE,
@@ -59,6 +60,7 @@ def access_bindings_list(
 @mcp.tool(
     name="sharedentries_access_bindings_update",
     annotations={**WRITE, "title": "Change the roles on a DataLens shared entry"},
+    meta=GRANTS_ACCESS,
 )
 def access_bindings_update(
     entry_id: SharedEntryID,

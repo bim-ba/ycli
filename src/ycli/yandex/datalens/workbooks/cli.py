@@ -248,6 +248,9 @@ def delete_bulk(workbook_ids: WorkbookIDsArg, *, datalens: DataLensClient) -> Wo
 def access_bindings_update(
     workbook_id: WorkbookIDArg, deltas: DeltaOption, *, datalens: DataLensClient
 ) -> Operation:
-    """Give or take away roles on a workbook; the roles not named stay as they are."""
+    """Give or take away roles on a workbook; the roles not named stay as they are.
+
+    Grants access: asks before it is sent (--yes to skip).
+    """
     parsed = [AccessBindingDelta.model_validate_json(delta) for delta in deltas]
     return datalens.workbooks.access_bindings_update(workbook_id, deltas=parsed)
