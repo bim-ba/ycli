@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.137.1 (2026-10-10)
+
+### Bug Fixes
+
+- **datalens**: The models follow the specification of 2026-10-10: the favorite flags are deprecated
+  ([#570](https://github.com/bim-ba/ycli/pull/570),
+  [`2cc16a7`](https://github.com/bim-ba/ycli/commit/2cc16a7acccda4fc49986f59d80080d90b831de4))
+
+### Build System
+
+- Re-lock uv.lock for 0.137.0
+  ([`f336052`](https://github.com/bim-ba/ycli/commit/f33605224be86711b71d098f75d21855093a572c))
+
+
 ## v0.137.0 (2026-10-10)
 
 ### Build System
