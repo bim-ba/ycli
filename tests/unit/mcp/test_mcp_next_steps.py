@@ -13,6 +13,7 @@ from tests.hosts import TRACKER_BASE
 from ycli.cli.errors import format_cli_error
 from ycli.yandex.errors import (
     YandexAuthError,
+    YandexClientError,
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
@@ -36,6 +37,7 @@ async def _said(server, tool: str, arguments: dict) -> str:
         (401, "run `ycli auth login`"),
         (403, "the token is valid but lacks access here"),
         (404, "check the id or key"),
+        (412, "run the command again"),
     ],
 )
 async def test_a_tool_error_ends_with_the_hint_the_cli_gives(api, status, words):
@@ -68,6 +70,7 @@ async def test_an_error_with_no_next_step_is_left_as_it_is(api):
         YandexNotFoundError("gone", status=404),
         YandexRateLimitError("slow", status=429, retry_after=30),
         YandexRateLimitError("slow", status=429),
+        YandexClientError("stale", status=412),
     ],
 )
 def test_the_cli_prints_the_same_words(error):
@@ -78,4 +81,5 @@ def test_the_cli_prints_the_same_words(error):
 
 def test_an_error_nobody_can_act_on_has_no_next_step():
     assert next_step(YandexServerError("down", status=503)) is None
+    assert next_step(YandexClientError("bad", status=400)) is None
     assert next_step(RuntimeError("boom")) is None

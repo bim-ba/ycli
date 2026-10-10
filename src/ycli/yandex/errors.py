@@ -171,6 +171,13 @@ _NOT_FOUND = (
     "check the id or key, and that the token's organization and user can see it "
     "(Yandex answers 404 for an object the caller may not read)."
 )
+# One status for two cases the reply's text alone tells apart: a version older than the
+# object's, and Tracker's "could not save, try again" for a version just read. Nothing is
+# sent again for the caller; the hint covers both.
+_NOT_SAVED = (
+    "the service did not save the change — read the object's current version and run the "
+    "command again (Tracker sometimes answers this for a version just read)."
+)
 
 
 def next_step(exc: BaseException | None) -> str | None:
@@ -199,6 +206,8 @@ def next_step(exc: BaseException | None) -> str | None:
         after = exc.retry_after
         wait = "wait a little" if after is None else f"wait {after:g} s (Retry-After)"
         return f"the API is rate limiting this token — {wait}, then try again."
+    if isinstance(exc, YandexClientError) and exc.status == HTTPStatus.PRECONDITION_FAILED:
+        return _NOT_SAVED
     return None
 
 
