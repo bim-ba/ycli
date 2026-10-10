@@ -23,10 +23,21 @@ NO_NAME = {
     "ycli.yandex.tracker.entities.models.Link": "a link is told by its two ends",
     "ycli.yandex.tracker.gaps.models.UserGaps": "the absences of a user, not one object",
     "ycli.yandex.wiki.resources.models.ResourceItem": "wraps a file or a grid of another kind",
+    **{
+        f"ycli.yandex.datalens.schemas.{name}": (
+            "a listing of several kinds: an id alone does not say which command reads it"
+        )
+        for name in (
+            "collection.GetStructureItemsResultItemsItemVariant1",
+            "collection.GetStructureItemsResultItemsItemVariant2",
+            "collection.StructureItemEntry",
+            "shared.OtherKind",
+        )
+    },
+    "ycli.yandex.datalens.schemas.shared.SubjectWithBindings": (
+        "who has access, told by the subject and the role together"
+    ),
 }
-#: The models generated from the DataLens specification name their identifier per resource,
-#: where the generator can read it. Until then no listing of DataLens prints names.
-GENERATED = "ycli.yandex.datalens.schemas."
 
 
 def _returns() -> dict[str, Any]:
@@ -59,11 +70,10 @@ def unnamed(returns: dict[str, Any]) -> dict[str, list[str]]:
 
 def test_the_item_of_every_listing_names_itself_or_says_why_not():
     found = unnamed(_returns())
-    generated = {name for name in found if name.startswith(GENERATED)}
-    unexplained = found.keys() - generated - NO_NAME.keys()
+    # Every class by its own name: none is excused by where it lives.
+    unexplained = found.keys() - NO_NAME.keys()
     assert not unexplained, {name: found[name] for name in unexplained}
     assert not NO_NAME.keys() - found.keys(), "a reason for an item that names itself"
-    assert generated, "no generated model is left without a name: drop GENERATED"
 
 
 def test_the_check_bites():

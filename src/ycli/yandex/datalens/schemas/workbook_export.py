@@ -1,16 +1,17 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
 
 class StartWorkbookExportResult(APIModel):
-    export_id: str | None = Field(
+    export_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="exportId", description="ID of the started workbook export."
     )
 
@@ -20,7 +21,7 @@ class StartWorkbookExportArgs(RequestBody):
 
 
 class GetWorkbookExportStatusResult(APIModel):
-    export_id: str | None = Field(
+    export_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="exportId", description="ID of the workbook export."
     )
     status: shared.WorkbookTransferProcessStatus | None = None
@@ -49,7 +50,7 @@ class GetWorkbookExportResultArgs(RequestBody):
 
 
 class CancelWorkbookExportResult(APIModel):
-    export_id: str | None = Field(
+    export_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="exportId",
         description="ID of the canceled workbook export.",
@@ -72,7 +73,7 @@ class GetWorkbookExportResultResultData(APIModel):
 
 
 class GetWorkbookExportResultResult(APIModel):
-    export_id: str | None = Field(
+    export_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="exportId", description="ID of the workbook export."
     )
     data: GetWorkbookExportResultResultData | None = None

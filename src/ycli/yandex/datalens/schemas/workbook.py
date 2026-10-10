@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
@@ -282,7 +283,7 @@ class GetWorkbookEntriesArgsFilters(APIModel):
 
 
 class CreateWorkbookResult(APIModel):
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="workbookId",
         description="Unique identifier of the workbook.",
@@ -323,7 +324,7 @@ class CreateWorkbookResult(APIModel):
 
 
 class Workbook(APIModel):
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="workbookId",
         description="Unique identifier of the workbook.",
@@ -363,7 +364,7 @@ class Workbook(APIModel):
 
 
 class GetWorkbookResult(APIModel):
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="workbookId",
         description="Unique identifier of the workbook.",
@@ -404,7 +405,7 @@ class GetWorkbookResult(APIModel):
 
 
 class GetWorkbookEntriesEntry(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
     scope: shared.EntryScope | None = None
@@ -526,7 +527,7 @@ class MoveWorkbooksResponse(APIModel):
 
 
 class GetWorkbooksListResultWorkbooksItem(APIModel):
-    workbook_id: str | None = Field(
+    workbook_id: Annotated[str | None, Identity()] = Field(
         default=None,
         alias="workbookId",
         description="Unique identifier of the workbook.",

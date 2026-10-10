@@ -1,10 +1,11 @@
 # Generated from the DataLens specification by scripts/gen_datalens_models.py; do not edit by hand.
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class ListTrinoClustersArgs(RequestBody):
@@ -56,7 +57,9 @@ class DeleteTrinoClusterCatalogArgs(RequestBody):
 
 
 class TrinoResourcePreset(APIModel):
-    id: str | None = Field(default=None, description="ID of the resource preset.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the resource preset."
+    )
     cores: str | None = Field(
         default=None,
         description="Number of CPU cores for an instance created with the preset.",
@@ -268,7 +271,9 @@ class TrinoClusterConfig(APIModel):
 
 
 class TrinoCluster(APIModel):
-    id: str | None = Field(default=None, description="ID of the Trino cluster.")
+    id: Annotated[str | None, Identity()] = Field(
+        default=None, description="ID of the Trino cluster."
+    )
     cluster_id: str | None = Field(
         default=None, alias="clusterId", description="ID of the managed Trino cluster."
     )

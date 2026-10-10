@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class LicenseWithLastLogin(APIModel):
@@ -17,7 +18,7 @@ class LicenseWithLastLogin(APIModel):
         alias="tenantId",
         description="ID of the tenant that owns the license.",
     )
-    user_id: str | None = Field(
+    user_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="userId", description="ID of the user assigned the license."
     )
     license_type: Literal["creator", "viewer"] | str | None = Field(
@@ -110,7 +111,7 @@ class License(APIModel):
         alias="tenantId",
         description="ID of the tenant that owns the license.",
     )
-    user_id: str | None = Field(
+    user_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="userId", description="ID of the user assigned the license."
     )
     license_type: Literal["creator", "viewer"] | str | None = Field(

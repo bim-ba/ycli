@@ -55,9 +55,9 @@ new=$(ycli tracker issues create --queue TEST --summary 'From a script' -o name)
 
 - An object that lies inside another one prints its own identifier: `ycli tracker comments list TEST-1 -o name` prints comment ids, and the issue key is yours to add.
 - A command whose result has no identifier (a grant of access, a count) is refused before it sends anything, with exit code 2.
+- A DataLens command that starts a long operation (a cloud environment, a Spark or Trino cluster) answers with the operation, so `-o name` prints the operation's id, the one `ycli datalens lakehouseoperations get` takes, not the id of what is being made.
 - A reply that leaves the identifier of an item out is an error: nothing is printed, so a script never acts on fewer objects than were listed.
 - With `--dry-run` the plan comes back in place of the object, and it is printed as JSON.
-- DataLens commands do not print names yet.
 
 ## Take a long listing in pieces
 

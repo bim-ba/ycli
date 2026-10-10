@@ -315,7 +315,8 @@ def test_name_prints_nothing_and_says_which_item_the_reply_left_unnamed():
     with pytest.raises(YandexUnexpectedReplyError) as failed:
         NameStrategy().render(listed, console)
     assert str(failed.value) == (
-        "item 2 of this listing has no issueKey (and 1 more): `-o name` cannot name it"
+        "item 2 of this listing has no issueKey (and 1 more): `-o name` cannot name it. "
+        "The request was sent: a command that changes something has changed it"
     )
     assert buf.getvalue() == ""
     with pytest.raises(YandexUnexpectedReplyError, match="item 1 of this listing has no issueKey:"):

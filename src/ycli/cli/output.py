@@ -439,7 +439,8 @@ class NameStrategy(SerializationStrategy):
             more = f" (and {len(unnamed) - 1} more)" if len(unnamed) > 1 else ""
             key = ".".join(columns[first - 1] or ())
             raise YandexUnexpectedReplyError(
-                f"item {first} of this listing has no {key}{more}: `-o name` cannot name it"
+                f"item {first} of this listing has no {key}{more}: `-o name` cannot name it. "
+                "The request was sent: a command that changes something has changed it"
             )
         console.file.writelines(name + "\n" for name in names)
 

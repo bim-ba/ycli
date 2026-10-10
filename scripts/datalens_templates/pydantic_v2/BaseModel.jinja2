@@ -30,6 +30,9 @@ class {{ class_name }}({%- if schema_runtime_validation_use_base -%}{{ schema_ru
     {#- ycli: a field the API requires as null carries the typed mark (gen_datalens_models) #}
     {%- if field.original_name in (no_drop_null or []) %}
     {{ field.name }}: Annotated[{{ field.type_hint }}, NoDropNull()] = {{ field.field }}
+    {#- ycli: the field that names the object carries the typed mark (gen_datalens_models) #}
+    {%- elif field.original_name in (identity or []) %}
+    {{ field.name }}: Annotated[{{ field.type_hint }}, Identity()] = {{ field.field }}
     {%- else %}
     {{ field.name }}: {{ field.type_hint }} = {{ field.field }}
     {%- endif %}
@@ -38,6 +41,8 @@ class {{ class_name }}({%- if schema_runtime_validation_use_base -%}{{ schema_ru
     {{ field.name }}: {{ field.annotated }}
     {%- elif field.original_name in (no_drop_null or []) %}
     {{ field.name }}: Annotated[{{ field.type_hint }}, NoDropNull()]
+    {%- elif field.original_name in (identity or []) %}
+    {{ field.name }}: Annotated[{{ field.type_hint }}, Identity()]
     {%- else %}
     {{ field.name }}: {{ field.type_hint }}
     {%- endif %}

@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
@@ -35,7 +36,7 @@ class GetEntriesRelationsArgs(RequestBody):
 
 
 class RenameEntryResultEntry(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="ID of the renamed entry."
     )
     key: str | None = Field(default=None, description="Updated key of the entry.")
@@ -155,7 +156,7 @@ class GetEntriesPermissionsResultValuePermissions(APIModel):
 
 
 class GetRevisionsResultEntriesItem(APIModel):
-    rev_id: str | None = Field(
+    rev_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="revId", description="Unique identifier of the revision."
     )
     updated_at: str | None = Field(
@@ -181,7 +182,7 @@ class GetRevisionsResultEntriesItem(APIModel):
 
 
 class GetEntriesRelationsEntry(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Unique identifier of the entry."
     )
     key: Annotated[str | None, NoDropNull()] = Field(

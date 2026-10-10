@@ -5,12 +5,13 @@ from typing import Annotated, Any, Literal
 from pydantic import AwareDatetime, Field, RootModel, SecretStr
 
 from ycli.yandex.models import APIModel, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 from . import shared
 
 
 class ConnectionCreateResponse(APIModel):
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     operation: dict[str, Any] | None = None
 
 
@@ -1343,7 +1344,7 @@ class AppmetricaApi1(APIModel):
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1362,7 +1363,7 @@ class Bigquery1(APIModel):
     created_at: str | None = None
     credentials: SecretStr | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1384,7 +1385,7 @@ class Bitrix241(APIModel):
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1401,7 +1402,7 @@ class ChBillingAnalytics1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1416,7 +1417,7 @@ class ChYaMusicPodcastStats1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1437,7 +1438,7 @@ class Chyt1(APIModel):
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1474,7 +1475,7 @@ class Clickhouse1(APIModel):
     dlp_managed_folder_id: str | None = None
     experimental_features: Literal["on", "off"] | str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
@@ -1504,7 +1505,7 @@ class Equeo1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1520,7 +1521,7 @@ class Extractor1c1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1541,7 +1542,7 @@ class Greenplum1(APIModel):
     description: str | None = None
     enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
@@ -1569,7 +1570,7 @@ class Gsheets1(APIModel):
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1587,7 +1588,7 @@ class JsonApi1(APIModel):
     created_at: str | None = None
     description: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1608,7 +1609,7 @@ class KonturMarket1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1626,7 +1627,7 @@ class MetrikaApi1(APIModel):
     created_at: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1647,7 +1648,7 @@ class Monitoring1(APIModel):
     delegation_is_set: bool | None = None
     description: str | None = None
     folder_id: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1664,7 +1665,7 @@ class Moysklad1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1684,7 +1685,7 @@ class Mssql1(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1721,7 +1722,7 @@ class Mysql1(APIModel):
     dlp_managed_folder_id: str | None = None
     enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
@@ -1754,7 +1755,7 @@ class Oracle1(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1793,7 +1794,7 @@ class Postgres1(APIModel):
     dlp_managed_folder_id: str | None = None
     enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
@@ -1827,7 +1828,7 @@ class Promql1(APIModel):
     db_name: str | None = None
     description: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1847,7 +1848,7 @@ class SmbHeatmaps1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1868,7 +1869,7 @@ class Snowflake1(APIModel):
     data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1897,7 +1898,7 @@ class Speechsense1(APIModel):
     delegation_is_set: bool | None = None
     description: str | None = None
     folder_id: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1930,7 +1931,7 @@ class Trino1(APIModel):
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     jwt: SecretStr | None = None
     key: str | None = None
     listing_sources: Literal["on", "off"] | str | None = None
@@ -1957,7 +1958,7 @@ class UsageAnalyticsDetailed1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1972,7 +1973,7 @@ class UsageAnalyticsLight1(APIModel):
     collection_id: str | None = None
     created_at: str | None = None
     description: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None
@@ -1996,7 +1997,7 @@ class Ydb1(APIModel):
     description: str | None = None
     folder_id: str | None = None
     host: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
@@ -2028,7 +2029,7 @@ class Yq1(APIModel):
     delegation_is_set: bool | None = None
     description: str | None = None
     folder_id: str | None = None
-    id: str | None = None
+    id: Annotated[str | None, Identity()] = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str | None = None

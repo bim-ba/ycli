@@ -5,6 +5,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, KindByOwnField, NoDropNull, RequestBody
+from ycli.yandex.sync.marks import Identity
 
 
 class GetHtmlPageArgs(RequestBody):
@@ -211,7 +212,7 @@ class CreateHtmlPageArgs(RequestBody):
 
 
 class GetHtmlPageResult(APIModel):
-    entry_id: str | None = Field(
+    entry_id: Annotated[str | None, Identity()] = Field(
         default=None, alias="entryId", description="Unique identifier of the HTML page."
     )
     scope: Literal["artifact"] | None = Field(
