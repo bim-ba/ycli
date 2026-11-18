@@ -42,6 +42,10 @@ class Leftover:
         match = _STAMP.match(self.name)
         return int(match.group(1)) if match else None
 
+    def stale_by(self, cutoff: float) -> bool:
+        """Only a stamped object can age: ``Leftover("wiki", "1", "e2e-x").stale_by(1)`` -> no."""
+        return self.started_at is not None and self.started_at <= cutoff
+
 
 def parse_duration(text: str) -> int:
     """``parse_duration("6h") -> 21600`` (seconds); units s, m, h, d."""
@@ -130,7 +134,7 @@ def sweep(
     if runs is not None:
         leftovers = [item for item in leftovers if item.name.startswith(tuple(runs))]
     cutoff = now - older_than_seconds
-    stale = [item for item in leftovers if (item.started_at or now) <= cutoff]
+    stale = [item for item in leftovers if item.stale_by(cutoff)]
     unnamed = [item for item in leftovers if item.started_at is None]
     for item in unnamed:
         print(f"skipped {item.service} {item.identifier} {item.name!r}: no run stamp in the name")

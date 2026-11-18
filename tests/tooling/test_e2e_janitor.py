@@ -73,6 +73,15 @@ def test_only_stale_run_named_objects_are_touched(capsys):
     assert "janitor: 5 e2e- objects, 3 stale, removed 3, 0 failed, 1 too recent" in output
 
 
+def test_an_object_without_a_run_stamp_is_never_stale_even_at_a_zero_cutoff(capsys):
+    organization = FakeOrganization(CLOSE)
+    sweep(organization, "Q", 0, 200, dry_run=False, now=NOW)
+    assert ["wiki", "pages", "delete", "12"] not in organization.writes
+    output = capsys.readouterr().out
+    assert "skipped wiki 12 'e2e-handmade': no run stamp" in output
+    assert "deleted wiki 12" not in output
+
+
 def test_the_cap_holds_back_writes(capsys):
     organization = FakeOrganization(CLOSE)
     sweep(organization, "Q", 3600, 1, dry_run=False, now=NOW)
