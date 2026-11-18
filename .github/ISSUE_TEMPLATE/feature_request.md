@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest a service, endpoint, or improvement
-labels: enhancement
+labels: type:feature
 ---
 
 **Service / endpoint**
