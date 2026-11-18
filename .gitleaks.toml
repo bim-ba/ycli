@@ -1,0 +1,9 @@
+# Extends the built-in rules with the one token shape they do not know.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "yandex-oauth-token"
+description = "A bare Yandex OAuth token: y0_ then 40 or more URL-safe characters."
+regex = '''y0_[A-Za-z0-9_-]{40,}'''
+keywords = ["y0_"]
