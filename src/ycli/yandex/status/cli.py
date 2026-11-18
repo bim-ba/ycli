@@ -268,7 +268,7 @@ def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Co
     while True:
         result: TokenPollResult = oauth_client.poll_token(device.device_code)
         if result.token is not None:
-            return result.token.access_token
+            return result.token.access_token.get_secret_value()
         if not result.pending:
             typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
             raise typer.Exit(1)
