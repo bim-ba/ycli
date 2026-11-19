@@ -6,6 +6,7 @@ from io import StringIO
 from types import SimpleNamespace
 
 import pytest
+from pydantic import SecretStr
 from rich.console import Console
 from rich.live import Live
 from typer.testing import CliRunner
@@ -318,7 +319,10 @@ def test_device_flow_shows_code_in_a_panel_and_returns_token(monkeypatch):
     buf = StringIO()
     console = Console(file=buf, force_terminal=False, width=80)
     client = _FakeOAuth(
-        [TokenPollResult(pending=True), TokenPollResult(token=TokenResponse(access_token="tok-9"))]
+        [
+            TokenPollResult(pending=True),
+            TokenPollResult(token=TokenResponse(access_token=SecretStr("tok-9"))),
+        ]
     )
     token = _device_flow(client, None, console)  # ty: ignore[invalid-argument-type]
     assert token == "tok-9"

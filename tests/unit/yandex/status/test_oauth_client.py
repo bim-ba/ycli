@@ -2,6 +2,7 @@
 
 import httpx2
 import pytest
+from pydantic import SecretStr
 
 from ycli.yandex.errors import (
     YandexAuthError,
@@ -10,6 +11,7 @@ from ycli.yandex.errors import (
     YandexServerError,
 )
 from ycli.yandex.status.client import OAuthClient
+from ycli.yandex.status.oauth_models import TokenResponse
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
 TOKEN_URL = "https://oauth.yandex.ru/token"
@@ -61,7 +63,8 @@ def test_poll_token_success(api):
     assert result.pending is False
     assert result.error == ""
     assert result.token is not None
-    assert result.token.access_token == "tok-abc"
+    assert result.token.access_token.get_secret_value() == "tok-abc"
+    assert "tok-abc" not in repr(result.token)
 
 
 def test_poll_token_pending(api):
@@ -125,3 +128,9 @@ def test_a_lost_connection_is_a_typed_error(monkeypatch):
     )
     with pytest.raises(YandexConnectionError, match="ConnectError"):
         _client().request_device_code()
+
+
+def test_a_token_response_does_not_show_the_token_in_its_repr():
+    response = TokenResponse(access_token=SecretStr("tok-abc"))
+    assert "tok-abc" not in repr(response)
+    assert "tok-abc" not in str(response)

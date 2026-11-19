@@ -4,7 +4,7 @@ Inherit ``APIModel`` (lenient parse, ignore extras) like every other Yandex mode
 these are plain data with no serialization logic (that lives in ``output.py``).
 """
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 
 from ycli.yandex.models import APIModel
 
@@ -36,7 +36,7 @@ class TokenResponse(APIModel):
     token is always present.
     """
 
-    access_token: str = Field(description="The issued OAuth access token.")
+    access_token: SecretStr = Field(description="The issued OAuth access token.")
     token_type: str | None = Field(default=None, description="Type of the token, e.g. `bearer`.")
     expires_in: int | None = Field(default=None, description="Seconds until the token expires.")
     scope: str | None = Field(default=None, description="Scopes the token was granted.")
