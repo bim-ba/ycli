@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.142.2 (2026-11-19)
+
+### Bug Fixes
+
+- Catch a bare Yandex OAuth token in the secret scan
+  ([#611](https://github.com/bim-ba/ycli/pull/611),
+  [`40180d2`](https://github.com/bim-ba/ycli/commit/40180d25a708752d20db9568d0c43beced2727d5))
+
+- Keep the OAuth access token out of a TokenResponse repr
+  ([#611](https://github.com/bim-ba/ycli/pull/611),
+  [`40180d2`](https://github.com/bim-ba/ycli/commit/40180d25a708752d20db9568d0c43beced2727d5))
+
+- Run the CI secret scan with the gitleaks version pre-commit uses
+  ([#611](https://github.com/bim-ba/ycli/pull/611),
+  [`40180d2`](https://github.com/bim-ba/ycli/commit/40180d25a708752d20db9568d0c43beced2727d5))
+
+- SecretStr for the OAuth token, gitleaks 8.30.1 in CI, bare y0_ token rule
+  ([#611](https://github.com/bim-ba/ycli/pull/611),
+  [`40180d2`](https://github.com/bim-ba/ycli/commit/40180d25a708752d20db9568d0c43beced2727d5))
+
+### Build System
+
+- Re-lock uv.lock for 0.142.1
+  ([`b621acd`](https://github.com/bim-ba/ycli/commit/b621acd6f55ba226960a65f2f0f29f8d19b0b05a))
+
+
 ## v0.142.1 (2026-11-19)
 
 ### Bug Fixes
