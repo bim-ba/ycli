@@ -50,11 +50,11 @@ steps:
   - id: answers
     run: forms answers list ${id} --ordering asc --page-size 1 --use-slugs --date-from 2020-01-01T00:00:00Z --date-to 2099-01-01T00:00:00Z --all
     expect:
-      "length(items)": 0
+      "length(@)": 0
   - id: answers-raw
     run: forms answers list ${id} --answer-format raw --all
     expect:
-      "length(items)": 0
+      "length(@)": 0
   # A form nobody answered: the columns are read all the same.
   - id: answer-columns
     run: forms answers columns-list ${id} --use-slugs

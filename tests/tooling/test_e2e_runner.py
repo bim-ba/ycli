@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from typing import TYPE_CHECKING
 
 import pytest
@@ -375,3 +376,24 @@ def test_a_step_that_expects_a_refusal_and_reads_its_output_is_no_scenario(besid
     """`exits` reads nothing of the output: what would be passed over is refused at load."""
     with pytest.raises(ValueError, match="`expect` and `save` beside it would be passed over"):
         _scenario({"id": "a", "run": "gone", "exits": 9, **beside})
+
+
+class _TimingOut(Driver):
+    """Answers ``me`` with a uid and times out on every other command, as ``subprocess`` does."""
+
+    def run(self, arguments: Sequence[str]) -> CommandResult:
+        if arguments[0] == "me":
+            return CommandResult(0, json.dumps({"uid": "1130000012345678"}), "")
+        raise subprocess.TimeoutExpired(["ycli", *arguments], 120)
+
+
+def test_a_step_that_times_out_fails_without_the_value_the_run_learned():
+    scenario = _scenario(
+        {"id": "me", "run": "me get", "save": {"uid": "uid"}},
+        {"id": "slow", "run": "users get ${uid}"},
+    )
+    with pytest.raises(ScenarioError) as failed:
+        run_scenario(scenario, _TimingOut(), {})
+    assert str(failed.value) == "[s/slow] `ycli users get <uid>` timed out after 120s"
+    assert "1130000012345678" not in str(failed.value)
+    assert failed.value.__suppress_context__

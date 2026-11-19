@@ -264,7 +264,7 @@ def _run_step(
 ) -> None:
     where = f"[{scenario.name}/{step.id}]"
     arguments = render_command(step.run, variables)
-    completed = driver.run(arguments)
+    completed = _drive(where, driver, arguments, variables)
     retries = 0
     while (
         completed.exit_code != 0
@@ -274,7 +274,7 @@ def _run_step(
     ):
         time.sleep(step.retry.pause_seconds)
         retries += 1
-        completed = driver.run(arguments)
+        completed = _drive(where, driver, arguments, variables)
     if retries and retried is not None and step.retry is not None:
         # Said whether it passed or not: a refusal that needed a second try is still a refusal.
         outcome = "passed" if completed.exit_code == 0 else "failed"
@@ -308,6 +308,18 @@ def _run_step(
         if value is None:
             raise ScenarioError(f"{where} save {name}: `{expression}` matched nothing")
         variables[name] = str(value)
+
+
+def _drive(
+    where: str, driver: Driver, arguments: Sequence[str], variables: dict[str, str]
+) -> CommandResult:
+    """Run the step's command; a timeout is a step failure that shows the argv by name."""
+    try:
+        return driver.run(arguments)
+    except subprocess.TimeoutExpired as error:
+        # The exception's own text is the rendered argv, with the values the run learned.
+        shown = hidden(shlex.join(arguments), variables)
+        raise ScenarioError(f"{where} `ycli {shown}` timed out after {error.timeout:g}s") from None
 
 
 def _parse(where: str, step: Step, completed: CommandResult) -> Any:
