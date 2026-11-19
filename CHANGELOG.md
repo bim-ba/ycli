@@ -9,6 +9,37 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.142.1 (2026-11-19)
+
+### Bug Fixes
+
+- **e2e**: Count a survey's answers by the listing the runner unwraps
+  ([#610](https://github.com/bim-ba/ycli/pull/610),
+  [`6065b60`](https://github.com/bim-ba/ycli/commit/6065b600e319444561b32954773e6218318c9721))
+
+- **e2e**: Leave an unstamped e2e- object to its owner at a zero cutoff
+  ([#610](https://github.com/bim-ba/ycli/pull/610),
+  [`6065b60`](https://github.com/bim-ba/ycli/commit/6065b600e319444561b32954773e6218318c9721))
+
+- **e2e**: Name a timed-out step's command without the values the run learned
+  ([#610](https://github.com/bim-ba/ycli/pull/610),
+  [`6065b60`](https://github.com/bim-ba/ycli/commit/6065b600e319444561b32954773e6218318c9721))
+
+- **e2e**: Nightly expectation, timeout message, unstamped janitor objects
+  ([#610](https://github.com/bim-ba/ycli/pull/610),
+  [`6065b60`](https://github.com/bim-ba/ycli/commit/6065b600e319444561b32954773e6218318c9721))
+
+### Build System
+
+- Re-lock uv.lock for 0.142.0
+  ([`3599fd9`](https://github.com/bim-ba/ycli/commit/3599fd9140ca9a622f4804c28fab6faab4ac04de))
+
+### Continuous Integration
+
+- Manage issue labels from .github/labels.yml ([#601](https://github.com/bim-ba/ycli/pull/601),
+  [`1734ba0`](https://github.com/bim-ba/ycli/commit/1734ba0ae038faf23fef554de3623fc725377deb))
+
+
 ## v0.142.0 (2026-10-10)
 
 ### Build System
