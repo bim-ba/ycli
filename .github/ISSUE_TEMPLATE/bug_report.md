@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Something in ycli (CLI / MCP / SDK / plugin) doesn't work as expected
-labels: bug
+labels: type:bug
 ---
 
 **Surface:** CLI / MCP server / Python SDK / Claude Code plugin

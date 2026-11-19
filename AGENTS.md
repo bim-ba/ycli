@@ -112,6 +112,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 ## Working notes
 
 - **Drift log:** when a session reveals a convention the codebase doesn't yet enforce, capture it via `drifts:creating-drift-logs` before ending.
+- **Issue labels:** `.github/labels.yml` is the only list of labels. Every issue an agent opens carries one `needs:*` when the owner has to act, at least one `scope:*`, one `priority:*` and one `type:*`; `wayfinder:*` belongs only to a map and its tickets.
 
 ## Architecture invariants (enforced)
 
