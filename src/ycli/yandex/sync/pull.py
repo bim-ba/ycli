@@ -75,6 +75,26 @@ def _under(tree: Tree, scope: PurePosixPath) -> tuple[str, ...]:
     return tuple(got for want, got in zip(frame, parts, strict=False) if want == "*")
 
 
+def names(scope: PurePosixPath, path: PurePosixPath) -> bool:
+    """Whether ``scope`` names the file ``path``: it is that file, or a directory above it.
+
+    Args:
+        scope: What a run was given: a file or a directory.
+        path: The file of an object.
+
+    Returns:
+        Whether the run covers that file.
+
+    Examples:
+        >>> names(PurePosixPath("wiki/team"), PurePosixPath("wiki/team/onboarding.md"))
+        True
+        >>> names(PurePosixPath("wiki/team/gone.md"), PurePosixPath("wiki/team/onboarding.md"))
+        False
+    """
+    within = scope.with_suffix("")
+    return within == path.with_suffix("") or within in path.parents
+
+
 def documents_under(
     kind: Kind[Any, Any], senders: Callable[[str], Sender], scope: PurePosixPath
 ) -> Iterator[tuple[PurePosixPath, Document[Any, Any] | None]]:
@@ -178,10 +198,9 @@ def pull(
     if not mine:
         raise ScopeError(f"no kind keeps files under {scope}")
     done: list[Pulled] = []
-    within = scope.with_suffix("")
     for kind in mine:
         for path, document in documents_under(kind, senders, scope):
-            if within != path.with_suffix("") and within not in path.parents:
+            if not names(scope, path):
                 continue
             if document is None:
                 skipped = Pulled(path=str(path), kind=kind.name, action=Action.SKIPPED)

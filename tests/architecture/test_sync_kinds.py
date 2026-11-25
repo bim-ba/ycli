@@ -33,6 +33,7 @@ from ycli.yandex.sync.kind import (
     summary_of,
 )
 from ycli.yandex.tracker import queues
+from ycli.yandex.tracker.triggers import sync as triggers_sync
 from ycli.yandex.wiki import pages
 
 PACKAGE = "ycli.yandex."
@@ -63,7 +64,9 @@ def _problems(kind: Kind[Any, Any], recorded: set[str]) -> list[str]:
         name = f"{home}.{operation.__name__.rstrip('_')}"
         if not operation.__module__.startswith(f"{PACKAGE}{service}."):
             found.append(f"{role}: {name} is not an operation of {service}")
-        elif name not in recorded:
+        # One the kind builds in its own module on operations of `endpoints.py` (DataLens holds
+        # an entry under `entry`) is tested with the kind, not by a contract case of its own.
+        elif name not in recorded and operation.__module__ != kind.link.__module__:
             found.append(f"{role}: {name} has no contract case")
         try:
             marked = arguments_of(given)
@@ -154,6 +157,18 @@ def _needs_a_value(trigger_id: Annotated[int, Identity()], *, expand: str) -> En
     return _REQUEST
 
 
+def _built(trigger_id: Annotated[int, Identity()]) -> Endpoint[Any]:
+    return _REQUEST
+
+
+class _Built(Link):
+    pass
+
+
+# As an operation a kind builds in its own module, beside its link.
+_built.__module__ = _Built.__module__ = triggers_sync.__name__
+
+
 for _made in (_get, _two, _unreadable, _in_a_queue, _in_a_page, _in_a_service, _needs_a_value):
     _made.__module__ = "ycli.yandex.tracker.triggers.endpoints"
 for _made in (_get, _in_a_queue, _in_a_page, _in_a_service, _needs_a_value):
@@ -177,6 +192,9 @@ def _kind(**changed: Any) -> Kind[Any, Any]:
         (_kind(name="nowhere/thing"), "does not start with a registered service"),
         (_kind(name="wiki/page"), "is not an operation of wiki"),
         (_kind(update=_two), "tracker.triggers._two has no contract case"),
+        # Built by the kind in the module that declares it: tested with the kind.
+        (_kind(read=_built, link=_Built), None),
+        (_kind(read=_built), "tracker.triggers.sync._built has no contract case"),
         (_kind(update=_two), "the marks of tracker.triggers._two cannot be read"),
         (_kind(delete=_unreadable), "cannot be read"),
         (_kind(content=_Connection), "carries a secret, which a file would hold: ['password']"),

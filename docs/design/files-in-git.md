@@ -41,7 +41,7 @@ up by the declarations its resources carry.
 | 20a | Where the marks stand | On the functions of `endpoints.py`, the one place an operation is described; the declaration names those functions | #493 |
 | 21 | An object with no `id` | No key is invented: the identity is what the read operation is addressed by, which is none, one or several marked arguments | #488 |
 | 22 | An operation the API lacks | It is absent from the declaration; the engine says so aloud. No stub that does nothing | #488 |
-| 23 | Where the file of an object lies | A field marked `Place()` says it (the `slug` of a page); for a kind with none the path is its container and its identity, under the names of their resources | #493 |
+| 23 | Where the file of an object lies | A field marked `Place()` says it (the `slug` of a page); for a kind with none the path is its container and its identity, under the names of their resources. A placed kind that has a container lies under it and its resource, named by its place (`datalens/workbooks/<id>/charts/<name>.yaml`) | #493, [datalens#3](https://github.com/bim-ba-blg-service/datalens/issues/3) |
 | 23a | Whether a kind may be written | No mark and no field says it. After every write the engine reads the object again and compares what was sent with what was saved; a loss is a loud refusal. A kind known to lose data names no `update` | #493 |
 | 24 | The MCP tools of `sync` | **None** (#520, which withdraws #485 item 6 and #493 item 4). `sync` works in the caller's working tree and a server has none: an agent runs the command. The server's instructions say so in one line | #520 |
 | 25 | DataLens in files | A file per entry, not the export of a whole workbook | #484 |
@@ -203,7 +203,10 @@ TRIGGER = Kind(
 
 An operation is a function of the resource's `endpoints.py`. Where a kind always gives an
 argument a value, the declaration sets it with `functools.partial`, which a type checker reads
-like any call:
+like any call. Where the API's shape does not fit the engine (DataLens holds an entry under
+`entry`, takes its id inside the body and answers no name), the kind builds its operation in
+its own `sync.py` on those of `endpoints.py`, and it is tested with the kind instead of by a
+contract case of its own:
 
 ```python
 # src/ycli/yandex/wiki/pages/sync.py
@@ -265,7 +268,7 @@ Where the service has a version, a second check stands beside the first:
 | `version` | What happens | Atomic | Kinds |
 |---|---|---|---|
 | `SentVersion()` | the write carries the version from the file; the server refuses a stale one | yes | Tracker objects that take `?version=`, a DataLens dataset |
-| `CheckedVersion(newest=…)` | `push` reads the newest version and compares it with the file's | no: an edit landing between the read and the write is overwritten | Wiki pages; DataLens charts, dashboards and reports |
+| `CheckedVersion(newest=…)`, `CheckedVersion()` | `push` reads the newest version and compares it with the file's: from a listing of versions, or, with none named, from the reply of the read | no: an edit landing between the read and the write is overwritten | Wiki pages (a listing); DataLens Editor charts and dashboards (the published `revId` of the read) |
 | `NoVersion()`, the default | the fingerprint alone | no | objects whose service has no version: seven resources in ten |
 
 Each way is a class that answers for itself; the engine calls the same thing on any of them and
@@ -284,6 +287,7 @@ Measured, not assumed (recorded in #300 and #484):
 | Forms survey | `200`: the API has no version | the same |
 | DataLens dataset | `400 ERR.DS_API.DATASET_REVISION_MISMATCH` | n/a |
 | DataLens chart, dashboard, report | `200`, overwritten, also with the `revId` of another entry | `200` |
+| DataLens Editor chart, `publish` (2026-11-26) | `200`, and the revision named is published: the content sent is dropped, and a stale `revId` brings the old content back. So no `revId` is sent | `200`, a new revision with what was sent, saved and published; the same content sent again is a new revision too |
 
 ### What a write loses
 
@@ -398,6 +402,29 @@ tracker/queues/DE/macros/close-as-duplicate.yaml
 does not know the action types and does not check them. The API has no operation that deletes a
 trigger: for a trigger file deleted with `--prune` the engine says so.
 
+## The DataLens kinds: an Editor chart and a dashboard of a workbook
+
+A workbook is the container, and an entry lies under the name it has there, which DataLens keeps
+unique in a workbook for each kind of entry:
+
+```text
+datalens/workbooks/vauoe2grskawe/charts/sales.yaml
+datalens/workbooks/vauoe2grskawe/dashboards/overview.yaml
+```
+
+| In the file | From the API | Sent by `push` |
+|---|---|---|
+| the workbook in the path | `workbookId` | in every read, and in the body of a create: DataLens refuses to read an entry in a workbook it is not in (`403 WORKBOOK_ISOLATION_INTERRUPTION`, measured 2026-11-26), so a file copied under another workbook is refused before anything is written, a `--prune` included |
+| the name of the file | the end of `key` | `name`, on create only |
+| `entryId` | `entryId` | inside the body of an update; `entryId` of a delete |
+| `revId` | `revId` of the published branch | no: a `revId` in the body publishes that revision and drops what was sent (measured) |
+| the other keys | what `updateEditorChart` / `updateDashboard` take of the entry: `type`, `annotation`, `meta`, `links`, `data` (a chart); `annotation`, `meta`, `data` (a dashboard) | yes, with `mode: publish` |
+
+`pull` reads the published branch and `push` publishes (#486): what is in the default branch of
+git is what the viewers see, and a git branch is the draft. A chart of the wizard or of QL is a
+widget too and is not listed by the Editor kind. Every `push --prune` reads the object first, in
+the container its file lay in, and deletes nothing that read refuses.
+
 ## Built and not built
 
 | Part | State |
@@ -405,6 +432,7 @@ trigger: for a trigger file deleted with `--prune` the engine says so.
 | A file as a document: the two layouts, the link, the content, the fingerprint, the refusals (`ycli.yandex.sync.document`, `formats`) | built |
 | The declaration of a kind, the marks, the registry, `ycli sync kinds`, one check over every declared kind (`ycli.yandex.sync.kind`, `marks`; `ycli.yandex.registry.kinds`) | built |
 | `wiki/page` and `tracker/trigger` declared | built |
+| `datalens/editor-chart` and `datalens/dashboard` declared | built; live on 2026-11-26: pull of a workbook (25 Editor charts, 1 dashboard), and create, diff, publish of an edit, `--prune` of an Editor chart; a dashboard was pulled, not pushed |
 | `status`, `validate`, where a file lies (`ycli.yandex.sync.files`, `paths`) | built |
 | `pull` (`ycli.yandex.sync.pull`) | built |
 | `diff`, the plan it shares with `push`, the exit codes (`ycli.yandex.sync.plan`) | built |
@@ -419,7 +447,7 @@ requests.
 
 ## Kinds by service
 
-Only the two above are designed. Of 198 resources with a write across the services Yandex
+Only the kinds above are designed. Of 198 resources with a write across the services Yandex
 publishes, 140 have no version at all, 16 have one the server checks, 6 have one it does not
 check, and for 36 it is not known (surveyed in #485); the fingerprint covers all of them.
 
@@ -432,7 +460,8 @@ check, and for 36 it is not known (surveyed in #485); the fingerprint covers all
 | Tracker | queue | YAML | read only: no update operation |
 | Tracker | workflow, issue type, status, resolution, priority, global field | YAML | organization-wide, not under a queue |
 | Forms | survey with its questions, hook, subscription, conditions | YAML | no version |
-| DataLens | dashboard, chart | YAML | a file per entry; the round trip of a dashboard is byte for byte, the server checks no version |
+| DataLens | Editor chart, dashboard | YAML | built, below; a file per entry; the round trip of a dashboard is byte for byte, the server checks no version |
+| DataLens | chart of the wizard, of QL; dataset | YAML | not built yet: a file per entry, the same shape |
 | DataLens | report | not decided | measured: a save through the API loses the layout of the slides |
 | DataLens | HTML page | not decided | measured: a read does not return its HTML |
 | DataLens | connection | not decided | its content holds a secret, which a file may not hold |

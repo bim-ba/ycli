@@ -185,3 +185,6 @@ def test_every_way_to_prove_a_version_says_the_version_of_an_object_now():
     assert CheckedVersion(newest=list_).current(read, "id", ask) == 9
     assert asked == [list_]
     assert CheckedVersion(newest=list_).current(read, "id", lambda operation: []) is None
+    # Where reading the object answers its version, nothing else is asked.
+    assert CheckedVersion().current(read, "id", ask) == 7
+    assert asked == [list_]

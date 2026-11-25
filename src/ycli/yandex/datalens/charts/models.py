@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.datalens.schemas.data import GetChartDataResult as ChartData
 from ycli.yandex.datalens.schemas.editor import (
@@ -18,6 +18,7 @@ from ycli.yandex.datalens.schemas.editor import (
     UpdateEditorTableNodeEntry,
 )
 from ycli.yandex.datalens.schemas.editor import CreateEditorChartResult as EditorChartCreated
+from ycli.yandex.datalens.schemas.editor import EditorTableNodeData as EditorChartTabs
 from ycli.yandex.datalens.schemas.editor import GetEditorChartResult as EditorChart
 from ycli.yandex.datalens.schemas.editor import UpdateEditorChartResult as EditorChartSaved
 from ycli.yandex.datalens.schemas.ql import CreateQLChartArgsData as QLChartData
@@ -30,7 +31,8 @@ from ycli.yandex.datalens.schemas.wizard import CreateWizardChartV1Result as Wiz
 from ycli.yandex.datalens.schemas.wizard import GetWizardChartV1Result as WizardChart
 from ycli.yandex.datalens.schemas.wizard import UpdateWizardV1Result as WizardChartSaved
 from ycli.yandex.datalens.schemas.wizard import WizardV1ConfigSchema as WizardChartData
-from ycli.yandex.models import APIModel
+from ycli.yandex.datalens.workbook_entries import EntryInWorkbook
+from ycli.yandex.models import APIModel, RequestBody
 
 #: An Editor chart to create: `type` says which of the five kinds it is; a kind the
 #: specification does not list is sent as it was given (#444).
@@ -51,6 +53,29 @@ EditorChartUpdate = (
     | UpdateEditorSelectorNodeEntry
     | OtherKind
 )
+
+
+class EditorChartContent(RequestBody):
+    """What the file of an Editor chart holds: what ``updateEditorChart`` takes of the entry.
+
+    Its id and revision are the file's link. A revision in the entry is not sent: with one,
+    DataLens publishes that revision and keeps nothing of what was sent (measured,
+    2026-11-26). A table's tabs are the most any kind has, so they hold every kind's.
+    """
+
+    type: str = Field(description="Which kind of Editor chart it is, e.g. `d3_node`.")
+    annotation: EntryAnnotation | None = Field(default=None, description="Its description.")
+    meta: dict[str, Any] | None = Field(default=None, description="Metadata of the entry.")
+    links: dict[str, str] | None = Field(
+        default=None, description="The entries it uses, by the name its code calls them."
+    )
+    data: EditorChartTabs | None = Field(default=None, description="Its code, tab by tab.")
+
+
+class EditorChartEntry(EntryInWorkbook, EditorChartContent):
+    """An Editor chart of a workbook as its file reads it: the content, the link, the name."""
+
+    model_config = ConfigDict(extra="allow")
 
 
 class QLChart(APIModel):
@@ -106,9 +131,12 @@ class QLChart(APIModel):
 __all__ = [
     "ChartData",
     "EditorChart",
+    "EditorChartContent",
     "EditorChartCreate",
     "EditorChartCreated",
+    "EditorChartEntry",
     "EditorChartSaved",
+    "EditorChartTabs",
     "EditorChartUpdate",
     "EntryAnnotation",
     "QLChart",

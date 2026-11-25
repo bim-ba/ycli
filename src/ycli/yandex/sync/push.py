@@ -168,7 +168,7 @@ def _create(
     link = kind.link(**{key: getattr(reply, key) for key in keys})
     # A file that lies under its identity is named by it: a new one is moved there.
     named = "/".join(str(getattr(link, key)) for key in keys)
-    path = tree.path(held, named) if tree.resource else local.path
+    path = tree.path(held, named) if tree.named_by_identity else local.path
     linked = local.model_copy(update={"link": link, "path": path})
     return str(path), _saved(root, kind, sender, local, linked)
 
@@ -247,7 +247,8 @@ def push(
             return
 
 
-type Candidate = tuple[Planned, Kind[Any, Any], dict[str, Any]]
+#: An entry of the plan, its kind, and the arguments that read and that delete its object.
+type Candidate = tuple[Planned, Kind[Any, Any], dict[str, Any], dict[str, Any]]
 
 
 def _deleted_since(
@@ -304,19 +305,25 @@ def prunable(
         if kind.delete is None:
             why = f"the API cannot delete a {kind.name}"
             unsupported = Planned(path=name, kind=kind.name, state=State.UNSUPPORTED, detail=why)
-            found.append((unsupported, kind, {}))
+            found.append((unsupported, kind, {}, {}))
             continue
-        delete = arguments_of(kind.delete)
         held, _ = tree_of(kind).split(path)
-        call = dict(zip(delete.container, held, strict=False)) | dict(
-            zip(delete.identity, ids, strict=True)
+        read, delete = (arguments_of(operation) for operation in (kind.read, kind.delete))
+        reading, deleting = (
+            dict(zip(marked.container, held, strict=False))
+            | dict(zip(marked.identity, ids, strict=True))
+            for marked in (read, delete)
         )
-        found.append((Planned(path=name, kind=kind.name, state=State.DELETE), kind, call))
+        doomed = Planned(path=name, kind=kind.name, state=State.DELETE)
+        found.append((doomed, kind, reading, deleting))
     return found
 
 
 def prune(candidates: Sequence[Candidate], senders: Callable[[str], Sender]) -> Iterator[Pushed]:
-    """Delete the objects ``candidates`` name.
+    """Delete the objects ``candidates`` name, each read first where its file lay.
+
+    The read is what confines a delete: a service that addresses an object by its container
+    refuses it there when the file named an object of another container.
 
     Args:
         candidates: What :func:`prunable` found.
@@ -325,7 +332,7 @@ def prune(candidates: Sequence[Candidate], senders: Callable[[str], Sender]) -> 
     Yields:
         Pushed: What was done with each, by path.
     """
-    for planned, kind, call in candidates:
+    for planned, kind, read, call in candidates:
         said: dict[str, Any] = {
             "path": planned.path,
             "kind": planned.kind,
@@ -334,8 +341,10 @@ def prune(candidates: Sequence[Candidate], senders: Callable[[str], Sender]) -> 
         if kind.delete is None or planned.state is not State.DELETE:
             yield Pushed(**said, result=Result.FAILED, detail=planned.detail)
             continue
+        sender = senders(tree_of(kind).service)
         try:
-            ask(senders(tree_of(kind).service), kind.delete, call)
+            ask(sender, kind.read, read)
+            ask(sender, kind.delete, call)
         except YandexError as failure:
             yield Pushed(**said, result=Result.FAILED, detail=str(failure))
             continue

@@ -24,7 +24,7 @@ from ycli.yandex.sync.files import State, files_under, offline_state, read_file
 from ycli.yandex.sync.kind import Kind
 from ycli.yandex.sync.marks import Identity, Version
 from ycli.yandex.sync.paths import tree_of
-from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, read_one
+from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, names, read_one
 
 MASK = "***"
 
@@ -201,6 +201,7 @@ def entries(
                     listed |= {
                         path: (kind, document)
                         for path, document in documents_under(kind, senders, scope)
+                        if names(scope, path)
                     }
                 except ScopeError:  # the directory names no container of this kind
                     continue

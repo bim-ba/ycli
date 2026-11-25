@@ -67,10 +67,11 @@ class CheckedVersion:
     """The server takes no version: the newest one is read and compared before a write.
 
     Args:
-        newest: The operation that lists the versions of an object, newest first.
+        newest: The operation that lists the versions of an object, newest first; ``None``
+            where reading the object answers its version itself (a DataLens entry).
     """
 
-    newest: Operation
+    newest: Operation | None = None
 
     def describe(self) -> str:
         """What ``ycli sync kinds`` says of it.
@@ -84,13 +85,15 @@ class CheckedVersion:
         """The newest version the service lists: the field marked ``Version`` of the first.
 
         Args:
-            reply: What reading the object answered (not used).
-            key: The name of the version field of the kind's link (not used).
+            reply: What reading the object answered: where no listing is named, its version.
+            key: The name of the version field of the kind's link.
             ask: Calls another operation for the same object.
 
         Returns:
             The newest version; ``None`` for an object with none.
         """
+        if self.newest is None:
+            return getattr(reply, key)
         newest = next(iter(ask(self.newest)), None)
         if newest is None:
             return None

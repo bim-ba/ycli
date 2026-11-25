@@ -99,7 +99,10 @@ def pull(
     path: Annotated[
         Path,
         typer.Argument(
-            help="What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>."
+            help=(
+                "What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>, "
+                "datalens/workbooks/<workbook>."
+            )
         ),
     ],
     kind: Kinds = None,
@@ -246,7 +249,7 @@ def push(
         planned = [
             one.model_copy(update={"diff": None}) for one in plan(root, scopes, kinds, sender)
         ]
-        planned += [one for one, _, _ in doomed]
+        planned += [one for one, *_ in doomed]
         counted = Counter(one.state for one in planned)
         typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
         return ItemList[Planned](

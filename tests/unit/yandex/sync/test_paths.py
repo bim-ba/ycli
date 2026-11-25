@@ -4,6 +4,7 @@ from pathlib import PurePosixPath
 
 import pytest
 
+from ycli.yandex.datalens.charts.sync import EDITOR_CHART
 from ycli.yandex.sync.document import UnreadableFile
 from ycli.yandex.sync.paths import Tree, tree_of
 from ycli.yandex.tracker.triggers.sync import TRIGGER
@@ -11,6 +12,7 @@ from ycli.yandex.wiki.pages.sync import PAGE
 
 TRIGGERS = Tree("tracker", ("queues",), "triggers", ".yaml")
 PAGES = Tree("wiki", (), None, ".md")
+CHARTS = Tree("datalens", ("workbooks",), "charts", ".yaml", placed=True)
 
 
 def test_the_layout_of_a_kind_comes_from_its_declaration_and_its_marks():
@@ -18,6 +20,8 @@ def test_the_layout_of_a_kind_comes_from_its_declaration_and_its_marks():
     assert tree_of(TRIGGER) == TRIGGERS
     # A page says where it lies itself (`slug` is marked `Place`): no directory of its own.
     assert tree_of(PAGE) == PAGES
+    # An entry says its name and lies in a workbook: under the workbook and its resource.
+    assert tree_of(EDITOR_CHART) == CHARTS
 
 
 def test_a_path_is_built_and_taken_apart_the_same_way():
@@ -28,6 +32,9 @@ def test_a_path_is_built_and_taken_apart_the_same_way():
     assert page == PurePosixPath("wiki/team/onboarding.md")
     assert PAGES.split(page) == ((), "team/onboarding")
     assert PAGES.split(PurePosixPath("wiki/team.md")) == ((), "team")
+    chart = CHARTS.path(("wb1",), "sales")
+    assert chart == PurePosixPath("datalens/workbooks/wb1/charts/sales.yaml")
+    assert CHARTS.split(chart) == (("wb1",), "sales")
 
 
 @pytest.mark.parametrize(

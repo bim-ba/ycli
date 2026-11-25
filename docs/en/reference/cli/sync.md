@@ -123,7 +123,7 @@ $ ycli sync pull [OPTIONS] PATH
 
 **Arguments**:
 
-* `PATH`: What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>.  [required]
+* `PATH`: What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>, datalens/workbooks/<workbook>.  [required]
 
 **Options**:
 

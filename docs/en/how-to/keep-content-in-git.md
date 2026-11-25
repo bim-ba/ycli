@@ -1,16 +1,18 @@
 ---
-description: "Keep Yandex Wiki pages and Tracker triggers as files in git: ycli sync pull, diff and push, with a review of the plan in a pull request."
+description: "Keep Wiki pages, Tracker triggers and DataLens charts and dashboards as files in git: ycli sync pull, diff and push, reviewed in a pull request."
 type: how-to
 ---
 
 # Keep content in git
 
-`ycli sync` keeps objects of Yandex 360 as files of a git repository: you pull them, edit them like any text, review the change in a pull request and push it back. Two kinds of object are kept today, and `ycli sync kinds` lists them:
+`ycli sync` keeps objects of Yandex 360 as files of a git repository: you pull them, edit them like any text, review the change in a pull request and push it back. Four kinds of object are kept today, and `ycli sync kinds` lists them:
 
 | Kind | A file | Its path |
 |---|---|---|
 | `wiki/page` | Markdown under a short header | `wiki/team/onboarding.md` for the page `team/onboarding` |
 | `tracker/trigger` | YAML | `tracker/queues/DE/triggers/16.yaml` for trigger 16 of the queue `DE` |
+| `datalens/editor-chart` | YAML | `datalens/workbooks/vauoe2grskawe/charts/sales.yaml` for the Editor chart `sales` of a workbook |
+| `datalens/dashboard` | YAML | `datalens/workbooks/vauoe2grskawe/dashboards/overview.yaml` for its dashboard `overview` |
 
 Run every command from the root of the repository. Credentials are the usual ones (see [Authenticate](authenticate.md)).
 
@@ -38,6 +40,8 @@ title: Team
 ```
 
 The first four keys are the link of the file to its object, written by ycli: do not edit them. `hash` is the fingerprint of the content as it was read, and it is how every later command tells what changed.
+
+`pull datalens/workbooks/<id>` writes every Editor chart and dashboard of the workbook under its name. What is written is the published version, the one viewers see, and `push` publishes: the default branch of git is what viewers see, and a git branch is your draft. A chart of the wizard or of QL is not kept yet. DataLens refuses to read an entry in a workbook it is not in, so a file copied under another workbook is refused before anything is written.
 
 `pull` writes over whatever is there. Commit your edits before you pull: git is what protects them. `ycli --dry-run sync pull wiki/team` writes nothing and names the files with uncommitted work it would overwrite.
 
@@ -144,4 +148,4 @@ jobs:
 
 Secrets in a difference are masked. Push from the default branch after the merge, with the same two secrets and `ycli sync push`, then commit the links `push` wrote.
 
-*Checked on 2026-10-08 against a real organization: pull, status, diff and push, with `--prune`, on Wiki pages; pull, diff and push of an edit on a trigger of a Tracker queue. Creating a trigger from a file, the pre-commit hook and the GitHub Actions job were not run.*
+*Checked on 2026-10-08 against a real organization: pull, status, diff and push, with `--prune`, on Wiki pages; pull, diff and push of an edit on a trigger of a Tracker queue. Creating a trigger from a file, the pre-commit hook and the GitHub Actions job were not run. Checked on 2026-11-26 in a DataLens workbook: pull of its Editor charts and dashboard; create, diff, publish of an edit and `--prune` of an Editor chart. A dashboard was pulled, not pushed.*
