@@ -127,7 +127,13 @@ def compared(
         # A copy or a rename holds the identity of an object that lies elsewhere (decision 8).
         tree = tree_of(kind)
         ours, theirs = (tree.split(side.path)[1] for side in (local, server))
-        state, detail = State.MOVED, f"the file is named {ours} and holds the object named {theirs}"
+        state, detail = (
+            State.MOVED,
+            (
+                f"the file is named {ours} and holds the object named {theirs}: "
+                f"delete it if {theirs} is a file too, or git mv it to {theirs}"
+            ),
+        )
     elif state is not State.UNTRACKED and changed:
         state, detail = State.CHANGED_ON_SERVER, "the object changed on the server: pull, then push"
     elif state is State.UPDATE and server.held:

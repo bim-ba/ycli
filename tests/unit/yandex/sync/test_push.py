@@ -365,5 +365,8 @@ def test_a_copy_of_a_page_under_another_name_is_stopped(api, tmp_path, monkeypat
     code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", "wiki/team-copy.md")
     assert code == 8
     assert [(row["state"], row["result"]) for row in listed] == [("moved", "stopped")]
-    assert listed[0]["detail"] == "the file is named team-copy and holds the object named team"
+    assert listed[0]["detail"] == (
+        "the file is named team-copy and holds the object named team: "
+        "delete it if team is a file too, or git mv it to team"
+    )
     assert _sent(api, "POST") == []

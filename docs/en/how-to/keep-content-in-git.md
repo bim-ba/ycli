@@ -62,7 +62,7 @@ $ ycli sync diff
 | `untracked` | the file names an object and was never pulled from it: pull first |
 | `changed-on-server` | somebody changed the object since you pulled (`diff` only) |
 | `gone` | the object no longer exists (`diff` only) |
-| `moved` | the file holds an object that lies under another name: a copy or a rename. Name it back, or pull (`diff` only) |
+| `moved` | the file holds an object that lies under another name: a copy or a rename. `pull` writes the object under its own name and leaves this file, so delete it if that name is already a file, or `git mv` it back (`diff` only) |
 | `refused` | the server refused to read the object; its answer is given and nothing is sent (`diff` only) |
 | `no-file` | the container holds an object with no file: `pull` writes it (`diff` on a directory) |
 | `unsupported` | the API cannot do what the file asks |
@@ -102,7 +102,7 @@ $ ycli --dry-run sync push --prune main
 $ ycli sync push --prune main
 ```
 
-ycli takes the deleted files from git and asks before each delete; `--yes` answers for all. An object that never had a file is never deleted.
+ycli takes the deleted files from git and asks before each delete; `--yes` answers for all. An object that never had a file is never deleted. Neither is one another file still holds, as after a rename: its row in the output names that file.
 
 ## Check files before a commit
 

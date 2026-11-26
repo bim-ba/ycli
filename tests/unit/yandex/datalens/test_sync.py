@@ -290,7 +290,10 @@ def test_a_copy_of_a_file_under_another_name_is_stopped(api, tmp_path, monkeypat
     code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", str(copy.relative_to(tmp_path)))
     assert code == 8
     assert [(row["state"], row["result"]) for row in listed] == [("moved", "stopped")]
-    assert listed[0]["detail"] == f"the file is named copy and holds the object named {shape.name}"
+    assert listed[0]["detail"] == (
+        f"the file is named copy and holds the object named {shape.name}: "
+        f"delete it if {shape.name} is a file too, or git mv it to {shape.name}"
+    )
     assert _bodies(api, f"update{shape.rpc}") == []
 
 
@@ -300,11 +303,23 @@ def test_prune_deletes_nothing_a_file_still_holds(api, tmp_path, monkeypatch, sh
     file = _pulled(api, tmp_path, monkeypatch, shape)
     _commit(tmp_path)
     file.rename(file.with_name("renamed.yaml"))
-    code, listed, _ = _run(tmp_path, monkeypatch, "--yes", "sync", "push", "--prune", "HEAD")
-    # The renamed file is said for what it is; its entry is not a candidate to delete.
-    assert code == 8
     renamed = _path(shape).replace(f"{shape.name}.yaml", "renamed.yaml")
-    assert [(row["path"], row["state"]) for row in listed] == [(renamed, "moved")]
+    kept = f"not deleted: {renamed} holds the object now"
+    pruning = ["sync", "push", "--prune", "HEAD"]
+    _, planned, _ = _run(tmp_path, monkeypatch, "--dry-run", *pruning)
+    assert (planned[-1]["path"], planned[-1]["state"], planned[-1]["detail"]) == (
+        _path(shape),
+        "unchanged",
+        kept,
+    )
+    code, listed, _ = _run(tmp_path, monkeypatch, "--yes", *pruning)
+    # The renamed file is said for what it is, and the deleted one says why nothing is deleted.
+    assert code == 8
+    assert [(row["path"], row["state"], row["result"]) for row in listed] == [
+        (renamed, "moved", "stopped"),
+        (_path(shape), "unchanged", "unchanged"),
+    ]
+    assert listed[1]["detail"] == kept
     assert _bodies(api, f"delete{shape.rpc}") == []
 
 
