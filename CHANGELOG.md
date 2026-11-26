@@ -9,6 +9,35 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.143.0 (2026-11-26)
+
+### Bug Fixes
+
+- **datalens**: Close the content of an Editor chart and a dashboard file
+  ([`cbfb6c1`](https://github.com/bim-ba/ycli/commit/cbfb6c16218f8060eea75a57cdd14dbc505170d4))
+
+- **datalens**: Stop over an unpublished draft, name unknown Editor types, derive content from the
+  generated entries
+  ([`ca11211`](https://github.com/bim-ba/ycli/commit/ca1121109ebc9b1d65d4c172fc690b4caa3417a5))
+
+- **sync**: Give a moved file its next step and say why --prune keeps an object
+  ([`63b0589`](https://github.com/bim-ba/ycli/commit/63b05893dc2d789d589edcb7620ff2a1c719cc29))
+
+- **sync**: Stop a copied or renamed file, spare an object a file still holds, fail a refused read
+  per file
+  ([`8af285c`](https://github.com/bim-ba/ycli/commit/8af285c4a99d164fa48cafa4403d784adb3ad980))
+
+### Build System
+
+- Re-lock uv.lock for 0.142.2
+  ([`98c3ccb`](https://github.com/bim-ba/ycli/commit/98c3ccb53ce2a049a1f5ecf8b12007f083dc8c9d))
+
+### Features
+
+- **datalens**: Editor charts and dashboards of a workbook as files of `ycli sync`
+  ([`77cab4b`](https://github.com/bim-ba/ycli/commit/77cab4bebf096d271eebae40f6a4c87acc5bba1a))
+
+
 ## v0.142.2 (2026-11-19)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 # Dependency pin for the Claude Desktop bundle (.mcpb); stamped by python-semantic-release on release.
 [project]
 name = "yandex-360-mcpb"
-version = "0.142.2"
+version = "0.143.0"
 requires-python = ">=3.12"
-dependencies = ["yandex-cli[mcp]==0.142.2"]
+dependencies = ["yandex-cli[mcp]==0.143.0"]
