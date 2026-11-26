@@ -62,6 +62,8 @@ $ ycli sync diff
 | `untracked` | the file names an object and was never pulled from it: pull first |
 | `changed-on-server` | somebody changed the object since you pulled (`diff` only) |
 | `gone` | the object no longer exists (`diff` only) |
+| `moved` | the file holds an object that lies under another name: a copy or a rename. Name it back, or pull (`diff` only) |
+| `refused` | the server refused to read the object; its answer is given and nothing is sent (`diff` only) |
 | `no-file` | the container holds an object with no file: `pull` writes it (`diff` on a directory) |
 | `unsupported` | the API cannot do what the file asks |
 | `unreadable` | the file is not a file of a known kind; the line and the reason are given |
@@ -84,7 +86,7 @@ $ git commit -am "Update the onboarding page"
 | Result | What happened |
 |---|---|
 | `created`, `updated`, `deleted` | done, and read back |
-| `stopped` | the file and its object went apart (`changed-on-server`, `untracked`, `gone`): nothing was sent; pull, then push |
+| `stopped` | the file and its object went apart (`changed-on-server`, `untracked`, `gone`, `moved`): nothing was sent; the detail says what to do |
 | `failed` | the API refused, or the service did not keep a value that was sent: the value is named |
 
 A new file needs no link: write `ycli: wiki/page`, a `title` and the text, put the file where the page should live, and `push` creates the page and fills in the rest. A new trigger file is renamed to the id of its trigger.

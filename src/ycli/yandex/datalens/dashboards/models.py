@@ -1,6 +1,6 @@
 """DataLens dashboard models: the public names of the generated classes this resource uses."""
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict
 
 from ycli.yandex.datalens.schemas.dashboard import CreateDashboardResponse as DashboardCreated
 from ycli.yandex.datalens.schemas.dashboard import CreateDashboardV2ArgsEntry as DashboardCreate
@@ -10,22 +10,16 @@ from ycli.yandex.datalens.schemas.dashboard import GetDashboardV2Result as Dashb
 from ycli.yandex.datalens.schemas.dashboard import UpdateDashboardResponse as DashboardSaved
 from ycli.yandex.datalens.schemas.dashboard import UpdateDashboardV2ArgsEntry as DashboardUpdate
 from ycli.yandex.datalens.schemas.shared import EntryAnnotationArg as EntryAnnotation
-from ycli.yandex.datalens.workbook_entries import EntryInWorkbook
-from ycli.yandex.models import RequestBody
+from ycli.yandex.datalens.workbook_entries import EntryInWorkbook, LinkLeftOut
 
 
-class DashboardContent(RequestBody):
+class DashboardContent(LinkLeftOut, DashboardUpdate):
     """What the file of a dashboard holds: what ``updateDashboard`` takes of the entry.
 
-    Its id and revision are the file's link, and the revision is not sent: DataLens checks
-    none on a write (measured in #484).
+    Its id and revision are the file's link, and the revision is not sent: with one, DataLens
+    publishes that revision and keeps nothing of what was sent (measured on an Editor chart,
+    2026-11-26).
     """
-
-    annotation: EntryAnnotation | None = Field(default=None, description="Its description.")
-    meta: DashboardMeta | None = Field(default=None, description="Metadata of the entry.")
-    data: DashboardData | None = Field(
-        default=None, description="Its tabs, their widgets and selectors, and its settings."
-    )
 
 
 class DashboardEntry(EntryInWorkbook, DashboardContent):

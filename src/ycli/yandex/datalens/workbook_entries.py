@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import ConfigDict, Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.sync.marks import Place
 
 if TYPE_CHECKING:
@@ -33,9 +33,46 @@ class EntryInWorkbook(APIModel):
         default=None, alias="workbookId", description="The workbook it lies in."
     )
     key: str | None = Field(default=None, description="Its key: an id and its name.")
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="The revision saved last."
+    )
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="The revision everyone sees."
+    )
     name: Annotated[str | None, Place()] = Field(
         default=None, description="Its name in the workbook: the name of its file."
     )
+
+
+class LinkLeftOut(RequestBody):
+    """The id and revision of an entry, left out of its content: they are the link of a file.
+
+    Put first among the bases of a generated entry of a write, it makes that entry the content of
+    a file: a closed body in which neither can hold a value, so neither is written or sent.
+    """
+
+    entry_id: None = Field(default=None, alias="entryId", description="The link's, never content.")
+    rev_id: None = Field(default=None, alias="revId", description="The link's, never sent.")
+
+
+def unpublished_draft(entry: EntryInWorkbook) -> str | None:
+    """Why an entry must not be published over now: a draft saved after what everyone sees.
+
+    Args:
+        entry: The entry, read.
+
+    Returns:
+        The reason; ``None`` when what was saved last is what is published.
+
+    Examples:
+        >>> unpublished_draft(EntryInWorkbook(savedId="d1", publishedId="r1"))
+        'unpublished draft in DataLens; publish or discard it first'
+        >>> unpublished_draft(EntryInWorkbook(savedId="r1", publishedId="r1")) is None
+        True
+    """
+    if entry.saved_id == entry.published_id:
+        return None
+    return "unpublished draft in DataLens; publish or discard it first"
 
 
 def as_entry[E: EntryInWorkbook](request: Endpoint[Any], model: type[E]) -> Endpoint[E]:

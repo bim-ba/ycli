@@ -18,7 +18,7 @@ from ycli.yandex.datalens.dashboards.models import (
     DashboardSaved,
     DashboardUpdate,
 )
-from ycli.yandex.datalens.workbook_entries import as_entry
+from ycli.yandex.datalens.workbook_entries import as_entry, unpublished_draft
 from ycli.yandex.datalens.workbooks import endpoints as workbook_endpoints
 from ycli.yandex.datalens.workbooks.models import EntriesPage, WorkbookEntry
 from ycli.yandex.sync.document import Link, as_sent
@@ -97,4 +97,6 @@ DASHBOARD = Kind(
     delete=endpoints.delete,
     # DataLens checks no revision on a write (#484): the published one is read and compared.
     version=CheckedVersion(),
+    # A publish of the file would throw away a draft somebody saved in DataLens since.
+    holds=unpublished_draft,
 )

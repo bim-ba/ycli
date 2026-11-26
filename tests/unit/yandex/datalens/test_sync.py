@@ -239,7 +239,11 @@ def test_prune_reads_the_entry_in_its_workbook_then_deletes_it(api, tmp_path, mo
     assert code == 0, summary
     assert [(row["path"], row["result"]) for row in listed] == [(_path(shape), "deleted")]
     assert _bodies(api, f"delete{shape.rpc}") == [{shape.id_key: shape.entry["entryId"]}]
-    assert _bodies(api, f"get{shape.rpc}")[-1]["workbookId"] == WB
+    # Read once by `pull`, and once more by the prune itself, in the workbook, before the delete.
+    sent = [call.url.path.rpartition("/")[2] for call in api.calls]
+    assert sent[-2:] == [f"get{shape.rpc}", f"delete{shape.rpc}"]
+    reads = _bodies(api, f"get{shape.rpc}")
+    assert len(reads) == 2 and reads[1]["workbookId"] == WB
 
 
 def test_prune_deletes_nothing_of_another_workbook(api, tmp_path, monkeypatch):
@@ -274,3 +278,98 @@ def test_a_path_that_names_one_file_says_nothing_of_the_rest_of_its_workbook(
     gone = f"datalens/workbooks/{WB}/charts/gone.yaml"
     _, listed, _ = _run(tmp_path, monkeypatch, "sync", "diff", gone)
     assert listed == []
+
+
+@SHAPES
+def test_a_copy_of_a_file_under_another_name_is_stopped(api, tmp_path, monkeypatch, shape):
+    """The copy holds the id of the original: pushing it would overwrite the original entry."""
+    file = _pulled(api, tmp_path, monkeypatch, shape)
+    copy = file.with_name("copy.yaml")
+    copy.write_text(file.read_text("utf-8"), "utf-8")
+    _edit(copy)
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", str(copy.relative_to(tmp_path)))
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("moved", "stopped")]
+    assert listed[0]["detail"] == f"the file is named copy and holds the object named {shape.name}"
+    assert _bodies(api, f"update{shape.rpc}") == []
+
+
+@SHAPES
+def test_prune_deletes_nothing_a_file_still_holds(api, tmp_path, monkeypatch, shape):
+    """A rename that git sees as a delete: the entry lives on in the renamed file."""
+    file = _pulled(api, tmp_path, monkeypatch, shape)
+    _commit(tmp_path)
+    file.rename(file.with_name("renamed.yaml"))
+    code, listed, _ = _run(tmp_path, monkeypatch, "--yes", "sync", "push", "--prune", "HEAD")
+    # The renamed file is said for what it is; its entry is not a candidate to delete.
+    assert code == 8
+    renamed = _path(shape).replace(f"{shape.name}.yaml", "renamed.yaml")
+    assert [(row["path"], row["state"]) for row in listed] == [(renamed, "moved")]
+    assert _bodies(api, f"delete{shape.rpc}") == []
+
+
+@SHAPES
+def test_an_unpublished_draft_stops_the_file(api, tmp_path, monkeypatch, shape):
+    """A draft saved in DataLens after the pull: publishing the file would throw it away."""
+    drafted = {**shape.entry, "savedId": "d1"}
+    file = _pulled(api, tmp_path, monkeypatch, shape, drafted)
+    _edit(file)
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
+    assert listed[0]["detail"] == "unpublished draft in DataLens; publish or discard it first"
+    assert _bodies(api, f"update{shape.rpc}") == []
+
+
+def test_a_refused_read_fails_its_file_and_the_rest_still_runs(api, tmp_path, monkeypatch):
+    """Each file is read on its own: one refused read names its file and stops nothing else."""
+    file = _pulled(api, tmp_path, monkeypatch, DASHBOARD)
+    copied = tmp_path / _path(EDITOR, OTHER)
+    copied.parent.mkdir(parents=True)
+    link = {"hash": "0" * 64, "entryId": CHART["entryId"], "revId": "r1"}
+    copied.write_text(yaml.safe_dump({"ycli": EDITOR.kind, **link, "type": "d3_node"}), "utf-8")
+    refusal = {"code": "WORKBOOK_ISOLATION_INTERRUPTION", "message": "Workbook isolation"}
+    api.add("POST", f"{RPC}/getEditorChart", json=refusal, status=403)
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
+    assert code == 1
+    results = {row["path"]: (row["state"], row["result"]) for row in listed}
+    assert results == {
+        _path(EDITOR, OTHER): ("refused", "failed"),
+        str(file.relative_to(tmp_path)): ("unchanged", "unchanged"),
+    }
+    (refused,) = [row for row in listed if row["state"] == "refused"]
+    assert "WORKBOOK_ISOLATION_INTERRUPTION" in refused["detail"]
+    assert "another workbook" in refused["detail"]
+    assert _bodies(api, "updateEditorChart") == []
+
+
+def test_pull_names_once_each_kind_of_editor_chart_the_api_does_not_describe(
+    api, tmp_path, monkeypatch
+):
+    old = [{"entryId": f"gr00000000000{n}", "scope": "widget", "type": "graph_node"} for n in "12"]
+    wizard = {"entryId": "wz000000000001", "scope": "widget", "type": "graph_wizard_node"}
+    _listed(api, {**CHART, "data": None}, *old, wizard)
+    _read(api, EDITOR, CHART)
+    scope = f"datalens/workbooks/{WB}"
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "pull", scope, "--kind", EDITOR.kind)
+    assert code == 0
+    skipped = [(row["path"], row["detail"]) for row in listed if row["action"] == "skipped"]
+    # A chart of the wizard is another kind's and is not said; neither is read.
+    assert skipped == [(scope, "2 not read: an Editor chart of type graph_node, not in the API")]
+    assert [body["chartId"] for body in _bodies(api, "getEditorChart")] == [CHART["entryId"]]
+
+
+def test_the_content_of_a_file_is_what_the_update_takes_without_its_link():
+    """The generated entry of a write, so a field DataLens adds reaches the file by itself."""
+    from pydantic import ValidationError
+
+    from ycli.yandex.datalens.charts.models import EditorChartContent
+    from ycli.yandex.datalens.dashboards.models import DashboardContent
+    from ycli.yandex.sync.document import as_sent
+
+    # A `null` meta is what an update of a dashboard requires sent, as the generated entry says.
+    assert as_sent(DashboardContent.model_validate({"meta": None})) == {"meta": None}
+    # The revision is the link's: as content it would publish that revision (measured).
+    for content, given in ((DashboardContent, {}), (EditorChartContent, {"type": "d3_node"})):
+        with pytest.raises(ValidationError):
+            content.model_validate({**given, "revId": "r1"})

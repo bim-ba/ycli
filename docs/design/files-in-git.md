@@ -85,7 +85,7 @@ What every command prints ([#492](https://github.com/bim-ba/ycli/issues/492)):
 
 Exit codes are those of every ycli command, `0` to `6`, and two of `sync`'s own in the same
 table, one meaning each: `7`, there is something to push; `8`, a file and its object went apart
-(`changed-on-server`, `untracked`, `gone`). `8` outweighs `7`. `status` and `diff` give them only
+(`changed-on-server`, `untracked`, `gone`, `moved`). `8` outweighs `7`. `status` and `diff` give them only
 when `--exit-code` asks; without the flag they exit with `0`.
 
 One vocabulary says what `push` would do with a file, in `status`, `diff` and `push` alike:
@@ -100,6 +100,8 @@ One vocabulary says what `push` would do with a file, in `status`, `diff` and `p
 | `unreadable` | the file is not a file of a declared kind | yes |
 | `changed-on-server` | the version or the fingerprint of the object is not the file's | no |
 | `gone` | the file names an object the server no longer has | no |
+| `moved` | the file holds an object whose own place or identity names another file: a copy or a rename (decision 8) | no |
+| `refused` | reading the object was refused (not a `404`): the API's answer is given, and nothing is sent for that file | no |
 | `no-file` | a container holds an object that has no file | no |
 | `delete` | `push --prune <commit>`: the file was deleted since that commit | from git |
 
@@ -333,6 +335,8 @@ flowchart TD
 | edited | unchanged | overwrites the file | `update` and the difference | updates, writes the new link |
 | any | changed since `pull` | overwrites the file | `changed-on-server` and the difference | stops, writes nothing |
 | has an identity | object is gone | reports it, keeps the file | `gone` | stops for that file |
+| copied or renamed | its object lies under another name | | `moved`, both names | stops for that file |
+| any | reading it is refused | | `refused`, the API's answer | counts the file as failed, sends nothing |
 | asks for an operation the API lacks | | | `unsupported`, says which | says which, counts the file as failed |
 
 Two consequences of keeping the link in the file:
@@ -423,7 +427,18 @@ datalens/workbooks/vauoe2grskawe/dashboards/overview.yaml
 `pull` reads the published branch and `push` publishes (#486): what is in the default branch of
 git is what the viewers see, and a git branch is the draft. A chart of the wizard or of QL is a
 widget too and is not listed by the Editor kind. Every `push --prune` reads the object first, in
-the container its file lay in, and deletes nothing that read refuses.
+the container its file lay in, and deletes nothing that read refuses; and an object a file of the
+working tree still holds (a rename git saw as a delete) is never a candidate.
+
+A draft saved in DataLens and not published is a change on the server that a publish of the
+file would throw away: where the read shows `savedId` other than `publishedId`, `push` stops the
+file (`changed-on-server`, "unpublished draft in DataLens; publish or discard it first"). This
+holds to #486 (`push` publishes) without overwriting work nobody has seen yet. An Editor chart of
+a type the API does not describe (an old one) is not read; `pull` names it once per type.
+
+The content of a file is the generated entry of the update with its `entryId` and `revId` left
+out (`LinkLeftOut`), so a field DataLens adds reaches the file and a `null` the API requires is
+kept.
 
 ## Built and not built
 

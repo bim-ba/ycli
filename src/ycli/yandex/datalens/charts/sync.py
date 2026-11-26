@@ -18,7 +18,7 @@ from ycli.yandex.datalens.charts.models import (
     EditorChartSaved,
     EditorChartUpdate,
 )
-from ycli.yandex.datalens.workbook_entries import as_entry
+from ycli.yandex.datalens.workbook_entries import as_entry, unpublished_draft
 from ycli.yandex.datalens.workbooks import endpoints as workbook_endpoints
 from ycli.yandex.datalens.workbooks.models import EntriesPage, WorkbookEntry
 from ycli.yandex.sync.document import Link, as_sent
@@ -32,6 +32,8 @@ EDITOR_TYPES = frozenset(
     for variant in get_args(EditorChartUpdate)
     if "type" in variant.model_fields
 )
+#: How the type of a chart of the wizard and of QL ends: those are other kinds' widgets.
+NOT_EDITOR = ("_wizard_node", "_ql_node")
 
 
 class EditorChartLink(Link):
@@ -48,7 +50,7 @@ class EditorChartLink(Link):
 def find(
     workbook_id: Annotated[str, Container(workbooks)],
 ) -> Paged[EntriesPage, WorkbookEntry]:
-    """The Editor charts of a workbook: its widgets, without those of the wizard and QL."""
+    """The widgets of a workbook that are no charts of the wizard or of QL."""
     listing = workbook_endpoints.entries_list(
         workbook_id,
         include_permissions_info=None,
@@ -62,8 +64,17 @@ def find(
     return Paged(
         listing.endpoint,
         listing.pagination,
-        lambda page: [entry for entry in every(page) if entry.type in EDITOR_TYPES],
+        lambda page: [
+            entry for entry in every(page) if not (entry.type or "").endswith(NOT_EDITOR)
+        ],
     )
+
+
+def passes_over(entry: WorkbookEntry) -> str | None:
+    """Why a chart of the editor is not read: a type the API does not describe (an old one)."""
+    if entry.type in EDITOR_TYPES:
+        return None
+    return f"not read: an Editor chart of type {entry.type}, not in the API"
 
 
 def read(
@@ -113,4 +124,7 @@ EDITOR_CHART = Kind(
     delete=endpoints.editor_delete,
     # DataLens checks no revision on a write (#484): the published one is read and compared.
     version=CheckedVersion(),
+    # A publish of the file would throw away a draft somebody saved in DataLens since.
+    holds=unpublished_draft,
+    passes_over=passes_over,
 )
