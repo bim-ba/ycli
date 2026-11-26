@@ -6,6 +6,7 @@ Examples:
 """
 
 from collections.abc import Mapping, Sequence
+from typing import Annotated
 
 from ycli.yandex.core.endpoint import RPC, Effect, Endpoint
 from ycli.yandex.datalens.charts.models import (
@@ -47,6 +48,7 @@ from ycli.yandex.datalens.schemas.wizard import (
     GetWizardChartV1Args,
     UpdateWizardV1Args,
 )
+from ycli.yandex.sync.marks import Identity
 
 
 def data_get(
@@ -218,7 +220,7 @@ def editor_get(
     return RPC("getEditorChart", EditorChart, json=body, effect=Effect.READ)
 
 
-def editor_delete(chart_id: str) -> Endpoint[None]:
+def editor_delete(chart_id: Annotated[str, Identity()]) -> Endpoint[None]:
     body = DeleteEditorChartArgs(chartId=chart_id)
     return RPC("deleteEditorChart", json=body, effect=Effect.DESTRUCTIVE)
 

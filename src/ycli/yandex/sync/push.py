@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 from ycli.yandex.errors import YandexError
 from ycli.yandex.models import APIModel, field_error
 from ycli.yandex.sync.document import Document, UnreadableFile, as_sent, fields_marked, parts_of
-from ycli.yandex.sync.files import State, read_file
+from ycli.yandex.sync.files import State, files_under, read_file
 from ycli.yandex.sync.kind import Kind, Operation, arguments_of
 from ycli.yandex.sync.marks import Identity, Place, Version
 from ycli.yandex.sync.paths import tree_of
@@ -53,11 +53,12 @@ class Pushed(APIModel):
     )
 
 
-#: The states that stop a file: it and its object went apart, and a pull comes first.
+#: The states that stop a file: it and its object went apart; what the plan does not say is here.
 APART = {
     State.CHANGED_ON_SERVER: "the object changed on the server: pull, then push",
     State.UNTRACKED: "the file was never read from its object: pull, then push",
     State.GONE: "the server has no such object",
+    State.MOVED: "the file lies under another name than its object",
 }
 
 
@@ -168,7 +169,7 @@ def _create(
     link = kind.link(**{key: getattr(reply, key) for key in keys})
     # A file that lies under its identity is named by it: a new one is moved there.
     named = "/".join(str(getattr(link, key)) for key in keys)
-    path = tree.path(held, named) if tree.resource else local.path
+    path = tree.path(held, named) if tree.named_by_identity else local.path
     linked = local.model_copy(update={"link": link, "path": path})
     return str(path), _saved(root, kind, sender, local, linked)
 
@@ -228,8 +229,10 @@ def push(
         if planned.state is State.UNCHANGED:
             done = Pushed(**said, result=Result.UNCHANGED)
         elif planned.state in APART:
-            done = Pushed(**said, result=Result.STOPPED, detail=APART[planned.state])
-        elif kind is None or local is None or planned.state is State.UNSUPPORTED:
+            done = Pushed(
+                **said, result=Result.STOPPED, detail=planned.detail or APART[planned.state]
+            )
+        elif kind is None or local is None or planned.state in {State.UNSUPPORTED, State.REFUSED}:
             done = Pushed(**said, result=Result.FAILED, detail=planned.detail)
         else:
             sender = senders(tree_of(kind).service)
@@ -247,7 +250,8 @@ def push(
             return
 
 
-type Candidate = tuple[Planned, Kind[Any, Any], dict[str, Any]]
+#: An entry of the plan, its kind, and the arguments that read and that delete its object.
+type Candidate = tuple[Planned, Kind[Any, Any], dict[str, Any], dict[str, Any]]
 
 
 def _deleted_since(
@@ -267,6 +271,24 @@ def _deleted_since(
         ]
     except (OSError, subprocess.CalledProcessError):
         raise ScopeError(f"--prune reads git: no commit {commit!r} in a repository here") from None
+
+
+def _held_now(
+    root: Path, kinds: Sequence[Kind[Any, Any]]
+) -> dict[tuple[str, tuple[Any, ...]], str]:
+    """The files of the working tree by the object each stands for now: its kind and identity."""
+    by_name = {kind.name: kind for kind in kinds}
+    suffixes = {kind.layout.suffix for kind in kinds}
+    held: dict[tuple[str, tuple[Any, ...]], str] = {}
+    for service in sorted({tree_of(kind).service for kind in kinds}):
+        for path in files_under(root, PurePosixPath(service), suffixes):
+            try:
+                kind, now = read_file(path, (root / path).read_text("utf-8"), by_name)
+            except UnreadableFile:
+                continue
+            ids = tuple(getattr(now.link, key) for key in fields_marked(kind.link, Identity))
+            held.setdefault((kind.name, ids), str(path))
+    return held
 
 
 def prunable(
@@ -290,7 +312,10 @@ def prunable(
     by_name = {kind.name: kind for kind in kinds}
     suffixes = {kind.layout.suffix for kind in kinds}
     found: list[Candidate] = []
-    for name, text in _deleted_since(root, commit, scopes):
+    deleted = _deleted_since(root, commit, scopes)
+    # A file renamed or moved is a delete to git when the rename is not staged or not detected.
+    living = _held_now(root, kinds) if deleted else {}
+    for name, text in deleted:
         path = PurePosixPath(name)
         if path.suffix not in suffixes:
             continue
@@ -301,22 +326,34 @@ def prunable(
         ids = [getattr(was.link, key) for key in fields_marked(kind.link, Identity)]
         if not ids or None in ids:
             continue  # it named no object: there is nothing to delete
+        holder = living.get((kind.name, tuple(ids)))
+        if holder is not None:
+            why = f"not deleted: {holder} holds the object now"
+            kept = Planned(path=name, kind=kind.name, state=State.UNCHANGED, detail=why)
+            found.append((kept, kind, {}, {}))
+            continue
         if kind.delete is None:
             why = f"the API cannot delete a {kind.name}"
             unsupported = Planned(path=name, kind=kind.name, state=State.UNSUPPORTED, detail=why)
-            found.append((unsupported, kind, {}))
+            found.append((unsupported, kind, {}, {}))
             continue
-        delete = arguments_of(kind.delete)
         held, _ = tree_of(kind).split(path)
-        call = dict(zip(delete.container, held, strict=False)) | dict(
-            zip(delete.identity, ids, strict=True)
+        read, delete = (arguments_of(operation) for operation in (kind.read, kind.delete))
+        reading, deleting = (
+            dict(zip(marked.container, held, strict=False))
+            | dict(zip(marked.identity, ids, strict=True))
+            for marked in (read, delete)
         )
-        found.append((Planned(path=name, kind=kind.name, state=State.DELETE), kind, call))
+        doomed = Planned(path=name, kind=kind.name, state=State.DELETE)
+        found.append((doomed, kind, reading, deleting))
     return found
 
 
 def prune(candidates: Sequence[Candidate], senders: Callable[[str], Sender]) -> Iterator[Pushed]:
-    """Delete the objects ``candidates`` name.
+    """Delete the objects ``candidates`` name, each read first where its file lay.
+
+    The read is what confines a delete: a service that addresses an object by its container
+    refuses it there when the file named an object of another container.
 
     Args:
         candidates: What :func:`prunable` found.
@@ -325,17 +362,22 @@ def prune(candidates: Sequence[Candidate], senders: Callable[[str], Sender]) -> 
     Yields:
         Pushed: What was done with each, by path.
     """
-    for planned, kind, call in candidates:
+    for planned, kind, read, call in candidates:
         said: dict[str, Any] = {
             "path": planned.path,
             "kind": planned.kind,
             "state": planned.state,
         }
+        if planned.state is State.UNCHANGED:
+            yield Pushed(**said, result=Result.UNCHANGED, detail=planned.detail)
+            continue
         if kind.delete is None or planned.state is not State.DELETE:
             yield Pushed(**said, result=Result.FAILED, detail=planned.detail)
             continue
+        sender = senders(tree_of(kind).service)
         try:
-            ask(senders(tree_of(kind).service), kind.delete, call)
+            ask(sender, kind.read, read)
+            ask(sender, kind.delete, call)
         except YandexError as failure:
             yield Pushed(**said, result=Result.FAILED, detail=str(failure))
             continue

@@ -17,9 +17,10 @@ class Tree:
     """The layout of one kind's files under the directory of its service.
 
     A kind whose object says where it lies (a field marked ``Place``: the ``slug`` of a page)
-    has ``resource=None`` and its files lie along that field: ``wiki/team/onboarding.md``. Any
-    other kind lies under its containers and its own resource:
-    ``tracker/queues/DE/triggers/16.yaml``.
+    and that has no container has ``resource=None`` and its files lie along that field:
+    ``wiki/team/onboarding.md``. Any other kind lies under its containers and its own resource,
+    named by its place where it has one (``placed``) and by its identity otherwise:
+    ``datalens/workbooks/wb1/charts/sales.yaml``, ``tracker/queues/DE/triggers/16.yaml``.
 
     Examples:
         >>> triggers = Tree("tracker", ("queues",), "triggers", ".yaml")
@@ -35,6 +36,12 @@ class Tree:
     containers: tuple[str, ...]
     resource: str | None
     suffix: str
+    placed: bool = False
+
+    @property
+    def named_by_identity(self) -> bool:
+        """Whether a file is named by the identity of its object, and a new one moved to it."""
+        return self.resource is not None and not self.placed
 
     def path(self, containers: tuple[str, ...], leaf: str) -> PurePosixPath:
         """The path of the file of one object.
@@ -89,6 +96,9 @@ def _resource(module: str) -> str:
 def tree_of(kind: Kind[Any, Any]) -> Tree:
     """Where the files of ``kind`` lie, from the marks of its read operation and its reply.
 
+    A placed kind with no container lies along its place alone; one with a container lies
+    under it and its resource, as any other kind does.
+
     Args:
         kind: A declared kind.
 
@@ -102,11 +112,13 @@ def tree_of(kind: Kind[Any, Any]) -> Tree:
     placed = (
         isinstance(reply, type) and issubclass(reply, BaseModel) and fields_marked(reply, Place)
     )
+    containers = tuple(
+        mark.of.__name__.rpartition(".")[2] for mark in marks if isinstance(mark, Container)
+    )
     return Tree(
         service=kind.name.partition("/")[0],
-        containers=tuple(
-            mark.of.__name__.rpartition(".")[2] for mark in marks if isinstance(mark, Container)
-        ),
-        resource=None if placed else _resource(read.__module__),
+        containers=containers,
+        resource=None if placed and not containers else _resource(read.__module__),
         suffix=kind.layout.suffix,
+        placed=bool(placed and containers),
     )

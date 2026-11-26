@@ -4,13 +4,14 @@
 """
 
 import difflib
+from collections import Counter
 from collections.abc import Callable, Sequence
 from pathlib import Path, PurePosixPath
 from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
-from ycli.yandex.errors import YandexNotFoundError
+from ycli.yandex.errors import YandexError, YandexNotFoundError, next_step
 from ycli.yandex.models import APIModel, secret_keys
 from ycli.yandex.sync.document import (
     Document,
@@ -24,7 +25,7 @@ from ycli.yandex.sync.files import State, files_under, offline_state, read_file
 from ycli.yandex.sync.kind import Kind
 from ycli.yandex.sync.marks import Identity, Version
 from ycli.yandex.sync.paths import tree_of
-from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, read_one
+from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, names, read_one
 
 MASK = "***"
 
@@ -119,11 +120,24 @@ def compared(
     """
     state, detail = offline_state(kind, local)
     version = next(iter(fields_marked(kind.link, Version)), None)
-    moved = server.link.hash != local.link.hash or (
+    changed = server.link.hash != local.link.hash or (
         version is not None and getattr(server.link, version) != getattr(local.link, version)
     )
-    if state is not State.UNTRACKED and moved:
-        state, detail = State.CHANGED_ON_SERVER, "the object changed since the file was read"
+    if server.path != local.path:
+        # A copy or a rename holds the identity of an object that lies elsewhere (decision 8).
+        tree = tree_of(kind)
+        ours, theirs = (tree.split(side.path)[1] for side in (local, server))
+        state, detail = (
+            State.MOVED,
+            (
+                f"the file is named {ours} and holds the object named {theirs}: "
+                f"delete it if {theirs} is a file too, or git mv it to {theirs}"
+            ),
+        )
+    elif state is not State.UNTRACKED and changed:
+        state, detail = State.CHANGED_ON_SERVER, "the object changed on the server: pull, then push"
+    elif state is State.UPDATE and server.held:
+        state, detail = State.CHANGED_ON_SERVER, server.held
     text, secrets = "", []
     if fingerprint(server.content) != fingerprint(local.content):
         text, secrets = difference(kind, local, server, show_secrets=show_secrets)
@@ -200,7 +214,9 @@ def entries(
                 try:
                     listed |= {
                         path: (kind, document)
-                        for path, document in documents_under(kind, senders, scope)
+                        # What the kind passes over is said by `pull`; a plan has no file of it.
+                        for path, document in documents_under(kind, senders, scope, Counter())
+                        if names(scope, path)
                     }
                 except ScopeError:  # the directory names no container of this kind
                     continue
@@ -227,6 +243,11 @@ def entries(
             except YandexNotFoundError:
                 gone = Planned(path=str(path), kind=kind.name, state=State.GONE)
                 planned[str(path)] = (gone, kind, local)
+                continue
+            except YandexError as refusal:
+                said = "; ".join(filter(None, [str(refusal), next_step(refusal)]))
+                refused = Planned(path=str(path), kind=kind.name, state=State.REFUSED, detail=said)
+                planned[str(path)] = (refused, kind, local)
                 continue
             if server is None:
                 why = f"the object is not one a {kind.name} file keeps"

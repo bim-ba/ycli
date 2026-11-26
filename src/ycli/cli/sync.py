@@ -99,7 +99,10 @@ def pull(
     path: Annotated[
         Path,
         typer.Argument(
-            help="What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>."
+            help=(
+                "What to pull: wiki/<page> with the pages under it, tracker/queues/<queue>, "
+                "datalens/workbooks/<workbook>."
+            )
         ),
     ],
     kind: Kinds = None,
@@ -189,11 +192,11 @@ def diff(
     listed = ItemList[Planned](
         [one for one in found if show_unchanged or one.state is not State.UNCHANGED]
     )
-    if counted[State.UNREADABLE]:
+    if counted[State.UNREADABLE] or counted[State.REFUSED]:
         return ExitWith(listed, exit_code=ExitCode.FAILURE)
     if not exit_code:
         return listed
-    apart = {State.CHANGED_ON_SERVER, State.UNTRACKED, State.GONE}
+    apart = {State.CHANGED_ON_SERVER, State.UNTRACKED, State.GONE, State.MOVED}
     if any(counted[state] for state in apart):
         return ExitWith(listed, exit_code=ExitCode.DIVERGED)
     to_push = counted[State.UPDATE] + counted[State.CREATE]
@@ -246,17 +249,17 @@ def push(
         planned = [
             one.model_copy(update={"diff": None}) for one in plan(root, scopes, kinds, sender)
         ]
-        planned += [one for one, _, _ in doomed]
-        counted = Counter(one.state for one in planned)
+        # Every file the prune names is said, the one whose object a living file keeps too.
+        pruning = [one for one, *_ in doomed]
+        counted = Counter(one.state for one in [*planned, *pruning])
         typer.echo(", ".join(f"{counted[state]} {state}" for state in State), err=True)
         return ItemList[Planned](
-            [one for one in planned if show_unchanged or one.state is not State.UNCHANGED]
+            [one for one in planned if show_unchanged or one.state is not State.UNCHANGED] + pruning
         )
     done = list(push_files(root, scopes, kinds, sender, on_error=on_error))
     aborted = on_error is OnError.ABORT and any(one.result is Result.FAILED for one in done)
-    if not aborted:
-        done += prune_objects(doomed, sender)
-    results = Counter(one.result for one in done)
+    pruned = [] if aborted else list(prune_objects(doomed, sender))
+    results = Counter(one.result for one in [*done, *pruned])
     summed = ", ".join(f"{results[result]} {result}" for result in Result)
     added = sum(one.added for one in done)
     # Said only when it happened: most runs add nothing.
@@ -265,7 +268,7 @@ def push(
     )
     typer.echo(summed + holds, err=True)
     listed = ItemList[Pushed](
-        [one for one in done if show_unchanged or one.result is not Result.UNCHANGED]
+        [one for one in done if show_unchanged or one.result is not Result.UNCHANGED] + pruned
     )
     if results[Result.FAILED]:
         return ExitWith(listed, exit_code=ExitCode.FAILURE)

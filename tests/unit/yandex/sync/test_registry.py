@@ -42,12 +42,13 @@ def _kind(name: str) -> Kind:
 
 def test_a_kind_is_found_by_the_sync_module_of_its_resource(monkeypatch):
     before = [kind.name for kind in registry.kinds()]
-    assert before == ["tracker/trigger", "wiki/page"]  # declared by their resources, listed nowhere
+    # Declared by their resources, listed nowhere.
+    assert before == ["datalens/dashboard", "datalens/editor-chart", "tracker/trigger", "wiki/page"]
     _declare(monkeypatch, "ycli.yandex.forms.surveys.sync", _kind("forms/survey"))
     _declare(monkeypatch, "ycli.yandex.tracker.components.sync", _kind("tracker/component"))
     names = [kind.name for kind in registry.kinds()]
     # A new resource is picked up by the file it adds; the order is by name.
-    assert names == ["forms/survey", "tracker/component", "tracker/trigger", "wiki/page"]
+    assert names == [*before[:2], "forms/survey", "tracker/component", *before[2:]]
 
 
 def test_sync_kinds_lists_what_the_registry_holds(monkeypatch):

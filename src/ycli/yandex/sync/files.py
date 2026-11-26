@@ -34,6 +34,8 @@ class State(enum.StrEnum):
     UNREADABLE = "unreadable"
     CHANGED_ON_SERVER = "changed-on-server"
     GONE = "gone"
+    MOVED = "moved"
+    REFUSED = "refused"
     NO_FILE = "no-file"
     DELETE = "delete"
 
@@ -92,7 +94,7 @@ def read_file(
     keys = fields_marked(kind.link, Identity)
     held = [str(value) for key in keys if (value := getattr(document.link, key)) is not None]
     # A file that lies under its identity is named by it: a copy keeps the name of its own.
-    if tree.resource and held and "/".join(held) != leaf:
+    if tree.named_by_identity and held and "/".join(held) != leaf:
         line = parts.lines.get(keys[0], 1)
         raise UnreadableFile(path, line, f"the file is named {leaf} and holds {'/'.join(held)}")
     return kind, document
@@ -120,7 +122,7 @@ def offline_state(kind: Kind[Any, Any], document: Document[Any, Any]) -> tuple[S
         return State.UNSUPPORTED, f"the API cannot {state} a {kind.name}"
     if state is State.CREATE:
         # Said beforehand: `push` writes into the file, and may move it.
-        moved = " and the name of its object" if tree_of(kind).resource else ""
+        moved = " and the name of its object" if tree_of(kind).named_by_identity else ""
         return state, f"once created, the file gets its identity{moved}"
     return state, None
 

@@ -67,10 +67,11 @@ class CheckedVersion:
     """The server takes no version: the newest one is read and compared before a write.
 
     Args:
-        newest: The operation that lists the versions of an object, newest first.
+        newest: The operation that lists the versions of an object, newest first; ``None``
+            where reading the object answers its version itself (a DataLens entry).
     """
 
-    newest: Operation
+    newest: Operation | None = None
 
     def describe(self) -> str:
         """What ``ycli sync kinds`` says of it.
@@ -84,13 +85,15 @@ class CheckedVersion:
         """The newest version the service lists: the field marked ``Version`` of the first.
 
         Args:
-            reply: What reading the object answered (not used).
-            key: The name of the version field of the kind's link (not used).
+            reply: What reading the object answered: where no listing is named, its version.
+            key: The name of the version field of the kind's link.
             ask: Calls another operation for the same object.
 
         Returns:
             The newest version; ``None`` for an object with none.
         """
+        if self.newest is None:
+            return getattr(reply, key)
         newest = next(iter(ask(self.newest)), None)
         if newest is None:
             return None
@@ -221,6 +224,10 @@ class Kind[L: Link, C: BaseModel]:
             file carries.
         only: Says whether an object that was read is one the kind keeps (a Wiki page whose text
             is Markdown, not a grid). ``None``: every object that was found.
+        holds: Says why an object as it was read must not be written over now (a DataLens
+            entry with a draft nobody published); ``None`` lets every write go.
+        passes_over: Says why an object the listing found is not read at all, which ``pull``
+            names once per reason; ``None`` reads it.
     """
 
     name: str
@@ -234,6 +241,8 @@ class Kind[L: Link, C: BaseModel]:
     delete: Operation | None = None
     version: Proof = NoVersion()
     only: Callable[[Any], bool] | None = None
+    holds: Callable[[Any], str | None] | None = None
+    passes_over: Callable[[Any], str | None] | None = None
 
     def operations(self) -> dict[str, Operation]:
         """The operations the kind has, by the name of the field that holds each.

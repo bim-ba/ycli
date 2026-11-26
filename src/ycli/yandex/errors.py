@@ -167,6 +167,11 @@ _PERMISSION = (
     "the token is valid but lacks access here — ask an administrator for permission "
     "on this resource, or check that the token's OAuth scopes cover this service."
 )
+# DataLens answers a read in a workbook the entry is not in with a 403 that is no permission.
+_ANOTHER_WORKBOOK = (
+    "the entry lies in another workbook than the one named: name its own workbook, or move the "
+    "file under it."
+)
 _NOT_FOUND = (
     "check the id or key, and that the token's organization and user can see it "
     "(Yandex answers 404 for an object the caller may not read)."
@@ -198,6 +203,8 @@ def next_step(exc: BaseException | None) -> str | None:
         >>> next_step(YandexServerError("down", status=503)) is None
         True
     """
+    if isinstance(exc, YandexAuthError) and "WORKBOOK_ISOLATION_INTERRUPTION" in str(exc):
+        return _ANOTHER_WORKBOOK
     if isinstance(exc, YandexAuthError):
         return _PERMISSION if exc.status == HTTPStatus.FORBIDDEN else _SIGN_IN
     if isinstance(exc, YandexNotFoundError):

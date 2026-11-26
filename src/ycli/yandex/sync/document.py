@@ -93,6 +93,10 @@ class Document[L: Link, C: BaseModel](APIModel):
     path: PurePosixPath = Field(description="Where the file lies in the repository.")
     link: L = Field(description="What ties the file to its object.")
     content: C = Field(description="What a person edits and a push sends.")
+    held: str | None = Field(
+        default=None,
+        description="Why the object, as it was read, must not be written over now; not in a file.",
+    )
 
 
 def fields_marked(model: type[BaseModel], mark: type) -> list[str]:

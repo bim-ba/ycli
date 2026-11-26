@@ -5,6 +5,7 @@ operations of a registered service with a contract case, their marks are readabl
 carries no secret, and the module that declares it says in one line what it is.
 """
 
+import inspect
 import sys
 from dataclasses import replace
 from functools import partial
@@ -33,6 +34,8 @@ from ycli.yandex.sync.kind import (
     summary_of,
 )
 from ycli.yandex.tracker import queues
+from ycli.yandex.tracker.triggers import endpoints as trigger_endpoints
+from ycli.yandex.tracker.triggers import sync as triggers_sync
 from ycli.yandex.wiki import pages
 
 PACKAGE = "ycli.yandex."
@@ -50,6 +53,17 @@ def _containers(operation: Any) -> list[str]:
     return [mark.of.__name__ for mark in marks if isinstance(mark, Container)]
 
 
+def _built_on(operation: Any) -> set[str]:
+    """The operations of an `endpoints.py` that ``operation`` calls, by their recorded names."""
+    names = set(operation.__code__.co_names)
+    called = set()
+    for held in inspect.getclosurevars(operation).globals.values():
+        if isinstance(held, ModuleType) and held.__name__.endswith(".endpoints"):
+            home = held.__name__.removeprefix(PACKAGE).removesuffix(".endpoints")
+            called |= {f"{home}.{name.rstrip('_')}" for name in names if hasattr(held, name)}
+    return called
+
+
 def _problems(kind: Kind[Any, Any], recorded: set[str]) -> list[str]:
     """What is wrong with the declaration of ``kind``; ``recorded``: the operations with a case."""
     found = []
@@ -63,6 +77,11 @@ def _problems(kind: Kind[Any, Any], recorded: set[str]) -> list[str]:
         name = f"{home}.{operation.__name__.rstrip('_')}"
         if not operation.__module__.startswith(f"{PACKAGE}{service}."):
             found.append(f"{role}: {name} is not an operation of {service}")
+        # One the kind builds in its own module (DataLens holds an entry under `entry`) is tested
+        # with the kind; it must call an operation of `endpoints.py` that has a contract case.
+        elif operation.__module__ == kind.link.__module__:
+            if not _built_on(operation) & recorded:
+                found.append(f"{role}: {name} calls no operation of endpoints.py with a case")
         elif name not in recorded:
             found.append(f"{role}: {name} has no contract case")
         try:
@@ -154,6 +173,22 @@ def _needs_a_value(trigger_id: Annotated[int, Identity()], *, expand: str) -> En
     return _REQUEST
 
 
+def _built(trigger_id: Annotated[int, Identity()]) -> Endpoint[Any]:
+    return trigger_endpoints.get("DE", trigger_id)
+
+
+def _built_on_nothing(trigger_id: Annotated[int, Identity()]) -> Endpoint[Any]:
+    return _REQUEST
+
+
+class _Built(Link):
+    pass
+
+
+# As an operation a kind builds in its own module, beside its link.
+_built.__module__ = _built_on_nothing.__module__ = _Built.__module__ = triggers_sync.__name__
+
+
 for _made in (_get, _two, _unreadable, _in_a_queue, _in_a_page, _in_a_service, _needs_a_value):
     _made.__module__ = "ycli.yandex.tracker.triggers.endpoints"
 for _made in (_get, _in_a_queue, _in_a_page, _in_a_service, _needs_a_value):
@@ -177,6 +212,10 @@ def _kind(**changed: Any) -> Kind[Any, Any]:
         (_kind(name="nowhere/thing"), "does not start with a registered service"),
         (_kind(name="wiki/page"), "is not an operation of wiki"),
         (_kind(update=_two), "tracker.triggers._two has no contract case"),
+        # Built by the kind in the module that declares it: tested with the kind.
+        (_kind(read=_built, link=_Built), None),
+        (_kind(read=_built_on_nothing, link=_Built), "calls no operation of endpoints.py"),
+        (_kind(read=_built), "tracker.triggers.sync._built has no contract case"),
         (_kind(update=_two), "the marks of tracker.triggers._two cannot be read"),
         (_kind(delete=_unreadable), "cannot be read"),
         (_kind(content=_Connection), "carries a secret, which a file would hold: ['password']"),

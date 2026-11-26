@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.datalens.schemas.data import GetChartDataResult as ChartData
 from ycli.yandex.datalens.schemas.editor import (
@@ -30,6 +30,7 @@ from ycli.yandex.datalens.schemas.wizard import CreateWizardChartV1Result as Wiz
 from ycli.yandex.datalens.schemas.wizard import GetWizardChartV1Result as WizardChart
 from ycli.yandex.datalens.schemas.wizard import UpdateWizardV1Result as WizardChartSaved
 from ycli.yandex.datalens.schemas.wizard import WizardV1ConfigSchema as WizardChartData
+from ycli.yandex.datalens.workbook_entries import EntryInWorkbook, LinkLeftOut
 from ycli.yandex.models import APIModel
 
 #: An Editor chart to create: `type` says which of the five kinds it is; a kind the
@@ -51,6 +52,26 @@ EditorChartUpdate = (
     | UpdateEditorSelectorNodeEntry
     | OtherKind
 )
+
+
+class EditorChartContent(LinkLeftOut, UpdateEditorTableNodeEntry):
+    """What the file of an Editor chart holds: what ``updateEditorChart`` takes of the entry.
+
+    Its id and revision are the file's link. A revision in the entry is not sent: with one,
+    DataLens publishes that revision and keeps nothing of what was sent (measured,
+    2026-11-26). A table's entry has the most tabs of any kind, so it holds every kind's.
+    """
+
+    # The generated entry allows any key; a file's content must not, or a typo is published.
+    model_config = ConfigDict(extra="forbid")
+
+    type: str = Field(description="Which kind of Editor chart it is, e.g. `d3_node`.")
+
+
+class EditorChartEntry(EntryInWorkbook, EditorChartContent):
+    """An Editor chart of a workbook as its file reads it: the content, the link, the name."""
+
+    model_config = ConfigDict(extra="allow")
 
 
 class QLChart(APIModel):
@@ -106,8 +127,10 @@ class QLChart(APIModel):
 __all__ = [
     "ChartData",
     "EditorChart",
+    "EditorChartContent",
     "EditorChartCreate",
     "EditorChartCreated",
+    "EditorChartEntry",
     "EditorChartSaved",
     "EditorChartUpdate",
     "EntryAnnotation",

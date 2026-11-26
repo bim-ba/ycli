@@ -5,6 +5,8 @@ Examples:
     {'dashboardId': 'd1'}
 """
 
+from typing import Annotated
+
 from ycli.yandex.core.endpoint import RPC, Effect, Endpoint
 from ycli.yandex.datalens.dashboards.models import (
     Dashboard,
@@ -21,6 +23,7 @@ from ycli.yandex.datalens.schemas.dashboard import (
     UpdateDashboardV2Args,
 )
 from ycli.yandex.datalens.schemas.shared import EntryBranch, EntryUpdateMode
+from ycli.yandex.sync.marks import Identity
 
 
 def get(
@@ -58,7 +61,7 @@ def update(
     return RPC("updateDashboard", DashboardSaved, json=body, effect=Effect.IDEMPOTENT_WRITE)
 
 
-def delete(dashboard_id: str, *, lock_token: str | None) -> Endpoint[None]:
+def delete(dashboard_id: Annotated[str, Identity()], *, lock_token: str | None) -> Endpoint[None]:
     # Measured: 200 with `{}`; nothing in it to read.
     body = DeleteDashboardArgs(dashboardId=dashboard_id, lockToken=lock_token)
     return RPC("deleteDashboard", json=body, effect=Effect.DESTRUCTIVE)
