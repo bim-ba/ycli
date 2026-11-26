@@ -21,6 +21,9 @@ class DashboardContent(LinkLeftOut, DashboardUpdate):
     2026-11-26).
     """
 
+    # The generated entry allows any key; a file's content must not, or a typo is published.
+    model_config = ConfigDict(extra="forbid")
+
 
 class DashboardEntry(EntryInWorkbook, DashboardContent):
     """A dashboard of a workbook as its file reads it: the content, the link, the name."""

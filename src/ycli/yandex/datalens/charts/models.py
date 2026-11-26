@@ -62,6 +62,9 @@ class EditorChartContent(LinkLeftOut, UpdateEditorTableNodeEntry):
     2026-11-26). A table's entry has the most tabs of any kind, so it holds every kind's.
     """
 
+    # The generated entry allows any key; a file's content must not, or a typo is published.
+    model_config = ConfigDict(extra="forbid")
+
     type: str = Field(description="Which kind of Editor chart it is, e.g. `d3_node`.")
 
 

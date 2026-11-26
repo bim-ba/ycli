@@ -321,6 +321,22 @@ def test_an_unpublished_draft_stops_the_file(api, tmp_path, monkeypatch, shape):
     assert _bodies(api, f"update{shape.rpc}") == []
 
 
+@SHAPES
+def test_a_key_no_update_takes_makes_the_file_unreadable_and_sends_nothing(
+    api, tmp_path, monkeypatch, shape
+):
+    """A typo in a pulled file: published, DataLens would keep it and fail only on read-back."""
+    file = _pulled(api, tmp_path, monkeypatch, shape)
+    file.write_text(file.read_text("utf-8") + "anotation:\n  description: typo\n", "utf-8")
+    path = str(file.relative_to(tmp_path))
+    _, listed, _ = _run(tmp_path, monkeypatch, "sync", "diff", path)
+    assert [row["state"] for row in listed] == ["unreadable"]
+    assert "anotation" in listed[0]["detail"]
+    code, listed, _ = _run(tmp_path, monkeypatch, "--yes", "sync", "push", path)
+    assert (code, [row["result"] for row in listed]) == (1, ["failed"])
+    assert _bodies(api, f"update{shape.rpc}") == []
+
+
 def test_a_refused_read_fails_its_file_and_the_rest_still_runs(api, tmp_path, monkeypatch):
     """Each file is read on its own: one refused read names its file and stops nothing else."""
     file = _pulled(api, tmp_path, monkeypatch, DASHBOARD)
