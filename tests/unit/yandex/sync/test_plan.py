@@ -70,7 +70,7 @@ def test_nothing_changed_is_nothing_to_show(api, tmp_path, monkeypatch):
     assert (code, listed) == (0, [])
     assert summary.strip().endswith(
         "2 unchanged, 0 update, 0 create, 0 untracked, 0 unsupported, 0 unreadable, "
-        "0 changed-on-server, 0 gone, 0 no-file"
+        "0 changed-on-server, 0 gone, 0 moved, 0 refused, 0 no-file"
     )
     _, everything, _ = _run(tmp_path, monkeypatch, "diff", "--show-unchanged")
     assert _states(everything) == {

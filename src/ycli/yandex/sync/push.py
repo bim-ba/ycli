@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 from ycli.yandex.errors import YandexError
 from ycli.yandex.models import APIModel, field_error
 from ycli.yandex.sync.document import Document, UnreadableFile, as_sent, fields_marked, parts_of
-from ycli.yandex.sync.files import State, read_file
+from ycli.yandex.sync.files import State, files_under, read_file
 from ycli.yandex.sync.kind import Kind, Operation, arguments_of
 from ycli.yandex.sync.marks import Identity, Place, Version
 from ycli.yandex.sync.paths import tree_of
@@ -53,11 +53,12 @@ class Pushed(APIModel):
     )
 
 
-#: The states that stop a file: it and its object went apart, and a pull comes first.
+#: The states that stop a file: it and its object went apart; what the plan does not say is here.
 APART = {
     State.CHANGED_ON_SERVER: "the object changed on the server: pull, then push",
     State.UNTRACKED: "the file was never read from its object: pull, then push",
     State.GONE: "the server has no such object",
+    State.MOVED: "the file lies under another name than its object",
 }
 
 
@@ -228,8 +229,10 @@ def push(
         if planned.state is State.UNCHANGED:
             done = Pushed(**said, result=Result.UNCHANGED)
         elif planned.state in APART:
-            done = Pushed(**said, result=Result.STOPPED, detail=APART[planned.state])
-        elif kind is None or local is None or planned.state is State.UNSUPPORTED:
+            done = Pushed(
+                **said, result=Result.STOPPED, detail=planned.detail or APART[planned.state]
+            )
+        elif kind is None or local is None or planned.state in {State.UNSUPPORTED, State.REFUSED}:
             done = Pushed(**said, result=Result.FAILED, detail=planned.detail)
         else:
             sender = senders(tree_of(kind).service)
@@ -270,6 +273,22 @@ def _deleted_since(
         raise ScopeError(f"--prune reads git: no commit {commit!r} in a repository here") from None
 
 
+def _held_now(root: Path, kinds: Sequence[Kind[Any, Any]]) -> set[tuple[str, tuple[Any, ...]]]:
+    """The objects the files of the working tree stand for now, by kind and identity."""
+    by_name = {kind.name: kind for kind in kinds}
+    suffixes = {kind.layout.suffix for kind in kinds}
+    held: set[tuple[str, tuple[Any, ...]]] = set()
+    for service in sorted({tree_of(kind).service for kind in kinds}):
+        for path in files_under(root, PurePosixPath(service), suffixes):
+            try:
+                kind, now = read_file(path, (root / path).read_text("utf-8"), by_name)
+            except UnreadableFile:
+                continue
+            ids = tuple(getattr(now.link, key) for key in fields_marked(kind.link, Identity))
+            held.add((kind.name, ids))
+    return held
+
+
 def prunable(
     root: Path, commit: str, scopes: Sequence[PurePosixPath], kinds: Sequence[Kind[Any, Any]]
 ) -> list[Candidate]:
@@ -291,7 +310,10 @@ def prunable(
     by_name = {kind.name: kind for kind in kinds}
     suffixes = {kind.layout.suffix for kind in kinds}
     found: list[Candidate] = []
-    for name, text in _deleted_since(root, commit, scopes):
+    deleted = _deleted_since(root, commit, scopes)
+    # A file renamed or moved is a delete to git when the rename is not staged or not detected.
+    living = _held_now(root, kinds) if deleted else set()
+    for name, text in deleted:
         path = PurePosixPath(name)
         if path.suffix not in suffixes:
             continue
@@ -302,6 +324,8 @@ def prunable(
         ids = [getattr(was.link, key) for key in fields_marked(kind.link, Identity)]
         if not ids or None in ids:
             continue  # it named no object: there is nothing to delete
+        if (kind.name, tuple(ids)) in living:
+            continue  # another file holds the object now
         if kind.delete is None:
             why = f"the API cannot delete a {kind.name}"
             unsupported = Planned(path=name, kind=kind.name, state=State.UNSUPPORTED, detail=why)

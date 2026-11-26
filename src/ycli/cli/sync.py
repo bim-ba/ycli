@@ -192,11 +192,11 @@ def diff(
     listed = ItemList[Planned](
         [one for one in found if show_unchanged or one.state is not State.UNCHANGED]
     )
-    if counted[State.UNREADABLE]:
+    if counted[State.UNREADABLE] or counted[State.REFUSED]:
         return ExitWith(listed, exit_code=ExitCode.FAILURE)
     if not exit_code:
         return listed
-    apart = {State.CHANGED_ON_SERVER, State.UNTRACKED, State.GONE}
+    apart = {State.CHANGED_ON_SERVER, State.UNTRACKED, State.GONE, State.MOVED}
     if any(counted[state] for state in apart):
         return ExitWith(listed, exit_code=ExitCode.DIVERGED)
     to_push = counted[State.UPDATE] + counted[State.CREATE]

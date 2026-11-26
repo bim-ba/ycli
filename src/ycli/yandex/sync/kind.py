@@ -224,6 +224,10 @@ class Kind[L: Link, C: BaseModel]:
             file carries.
         only: Says whether an object that was read is one the kind keeps (a Wiki page whose text
             is Markdown, not a grid). ``None``: every object that was found.
+        holds: Says why an object as it was read must not be written over now (a DataLens
+            entry with a draft nobody published); ``None`` lets every write go.
+        passes_over: Says why an object the listing found is not read at all, which ``pull``
+            names once per reason; ``None`` reads it.
     """
 
     name: str
@@ -237,6 +241,8 @@ class Kind[L: Link, C: BaseModel]:
     delete: Operation | None = None
     version: Proof = NoVersion()
     only: Callable[[Any], bool] | None = None
+    holds: Callable[[Any], str | None] | None = None
+    passes_over: Callable[[Any], str | None] | None = None
 
     def operations(self) -> dict[str, Operation]:
         """The operations the kind has, by the name of the field that holds each.

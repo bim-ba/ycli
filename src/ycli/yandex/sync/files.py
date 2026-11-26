@@ -34,6 +34,8 @@ class State(enum.StrEnum):
     UNREADABLE = "unreadable"
     CHANGED_ON_SERVER = "changed-on-server"
     GONE = "gone"
+    MOVED = "moved"
+    REFUSED = "refused"
     NO_FILE = "no-file"
     DELETE = "delete"
 

@@ -1,6 +1,7 @@
 """``pull``: the objects of a service as files, read from the server over what is there."""
 
 import enum
+from collections import Counter
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path, PurePosixPath
 from typing import Annotated, Any, Protocol
@@ -95,10 +96,26 @@ def names(scope: PurePosixPath, path: PurePosixPath) -> bool:
     return within == path.with_suffix("") or within in path.parents
 
 
+def _path_of(
+    kind: Kind[Any, Any], tree: Tree, held: tuple[str, ...], reply: BaseModel
+) -> PurePosixPath:
+    """Where the file of the object ``reply`` lies: along its place, or under its identity."""
+    leaf = [getattr(reply, name) for name in fields_marked(type(reply), Place)] or [
+        getattr(reply, name) for name in fields_marked(kind.link, Identity)
+    ]
+    return tree.path(held if tree.resource else (), "/".join(map(str, leaf)))
+
+
 def documents_under(
-    kind: Kind[Any, Any], senders: Callable[[str], Sender], scope: PurePosixPath
+    kind: Kind[Any, Any],
+    senders: Callable[[str], Sender],
+    scope: PurePosixPath,
+    passed: Counter[str],
 ) -> Iterator[tuple[PurePosixPath, Document[Any, Any] | None]]:
-    """Every object of ``kind`` under ``scope`` as its file; ``None`` for one the kind skips."""
+    """Every object of ``kind`` under ``scope`` as its file; ``None`` for one the kind skips.
+
+    An object the kind passes over is not read; ``passed`` counts it under the reason.
+    """
     if kind.find is None:
         raise ScopeError(f"the API cannot list the objects of {kind.name}")
     tree = tree_of(kind)
@@ -109,13 +126,13 @@ def documents_under(
     places = dict(zip(read.container, held, strict=False))
     identity = fields_marked(kind.link, Identity)
     for item in ask(sender, kind.find, dict(zip(found.container, held, strict=True))):
+        if kind.passes_over and (reason := kind.passes_over(item)):
+            passed[reason] += 1
+            continue
         ids = [getattr(item, name) for name in identity]
         named = places | dict(zip(read.identity, ids, strict=True))
         reply: BaseModel = ask(sender, kind.read, named)
-        leaf = [getattr(reply, name) for name in fields_marked(type(reply), Place)] or [
-            getattr(reply, name) for name in identity
-        ]
-        path = tree.path(held if tree.resource else (), "/".join(map(str, leaf)))
+        path = _path_of(kind, tree, held, reply)
         yield path, _as_document(kind, sender, path, reply, named)
 
 
@@ -129,9 +146,12 @@ def _as_document(
     """What reading an object answered, as its file; ``None`` for one the kind does not keep."""
     if kind.only and not kind.only(reply):
         return None
-    taken = set(kind.content.model_fields) | {
-        info.alias for info in kind.content.model_fields.values() if info.alias
-    }
+    # A key the link holds is never content, whatever the content model declares.
+    link = {key for name, info in kind.link.model_fields.items() for key in (name, info.alias)}
+    taken = (
+        set(kind.content.model_fields)
+        | {info.alias for info in kind.content.model_fields.values() if info.alias}
+    ) - link
     given = reply.model_dump(mode="json", by_alias=True, exclude_none=True)
     content = kind.content.model_validate({key: given[key] for key in given if key in taken})
     identity = fields_marked(kind.link, Identity)
@@ -141,7 +161,8 @@ def _as_document(
         link[version] = kind.version.current(
             reply, version, lambda operation: ask(sender, operation, named)
         )
-    return Document(path=path, link=kind.link(**link), content=content)
+    held = kind.holds(reply) if kind.holds else None
+    return Document(path=path, link=kind.link(**link), content=content, held=held)
 
 
 def read_one(
@@ -155,7 +176,9 @@ def read_one(
         document: The file, read; its link names the object.
 
     Returns:
-        The object as its file would be now; ``None`` when the kind does not keep it.
+        The object as its file would be now, where the object says it lies (a copy of a file
+        under another name holds an object that lies elsewhere); ``None`` when the kind does not
+        keep it.
     """
     tree = tree_of(kind)
     read = arguments_of(kind.read)
@@ -164,7 +187,8 @@ def read_one(
     named = dict(zip(read.container, held, strict=False)) | dict(
         zip(read.identity, ids, strict=True)
     )
-    return _as_document(kind, sender, document.path, ask(sender, kind.read, named), named)
+    reply = ask(sender, kind.read, named)
+    return _as_document(kind, sender, _path_of(kind, tree, held, reply), reply, named)
 
 
 def pull(
@@ -199,7 +223,8 @@ def pull(
         raise ScopeError(f"no kind keeps files under {scope}")
     done: list[Pulled] = []
     for kind in mine:
-        for path, document in documents_under(kind, senders, scope):
+        passed: Counter[str] = Counter()
+        for path, document in documents_under(kind, senders, scope, passed):
             if not names(scope, path):
                 continue
             if document is None:
@@ -215,4 +240,9 @@ def pull(
             changed = Action.WRITTEN if write else Action.WOULD_WRITE
             action = Action.UNCHANGED if same else changed
             done.append(Pulled(path=str(path), kind=kind.name, action=action))
+        # One line per reason, not per object: the listing names no file for what is not read.
+        done += [
+            Pulled(path=str(scope), kind=kind.name, action=Action.SKIPPED, detail=f"{n} {why}")
+            for why, n in sorted(passed.items())
+        ]
     return sorted(done, key=lambda outcome: outcome.path)

@@ -354,3 +354,16 @@ def test_the_summary_counts_the_files_the_service_added_to(api, tmp_path, monkey
     _, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
     assert [row["added"] for row in listed] == [True, True]
     assert summary.strip().endswith("0 failed; 2 files now hold what the service added")
+
+
+def test_a_copy_of_a_page_under_another_name_is_stopped(api, tmp_path, monkeypatch):
+    """Decision 8: a file moved or copied locally makes `push` stop and explain."""
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1))
+    copy = page.with_name("team-copy.md")
+    copy.write_text(page.read_text("utf-8"), encoding="utf-8")
+    _edit(copy)
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", "wiki/team-copy.md")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("moved", "stopped")]
+    assert listed[0]["detail"] == "the file is named team-copy and holds the object named team"
+    assert _sent(api, "POST") == []
