@@ -52,8 +52,10 @@ class ScreenshotsClient(Resource):
             ``data``: the link to the file, or with ``base64`` the file in base64.
 
         Examples:
+            The link is illustrative: the form of a real one is not measured.
+
             >>> datalens.screenshots.dashboard_get("d1a0000000001").data
-            'https://storage.yandexcloud.net/screenshots/d1a0000000001.png'
+            'https://s3.example.invalid/d1a0000000001.png'
         """
         return self._session.send(
             endpoints.dashboard_get(

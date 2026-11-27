@@ -2506,7 +2506,7 @@ $ ycli datalens screenshots dashboard-get [OPTIONS] DASH_ID
 * `--height INTEGER`: The height of the page in pixels, at most 6000.
 * `--full-page / --no-full-page`: Capture the whole page, not one screen of it.
 * `--query-params TEXT`: Parameters of the page, as a JSON object: {"tab": "tab__2", "_theme": "dark"}.
-* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64. Omitted, the reply is printed.
+* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64, so it does not go with --s3 or --no-base64. Omitted, the reply is printed.
 * `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data or grants access.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
@@ -2540,7 +2540,7 @@ $ ycli datalens screenshots chart-get [OPTIONS] CHART_ID
 * `--height INTEGER`: The height of the page in pixels, at most 6000.
 * `--full-page / --no-full-page`: Capture the whole page, not one screen of it.
 * `--query-params TEXT`: Parameters of the page, as a JSON object: {"tab": "tab__2", "_theme": "dark"}.
-* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64. Omitted, the reply is printed.
+* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64, so it does not go with --s3 or --no-base64. Omitted, the reply is printed.
 * `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data or grants access.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.

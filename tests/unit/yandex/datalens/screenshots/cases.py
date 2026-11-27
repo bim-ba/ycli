@@ -9,8 +9,9 @@ from ycli.yandex.core.endpoint import Effect
 # A picture is cut to its first bytes here.
 PNG = b"\x89PNG\r\n\x1a\n"
 ENCODED = base64.b64encode(PNG).decode()
-# The form of the S3 link is not measured: a reply without `base64` was not read live.
-LINK = "https://storage.yandexcloud.net/screenshots/d1a0000000001.png"
+# An illustrative link on a host that does not exist: a reply without `base64` was not
+# read live, so the form of a real one is not measured.
+LINK = "https://s3.example.invalid/d1a0000000001.png"
 
 CASES = [
     Case(
@@ -73,7 +74,7 @@ CASES = [
                         "queryParams": {"tab": "tab__3", "_theme": "dark"},
                     },
                 ),
-                Reply(json={"data": "https://storage.yandexcloud.net/screenshots/d2a.jpeg"}),
+                Reply(json={"data": "https://s3.example.invalid/d2a0000000002.jpeg"}),
             )
         ],
     ),

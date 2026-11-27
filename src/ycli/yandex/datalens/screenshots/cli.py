@@ -1,6 +1,7 @@
 """`datalens screenshots` commands: a picture of a dashboard or a chart, as a link or a file."""
 
 import base64 as b64
+import binascii
 import json
 from typing import Annotated
 
@@ -54,10 +55,24 @@ ImageOutputOption = Annotated[
     typer.Option(
         "--output",
         help="Write the picture to this path ('-' for stdout); the reply then carries it in "
-        "base64. Omitted, the reply is printed.",
+        "base64, so it does not go with --s3 or --no-base64. Omitted, the reply is printed.",
     ),
 ]
 RATE = "DataLens takes about three of these a minute; a 429 is retried with a back-off."
+
+
+def _base64(output: str | None, base64: bool | None, s3: bool | None) -> bool | None:
+    """What ``base64`` is sent as: a file is written only from a picture in the reply."""
+    if output is None:
+        return base64
+    if s3 or base64 is False:
+        # violation(arch-9): ycli's own --output, which needs the picture in the reply
+        raise typer.BadParameter(
+            "--output writes the picture in the reply: drop --s3 and --no-base64"
+        )
+    # violation(as-given): a file is written from the picture in the reply, which only base64
+    # puts there.
+    return True
 
 
 def _image(reply: Screenshot) -> bytes:
@@ -65,7 +80,10 @@ def _image(reply: Screenshot) -> bytes:
         raise YandexUnexpectedReplyError(
             f"the reply holds no picture: {reply.code} {reply.message}"
         )
-    return b64.b64decode(reply.data, validate=True)
+    try:
+        return b64.b64decode(reply.data, validate=True)
+    except binascii.Error as error:
+        raise YandexUnexpectedReplyError("the reply holds no base64 picture") from error
 
 
 @app.command("dashboard-get", epilog=RATE)
@@ -86,9 +104,7 @@ def dashboard_get(
     reply = datalens.screenshots.dashboard_get(
         dash_id,
         type=type_,
-        # violation(as-given): a file is written from the picture in the reply, which only
-        # base64 puts there.
-        base64=True if output is not None else base64,
+        base64=_base64(output, base64, s3),
         s3=s3,
         width=width,
         height=height,
@@ -116,9 +132,7 @@ def chart_get(
     reply = datalens.screenshots.chart_get(
         chart_id,
         type=type_,
-        # violation(as-given): a file is written from the picture in the reply, which only
-        # base64 puts there.
-        base64=True if output is not None else base64,
+        base64=_base64(output, base64, s3),
         s3=s3,
         width=width,
         height=height,
