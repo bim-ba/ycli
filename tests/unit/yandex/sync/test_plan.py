@@ -77,7 +77,8 @@ def test_nothing_changed_is_nothing_to_show(api, tmp_path, monkeypatch):
         "wiki/team.md": "unchanged",
         "wiki/team/onboarding.md": "unchanged",
     }
-    assert everything[0]["diff"] is None
+    # Nothing moved on the server: nothing is said of the file and nothing would be written.
+    assert [(row["diff"], row["detail"]) for row in everything] == [(None, None), (None, None)]
 
 
 def test_an_edited_file_is_shown_against_the_server_and_counts_as_a_change(
@@ -115,13 +116,28 @@ def test_an_object_that_changed_on_the_server_outweighs_a_change_to_push(
     assert "-# Team, by somebody else\n+# Team\n" in listed[0]["diff"]
 
 
-def test_a_new_version_with_the_same_content_is_a_change_on_the_server_too(
+def test_a_new_version_with_the_content_of_the_file_is_unchanged_and_diff_writes_nothing(
     api, tmp_path, monkeypatch
 ):
-    """The version is compared beside the fingerprint: somebody saved it, whatever they saved."""
-    _pulled(api, tmp_path, monkeypatch, TEAM, later=[(TEAM, 2)])
-    _, listed, _ = _run(tmp_path, monkeypatch, "diff")
-    assert (_states(listed), listed[0]["diff"]) == ({"wiki/team.md": "changed-on-server"}, None)
+    """Saving the same content again is a new version, and no change (bim-ba-blg-service/root#58).
+
+    The content is the file's, not the one it was read with: the server took the same edit.
+    """
+    edited = {**CHILD, "content": "Ask for access.\nMore.\n"}
+    _pulled(api, tmp_path, monkeypatch, TEAM, CHILD, later=[(TEAM, 2), (edited, 2)])
+    child = tmp_path / "wiki/team/onboarding.md"
+    child.write_text(child.read_text("utf-8") + "More.\n", encoding="utf-8")
+    files = ("wiki/team.md", "wiki/team/onboarding.md")
+    before = {path: (tmp_path / path).read_text("utf-8") for path in files}
+    code, listed, _ = _run(tmp_path, monkeypatch, "diff", "--exit-code")
+    assert (code, listed) == (0, [])
+    _, everything, _ = _run(tmp_path, monkeypatch, "diff", "--show-unchanged")
+    refreshed = "the server already holds this content: push writes its version into the file"
+    assert [(row["state"], row["detail"], row["diff"]) for row in everything] == [
+        ("unchanged", refreshed, None),
+        ("unchanged", refreshed, None),
+    ]
+    assert {path: (tmp_path / path).read_text("utf-8") for path in before} == before
 
 
 def test_an_object_that_is_gone_is_said(api, tmp_path, monkeypatch):
@@ -146,6 +162,11 @@ def test_a_file_written_by_hand_is_to_create_or_is_untracked(api, tmp_path, monk
     assert code == 8  # an untracked file is not pushed until it is pulled
     # A file that names no object is read from nowhere.
     assert all("4821" in str(call.url) for call in api.calls[before:])
+    # One that records no version is never given the server's, even with the same content.
+    mine = tmp_path / "wiki/team.md"
+    mine.write_text(mine.read_text("utf-8").replace("# Mine", "# Team"), encoding="utf-8")
+    _, same, _ = _run(tmp_path, monkeypatch, "diff", "wiki/team.md")
+    assert _states(same) == {"wiki/team.md": "untracked"}
 
 
 def test_under_a_container_an_object_with_no_file_is_said(api, tmp_path, monkeypatch):

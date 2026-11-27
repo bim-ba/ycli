@@ -17,13 +17,12 @@ from ycli.yandex.sync.document import (
     Document,
     UnreadableFile,
     as_sent,
-    fields_marked,
     fingerprint,
     parts_of,
 )
 from ycli.yandex.sync.files import State, files_under, offline_state, read_file
 from ycli.yandex.sync.kind import Kind
-from ycli.yandex.sync.marks import Identity, Version
+from ycli.yandex.sync.marks import Identity
 from ycli.yandex.sync.paths import tree_of
 from ycli.yandex.sync.pull import ScopeError, Sender, documents_under, names, read_one
 
@@ -119,10 +118,9 @@ def compared(
         The entry of the plan for the file.
     """
     state, detail = offline_state(kind, local)
-    version = next(iter(fields_marked(kind.link, Version)), None)
-    changed = server.link.hash != local.link.hash or (
-        version is not None and getattr(server.link, version) != getattr(local.link, version)
-    )
+    # A new version alone is no change: DataLens saves the same content again as a new one.
+    changed = server.link.hash != local.link.hash
+    same = fingerprint(server.content) == fingerprint(local.content)
     if server.path != local.path:
         # A copy or a rename holds the identity of an object that lies elsewhere (decision 8).
         tree = tree_of(kind)
@@ -134,12 +132,15 @@ def compared(
                 f"delete it if {theirs} is a file too, or git mv it to {theirs}"
             ),
         )
+    elif state is not State.UNTRACKED and same and server.link != local.link:
+        state = State.UNCHANGED
+        detail = "the server already holds this content: push writes its version into the file"
     elif state is not State.UNTRACKED and changed:
         state, detail = State.CHANGED_ON_SERVER, "the object changed on the server: pull, then push"
     elif state is State.UPDATE and server.held:
         state, detail = State.CHANGED_ON_SERVER, server.held
     text, secrets = "", []
-    if fingerprint(server.content) != fingerprint(local.content):
+    if not same:
         text, secrets = difference(kind, local, server, show_secrets=show_secrets)
     if secrets:
         detail = "; ".join(filter(None, [detail, f"secret changed: {', '.join(secrets)}"]))
@@ -199,7 +200,9 @@ def entries(
 
     Returns:
         One entry per file and per object without a file, by path, each with its kind and
-        its file where there is one.
+        its file where there is one. A file to update carries the server's version; an
+        unchanged file has the object instead where the server holds its content at another
+        version, which `push` writes into it, and none otherwise.
     """
     by_name = {kind.name: kind for kind in kinds}
     suffixes = {kind.layout.suffix for kind in kinds}
@@ -255,7 +258,14 @@ def entries(
                 planned[str(path)] = (other, kind, local)
                 continue
             both = compared(kind, local, server, show_secrets=show_secrets)
-            planned[str(path)] = (both, kind, local)
+            acted: Document[Any, Any] | None = local
+            if both.state is State.UPDATE:
+                # Sent from the version the server holds its base at, which a write may carry.
+                acted = local.model_copy(update={"link": server.link})
+            elif both.state is State.UNCHANGED:
+                # What `push` writes into an unchanged file: the server's newer link, or nothing.
+                acted = server if server.link != local.link else None
+            planned[str(path)] = (both, kind, acted)
         for path, (kind, document) in listed.items():
             if document is not None and str(path) not in planned:
                 absent = Planned(

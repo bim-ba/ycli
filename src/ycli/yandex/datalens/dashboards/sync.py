@@ -95,7 +95,8 @@ DASHBOARD = Kind(
     create=create,
     update=update,
     delete=endpoints.delete,
-    # DataLens checks no revision on a write (#484): the published one is read and compared.
+    # DataLens checks no revision on a write (#484): the published one is read and recorded;
+    # the content fingerprint guards the write.
     version=CheckedVersion(),
     # A publish of the file would throw away a draft somebody saved in DataLens since.
     holds=unpublished_draft,

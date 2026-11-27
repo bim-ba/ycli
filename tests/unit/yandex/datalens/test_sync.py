@@ -267,7 +267,9 @@ def test_sync_kinds_lists_both(monkeypatch):
     listed = {row["name"]: row for row in json.loads(result.stdout)}
     for name in ("datalens/editor-chart", "datalens/dashboard"):
         assert listed[name]["operations"] == ["read", "find", "create", "update", "delete"]
-        assert listed[name]["version"] == "read and compared before the write"
+        assert (
+            listed[name]["version"] == "read and recorded; the content fingerprint guards the write"
+        )
 
 
 def test_a_path_that_names_one_file_says_nothing_of_the_rest_of_its_workbook(
@@ -334,6 +336,56 @@ def test_an_unpublished_draft_stops_the_file(api, tmp_path, monkeypatch, shape):
     assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
     assert listed[0]["detail"] == "unpublished draft in DataLens; publish or discard it first"
     assert _bodies(api, f"update{shape.rpc}") == []
+
+
+@SHAPES
+@pytest.mark.parametrize("saved_id", ["r2", "d1"], ids=["published", "with-a-draft"])
+def test_a_new_revision_with_the_same_content_publishes_nothing_and_the_file_records_it(
+    api, tmp_path, monkeypatch, shape, saved_id
+):
+    """DataLens saves the same content again as a new revision (measured 2026-11-26).
+
+    A draft beside it is kept as well: nothing is published over it.
+    """
+    again = {**shape.entry, "revId": "r2", "savedId": saved_id, "publishedId": "r2"}
+    file = _pulled(api, tmp_path, monkeypatch, shape, again)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("unchanged", "unchanged")]
+    assert _bodies(api, f"update{shape.rpc}") == []
+    assert "\nrevId: r2\n" in file.read_text("utf-8")
+
+
+@SHAPES
+def test_an_edit_over_a_new_revision_with_the_pulled_content_is_published(
+    api, tmp_path, monkeypatch, shape
+):
+    """An empty save in DataLens after the pull: the edit is published all the same (root#58)."""
+    again = {**shape.entry, "revId": "r2", "savedId": "r2", "publishedId": "r2"}
+    edited = {**shape.entry, "annotation": {"description": "Sales, edited"}, "revId": "r3"}
+    file = _pulled(api, tmp_path, monkeypatch, shape, again, edited)
+    api.add("POST", f"{RPC}/update{shape.rpc}", json={"entry": edited})
+    _edit(file)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("update", "updated")]
+    (sent,) = _bodies(api, f"update{shape.rpc}")
+    assert "revId" not in sent["entry"]
+    assert sent["entry"]["annotation"] == {"description": "Sales, edited"}
+    assert "\nrevId: r3\n" in file.read_text("utf-8")
+
+
+@SHAPES
+def test_a_new_revision_with_other_content_still_stops_the_file(api, tmp_path, monkeypatch, shape):
+    theirs = {**shape.entry, "revId": "r2", "annotation": {"description": "Sales, theirs"}}
+    file = _pulled(api, tmp_path, monkeypatch, shape, theirs)
+    _edit(file)
+    before = file.read_text("utf-8")
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
+    assert _bodies(api, f"update{shape.rpc}") == []
+    assert file.read_text("utf-8") == before
 
 
 @SHAPES

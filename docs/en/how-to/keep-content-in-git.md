@@ -56,11 +56,11 @@ $ ycli sync diff
 
 | State | What it means |
 |---|---|
-| `unchanged` | nothing to push |
+| `unchanged` | nothing to push. Where the server holds your file's content at a newer version (DataLens makes one when the same content is saved again), `push` writes that version into the file and sends nothing; `diff --show-unchanged` says so in the detail |
 | `update` | you edited the file |
 | `create` | the file names no object yet: `push` creates one |
 | `untracked` | the file names an object and was never pulled from it: pull first |
-| `changed-on-server` | somebody changed the object since you pulled (`diff` only) |
+| `changed-on-server` | somebody changed the content of the object since you pulled (`diff` only). A new version alone is no change: a file you edited is sent from it |
 | `gone` | the object no longer exists (`diff` only) |
 | `moved` | the file holds an object that lies under another name: a copy or a rename. `pull` writes the object under its own name and leaves this file, so delete it if that name is already a file, or `git mv` it back (`diff` only) |
 | `refused` | the server refused to read the object; its answer is given and nothing is sent (`diff` only) |
@@ -69,6 +69,8 @@ $ ycli sync diff
 | `unreadable` | the file is not a file of a known kind; the line and the reason are given |
 
 Unchanged files are hidden; `--show-unchanged` lists them. `--kind wiki/page` limits a run to one kind, and a path limits it to a file or a directory.
+
+`status` reads no server, so a file you edited to what the server already holds is `update` there and `unchanged` in `diff`, until `push` writes the server's version into it.
 
 Where the object changed on the server, `diff` shows your file against the server as it is now. A file keeps only the fingerprint of what was pulled, so `diff` cannot say which lines are yours and which are theirs: pull into a clean tree and let git show you.
 
@@ -81,11 +83,12 @@ $ ycli sync push
 $ git commit -am "Update the onboarding page"
 ```
 
-`push` sends a file only when its object is still as you pulled it. After each write it reads the object again and writes the new link into the file, which is why a commit follows a push.
+`push` sends a file only when the content of its object is still what you pulled; a new version alone does not stop it. After each write it reads the object again and writes the new link into the file, and a file whose object already holds its content gets the server's version with nothing sent, which is why a commit follows a push.
 
 | Result | What happened |
 |---|---|
 | `created`, `updated`, `deleted` | done, and read back |
+| `unchanged` | nothing was sent; the summary counts the files that now record the server's version |
 | `stopped` | the file and its object went apart (`changed-on-server`, `untracked`, `gone`, `moved`): nothing was sent; the detail says what to do |
 | `failed` | the API refused, or the service did not keep a value that was sent: the value is named |
 

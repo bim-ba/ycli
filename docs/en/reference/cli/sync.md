@@ -174,11 +174,13 @@ $ ycli sync diff [OPTIONS] [PATHS]...
 
 Send the files that differ from their objects, each write read back and compared.
 
-A file is sent only when its object is as the file was read: one whose object changed on
-the server, is gone, or was never read is stopped (exit 8) until a `pull`. After a write
-the object is read again: the file gets its new link, and a value the server did not keep
-fails the file and is named. A new file gets the identity of what was created. With
---dry-run nothing is sent and the plan is printed; `diff` shows it with the differences.
+A file is sent only when its object holds what the file was read from: one whose object
+changed on the server, is gone, or was never read is stopped (exit 8) until a `pull`. A new
+version alone is no change: a file whose object already holds its content is not sent and
+gets the server's version. After a write the object is read again: the file gets its new
+link, and a value the server did not keep fails the file and is named. A new file gets the
+identity of what was created. With --dry-run nothing is sent and the plan is printed;
+`diff` shows it with the differences.
 
 **Usage**:
 

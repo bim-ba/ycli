@@ -150,7 +150,10 @@ def test_a_kind_is_listed_with_what_guards_a_write_of_it():
         version=CheckedVersion(newest=list_),
     )
     listed = summary_of(page)
-    assert (listed.file, listed.version) == (".md", "read and compared before the write")
+    assert (listed.file, listed.version) == (
+        ".md",
+        "read and recorded; the content fingerprint guards the write",
+    )
 
 
 def test_every_way_to_prove_a_version_says_what_it_is():
@@ -160,7 +163,7 @@ def test_every_way_to_prove_a_version_says_what_it_is():
     said = [way.describe() for way in (SentVersion(), CheckedVersion(newest=list_), NoVersion())]
     assert said == [
         "sent with the write: the server refuses a stale one",
-        "read and compared before the write",
+        "read and recorded; the content fingerprint guards the write",
         "none: the fingerprint of the content alone",
     ]
     assert summary_of(bare).version == said[2]
@@ -172,19 +175,27 @@ def test_every_way_to_prove_a_version_says_the_version_of_an_object_now():
     class Revision(Link):
         id: Annotated[int, Version()]
 
-    read = Revision(id=7)
+    reply = Revision(id=7)
     asked: list[Any] = []
+
+    def read() -> Revision:
+        asked.append("read")
+        return reply
 
     def ask(operation: Any) -> list[Revision]:
         asked.append(operation)
         return [Revision(id=9), Revision(id=8)]
 
-    assert SentVersion().current(read, "id", ask) == 7
-    assert NoVersion().current(read, "id", ask) is None
-    assert asked == []  # neither asks the service again
-    assert CheckedVersion(newest=list_).current(read, "id", ask) == 9
-    assert asked == [list_]
-    assert CheckedVersion(newest=list_).current(read, "id", lambda operation: []) is None
+    assert SentVersion().current(read, "id", ask) == (reply, 7)
+    assert NoVersion().current(read, "id", ask) == (reply, None)
+    assert asked == ["read", "read"]  # neither asks the service again
+    asked.clear()
+    assert CheckedVersion(newest=list_).current(read, "id", ask) == (reply, 9)
+    # The listing first: a save between the two calls is new content at the old version.
+    assert asked == [list_, "read"]
+    empty = CheckedVersion(newest=list_).current(read, "id", lambda operation: [])
+    assert empty == (reply, None)
+    asked.clear()
     # Where reading the object answers its version, nothing else is asked.
-    assert CheckedVersion().current(read, "id", ask) == 7
-    assert asked == [list_]
+    assert CheckedVersion().current(read, "id", ask) == (reply, 7)
+    assert asked == ["read"]

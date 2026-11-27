@@ -78,13 +78,50 @@ def test_a_tree_of_pages_is_written_and_what_no_kind_keeps_is_named(wiki, tmp_pa
         f"---\nycli: wiki/page\nhash: {held}\nid: 4822\nrevision: 9822\ntitle: Онбординг\n---\n"
         "Ask for access.\n"
     )
-    # The listing asked for the page itself too, and each read asked for the content.
+    # The listing asked for the page itself too, and each read asked for the content, after
+    # the revisions: a save between the two is new content at the old revision.
     assert wiki.calls[0].url.params["slug"] == "team"
     assert wiki.calls[0].url.params["include_self"] == "true"
-    assert wiki.calls[1].url.params["fields"] == "content"
+    paths = [call.url.path for call in wiki.calls[1:3]]
+    assert paths == ["/v1/pages/4821/revisions", "/v1/pages/4821"]
+    assert wiki.calls[2].url.params["fields"] == "content"
     # What was written is what `status` calls unchanged.
     states = {file.path: file.state for file in examine(tmp_path, [], kinds())}
     assert set(states.values()) == {State.UNCHANGED}
+
+
+def _tree_whose_revisions_are_refused(api, refused: dict) -> None:
+    """The tree of the `wiki` fixture, where listing the revisions of ``refused`` is refused."""
+    pages = [TEAM, ONBOARDING, ROADMAP]
+    listed = {"results": [{"id": page["id"], "slug": page["slug"]} for page in pages]}
+    api.add("GET", f"{WIKI}/pages/descendants", json={**listed, "next_cursor": None})
+    for page in pages:
+        api.add("GET", f"{WIKI}/pages/{page['id']}", json=page)
+        revisions = {"results": [{"id": int(str(page["id"])) + 5000}], "next_cursor": None}
+        status = 403 if page is refused else 200
+        api.add("GET", f"{WIKI}/pages/{page['id']}/revisions", json=revisions, status=status)
+
+
+def test_a_refused_listing_of_revisions_of_a_page_no_kind_keeps_fails_nothing(
+    api, tmp_path, monkeypatch
+):
+    """The revisions are asked before the read says the page is a grid, which is skipped."""
+    _tree_whose_revisions_are_refused(api, ROADMAP)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "pull", "wiki/team")
+    assert code == 0, summary
+    assert summary.strip() == "2 written, 0 unchanged, 1 skipped"
+    assert [row["action"] for row in listed] == ["written", "written", "skipped"]
+    code, planned, summary = _run(tmp_path, monkeypatch, "sync", "diff", "--exit-code", "wiki/team")
+    assert (code, planned) == (0, []), summary
+
+
+def test_a_refused_listing_of_revisions_of_a_page_it_keeps_fails_the_pull(
+    api, tmp_path, monkeypatch
+):
+    _tree_whose_revisions_are_refused(api, ONBOARDING)
+    code, _, _ = _run(tmp_path, monkeypatch, "sync", "pull", "wiki/team")
+    assert code != 0
+    assert not (tmp_path / "wiki/team/onboarding.md").exists()
 
 
 def test_a_second_pull_writes_nothing_and_says_so(wiki, tmp_path, monkeypatch):

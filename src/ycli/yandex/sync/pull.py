@@ -9,6 +9,7 @@ from typing import Annotated, Any, Protocol
 from pydantic import BaseModel, Field
 
 from ycli.yandex.core.endpoint import Endpoint, Paged
+from ycli.yandex.errors import YandexError
 from ycli.yandex.models import APIModel
 from ycli.yandex.sync.document import Document, fields_marked, fingerprint, parts_of
 from ycli.yandex.sync.kind import Kind, Operation, arguments_of
@@ -131,17 +132,39 @@ def documents_under(
             continue
         ids = [getattr(item, name) for name in identity]
         named = places | dict(zip(read.identity, ids, strict=True))
-        reply: BaseModel = ask(sender, kind.read, named)
+        reply, version = _read(kind, sender, named)
         path = _path_of(kind, tree, held, reply)
-        yield path, _as_document(kind, sender, path, reply, named)
+        yield path, _as_document(kind, path, reply, version)
+
+
+def _read(kind: Kind[Any, Any], sender: Sender, named: dict[str, Any]) -> tuple[BaseModel, Any]:
+    """Read an object and the version it is at, in the order its kind's proof needs.
+
+    The version may be asked before the read says whether the kind keeps the object at all (a
+    grid among Wiki pages): a refusal to answer it then fails only an object the kind keeps.
+    """
+    (key,) = fields_marked(kind.link, Version) or [None]
+    refused: list[YandexError] = []
+
+    def reading() -> BaseModel:
+        return ask(sender, kind.read, named)
+
+    def asking(operation: Operation) -> Iterator[Any]:
+        try:
+            yield from ask(sender, operation, named)
+        except YandexError as refusal:
+            refused.append(refusal)
+
+    if key is None:
+        return reading(), None
+    reply, version = kind.version.current(reading, key, asking)
+    if refused and (kind.only is None or kind.only(reply)):
+        raise refused[0]
+    return reply, version
 
 
 def _as_document(
-    kind: Kind[Any, Any],
-    sender: Sender,
-    path: PurePosixPath,
-    reply: BaseModel,
-    named: dict[str, Any],
+    kind: Kind[Any, Any], path: PurePosixPath, reply: BaseModel, version: Any
 ) -> Document[Any, Any] | None:
     """What reading an object answered, as its file; ``None`` for one the kind does not keep."""
     if kind.only and not kind.only(reply):
@@ -155,12 +178,10 @@ def _as_document(
     given = reply.model_dump(mode="json", by_alias=True, exclude_none=True)
     content = kind.content.model_validate({key: given[key] for key in given if key in taken})
     identity = fields_marked(kind.link, Identity)
-    (version,) = fields_marked(kind.link, Version) or [None]
+    (key,) = fields_marked(kind.link, Version) or [None]
     link = {name: getattr(reply, name) for name in identity} | {"hash": fingerprint(content)}
-    if version:
-        link[version] = kind.version.current(
-            reply, version, lambda operation: ask(sender, operation, named)
-        )
+    if key:
+        link[key] = version
     held = kind.holds(reply) if kind.holds else None
     return Document(path=path, link=kind.link(**link), content=content, held=held)
 
@@ -187,8 +208,8 @@ def read_one(
     named = dict(zip(read.container, held, strict=False)) | dict(
         zip(read.identity, ids, strict=True)
     )
-    reply = ask(sender, kind.read, named)
-    return _as_document(kind, sender, _path_of(kind, tree, held, reply), reply, named)
+    reply, version = _read(kind, sender, named)
+    return _as_document(kind, _path_of(kind, tree, held, reply), reply, version)
 
 
 def pull(
