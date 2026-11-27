@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.144.0 (2026-11-27)
+
+### Bug Fixes
+
+- **datalens**: Drop the limits of a map's key schema in the model generator
+  ([#614](https://github.com/bim-ba/ycli/pull/614),
+  [`f02d5f7`](https://github.com/bim-ba/ycli/commit/f02d5f739a54fde093f23a81622fa0dd3de940cc))
+
+- **datalens**: Refuse --output with --s3 or --no-base64, and read a non-base64 reply as one
+  ([#614](https://github.com/bim-ba/ycli/pull/614),
+  [`f02d5f7`](https://github.com/bim-ba/ycli/commit/f02d5f739a54fde093f23a81622fa0dd3de940cc))
+
+### Build System
+
+- Re-lock uv.lock for 0.143.0
+  ([`8d4d0a4`](https://github.com/bim-ba/ycli/commit/8d4d0a465805872ca752a50d7c4e18f0e67fa60b))
+
+### Documentation
+
+- **skills**: Regenerate the DataLens skill copies with the screenshots row
+  ([#614](https://github.com/bim-ba/ycli/pull/614),
+  [`f02d5f7`](https://github.com/bim-ba/ycli/commit/f02d5f739a54fde093f23a81622fa0dd3de940cc))
+
+### Features
+
+- **datalens**: Screenshots of dashboards and charts
+  ([#614](https://github.com/bim-ba/ycli/pull/614),
+  [`f02d5f7`](https://github.com/bim-ba/ycli/commit/f02d5f739a54fde093f23a81622fa0dd3de940cc))
+
+
 ## v0.143.0 (2026-11-26)
 
 ### Bug Fixes
