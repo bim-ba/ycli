@@ -285,7 +285,7 @@ nothing, `push` sends nothing and writes the server's version and fingerprint in
 another name (`moved`) is not given one.
 
 On a mismatch `push` writes nothing for that file, prints the difference between what the file was
-read from and the server's current state, and the run exits with `3`.
+read from and the server's current state, and the run exits with `8`.
 
 Measured, not assumed (recorded in #300 and #484):
 
