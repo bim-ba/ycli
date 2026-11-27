@@ -9,6 +9,7 @@ from typing import Annotated, Any, Protocol
 from pydantic import BaseModel, Field
 
 from ycli.yandex.core.endpoint import Endpoint, Paged
+from ycli.yandex.errors import YandexError
 from ycli.yandex.models import APIModel
 from ycli.yandex.sync.document import Document, fields_marked, fingerprint, parts_of
 from ycli.yandex.sync.kind import Kind, Operation, arguments_of
@@ -137,15 +138,29 @@ def documents_under(
 
 
 def _read(kind: Kind[Any, Any], sender: Sender, named: dict[str, Any]) -> tuple[BaseModel, Any]:
-    """Read an object and the version it is at, in the order its kind's proof needs."""
+    """Read an object and the version it is at, in the order its kind's proof needs.
+
+    The version may be asked before the read says whether the kind keeps the object at all (a
+    grid among Wiki pages): a refusal to answer it then fails only an object the kind keeps.
+    """
     (key,) = fields_marked(kind.link, Version) or [None]
+    refused: list[YandexError] = []
 
     def reading() -> BaseModel:
         return ask(sender, kind.read, named)
 
+    def asking(operation: Operation) -> Iterator[Any]:
+        try:
+            yield from ask(sender, operation, named)
+        except YandexError as refusal:
+            refused.append(refusal)
+
     if key is None:
         return reading(), None
-    return kind.version.current(reading, key, lambda operation: ask(sender, operation, named))
+    reply, version = kind.version.current(reading, key, asking)
+    if refused and (kind.only is None or kind.only(reply)):
+        raise refused[0]
+    return reply, version
 
 
 def _as_document(
