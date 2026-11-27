@@ -56,11 +56,11 @@ $ ycli sync diff
 
 | State | What it means |
 |---|---|
-| `unchanged` | nothing to push |
+| `unchanged` | nothing to push. Where the server holds your file's content at a newer version (DataLens makes one when the same content is saved again), the detail says so and `push` writes that version into the file |
 | `update` | you edited the file |
 | `create` | the file names no object yet: `push` creates one |
 | `untracked` | the file names an object and was never pulled from it: pull first |
-| `changed-on-server` | somebody changed the object since you pulled (`diff` only) |
+| `changed-on-server` | somebody changed the object since you pulled, and it does not hold what your file holds (`diff` only) |
 | `gone` | the object no longer exists (`diff` only) |
 | `moved` | the file holds an object that lies under another name: a copy or a rename. `pull` writes the object under its own name and leaves this file, so delete it if that name is already a file, or `git mv` it back (`diff` only) |
 | `refused` | the server refused to read the object; its answer is given and nothing is sent (`diff` only) |

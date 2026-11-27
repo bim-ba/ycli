@@ -93,6 +93,36 @@ def test_a_file_whose_object_changed_on_the_server_is_stopped_and_nothing_is_sen
     assert _sent(api, "POST") == [] and page.read_text("utf-8") == before
 
 
+def test_a_new_revision_with_the_same_content_sends_nothing_and_the_file_records_it(
+    api, tmp_path, monkeypatch
+):
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1), (TEAM, 2))
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("unchanged", "unchanged")]
+    assert listed[0]["detail"].startswith("the server already holds this content")
+    assert _sent(api, "POST") == []
+    assert "\nrevision: 2\n" in page.read_text("utf-8")
+    _, after, _ = _run(tmp_path, monkeypatch, "sync", "status")
+    assert after == []
+
+
+def test_a_new_version_of_a_trigger_with_the_same_content_is_recorded_for_the_next_update(
+    api, tmp_path, monkeypatch
+):
+    saved = {**TRIGGER, "version": 4}
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[TRIGGER])
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[])  # the page after the last
+    for answer in (TRIGGER, saved):
+        api.add("GET", f"{TRACKER}/queues/DE/triggers/16", json=answer)
+    _run(tmp_path, monkeypatch, "sync", "pull", "tracker/queues/DE")
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
+    assert (code, listed) == (0, []), summary
+    assert _sent(api, "PATCH") == []
+    # The server checks the version of a write: the next one carries the one it holds now.
+    assert "\nversion: 4\n" in (tmp_path / "tracker/queues/DE/triggers/16.yaml").read_text()
+
+
 def test_a_value_the_server_did_not_keep_fails_the_file_aloud(api, tmp_path, monkeypatch):
     # The write is answered, and reading back shows the old text: the server dropped ours.
     page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1), (TEAM, 1), (TEAM, 2))
@@ -290,12 +320,17 @@ def test_what_cannot_be_pushed_is_counted_as_failed(api, tmp_path, monkeypatch):
 
 
 def test_nothing_to_push_is_nothing_done(api, tmp_path, monkeypatch):
-    _pulled(api, tmp_path, monkeypatch, (TEAM, 1))
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1))
+    # Keys in another order are the same content: the file is not written anew.
+    head, title, body = page.read_text("utf-8").partition("title: Team\n")
+    page.write_text(head.replace("ycli: wiki/page\n", "ycli: wiki/page\n" + title) + body)
+    reordered = page.read_text("utf-8")
     code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push", "wiki/team")
     assert (code, listed) == (0, [])
     assert summary.strip() == "0 created, 0 updated, 0 deleted, 1 unchanged, 0 stopped, 0 failed"
     _, everything, _ = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
     assert [row["result"] for row in everything] == ["unchanged"]
+    assert page.read_text("utf-8") == reordered
 
 
 def test_an_object_with_no_file_is_not_pushed_and_one_no_kind_keeps_fails(

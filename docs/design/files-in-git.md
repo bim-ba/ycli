@@ -20,7 +20,7 @@ up by the declarations its resources carry.
 |---|---|---|---|
 | 1 | Where the link between a file and its object lives | In the file itself: a Markdown header or YAML keys. No state file | #212 |
 | 2 | Commands | `ycli sync pull`, `diff`, `push`: one top-level group for every service | #212 |
-| 3 | The server changed after `pull` | `push` stops for that file and shows the difference | #212 |
+| 3 | The server changed after `pull` | `push` stops for that file and shows the difference. A new version whose content is the file's is no change: the file is `unchanged` and `push` writes that version into it | #212, [root#58](https://github.com/bim-ba-blg-service/root/issues/58) |
 | 4 | Deletion | A file deleted locally deletes nothing on the server without `--prune` | #212 |
 | 5 | Format | Markdown with a header for text, YAML for settings, CSV for tables | #212 |
 | 6 | Layout | Directories repeat the service and the container; a run is limited by a path | #212 |
@@ -276,6 +276,14 @@ Where the service has a version, a second check stands beside the first:
 Each way is a class that answers for itself; the engine calls the same thing on any of them and
 does not know how many there are.
 
+A new version that holds the content of the file is no mismatch ([root#58](https://github.com/bim-ba-blg-service/root/issues/58)): DataLens makes a new
+revision when the same content is saved again (measured below), so without it an empty save in the
+interface would stop every push. The content is compared as the difference compares it, through
+the content model, not as bytes. Such a file is `unchanged`: `diff` says so in its detail and writes
+nothing, `push` sends nothing and writes the server's version and fingerprint into the file, and
+`pull` writes the file as always. A file that records no version (`untracked`) or lies under
+another name (`moved`) is not given one.
+
 On a mismatch `push` writes nothing for that file, prints the difference between what the file was
 read from and the server's current state, and the run exits with `3`.
 
@@ -298,7 +306,8 @@ comes back without the layout of its slides. So `push` does not trust a write. O
 through six steps:
 
 1. read the object;
-2. compare its version and its fingerprint with the file's, and stop on a mismatch;
+2. compare its version and its fingerprint with the file's, and stop on a mismatch, unless it
+   already holds the content of the file: then write its version into the file and stop there;
 3. write;
 4. read the object again;
 5. compare what was sent with what was saved;
@@ -320,7 +329,9 @@ flowchart TD
     L -- no --> C[create, write the identity, the version and the hash into the file]
     L -- yes --> R[read the object]
     R --> V{its version and its fingerprint are the file's?}
-    V -- no --> S[stop: show what changed on the server, write nothing]
+    V -- no --> E{its content is the file's?}
+    E -- no --> S[stop: show what changed on the server, write nothing]
+    E -- yes --> W[send nothing, write its version and hash into the file]
     V -- yes --> D{content differs?}
     D -- no --> N[nothing to do]
     D -- yes --> U[update, read it back, write the new version and hash]
@@ -334,6 +345,7 @@ flowchart TD
 | unchanged | unchanged | nothing | nothing | nothing |
 | edited | unchanged | overwrites the file | `update` and the difference | updates, writes the new link |
 | any | changed since `pull` | overwrites the file | `changed-on-server` and the difference | stops, writes nothing |
+| any | a new version with the content of the file | overwrites the file | `unchanged`, the detail says the version is new | writes the version into the file, sends nothing |
 | has an identity | object is gone | reports it, keeps the file | `gone` | stops for that file |
 | copied or renamed | its object lies under another name | | `moved`, both names | stops for that file |
 | any | reading it is refused | | `refused`, the API's answer | counts the file as failed, sends nothing |
@@ -433,7 +445,8 @@ working tree still holds (a rename git saw as a delete) is never a candidate.
 A draft saved in DataLens and not published is a change on the server that a publish of the
 file would throw away: where the read shows `savedId` other than `publishedId`, `push` stops the
 file (`changed-on-server`, "unpublished draft in DataLens; publish or discard it first"). This
-holds to #486 (`push` publishes) without overwriting work nobody has seen yet. An Editor chart of
+holds to #486 (`push` publishes) without overwriting work nobody has seen yet. A file whose
+content is already the published one is not stopped by a draft: nothing is published. An Editor chart of
 a type the API does not describe (an old one) is not read; `pull` names it once per type.
 
 The content of a file is the generated entry of the update with its `entryId` and `revId` left

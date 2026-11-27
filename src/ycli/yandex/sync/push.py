@@ -227,7 +227,9 @@ def push(
         if planned.state is State.NO_FILE:
             continue  # `pull` writes it; `push` has nothing to send
         if planned.state is State.UNCHANGED:
-            done = Pushed(**said, result=Result.UNCHANGED)
+            if kind is not None and local is not None:
+                _write(root, kind, local.path, local)  # nothing is sent: only the file's link
+            done = Pushed(**said, result=Result.UNCHANGED, detail=planned.detail)
         elif planned.state in APART:
             done = Pushed(
                 **said, result=Result.STOPPED, detail=planned.detail or APART[planned.state]

@@ -337,6 +337,37 @@ def test_an_unpublished_draft_stops_the_file(api, tmp_path, monkeypatch, shape):
 
 
 @SHAPES
+@pytest.mark.parametrize("saved_id", ["r2", "d1"], ids=["published", "with-a-draft"])
+def test_a_new_revision_with_the_same_content_publishes_nothing_and_the_file_records_it(
+    api, tmp_path, monkeypatch, shape, saved_id
+):
+    """DataLens saves the same content again as a new revision (measured 2026-11-26).
+
+    A draft beside it is kept as well: nothing is published over it.
+    """
+    again = {**shape.entry, "revId": "r2", "savedId": saved_id, "publishedId": "r2"}
+    file = _pulled(api, tmp_path, monkeypatch, shape, again)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("unchanged", "unchanged")]
+    assert _bodies(api, f"update{shape.rpc}") == []
+    assert "\nrevId: r2\n" in file.read_text("utf-8")
+
+
+@SHAPES
+def test_a_new_revision_with_other_content_still_stops_the_file(api, tmp_path, monkeypatch, shape):
+    theirs = {**shape.entry, "revId": "r2", "annotation": {"description": "Sales, theirs"}}
+    file = _pulled(api, tmp_path, monkeypatch, shape, theirs)
+    _edit(file)
+    before = file.read_text("utf-8")
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
+    assert _bodies(api, f"update{shape.rpc}") == []
+    assert file.read_text("utf-8") == before
+
+
+@SHAPES
 def test_a_key_no_update_takes_makes_the_file_unreadable_and_sends_nothing(
     api, tmp_path, monkeypatch, shape
 ):
