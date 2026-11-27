@@ -1292,3 +1292,22 @@ def test_every_section_of_the_published_names_declares_its_identifier_once():
     declared = gen._IDENTIFIERS.keys() | gen._NO_IDENTIFIER.keys()
     assert declared == published
     assert not gen._IDENTIFIERS.keys() & gen._NO_IDENTIFIER.keys()
+
+
+def test_a_limit_on_the_names_of_a_map_is_dropped_too():
+    """``propertyNames`` holds a schema too: a limit left in it reaches the code as ``constr``."""
+    names = {"type": "string", "minLength": 1}
+    spec = {
+        "components": {
+            "schemas": {
+                "State": {
+                    "type": "object",
+                    "propertyNames": names,
+                    "additionalProperties": {"type": "string"},
+                }
+            }
+        },
+        "paths": {},
+    }
+    gen._plain(spec)
+    assert spec["components"]["schemas"]["State"]["propertyNames"] == {"type": "string"}

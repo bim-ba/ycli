@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-134 tools.
+136 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -1137,6 +1137,44 @@ Delete a dashboard.
 | `dashboard_id` | string | yes | Dashboard id. |
 | `lock_token` | string or null |  | The token of the lock held on the dashboard, when it is locked. |
 | `dry_run` | boolean |  | Send nothing: answer `{dry_run: true, request}`, the first write the tool would make (null: none). |
+
+## `datalens_screenshots_dashboard_get`
+
+*Get a DataLens dashboard screenshot* · read-only
+
+A picture of a saved dashboard, rendered by DataLens: by default a link to its file.
+
+The picture shows the data. DataLens takes about three of these a minute. Experimental.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `dash_id` | string | yes | The dashboard to capture. |
+| `type` | `png` · `jpeg` · `jpg` or string or null |  | The format of the picture: png (the default), jpeg or jpg. |
+| `base64` | boolean or null |  | Put the file itself in `data`, base64-encoded: large, ask first. |
+| `s3` | boolean or null |  | Put the file in S3 and `data` is its link; the default unless base64. |
+| `width` | integer or number or null |  | The width of the page in pixels, at most 6000. |
+| `height` | integer or number or null |  | The height of the page in pixels, at most 6000. |
+| `full_page` | boolean or null |  | Capture the whole page, not one screen of it. |
+| `query_params` | object or null |  | Parameters of the page: {"tab": "<tab id>"} picks a tab, {"_theme": "dark"} the dark theme; a dashboard parameter goes by its name. |
+
+## `datalens_screenshots_chart_get`
+
+*Get a DataLens chart screenshot* · read-only
+
+A picture of a saved chart, rendered by DataLens: by default a link to its file.
+
+The picture shows the data. DataLens takes about three of these a minute. Experimental.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `chart_id` | string | yes | The chart to capture. |
+| `type` | `png` · `jpeg` · `jpg` or string or null |  | The format of the picture: png (the default), jpeg or jpg. |
+| `base64` | boolean or null |  | Put the file itself in `data`, base64-encoded: large, ask first. |
+| `s3` | boolean or null |  | Put the file in S3 and `data` is its link; the default unless base64. |
+| `width` | integer or number or null |  | The width of the page in pixels, at most 6000. |
+| `height` | integer or number or null |  | The height of the page in pixels, at most 6000. |
+| `full_page` | boolean or null |  | Capture the whole page, not one screen of it. |
+| `query_params` | object or null |  | Parameters of the page: values of the chart's parameters by name, {"_theme": "dark"} for the dark theme. |
 
 ## `datalens_reports_get`
 

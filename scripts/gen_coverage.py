@@ -158,7 +158,7 @@ DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Data", ["connections", "datasets"]),
     (
         "Charts, dashboards, reports & pages",
-        ["charts", "dashboards", "reports", "htmlpages"],
+        ["charts", "dashboards", "screenshots", "reports", "htmlpages"],
     ),
     ("SQL", ["sqlqueries"]),
     (

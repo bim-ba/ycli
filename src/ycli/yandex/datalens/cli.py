@@ -22,6 +22,7 @@ from ycli.yandex.datalens.members.cli import app as members_app
 from ycli.yandex.datalens.permissions.cli import app as permissions_app
 from ycli.yandex.datalens.reports.cli import app as reports_app
 from ycli.yandex.datalens.restcatalogs.cli import app as restcatalogs_app
+from ycli.yandex.datalens.screenshots.cli import app as screenshots_app
 from ycli.yandex.datalens.sharedentries.cli import app as sharedentries_app
 from ycli.yandex.datalens.sparkapplications.cli import app as sparkapplications_app
 from ycli.yandex.datalens.sparkclusters.cli import app as sparkclusters_app
@@ -50,6 +51,7 @@ app.add_typer(connections_app)
 app.add_typer(datasets_app)
 app.add_typer(charts_app)
 app.add_typer(dashboards_app)
+app.add_typer(screenshots_app)
 app.add_typer(reports_app)
 app.add_typer(workbookexports_app)
 app.add_typer(workbookimports_app)

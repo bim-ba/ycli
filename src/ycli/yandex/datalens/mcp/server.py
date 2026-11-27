@@ -20,6 +20,7 @@ from ycli.yandex.datalens.members.mcp import mcp as members_mcp
 from ycli.yandex.datalens.permissions.mcp import mcp as permissions_mcp
 from ycli.yandex.datalens.reports.mcp import mcp as reports_mcp
 from ycli.yandex.datalens.restcatalogs.mcp import mcp as restcatalogs_mcp
+from ycli.yandex.datalens.screenshots.mcp import mcp as screenshots_mcp
 from ycli.yandex.datalens.sharedentries.mcp import mcp as sharedentries_mcp
 from ycli.yandex.datalens.sparkapplications.mcp import mcp as sparkapplications_mcp
 from ycli.yandex.datalens.sparkclusters.mcp import mcp as sparkclusters_mcp
@@ -51,6 +52,7 @@ mcp.mount(connections_mcp)
 mcp.mount(datasets_mcp)
 mcp.mount(charts_mcp)
 mcp.mount(dashboards_mcp)
+mcp.mount(screenshots_mcp)
 mcp.mount(reports_mcp)
 mcp.mount(workbookexports_mcp)
 mcp.mount(workbookimports_mcp)
