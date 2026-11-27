@@ -9,6 +9,44 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.145.0 (2026-11-27)
+
+### Bug Fixes
+
+- **sync**: Fail nothing for a page the kind skips when its revisions are refused
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+- **sync**: List the revisions of a page before reading it
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+### Build System
+
+- Re-lock uv.lock for 0.144.0
+  ([`bc521b6`](https://github.com/bim-ba/ycli/commit/bc521b6551c81667cfbee20960fae9458432b39b))
+
+### Documentation
+
+- **sync**: Say the exit code a stopped file gives is 8
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+### Features
+
+- **sync**: A new version alone is no change on the server
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+- **sync**: Count a new version with the file's content as unchanged
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+- **sync**: Send an edit over a new version that kept the pulled content
+  ([#613](https://github.com/bim-ba/ycli/pull/613),
+  [`69b9b7c`](https://github.com/bim-ba/ycli/commit/69b9b7c9a519d2e0f98fc025db76c458cd9fe898))
+
+
 ## v0.144.0 (2026-11-27)
 
 ### Bug Fixes
