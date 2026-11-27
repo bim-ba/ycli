@@ -20,7 +20,7 @@ up by the declarations its resources carry.
 |---|---|---|---|
 | 1 | Where the link between a file and its object lives | In the file itself: a Markdown header or YAML keys. No state file | #212 |
 | 2 | Commands | `ycli sync pull`, `diff`, `push`: one top-level group for every service | #212 |
-| 3 | The server changed after `pull` | `push` stops for that file and shows the difference. A new version whose content is the file's is no change: the file is `unchanged` and `push` writes that version into it | #212, [root#58](https://github.com/bim-ba-blg-service/root/issues/58) |
+| 3 | The server changed after `pull` | `push` stops for that file and shows the difference. Its content changed, not its version: a new version alone is no change. An object that holds the content of the file leaves it `unchanged`, and `push` writes the server's version into it; an edited file whose object still holds what it was read from is sent, from the server's version | #212, [root#58](https://github.com/bim-ba-blg-service/root/issues/58) |
 | 4 | Deletion | A file deleted locally deletes nothing on the server without `--prune` | #212 |
 | 5 | Format | Markdown with a header for text, YAML for settings, CSV for tables | #212 |
 | 6 | Layout | Directories repeat the service and the container; a run is limited by a path | #212 |
@@ -33,7 +33,7 @@ up by the declarations its resources carry.
 | 13 | The content of a file | The model of the request that changes the object, as the service already has it: no model is written for a file | #485 |
 | 14 | A kind in the code | An object found in a registry when a file is read, not a string looked up each time | #485 |
 | 15 | The version key | The kind names it by the service's own word (`revision`, `version`) | #485 |
-| 16 | An object with no version | Every file carries `hash`, the fingerprint of its content, always; the server's version is a separate key where the service has one. Both are checked | #485 |
+| 16 | An object with no version | Every file carries `hash`, the fingerprint of its content, always; the server's version is a separate key where the service has one. The fingerprint says whether the server changed; the version is what the file records and a write carries | #485, [root#58](https://github.com/bim-ba-blg-service/root/issues/58) |
 | 17 | How a write proves its version | A class per way, not a flag | #485 |
 | 18 | Where a kind is declared | In its resource, beside the client | #485 |
 | 19 | Surfaces | CLI and SDK. MCP was decided in #485 and withdrawn in #520: see 24 | #485, #520 |
@@ -265,26 +265,34 @@ A fingerprint is taken from the object as the server returns it, read through th
 A service does not always return what it took, so after a write `push` reads the object again and
 writes the fingerprint of what it read.
 
-Where the service has a version, a second check stands beside the first:
+Where the service has a version, the file records it beside the fingerprint, and a write proves it:
 
 | `version` | What happens | Atomic | Kinds |
 |---|---|---|---|
-| `SentVersion()` | the write carries the version from the file; the server refuses a stale one | yes | Tracker objects that take `?version=`, a DataLens dataset |
-| `CheckedVersion(newest=…)`, `CheckedVersion()` | `push` reads the newest version and compares it with the file's: from a listing of versions, or, with none named, from the reply of the read | no: an edit landing between the read and the write is overwritten | Wiki pages (a listing); DataLens Editor charts and dashboards (the published `revId` of the read) |
+| `SentVersion()` | the write carries the version the server held the file's base at; the server refuses a stale one | yes | Tracker objects that take `?version=`, a DataLens dataset |
+| `CheckedVersion(newest=…)`, `CheckedVersion()` | `push` reads the newest version, from a listing of versions or, with none named, from the reply of the read, and the file records it; the server checks nothing | no: an edit landing between the read and the write is overwritten | Wiki pages (a listing); DataLens Editor charts and dashboards (the published `revId` of the read) |
 | `NoVersion()`, the default | the fingerprint alone | no | objects whose service has no version: seven resources in ten |
 
 Each way is a class that answers for itself; the engine calls the same thing on any of them and
 does not know how many there are.
 
-A new version that holds the content of the file is no mismatch ([root#58](https://github.com/bim-ba-blg-service/root/issues/58)): DataLens makes a new
-revision when the same content is saved again (measured below), so without it an empty save in the
-interface would stop every push. The content is compared as the difference compares it, through
-the content model, not as bytes. Such a file is `unchanged`: `diff` says so in its detail and writes
-nothing, `push` sends nothing and writes the server's version and fingerprint into the file, and
-`pull` writes the file as always. A file that records no version (`untracked`) or lies under
-another name (`moved`) is not given one.
+A new version alone is no change ([root#58](https://github.com/bim-ba-blg-service/root/issues/58)): DataLens makes a new revision when the same content is
+saved again (measured below), so otherwise an empty save in the interface would stop every push.
+The owner decided it for a file whose content the object holds; read by that reason, it holds as
+well for an edited file whose object still holds what the file was read from. The content is
+compared as the difference compares it, through the content model, not as bytes:
 
-On a mismatch `push` writes nothing for that file, prints the difference between what the file was
+| The object now | The file | `diff` | `push` |
+|---|---|---|---|
+| holds the content of the file, at a newer version | edited or not | `unchanged`; with `--show-unchanged` the detail says so | sends nothing, writes the server's version and fingerprint into the file, and the summary counts it |
+| holds what the file was read from, at a newer version | edited | `update` and the difference | sends the file from the server's version (a `?version=` carries it), then writes the new link as after every write |
+| holds other content | any | `changed-on-server` and the difference | stops |
+
+A file that carries no `hash` (`untracked`) or lies under another name (`moved`) is not given a
+version, and `pull` writes a file as always. The price: what moves the version and lies outside
+the content model stops no file, and `push` does not send it either.
+
+When the object changed, `push` writes nothing for that file, prints the difference between what the file was
 read from and the server's current state, and the run exits with `8`.
 
 Measured, not assumed (recorded in #300 and #484):
@@ -306,8 +314,9 @@ comes back without the layout of its slides. So `push` does not trust a write. O
 through six steps:
 
 1. read the object;
-2. compare its version and its fingerprint with the file's, and stop on a mismatch, unless it
-   already holds the content of the file: then write its version into the file and stop there;
+2. compare its fingerprint with the file's `hash` and stop where they differ, unless it already
+   holds the content of the file: then write its version into the file and stop there. A new
+   version alone stops nothing, and the write carries the server's;
 3. write;
 4. read the object again;
 5. compare what was sent with what was saved;
@@ -328,13 +337,13 @@ flowchart TD
     F[file] --> L{has an identity?}
     L -- no --> C[create, write the identity, the version and the hash into the file]
     L -- yes --> R[read the object]
-    R --> V{its version and its fingerprint are the file's?}
+    R --> V{its fingerprint is the file's hash?}
     V -- no --> E{its content is the file's?}
     E -- no --> S[stop: show what changed on the server, write nothing]
     E -- yes --> W[send nothing, write its version and hash into the file]
     V -- yes --> D{content differs?}
-    D -- no --> N[nothing to do]
-    D -- yes --> U[update, read it back, write the new version and hash]
+    D -- no --> N[send nothing; a newer version is written into the file]
+    D -- yes --> U[update from the server's version, read it back, write the new version and hash]
 ```
 
 | File | Server | `pull` | `diff` | `push` |
@@ -344,8 +353,9 @@ flowchart TD
 | has no identity | no such object | nothing | `create` | creates, writes the link into the file |
 | unchanged | unchanged | nothing | nothing | nothing |
 | edited | unchanged | overwrites the file | `update` and the difference | updates, writes the new link |
-| any | changed since `pull` | overwrites the file | `changed-on-server` and the difference | stops, writes nothing |
+| any | its content changed since `pull` | overwrites the file | `changed-on-server` and the difference | stops, writes nothing |
 | any | a new version with the content of the file | overwrites the file | `unchanged`, the detail says the version is new | writes the version into the file, sends nothing |
+| edited | a new version with the content it was read from | overwrites the file | `update` and the difference | updates from the server's version, writes the new link |
 | has an identity | object is gone | reports it, keeps the file | `gone` | stops for that file |
 | copied or renamed | its object lies under another name | | `moved`, both names | stops for that file |
 | any | reading it is refused | | `refused`, the API's answer | counts the file as failed, sends nothing |

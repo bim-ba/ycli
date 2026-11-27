@@ -51,6 +51,10 @@ class Pushed(APIModel):
         default=False,
         description="The file now also holds what the service added to what was sent.",
     )
+    recorded: bool = Field(
+        default=False,
+        description="Nothing was sent: the file now records the version the server holds it at.",
+    )
 
 
 #: The states that stop a file: it and its object went apart; what the plan does not say is here.
@@ -218,7 +222,7 @@ def push(
     Yields:
         Pushed: What was done with each file, by path.
     """
-    for planned, kind, local in entries(root, scopes, kinds, senders):
+    for planned, kind, document in entries(root, scopes, kinds, senders):
         said: dict[str, Any] = {
             "path": planned.path,
             "kind": planned.kind,
@@ -227,23 +231,26 @@ def push(
         if planned.state is State.NO_FILE:
             continue  # `pull` writes it; `push` has nothing to send
         if planned.state is State.UNCHANGED:
-            if kind is not None and local is not None:
-                _write(root, kind, local.path, local)  # nothing is sent: only the file's link
-            done = Pushed(**said, result=Result.UNCHANGED, detail=planned.detail)
+            if kind is not None and document is not None:
+                _write(root, kind, document.path, document)  # nothing is sent: only the link
+            recorded = document is not None
+            done = Pushed(**said, result=Result.UNCHANGED, detail=planned.detail, recorded=recorded)
         elif planned.state in APART:
             done = Pushed(
                 **said, result=Result.STOPPED, detail=planned.detail or APART[planned.state]
             )
-        elif kind is None or local is None or planned.state in {State.UNSUPPORTED, State.REFUSED}:
+        elif (
+            kind is None or document is None or planned.state in {State.UNSUPPORTED, State.REFUSED}
+        ):
             done = Pushed(**said, result=Result.FAILED, detail=planned.detail)
         else:
             sender = senders(tree_of(kind).service)
             try:
                 if planned.state is State.CREATE:
-                    said["path"], added = _create(root, kind, sender, local)
+                    said["path"], added = _create(root, kind, sender, document)
                     done = Pushed(**said, result=Result.CREATED, added=added)
                 else:
-                    added = _update(root, kind, sender, local)
+                    added = _update(root, kind, sender, document)
                     done = Pushed(**said, result=Result.UPDATED, added=added)
             except (YandexError, _RefusedError) as failure:
                 done = Pushed(**said, result=Result.FAILED, detail=str(failure))

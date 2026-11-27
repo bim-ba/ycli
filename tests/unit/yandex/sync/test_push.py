@@ -101,6 +101,9 @@ def test_a_new_revision_with_the_same_content_sends_nothing_and_the_file_records
     assert code == 0, summary
     assert [(row["state"], row["result"]) for row in listed] == [("unchanged", "unchanged")]
     assert listed[0]["detail"].startswith("the server already holds this content")
+    # The file is written though nothing was sent: the summary says so.
+    assert listed[0]["recorded"] is True
+    assert summary.strip().endswith("0 failed; 1 file now records the server's version")
     assert _sent(api, "POST") == []
     assert "\nrevision: 2\n" in page.read_text("utf-8")
     _, after, _ = _run(tmp_path, monkeypatch, "sync", "status")
@@ -121,6 +124,82 @@ def test_a_new_version_of_a_trigger_with_the_same_content_is_recorded_for_the_ne
     assert _sent(api, "PATCH") == []
     # The server checks the version of a write: the next one carries the one it holds now.
     assert "\nversion: 4\n" in (tmp_path / "tracker/queues/DE/triggers/16.yaml").read_text()
+
+
+def test_an_edit_over_a_new_revision_with_the_pulled_content_is_sent(api, tmp_path, monkeypatch):
+    """An empty save after the pull moved only the version: the edit goes (root#58)."""
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1), (TEAM, 2), (EDITED, 3))
+    api.add("POST", f"{WIKI}/pages/4821", json=EDITED)
+    _edit(page)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("update", "updated")]
+    (sent,) = _sent(api, "POST")
+    assert json.loads(sent.content)["content"] == "# Team, edited\n"
+    assert "\nrevision: 3\n" in page.read_text("utf-8")
+
+
+def test_a_new_revision_that_changes_whitespace_only_is_a_change(api, tmp_path, monkeypatch):
+    # A Markdown hard break (two trailing spaces) is content.
+    theirs = {**TEAM, "content": "# Team  \n"}
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1), (theirs, 2))
+    before = page.read_text("utf-8")
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "diff", "--exit-code")
+    assert code == 8
+    assert [row["state"] for row in listed] == ["changed-on-server"]
+    assert listed[0]["diff"]
+    assert page.read_text("utf-8") == before
+
+
+def test_a_copy_is_moved_even_when_its_object_has_a_new_revision_of_the_same_content(
+    api, tmp_path, monkeypatch
+):
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1), (TEAM, 2))
+    copy = page.with_name("team-copy.md")
+    copy.write_text(page.read_text("utf-8"), encoding="utf-8")
+    original = page.read_text("utf-8")
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push", "wiki/team-copy.md")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("moved", "stopped")]
+    assert copy.is_file() and page.read_text("utf-8") == original
+    assert _sent(api, "POST") == []
+
+
+def test_a_new_version_that_turns_a_trigger_off_is_a_change(api, tmp_path, monkeypatch):
+    mine = {key: value for key, value in TRIGGER.items() if key != "active"}
+    off = {**mine, "version": 4, "active": False}
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[mine])
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[])  # the page after the last
+    for answer in (mine, off):
+        api.add("GET", f"{TRACKER}/queues/DE/triggers/16", json=answer)
+    _run(tmp_path, monkeypatch, "sync", "pull", "tracker/queues/DE")
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
+    assert "\nversion: 3\n" in (tmp_path / "tracker/queues/DE/triggers/16.yaml").read_text()
+
+
+def test_an_edit_over_a_new_version_of_a_trigger_carries_the_version_the_server_holds(
+    api, tmp_path, monkeypatch
+):
+    saved = {**TRIGGER, "version": 4}
+    renamed = {**TRIGGER, "name": "Renamed", "version": 5}
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[TRIGGER])
+    api.add("GET", f"{TRACKER}/queues/DE/triggers", json=[])  # the page after the last
+    for answer in (TRIGGER, saved, renamed):
+        api.add("GET", f"{TRACKER}/queues/DE/triggers/16", json=answer)
+    api.add("PATCH", f"{TRACKER}/queues/DE/triggers/16", json=renamed)
+    _run(tmp_path, monkeypatch, "sync", "pull", "tracker/queues/DE")
+    file = tmp_path / "tracker/queues/DE/triggers/16.yaml"
+    file.write_text(
+        file.read_text("utf-8").replace("Assign on create", "Renamed"), encoding="utf-8"
+    )
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
+    assert (code, listed[0]["result"]) == (0, "updated"), summary
+    (sent,) = _sent(api, "PATCH")
+    # The server refuses a stale version: the one it held the file's base at is sent.
+    assert sent.url.params["version"] == "4"
+    assert "\nversion: 5\n" in file.read_text("utf-8")
 
 
 def test_a_value_the_server_did_not_keep_fails_the_file_aloud(api, tmp_path, monkeypatch):

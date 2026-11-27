@@ -355,6 +355,25 @@ def test_a_new_revision_with_the_same_content_publishes_nothing_and_the_file_rec
 
 
 @SHAPES
+def test_an_edit_over_a_new_revision_with_the_pulled_content_is_published(
+    api, tmp_path, monkeypatch, shape
+):
+    """An empty save in DataLens after the pull: the edit is published all the same (root#58)."""
+    again = {**shape.entry, "revId": "r2", "savedId": "r2", "publishedId": "r2"}
+    edited = {**shape.entry, "annotation": {"description": "Sales, edited"}, "revId": "r3"}
+    file = _pulled(api, tmp_path, monkeypatch, shape, again, edited)
+    api.add("POST", f"{RPC}/update{shape.rpc}", json={"entry": edited})
+    _edit(file)
+    code, listed, summary = _run(tmp_path, monkeypatch, "sync", "push")
+    assert code == 0, summary
+    assert [(row["state"], row["result"]) for row in listed] == [("update", "updated")]
+    (sent,) = _bodies(api, f"update{shape.rpc}")
+    assert "revId" not in sent["entry"]
+    assert sent["entry"]["annotation"] == {"description": "Sales, edited"}
+    assert "\nrevId: r3\n" in file.read_text("utf-8")
+
+
+@SHAPES
 def test_a_new_revision_with_other_content_still_stops_the_file(api, tmp_path, monkeypatch, shape):
     theirs = {**shape.entry, "revId": "r2", "annotation": {"description": "Sales, theirs"}}
     file = _pulled(api, tmp_path, monkeypatch, shape, theirs)
