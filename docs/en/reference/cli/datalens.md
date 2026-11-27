@@ -35,6 +35,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `datasets`: DataLens datasets.
 * `charts`: DataLens charts.
 * `dashboards`: DataLens dashboards.
+* `screenshots`: Pictures of DataLens dashboards and...
 * `reports`: DataLens reports.
 * `workbookexports`: Exports of a DataLens workbook.
 * `workbookimports`: Imports of a DataLens workbook.
@@ -2462,6 +2463,93 @@ $ ycli datalens dashboards delete [OPTIONS] DASHBOARD_ID
 * `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
 * `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
 * `--help`: Show this message and exit.
+
+## `ycli datalens screenshots`
+
+Pictures of DataLens dashboards and charts, rendered by DataLens (experimental).
+
+**Usage**:
+
+```console
+$ ycli datalens screenshots [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `dashboard-get`: Print the link to a picture of a...
+* `chart-get`: Print the link to a picture of a chart, or...
+
+### `ycli datalens screenshots dashboard-get`
+
+Print the link to a picture of a dashboard, or write the picture to --output.
+
+**Usage**:
+
+```console
+$ ycli datalens screenshots dashboard-get [OPTIONS] DASH_ID
+```
+
+**Arguments**:
+
+* `DASH_ID`: The dashboard to capture.  [required]
+
+**Options**:
+
+* `--type TEXT`: The format of the picture. Known values: png, jpeg, jpg.
+* `--base64 / --no-base64`: Put the file itself in the reply, base64-encoded.
+* `--s3 / --no-s3`: Put the file in S3 and reply with its link.
+* `--width INTEGER`: The width of the page in pixels, at most 6000.
+* `--height INTEGER`: The height of the page in pixels, at most 6000.
+* `--full-page / --no-full-page`: Capture the whole page, not one screen of it.
+* `--query-params TEXT`: Parameters of the page, as a JSON object: {"tab": "tab__2", "_theme": "dark"}.
+* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64. Omitted, the reply is printed.
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data or grants access.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+DataLens takes about three of these a minute; a 429 is retried with a back-off.
+
+### `ycli datalens screenshots chart-get`
+
+Print the link to a picture of a chart, or write the picture to --output.
+
+**Usage**:
+
+```console
+$ ycli datalens screenshots chart-get [OPTIONS] CHART_ID
+```
+
+**Arguments**:
+
+* `CHART_ID`: The chart to capture.  [required]
+
+**Options**:
+
+* `--type TEXT`: The format of the picture. Known values: png, jpeg, jpg.
+* `--base64 / --no-base64`: Put the file itself in the reply, base64-encoded.
+* `--s3 / --no-s3`: Put the file in S3 and reply with its link.
+* `--width INTEGER`: The width of the page in pixels, at most 6000.
+* `--height INTEGER`: The height of the page in pixels, at most 6000.
+* `--full-page / --no-full-page`: Capture the whole page, not one screen of it.
+* `--query-params TEXT`: Parameters of the page, as a JSON object: {"tab": "tab__2", "_theme": "dark"}.
+* `--output TEXT`: Write the picture to this path ('-' for stdout); the reply then carries it in base64. Omitted, the reply is printed.
+* `-o, --format [auto|json|yaml|pretty|csv|markdown|ndjson|name]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data or grants access.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown. A secret in the body (a password, a token) is printed as ***.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). key=@FILE (@- for stdin) gives the file's text as it is; a string that starts with @ goes in JSON quotes ('text="@ivan"'). A flag of the command wins over it. Objects merge; a list replaces the one below it. Give a secret from a file, not typed here: a command line stays in the shell history. Write that file with no line break at its end (printf %s 'secret' > file), or the break goes out with the secret.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+DataLens takes about three of these a minute; a 429 is retried with a back-off.
 
 ## `ycli datalens reports`
 

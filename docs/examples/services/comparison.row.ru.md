@@ -1,1 +1,1 @@
-| ycli | Трекер, Вики, Формы, DataLens | 458: Трекер 187, Вики 56, Формы 79, DataLens 134 и `schema_get`, `status_get` | да | `ycli mcp start --read-only` | все |
+| ycli | Трекер, Вики, Формы, DataLens | 460: Трекер 187, Вики 56, Формы 79, DataLens 136 и `schema_get`, `status_get` | да | `ycli mcp start --read-only` | все |

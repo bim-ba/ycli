@@ -15,7 +15,7 @@ wiki — Yandex Wiki: pages, grids, comments, attachments. 10 resources; start w
 
 forms — Yandex Forms: surveys, questions, answers, publishing. 16 resources; start with `ycli forms surveys list`.
 
-datalens — Yandex DataLens: workbooks, connections, datasets, charts, dashboards. 28 resources; start with `ycli datalens workbooks list`.
+datalens — Yandex DataLens: workbooks, connections, datasets, charts, dashboards. 29 resources; start with `ycli datalens workbooks list`.
 
 **Usage**:
 

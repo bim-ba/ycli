@@ -785,6 +785,7 @@ _NO_IDENTIFIER = {
         "its replies wrap the object in `entry`; a mark that reaches into a wrapper is not decided",
     ),
     "Data": "rows of data, not objects",
+    "Screenshots": "a picture, or a link to one: not an object",
     "Favorites": "not wrapped: wrapping the section is not decided",
     "Folder": "not wrapped: the old placement model",
     "Permissions": "what the caller may do, not an object",

@@ -28,6 +28,7 @@ from ycli.yandex.datalens.members.client import MembersClient
 from ycli.yandex.datalens.permissions.client import PermissionsClient
 from ycli.yandex.datalens.reports.client import ReportsClient
 from ycli.yandex.datalens.restcatalogs.client import RestCatalogsClient
+from ycli.yandex.datalens.screenshots.client import ScreenshotsClient
 from ycli.yandex.datalens.sharedentries.client import SharedEntriesClient
 from ycli.yandex.datalens.sparkapplications.client import SparkApplicationsClient
 from ycli.yandex.datalens.sparkclusters.client import SparkClustersClient
@@ -67,6 +68,7 @@ class DataLensClient(DomainClient):
         self.datasets = DatasetsClient(session=session)
         self.charts = ChartsClient(session=session)
         self.dashboards = DashboardsClient(session=session)
+        self.screenshots = ScreenshotsClient(session=session)
         self.reports = ReportsClient(session=session)
         self.workbookexports = WorkbookExportsClient(session=session)
         self.workbookimports = WorkbookImportsClient(session=session)
