@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+import httpx2
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
@@ -137,6 +138,35 @@ def test_an_edit_over_a_new_revision_with_the_pulled_content_is_sent(api, tmp_pa
     (sent,) = _sent(api, "POST")
     assert json.loads(sent.content)["content"] == "# Team, edited\n"
     assert "\nrevision: 3\n" in page.read_text("utf-8")
+
+
+def test_a_save_between_reading_the_revisions_and_the_page_stops_the_file(
+    api, tmp_path, monkeypatch
+):
+    """The Wiki answers a page and its revisions in two calls; somebody saves between them."""
+    page = _pulled(api, tmp_path, monkeypatch, (TEAM, 1))
+    _edit(page)
+    before = page.read_text("utf-8")
+    theirs = {**TEAM, "content": "# Team, by somebody else\n"}
+    server = {"page": TEAM, "revision": 1}
+    asked = api.handle
+
+    def saved_after_the_first_call(request: httpx2.Request) -> httpx2.Response:
+        if request.url.path not in {"/v1/pages/4821", "/v1/pages/4821/revisions"}:
+            return asked(request)
+        api.calls.append(request)
+        revisions = {"results": [{"id": server["revision"]}], "next_cursor": None}
+        answer = server["page"] if request.url.path.endswith("4821") else revisions
+        server.update(page=theirs, revision=2)
+        return httpx2.Response(200, json=answer)
+
+    monkeypatch.setattr(api, "handle", saved_after_the_first_call)
+    code, listed, _ = _run(tmp_path, monkeypatch, "sync", "push")
+    # Read the other way round, it is the old content at the new revision: an empty save, and
+    # the edit would be sent over what was saved.
+    assert code == 8
+    assert [(row["state"], row["result"]) for row in listed] == [("changed-on-server", "stopped")]
+    assert _sent(api, "POST") == [] and page.read_text("utf-8") == before
 
 
 def test_a_new_revision_that_changes_whitespace_only_is_a_change(api, tmp_path, monkeypatch):
@@ -408,7 +438,7 @@ def test_nothing_to_push_is_nothing_done(api, tmp_path, monkeypatch):
     assert (code, listed) == (0, [])
     assert summary.strip() == "0 created, 0 updated, 0 deleted, 1 unchanged, 0 stopped, 0 failed"
     _, everything, _ = _run(tmp_path, monkeypatch, "sync", "push", "--show-unchanged")
-    assert [row["result"] for row in everything] == ["unchanged"]
+    assert [(row["result"], row["detail"]) for row in everything] == [("unchanged", None)]
     assert page.read_text("utf-8") == reordered
 
 

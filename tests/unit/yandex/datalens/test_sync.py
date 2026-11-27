@@ -267,7 +267,9 @@ def test_sync_kinds_lists_both(monkeypatch):
     listed = {row["name"]: row for row in json.loads(result.stdout)}
     for name in ("datalens/editor-chart", "datalens/dashboard"):
         assert listed[name]["operations"] == ["read", "find", "create", "update", "delete"]
-        assert listed[name]["version"] == "read and compared before the write"
+        assert (
+            listed[name]["version"] == "read and recorded; the content fingerprint guards the write"
+        )
 
 
 def test_a_path_that_names_one_file_says_nothing_of_the_rest_of_its_workbook(

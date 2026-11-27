@@ -23,6 +23,9 @@ type Operation = Callable[..., Endpoint[Any] | Paged[Any, Any]]
 #: Calls another operation for the object at hand and returns what it answers.
 type Ask = Callable[[Operation], Any]
 
+#: Reads the object at hand: what its read operation answers.
+type Read = Callable[[], BaseModel]
+
 
 class Proof(Protocol):
     """One way a write proves the version it worked from, beside the fingerprint of the file."""
@@ -31,8 +34,8 @@ class Proof(Protocol):
         """What ``ycli sync kinds`` says of it."""
         ...
 
-    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
-        """The version of an object now: ``reply`` is what reading it answered."""
+    def current(self, read: "Read", key: str, ask: "Ask") -> tuple[BaseModel, Any]:
+        """Read an object and the version it is at now, in the order this way needs."""
         ...
 
 
@@ -48,23 +51,26 @@ class SentVersion:
         """
         return "sent with the write: the server refuses a stale one"
 
-    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
-        """The version the reply itself carries, under the kind's own key.
+    def current(self, read: "Read", key: str, ask: "Ask") -> tuple[BaseModel, Any]:
+        """The object and the version its reply carries, under the kind's own key.
 
         Args:
-            reply: What reading the object answered.
+            read: Reads the object.
             key: The name of the version field of the kind's link.
             ask: Calls another operation for the same object (not used).
 
         Returns:
-            The version.
+            What reading the object answered, and its version.
         """
-        return getattr(reply, key)
+        reply = read()
+        return reply, getattr(reply, key)
 
 
 @dataclass(frozen=True)
 class CheckedVersion:
-    """The server takes no version: the newest one is read and compared before a write.
+    """The server takes no version: the newest one is read and recorded in the file.
+
+    The content fingerprint guards the write.
 
     Args:
         newest: The operation that lists the versions of an object, newest first; ``None``
@@ -79,26 +85,30 @@ class CheckedVersion:
         Returns:
             One line.
         """
-        return "read and compared before the write"
+        return "read and recorded; the content fingerprint guards the write"
 
-    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
-        """The newest version the service lists: the field marked ``Version`` of the first.
+    def current(self, read: "Read", key: str, ask: "Ask") -> tuple[BaseModel, Any]:
+        """The object and the newest version the service lists: the field marked ``Version``.
+
+        The listing is asked first: a save landing between the two calls then reads as new
+        content at the old version, which stops a file, and never as old content at the new one.
 
         Args:
-            reply: What reading the object answered: where no listing is named, its version.
+            read: Reads the object: where no listing is named, its reply carries its version.
             key: The name of the version field of the kind's link.
             ask: Calls another operation for the same object.
 
         Returns:
-            The newest version; ``None`` for an object with none.
+            What reading the object answered, and its newest version (``None`` for none).
         """
         if self.newest is None:
-            return getattr(reply, key)
+            reply = read()
+            return reply, getattr(reply, key)
         newest = next(iter(ask(self.newest)), None)
         if newest is None:
-            return None
+            return read(), None
         (field,) = fields_marked(type(newest), Version)
-        return getattr(newest, field)
+        return read(), getattr(newest, field)
 
 
 @dataclass(frozen=True)
@@ -113,18 +123,18 @@ class NoVersion:
         """
         return "none: the fingerprint of the content alone"
 
-    def current(self, reply: BaseModel, key: str, ask: "Ask") -> Any:
-        """No version at all.
+    def current(self, read: "Read", key: str, ask: "Ask") -> tuple[BaseModel, Any]:
+        """The object, and no version at all.
 
         Args:
-            reply: What reading the object answered (not used).
+            read: Reads the object.
             key: The name of the version field of the kind's link (not used).
             ask: Calls another operation for the same object (not used).
 
         Returns:
-            ``None``.
+            What reading the object answered, and ``None``.
         """
-        return None
+        return read(), None
 
 
 @dataclass(frozen=True)

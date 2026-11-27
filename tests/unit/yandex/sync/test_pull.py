@@ -78,10 +78,13 @@ def test_a_tree_of_pages_is_written_and_what_no_kind_keeps_is_named(wiki, tmp_pa
         f"---\nycli: wiki/page\nhash: {held}\nid: 4822\nrevision: 9822\ntitle: Онбординг\n---\n"
         "Ask for access.\n"
     )
-    # The listing asked for the page itself too, and each read asked for the content.
+    # The listing asked for the page itself too, and each read asked for the content, after
+    # the revisions: a save between the two is new content at the old revision.
     assert wiki.calls[0].url.params["slug"] == "team"
     assert wiki.calls[0].url.params["include_self"] == "true"
-    assert wiki.calls[1].url.params["fields"] == "content"
+    paths = [call.url.path for call in wiki.calls[1:3]]
+    assert paths == ["/v1/pages/4821/revisions", "/v1/pages/4821"]
+    assert wiki.calls[2].url.params["fields"] == "content"
     # What was written is what `status` calls unchanged.
     states = {file.path: file.state for file in examine(tmp_path, [], kinds())}
     assert set(states.values()) == {State.UNCHANGED}

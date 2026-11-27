@@ -22,7 +22,8 @@ class PageLink(Link):
     )
 
 
-#: The API takes no revision with an update, so the newest one is read and compared first.
+#: The API takes no revision with an update: the newest one is read and recorded; the content
+#: fingerprint guards the write.
 PAGE = Kind(
     name="wiki/page",
     layout=MarkdownWithHeader(),

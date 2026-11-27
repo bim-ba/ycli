@@ -270,7 +270,7 @@ Where the service has a version, the file records it beside the fingerprint, and
 | `version` | What happens | Atomic | Kinds |
 |---|---|---|---|
 | `SentVersion()` | the write carries the version the server held the file's base at; the server refuses a stale one | yes | Tracker objects that take `?version=`, a DataLens dataset |
-| `CheckedVersion(newest=…)`, `CheckedVersion()` | `push` reads the newest version, from a listing of versions or, with none named, from the reply of the read, and the file records it; the server checks nothing | no: an edit landing between the read and the write is overwritten | Wiki pages (a listing); DataLens Editor charts and dashboards (the published `revId` of the read) |
+| `CheckedVersion(newest=…)`, `CheckedVersion()` | `push` reads the newest version, from a listing of versions or, with none named, from the reply of the read, and the file records it; the server checks nothing. A listing is read before the object, so a save between the two calls is new content at the old version and stops the file | no: an edit landing between the read and the write is overwritten | Wiki pages (a listing); DataLens Editor charts and dashboards (the published `revId` of the read) |
 | `NoVersion()`, the default | the fingerprint alone | no | objects whose service has no version: seven resources in ten |
 
 Each way is a class that answers for itself; the engine calls the same thing on any of them and

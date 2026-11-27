@@ -77,7 +77,8 @@ def test_nothing_changed_is_nothing_to_show(api, tmp_path, monkeypatch):
         "wiki/team.md": "unchanged",
         "wiki/team/onboarding.md": "unchanged",
     }
-    assert everything[0]["diff"] is None
+    # Nothing moved on the server: nothing is said of the file and nothing would be written.
+    assert [(row["diff"], row["detail"]) for row in everything] == [(None, None), (None, None)]
 
 
 def test_an_edited_file_is_shown_against_the_server_and_counts_as_a_change(
