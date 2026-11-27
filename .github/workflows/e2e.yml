@@ -36,7 +36,10 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: yandex-e2e
+    # A pull request runs the branch's own runner, so its jobs wait in `yandex-e2e-pr` for a
+    # required reviewer; `yandex-e2e` takes `main` only. Both rules live in the repository
+    # settings, where a branch cannot edit them.
+    environment: ${{ github.event_name == 'pull_request' && 'yandex-e2e-pr' || 'yandex-e2e' }}
     env:
       YCLI_E2E_QUEUE: ${{ vars.YCLI_E2E_QUEUE || 'YCLIPAGE' }}
     steps:
@@ -81,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     # Tracker on three surfaces, with the pause below, ran 15 minutes (measured).
     timeout-minutes: 30
-    environment: yandex-e2e
+    environment: ${{ github.event_name == 'pull_request' && 'yandex-e2e-pr' || 'yandex-e2e' }}
     env:
       YCLI_E2E: "1"
       YCLI_E2E_QUEUE: ${{ vars.YCLI_E2E_QUEUE || 'YCLIPAGE' }}
