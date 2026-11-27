@@ -92,7 +92,7 @@ def _pascal(name: str) -> str:
 # Where a schema holds other schemas: under a name each, in a list, or as one value.
 _NAMED = ("properties", "patternProperties", "$defs")
 _LISTED = ("oneOf", "anyOf", "allOf", "prefixItems")
-_SINGLE = ("items", "additionalProperties", "not")
+_SINGLE = ("items", "additionalProperties", "not", "propertyNames")
 
 
 def _children(schema: dict[str, Any]) -> Iterator[tuple[str, dict[str, Any], Any, Any]]:
@@ -105,7 +105,7 @@ def _children(schema: dict[str, Any]) -> Iterator[tuple[str, dict[str, Any], Any
         for index, child in enumerate(schema.get(keyword, [])):
             if isinstance(child, dict):
                 yield f"Variant{index + 1}", child, schema[keyword], index
-    for keyword, suffix in zip(_SINGLE, ("Item", "Value", "Not"), strict=True):
+    for keyword, suffix in zip(_SINGLE, ("Item", "Value", "Not", "Name"), strict=True):
         if isinstance(schema.get(keyword), dict):
             yield suffix, schema[keyword], schema, keyword
 
